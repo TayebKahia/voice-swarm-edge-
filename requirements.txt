@@ -1,0 +1,57 @@
+# =====================================================================
+#  PFE -- Python dependencies
+#
+#  NFR-19 requires a pinned environment. Procedure at D1:
+#
+#      python -m venv .venv
+#      source .venv/bin/activate          # Windows: .venv/Scripts/activate
+#      pip install -r requirements.txt
+#      pip freeze > requirements.txt      # replaces this file with exact pins
+#
+#  After that freeze, every version below carries an "==" and the
+#  D1 gate "requirements.txt pinned" is satisfied.
+#
+#  NOT installable with pip -- built from source, versions recorded
+#  in the spike S1/S2 reports as git commit SHAs:
+#      llama.cpp     (llama-cli, llama-bench, llama-quantize)
+#      whisper.cpp   (tiny.en and base.en Q5 models)
+# =====================================================================
+
+# --- the command contract: schema, validation, canonicalisation ------
+pydantic
+
+# --- numerics and audio I/O ------------------------------------------
+numpy
+scipy
+soundfile
+soxr                  # offline VHQ 48k -> 16k resample; never ALSA plug
+sounddevice           # live capture on the Pi
+
+# --- voice front end -------------------------------------------------
+onnxruntime           # Silero VAD and openWakeWord inference
+openwakeword          # Branch A: two-class spotter
+silero-vad            # end-of-speech endpointing
+
+# --- fine-tuning (workstation only, not installed on the Pi) ---------
+torch
+transformers
+peft                  # LoRA, not QLoRA
+trl                   # completion-only loss masking
+datasets
+accelerate
+huggingface_hub
+
+# --- synthetic speech for bulk audio and the wake-word corpus --------
+piper-tts
+
+# --- simulation ------------------------------------------------------
+PyFlyt                # fidelity backend; NumPy backend has no dependency
+
+# --- statistics and figures ------------------------------------------
+pandas
+statsmodels           # McNemar (Exp-1), Tukey HSD (Exp-3)
+matplotlib
+
+# --- instrumentation and tests ---------------------------------------
+psutil                # RSS sampling for NFR-9
+pytest

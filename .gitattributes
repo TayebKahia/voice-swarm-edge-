@@ -1,0 +1,41 @@
+# =====================================================================
+#  Line endings.
+#
+#  run_all.sh and run_pipeline.sh execute on Raspberry Pi OS. A shell
+#  script committed with CRLF fails there with
+#
+#      bash: ./run_pipeline.sh: /usr/bin/env: bad interpreter
+#
+#  which is an hour lost to something that looks like a Python problem.
+#  Force LF on everything that a Linux interpreter reads, regardless of
+#  which machine wrote it.
+# =====================================================================
+
+* text=auto eol=lf
+
+*.sh    text eol=lf
+*.py    text eol=lf
+*.gbnf  text eol=lf
+*.jsonl text eol=lf
+*.yaml  text eol=lf
+*.yml   text eol=lf
+*.csv   text eol=lf
+*.md    text eol=lf
+*.tex   text eol=lf
+
+# ---------------------------------------------------------------------
+# Never touched by end-of-line conversion. Corrupting a wav header this
+# way is silent -- the file still opens, the audio is wrong.
+# ---------------------------------------------------------------------
+*.wav         binary
+*.flac        binary
+*.mp3         binary
+*.ogg         binary
+*.gguf        binary
+*.safetensors binary
+*.bin         binary
+*.pt          binary
+*.onnx        binary
+*.pdf         binary
+*.png         binary
+*.jpg         binary
