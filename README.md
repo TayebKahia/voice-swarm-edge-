@@ -9,7 +9,8 @@ specialty **IASD**. Supervisor: Prof. Belkacem Khaldi.
 Two theses from one system: *Mémoire de Master* (research) and
 *Mémoire d'Ingénieur d'État* (engineering).
 
-**The specification is [`docs/PRD.tex`](docs/PRD.tex).** It is the contract —
+**The specification is [`prd.md`](prd.md), rendered as
+[`docs/project/PRD.tex`](docs/project/PRD.tex).** It is the contract —
 requirements, gates, dated schedule, experiments, statistics. This README only
 tells you where things live and how to run them.
 
@@ -116,7 +117,7 @@ python tools/build_pdf.py
 Structural check on the LaTeX with no TeX engine needed:
 
 ```bash
-python tools/check_tex.py docs/PRD.tex
+python tools/check_tex.py docs/project/PRD.tex
 ```
 
 ---

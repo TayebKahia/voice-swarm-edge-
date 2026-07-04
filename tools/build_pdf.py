@@ -59,7 +59,7 @@ from pathlib import Path
 # Configuration
 # ----------------------------------------------------------------------------
 
-DEFAULT_SOURCE = Path("docs") / "PRD.tex"
+DEFAULT_SOURCE = Path("docs") / "project" / "PRD.tex"
 DEFAULT_OUTDIR = Path("build")
 N_PASSES = 3
 

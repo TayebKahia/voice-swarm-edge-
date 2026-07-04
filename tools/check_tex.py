@@ -488,7 +488,7 @@ def main(argv: list[str]) -> int:
     if "--selftest" in argv:
         return selftest()
 
-    path = Path(argv[1]) if len(argv) > 1 else Path("docs") / "PRD.tex"
+    path = Path(argv[1]) if len(argv) > 1 else Path("docs") / "project" / "PRD.tex"
     if not path.exists():
         print(f"not found: {path}", file=sys.stderr)
         return 2
