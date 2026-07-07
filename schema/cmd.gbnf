@@ -1,0 +1,45 @@
+# cmd.gbnf --- Command schema v1.0, layer 1 of 3.
+#
+# Frozen on D1 per PRD Sec. 5.1. Transcribed verbatim from the PRD; if these
+# two ever disagree, the PRD wins and this file is the bug.
+#
+# This grammar is passed to llama.cpp as --grammar-file, so structural
+# validity is a property of the decoder, not a measured accuracy (NFR-6, C1).
+#
+# The num rule caps values at three integer digits plus one decimal. That is
+# what structurally prevents 1e999, twenty-digit integers, and a bare "2."
+# from ever being emitted. GBNF cannot express numeric ranges, only digit
+# counts --- range enforcement is layer 2 (schema/validate.py).
+#
+# The one-decimal limit is also why canon() rounds to one decimal: the metric
+# matches what the decoder can produce (PRD Sec. 6.1).
+
+root      ::= cmd
+cmd       ::= c-form | c-move | c-alt | c-takeoff | c-land | c-hover | c-abort | c-rot | c-param | c-unk
+
+c-form    ::= "{\"intent\":\"formation\",\"shape\":" shape o-radius o-spacing o-ids "}"
+c-move    ::= "{\"intent\":\"move\","  ( kv-pos | kv-dir ) o-speed o-ids "}"
+c-alt     ::= "{\"intent\":\"altitude\",\"z\":" num o-ids "}"
+c-takeoff ::= "{\"intent\":\"takeoff\""  o-z o-ids "}"
+c-land    ::= "{\"intent\":\"land\""     o-ids "}"
+c-hover   ::= "{\"intent\":\"hover\""    o-ids "}"
+c-abort   ::= "{\"intent\":\"abort\"}"
+c-rot     ::= "{\"intent\":\"rotate\",\"yaw\":" num o-ids "}"
+c-param   ::= "{\"intent\":\"set_param\"" o-speed o-spacing o-alt "}"
+c-unk     ::= "{\"intent\":\"unknown\"}"
+
+shape     ::= "\"circle\"" | "\"line\"" | "\"wedge\"" | "\"grid\"" | "\"column\"" | "\"flock\""
+dir       ::= "\"north\"" | "\"south\"" | "\"east\"" | "\"west\"" | "\"up\"" | "\"down\"" | "\"forward\"" | "\"back\"" | "\"left\"" | "\"right\""
+
+kv-pos    ::= "\"pos\":[" num "," num "," num "]"
+kv-dir    ::= "\"dir\":" dir ",\"dist\":" num
+
+o-radius  ::= ( ",\"radius\":"  num )?
+o-spacing ::= ( ",\"spacing\":" num )?
+o-speed   ::= ( ",\"speed\":"   num )?
+o-alt     ::= ( ",\"alt\":"     num )?
+o-z       ::= ( ",\"z\":"       num )?
+o-ids     ::= ( ",\"ids\":[" idlist "]" )?
+idlist    ::= [0-9] ( "," [0-9] )*
+
+num       ::= "-"? [0-9] [0-9]? [0-9]? ( "." [0-9] )?
