@@ -73,12 +73,17 @@ prompts = [
 
 parity_data = {}
 
+SYSTEM_PROMPT = "You are a drone swarm command parser. Output only JSON matching schema."
+
 for model_name, hf_id in models:
     print(f"Tokenizing for {model_name} ({hf_id})...")
     tokenizer = AutoTokenizer.from_pretrained(hf_id)
     model_entries = []
     for item in prompts:
-        messages = [{"role": "user", "content": item["user_text"]}]
+        messages = [
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": item["user_text"]},
+        ]
         formatted_prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
         token_ids = tokenizer.apply_chat_template(messages, tokenize=True, add_generation_prompt=True)
         model_entries.append({

@@ -1,41 +1,60 @@
 # STATE
-Session: 01A (Mon 7 Sep, PRD D1)
-Last updated: 2026-09-07T16:25:00+01:00
+Session: 01B (Tue 8 Sep, PRD D1/D2)
+Last updated: 2026-09-08T15:10:00+01:00
 
 ## Gates
-Gate 1 schema        : PENDING (Session 01B)
-Gate 2 leakage       : PENDING (Session 02B)
+Gate 1 schema        : GREEN (pytest schema/ → 80 passed in 0.19s, Sep 8 15:06)
+Gate 2 leakage       : READY (check_leakage.py --strict → exit 0, Sep 8 15:06; Session 02B formal gate)
 Gate 3 parity        : PENDING (Session 05B)
-Gate 4 fsm           : PENDING (Session 08)
+Gate 4 fsm           : PENDING (Session 08; Table 9 legality & grounded rejection verified in swarm/test_fsm.py)
 Gate 5 dataset frozen: PENDING (Session 03)
 D1 Environment Gate  : GREEN (requirements.txt pinned, environment.yml exported)
 
 ## Artefacts
+schema/                     : FROZEN (cmd.gbnf, schema.py, validate.py, canon.py, logger.py, test_grammar.py, test_canon.py)
+                              - cmd.gbnf: verbatim from §2.3
+                              - schema.py: 10 intent Pydantic models, declaration order fixes key order, nulls omitted
+                              - validate.py: Layer 2 validator, slot matrix, clamp-and-log, pos.z ceiling/floor & norm clamp, yaw periodic wrapping, non-finite (NaN/Inf) rejection to HOVER, structured logging
+                              - canon.py: canonicaliser rule 1-5, single comparator helper canon_equal(), non-finite protection, total id handling
+                              - logger.py: structured JSON lines logging with LogRecord extra field preservation
+                              - test_grammar.py: 72 tests (adversarial corpus, Layer 2 overflow/non-finite handling, all clamp boundaries from both sides, yaw wrapping)
+                              - test_canon.py: 8 tests (rules 1-5, banker's rounding on dyadic fractions, canon_equal equivalence)
+swarm/                      : fsm.py (Table 9 legality, grounded no-op on rejection in LANDED, airborne HOVER fallback), test_fsm.py (19 tests passing)
+docs/adr/                   : 0001_physical_envelope_analogies.md (formal rationale for dist/alt bounds, pos.z clamping, yaw wrapping, and non-finite rejection)
+data/template_families.json : AUTHORED & SYNCHRONIZED (120 families: 96 train [80%], 12 val [10%], 12 test_synth [10%])
+data/template_families.py   : AUTHORED (dataclass and split assignments)
+data/check_leakage.py       : AUTHORED & VERIFIED (template family integrity & cross-split surface-form near-duplicate lexical leakage check)
+data/test_template_families.py: AUTHORED (6 tests passing)
 spikes/s0..s7 scripts       : 8 scripts authored in spikes/
-spikes/reports/S0..S7.md    : 8 spike reports authored in spikes/reports/
-                              - S3 GBNF Smoke: PASS (zero structural invalid emissions accepted)
-                              - S4 PyFlyt Hover: PASS (5 drones, 50 Hz, RTF = 4.72x >= 1.0)
-                              - S5 Template Audit: PRE-REGISTERED (10 fixed prompts locked, Kaggle script authored)
-                              - S7 Preemption: PASS (abort 2.27 ms, fallback 11.26 ms vs 300 ms NFR-17 budget)
-                              - S0, S1, S2, S6: Templates ready for human execution
+spikes/reports/S0..S7.md    : 8 spike reports in spikes/reports/:
+                              - S0: PASS (noise floor -64.5 dBFS) / INCOMPLETE (loopback latency, Table 22 peak miss logged)
+                              - S1: PROVISIONAL PASS (Q4_K_M passes at 20.97 tok/s @ -t 3; Q5_K_M fails at 18.16 tok/s; 1.5 GHz throttled)
+                              - S2: PROVISIONAL / GATED (2,014 ms p95 @ -t 3 fails 1,200 ms; honest 2.4 GHz projection 2,591-2,984 ms fails NFR-2)
+                              - S3: PARTIAL (llama.cpp build 10863 verified; unbounded idlist & zero-shot semantic collapse documented for S02A)
+                              - S4: PASS (4.72x RTF workstation physics feasibility; closed-loop setpoint jitter scheduled for Exp-4)
+                              - S5: PRE-REGISTERED (system prompt pinned for Gate 3 parity dump; SmolLM2 chatml mapping marked as hypothesis)
+                              - S6: COMPLETE (tiny.en approved: 8.89% micro WER matches base.en; macro favors base.en; decided on compute)
+                              - S7: DEFERRED / ARCHITECTURE ONLY (dual-path abort callback & mmap fallback designed; live C++ abort in Exp-2)
 requirements.txt            : PINNED (all dependencies pinned with ==, conda header updated)
 environment.yml             : EXPORTED (conda env pfe_swarm)
 .scratch/sprint-pfe/spec.md : AUTHORED (16-day sprint plan, cut ladder, milestones)
-.scratch/sprint-pfe/issues/ : AUTHORED (26 issues filed, Issue 24 filed first)
+.scratch/sprint-pfe/issues/ : Issue 01, 02 resolved; 24 pending human.
 
 ## Decisions this session
-- Python Environment: Conda env `pfe_swarm` (Python 3.11.15) at `/home/kahia-tayeb/miniconda3/envs/pfe_swarm` is active and pinned. No `.venv` created.
-- Local GPU: `nvidia-smi` confirmed cannot communicate with driver; all LoRA fine-tuning and Surface-A eval will run on Kaggle in fp16 per roadmap §2.8a.
-- PyTorch/Transformers policy: Zero local PyTorch/Transformers dependencies installed in `pfe_swarm`, adhering strictly to §0.5 and §2.8a.
-- Preemption Architecture: In-process abort callback validated (2.27 ms); separate-process fallback validated (11.26 ms). Both comfortably beat NFR-17 (300 ms).
-- Untracked contract files: `prd.md`, `docs/project/`, `IMPLEMENTATION_ROADMAP.md`, `START_SESSION.md` remain untracked per `.gitignore`. Author confirmed off-repo backup completed.
-- Kaggle verification: Author confirmed account is phone-verified, securing notebook internet for Session 04 training.
-- Duplicate PRD removal: Confirmed `docs/project/prd.md` is removed; root `prd.md` is sole contract.
+- Resolved Session 01B audit feedback:
+  1. Non-finite values (`NaN`, `Infinity`): Caught by Layer 2 validator and safely rejected to `HOVER` with `validation_fallback` structured log; `canon()` refuses non-finite floats to prevent corrupt JSON row emission.
+  2. `move.pos` safety envelope: Clamps $z \in [0.5, 15.0]$ m, then scales horizontal $(x, y)$ to satisfy norm $|pos| \le 50.0$ m while preserving the vertical altitude floor $z \ge 0.5$ m (ADR-0001).
+  3. Yaw angular wrapping: Identity on canonical $[-180.0, 180.0]^\circ$; periodic modulo wrapping for out-of-interval angles (ADR-0001).
+  4. FSM rejection legality: Rejections in `LANDED` resolve to safe grounded no-op (`None`), eliminating Table 9 violation; airborne rejections resolve to `Hover()`. Original intent is preserved in audit logs.
+  5. Structured logging: Implemented `schema/logger.py` with `StructuredJsonFormatter`, capturing all `extra` fields (`envelope_clamp`, `id_dropped`, `ids_widened_to_all_drones`, `slot_dropped`, `angle_wrap`, `validation_fallback`).
+  6. Superfluous slot policy: Superfluous slots (`spacing` on circle, `radius` on line/grid/column/wedge, `radius`/`spacing` on flock) are dropped with `slot_dropped` structured log, never rejecting the command.
+  7. Authored ADR-0001 (`docs/adr/0001_physical_envelope_analogies.md`).
+  8. Gate 2 split leakage verification (`data/check_leakage.py`): Enforces family ID disjointness and surface-form lexical near-duplicate detection (> 0.85 Jaccard similarity) across splits; tested via `data/test_template_families.py`.
+- `schema/` is FROZEN: All 80 tests in `schema/` pass green (Gate 1 verified, tagged `schema-v1.0.1`).
 
 ## Blocked / needs human
 - Autorisation de soutenance: Requested Sep 6, pending formal receipt (tracked in Issue 24).
-- Hands-on microphone: Author to execute `spikes/s0_audio_bringup.py` and `spikes/s6_asr_accent_check.py`.
-- Raspberry Pi: Pi 5 is currently off. When powered on, author to run `spikes/s1_llama_bench_pi.sh` and `spikes/s2_whisper_timing_pi.sh`.
 
 ## Next session starts with
-Session 01B Task 1. Freeze `schema/` — inspect and salvage prior work in `schema/canon.py`, `schema/cmd.gbnf`, `schema/schema.py`, implement validators and adversarial tests, and run Gate 1 (`pytest schema/ -v`).
+Session 02A Task 1. Label-first generation: `data/generate.py`, author 200 `test_golden` transcripts from held-out template families, 2,400 raw pairs across 10 intents. Do NOT re-run Gate 1 or edit `schema/`.
+

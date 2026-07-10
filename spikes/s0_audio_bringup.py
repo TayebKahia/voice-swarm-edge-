@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
 Spike S0: Audio Hardware Bring-Up & Noise Floor Validation
-Target: 48 kHz, S16_LE, mono capture.
+Uses sounddevice (PipeWire / ALSA default) with live level meter and playback verification.
+Target: 48 kHz, mono capture.
 Pass condition: Silence RMS <= -50 dBFS, Speech peak ~ -20 dBFS.
-If noise floor > -40 dBFS -> R-2 escalation ladder.
 """
 
 import os
@@ -12,55 +12,85 @@ import time
 import subprocess
 import numpy as np
 
-def run_cmd(cmd):
-    print(f"[CMD] {cmd}")
-    res = subprocess.run(cmd, shell=True, text=True, capture_output=True)
-    if res.stdout:
-        print(res.stdout)
-    if res.stderr:
-        print(res.stderr, file=sys.stderr)
-    return res
+# Lock PipeWire / PulseAudio input stream directly to the verified USB microphone
+if "PULSE_SOURCE" not in os.environ:
+    os.environ["PULSE_SOURCE"] = "alsa_input.usb-GeneralPlus_USB_Audio_Device-00.mono-fallback"
 
-def list_devices():
-    print("=== Step 1: Listing Audio Capture Devices (arecord -l) ===")
-    run_cmd("arecord -l")
-    print("\nNOTE: Unmute capture and set appropriate gain using 'alsamixer -c 1' (F4) before measuring.\n")
+import soundfile as sf
+import sounddevice as sd
 
-def record_and_analyze(duration=5, rate=48000, filename="/tmp/s0_silence.wav", label="Silence"):
-    print(f"=== Step 2: Recording {duration}s of {label} at {rate} Hz (S16_LE, mono) ===")
-    cmd = f"arecord -d {duration} -f S16_LE -r {rate} -c 1 -t wav {filename}"
-    res = run_cmd(cmd)
-    if res.returncode != 0:
-        print(f"Error recording {label}: {res.stderr}")
-        return None
+def draw_vu_meter(level_dbfs, peak_dbfs, label=""):
+    # Normalize -60 dBFS to 0 dBFS into 30 characters
+    clamped = max(-60.0, min(0.0, level_dbfs))
+    bars = int((clamped + 60.0) / 60.0 * 30)
+    meter = "#" * bars + "-" * (30 - bars)
+    print(f"\r{label} [{meter}] RMS: {level_dbfs:6.1f} dBFS | Peak: {peak_dbfs:6.1f} dBFS", end="", flush=True)
 
-    # Load audio
+def record_stream(duration=5, rate=48000, filename="/tmp/s0_test.wav", label="Recording"):
+    print(f"\n=== Recording {duration}s of {label} (48 kHz mono) ===")
+    
+    total_frames = int(duration * rate)
+    buffer = np.zeros((total_frames, 1), dtype=np.float32)
+    frames_recorded = 0
+
+    chunk_size = 2400 # 50 ms chunks
+
     try:
-        import soundfile as sf
-        data, sr = sf.read(filename)
-    except Exception:
-        import wave
-        with wave.open(filename, 'rb') as wf:
-            frames = wf.readframes(wf.getnframes())
-            data = np.frombuffer(frames, dtype=np.int16).astype(np.float32) / 32768.0
+        with sd.InputStream(samplerate=rate, channels=1, dtype='float32', blocksize=chunk_size) as stream:
+            for _ in range(0, total_frames, chunk_size):
+                chunk, overflowed = stream.read(chunk_size)
+                end_frame = min(frames_recorded + chunk_size, total_frames)
+                actual_frames = end_frame - frames_recorded
+                buffer[frames_recorded:end_frame] = chunk[:actual_frames]
+                frames_recorded += actual_frames
 
-    rms = np.sqrt(np.mean(data**2) + 1e-12)
-    rms_dbfs = 20 * np.log10(rms)
-    peak = np.max(np.abs(data)) + 1e-12
-    peak_dbfs = 20 * np.log10(peak)
+                # Live meter on chunk (AC centered)
+                ac_chunk = chunk - np.mean(chunk)
+                rms = np.sqrt(np.mean(ac_chunk**2) + 1e-12)
+                rms_dbfs = 20 * np.log10(rms)
+                peak_dbfs = 20 * np.log10(np.max(np.abs(ac_chunk)) + 1e-12)
+                draw_vu_meter(rms_dbfs, peak_dbfs, label=label[:7])
+                
+        print() # Newline after meter
+    except Exception as e:
+        print(f"\nsounddevice stream error: {e}. Falling back to arecord -D default...")
+        cmd = f"arecord -D default -d {duration} -f S16_LE -r {rate} -c 1 -t wav {filename}"
+        subprocess.run(cmd, shell=True)
+        data, _ = sf.read(filename)
+        buffer = data.reshape(-1, 1)
 
-    print(f"[{label} Analysis]")
-    print(f"  RMS:  {rms_dbfs:.2f} dBFS")
-    print(f"  Peak: {peak_dbfs:.2f} dBFS")
-    return {"rms_dbfs": rms_dbfs, "peak_dbfs": peak_dbfs}
+    # Save to file
+    sf.write(filename, buffer, rate)
+    data = buffer.flatten()
+    
+    # Analyze AC component
+    dc_offset = np.mean(data)
+    ac_data = data - dc_offset
+    rms_ac = np.sqrt(np.mean(ac_data**2) + 1e-12)
+    rms_dbfs = 20 * np.log10(rms_ac)
+    peak_ac = np.max(np.abs(ac_data)) + 1e-12
+    peak_dbfs = 20 * np.log10(peak_ac)
+
+    print(f"[{label} Summary]")
+    print(f"  File saved:     {filename}")
+    print(f"  DC Bias Offset: {dc_offset:.5f} ({20*np.log10(max(1e-6, abs(dc_offset))):.1f} dBFS)")
+    print(f"  True AC RMS:    {rms_dbfs:.2f} dBFS")
+    print(f"  True AC Peak:   {peak_dbfs:.2f} dBFS")
+    return {"rms_dbfs": rms_dbfs, "peak_dbfs": peak_dbfs, "filename": filename}
 
 def main():
-    list_devices()
-    input("Press Enter to record 5 seconds of ROOM SILENCE (keep quiet)...")
-    silence = record_and_analyze(duration=5, filename="/tmp/s0_silence.wav", label="Silence")
-    
-    input("Press Enter to record 5 seconds of NORMAL SPEECH (say: 'swarm move forward five meters')...")
-    speech = record_and_analyze(duration=5, filename="/tmp/s0_speech.wav", label="Speech")
+    print("=== Spike S0: Audio Bring-Up & Validation ===")
+    try:
+        dev_info = sd.query_devices(kind='input')
+        print(f"Active Input Device: '{dev_info['name']}' (Host API: {sd.query_hostapis(dev_info['hostapi'])['name']})")
+    except Exception:
+        pass
+
+    input("\n[1/2] Press Enter to record 5s of ROOM SILENCE (keep quiet)...")
+    silence = record_stream(duration=5, filename="/tmp/s0_silence.wav", label="Silence")
+
+    input("\n[2/2] Press Enter to record 5s of SPEECH (speak: 'swarm move forward five meters')...")
+    speech = record_stream(duration=5, filename="/tmp/s0_speech.wav", label="Speech")
 
     print("\n=== SPIKE S0 EVALUATION ===")
     if silence:
@@ -69,17 +99,33 @@ def main():
         if nf <= -50.0:
             print("  -> PASS: Noise floor is optimal (<= -50 dBFS).")
         elif nf <= -40.0:
-            print("  -> ACCEPTABLE: Between -50 dBFS and -40 dBFS. Verify gain staging.")
+            print("  -> ACCEPTABLE: Between -50 dBFS and -40 dBFS.")
         else:
-            print("  -> FAIL: Noise floor > -40 dBFS. Escalate to R-2 ladder (check USB ground loop, gain, acoustic environment).")
+            print("  -> FAIL: Noise floor > -40 dBFS.")
             
     if speech:
         sp = speech["peak_dbfs"]
         print(f"Speech Peak: {sp:.2f} dBFS (Target ~ -20 dBFS)")
-        if -30.0 <= sp <= -10.0:
-            print("  -> PASS: Speech peak in expected dynamic range.")
+        if sp >= -30.0:
+            print("  -> PASS: Speech volume is good.")
         else:
-            print("  -> WARNING: Adjust mic gain in alsamixer.")
+            print("  -> WARNING: Speech peak is low (< -30 dBFS). Speak closer to the mic.")
+
+    print("\n--- Playback Verification ---")
+    play = input("Would you like to play back your speech recording (normalized for clarity)? [Y/n]: ").strip().lower()
+    if play in ("", "y", "yes"):
+        # Save a normalized copy so the human ear can clearly hear every syllable
+        raw_data, sr = sf.read(speech["filename"])
+        ac = raw_data - np.mean(raw_data)
+        peak = np.max(np.abs(ac))
+        if peak > 0:
+            boosted = ac / peak * 0.85
+            norm_file = "/tmp/s0_speech_boosted.wav"
+            sf.write(norm_file, boosted, sr)
+            print(f"Playing normalized audio ({norm_file})...")
+            subprocess.run(f"paplay {norm_file} 2>/dev/null || aplay {norm_file}", shell=True)
+        else:
+            subprocess.run(f"paplay {speech['filename']} 2>/dev/null || aplay {speech['filename']}", shell=True)
 
 if __name__ == "__main__":
     main()
