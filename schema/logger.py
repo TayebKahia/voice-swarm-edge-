@@ -62,24 +62,36 @@ class StructuredJsonFormatter(logging.Formatter):
         return json.dumps(payload, default=str)
 
 
-def configure_schema_logging(level: int = logging.INFO) -> logging.Handler:
-    """Attach a structured JSON handler to the schema logger hierarchy."""
-    logger = logging.getLogger("schema")
-    logger.setLevel(level)
+def configure_schema_logging(level: int = logging.INFO, root: str = "schema") -> logging.Handler:
+    """Attach a structured JSON handler to the named logger hierarchy.
+
+    Parameters
+    ----------
+    level : int
+        Minimum log level.
+    root : str
+        Top-level logger name to configure (e.g. "schema", "swarm").
+    """
+    root_logger = logging.getLogger(root)
+    root_logger.setLevel(level)
 
     # Avoid duplicate handlers if reconfigured
-    for handler in list(logger.handlers):
+    for handler in list(root_logger.handlers):
         if isinstance(handler.formatter, StructuredJsonFormatter):
             return handler
 
     handler = logging.StreamHandler(sys.stderr)
     handler.setLevel(level)
     handler.setFormatter(StructuredJsonFormatter())
-    logger.addHandler(handler)
+    root_logger.addHandler(handler)
     return handler
 
 
 def get_structured_logger(name: str) -> logging.Logger:
-    """Return a logger with structured logging configured."""
-    configure_schema_logging()
+    """Return a logger with structured logging configured.
+
+    Configures the top-level component of *name* (e.g. ``"swarm"`` for
+    ``"swarm.fsm"``) so that child loggers inherit the JSON handler.
+    """
+    configure_schema_logging(root=name.split(".")[0])
     return logging.getLogger(name)

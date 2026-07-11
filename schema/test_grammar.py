@@ -217,6 +217,13 @@ def test_superfluous_slots_dropped_with_log():
     assert cmd_flock.radius is None
     assert cmd_flock.spacing is None
 
+    # Superfluous slots on abort (e.g. ids, speed) dropped with slot_dropped log, NEVER degrading to Hover
+    raw_abort_with_ids = '{"intent":"abort","ids":[0]}'
+    cmd_abort = validate(raw_abort_with_ids)
+    assert isinstance(cmd_abort, Abort)
+    assert cmd_abort.intent == "abort"
+
+
 
 def test_nan_and_infinity_rejected():
     """Defect 1: NaN and Infinity are non-finite, safely rejected to HOVER."""

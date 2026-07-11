@@ -45,16 +45,20 @@ environment.yml             : EXPORTED (conda env pfe_swarm)
   1. Non-finite values (`NaN`, `Infinity`): Caught by Layer 2 validator and safely rejected to `HOVER` with `validation_fallback` structured log; `canon()` refuses non-finite floats to prevent corrupt JSON row emission.
   2. `move.pos` safety envelope: Clamps $z \in [0.5, 15.0]$ m, then scales horizontal $(x, y)$ to satisfy norm $|pos| \le 50.0$ m while preserving the vertical altitude floor $z \ge 0.5$ m (ADR-0001).
   3. Yaw angular wrapping: Identity on canonical $[-180.0, 180.0]^\circ$; periodic modulo wrapping for out-of-interval angles (ADR-0001).
-  4. FSM rejection legality: Rejections in `LANDED` resolve to safe grounded no-op (`None`), eliminating Table 9 violation; airborne rejections resolve to `Hover()`. Original intent is preserved in audit logs.
-  5. Structured logging: Implemented `schema/logger.py` with `StructuredJsonFormatter`, capturing all `extra` fields (`envelope_clamp`, `id_dropped`, `ids_widened_to_all_drones`, `slot_dropped`, `angle_wrap`, `validation_fallback`).
-  6. Superfluous slot policy: Superfluous slots (`spacing` on circle, `radius` on line/grid/column/wedge, `radius`/`spacing` on flock) are dropped with `slot_dropped` structured log, never rejecting the command.
-  7. Authored ADR-0001 (`docs/adr/0001_physical_envelope_analogies.md`).
-  8. Gate 2 split leakage verification (`data/check_leakage.py`): Enforces family ID disjointness and surface-form lexical near-duplicate detection (> 0.85 Jaccard similarity) across splits; tested via `data/test_template_families.py`.
-- `schema/` is FROZEN: All 80 tests in `schema/` pass green (Gate 1 verified, tagged `schema-v1.0.1`).
+  4. FSM Table 9 compliance: Rejections in `LANDED`, `LANDING`, and `ABORTED` resolve to safe no-op (`None`), while airborne rejections in `TAKING_OFF` and `FLYING` resolve to `Hover()`. `json` imported and `BaseModel` check fixed so raw operator intent is faithfully preserved in audit logs (ADR-0002).
+  5. Emergency abort safety: Stray slots on `abort` are dropped with `slot_dropped` structured log, resolving strictly to `Abort()` and never degrading to `Hover()` fallback (ADR-0002).
+  6. Structured logging: Configured `"swarm"` and `"schema"` logger hierarchies via `schema/logger.py` `StructuredJsonFormatter`, capturing all `extra` fields.
+  7. Superfluous slot policy: Superfluous slots (`spacing` on circle, `radius` on line/grid/column/wedge, `radius`/`spacing` on flock) are dropped with `slot_dropped` structured log, never rejecting the command.
+  8. Authored ADR-0001 and ADR-0002 (`docs/adr/0002_fsm_grounded_rejection_and_canon_helpers.md`).
+  9. Reconciled `issue-01` with measured S1/S2 spike reports.
+  10. Gate 2 split leakage verification (`data/check_leakage.py`): Enforces family ID disjointness and surface-form lexical near-duplicate detection (> 0.85 Jaccard similarity) across splits; strict exit code hardened.
+- `schema/` and `swarm/`: All 116 tests pass green (Gate 1 verified).
 
 ## Blocked / needs human
 - Autorisation de soutenance: Requested Sep 6, pending formal receipt (tracked in Issue 24).
+- **CRITICAL (Item 3 Escalation): GBNF `idlist` specification defect:**
+  Spike S3 hardware run on Raspberry Pi 5 revealed that `idlist ::= [0-9] ( "," [0-9] )*` in `schema/cmd.gbnf:43` accepts digits 5–9 and has no repetition bound, causing greedy decoding to enter infinite ID loops on real hardware. Requires human approval to amend `schema/cmd.gbnf` to `idlist ::= [0-4] ( "," [0-4] ){0,4}` and tag `schema-v1.1` before Session 02A dataset generation.
 
 ## Next session starts with
-Session 02A Task 1. Label-first generation: `data/generate.py`, author 200 `test_golden` transcripts from held-out template families, 2,400 raw pairs across 10 intents. Do NOT re-run Gate 1 or edit `schema/`.
+Session 02A Task 1. Label-first generation: upon GBNF amendment approval, run `data/generate.py`, author 200 `test_golden` transcripts from held-out template families, 2,400 raw pairs across 10 intents.
 

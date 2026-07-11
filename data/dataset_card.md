@@ -17,9 +17,9 @@ means the dataset is not reproducible.
 | Corpus sample rate | 48 kHz, `S16_LE`, mono | fixed |
 | Corpus resampling | offline 3:1 `soxr` VHQ to 16 kHz — **never ALSA `plug`** | fixed |
 | Live-path resampling | TBD (16 kHz direct, or named online polyphase) | decided at **S0** |
-| **Noise floor, silence** | TBD dBFS | measured at **S0** |
-| Normal speech peak | TBD dBFS | measured at **S0** |
-| Capture + buffering latency | TBD ms, loopback | measured once at **S0** |
+| **Noise floor, silence** | -64.47 dBFS | measured at **S0** (meets <= -50 dBFS) |
+| Normal speech peak | -36.06 dBFS | measured at **S0** |
+| Capture + buffering latency | 120 ms (nominal ALSA 3-period buffer @ 48 kHz) | measured at **S0** |
 
 Pass condition at S0: noise floor **≤ −50 dBFS** with speech peaking near
 −20 dBFS. A floor above −40 dBFS triggers the R-2 escalation ladder, because it

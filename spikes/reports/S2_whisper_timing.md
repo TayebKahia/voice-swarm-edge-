@@ -38,14 +38,17 @@
 
 Summing the measured stage timings against PRD Table 6 under the mandated 3-thread allocation (`-t 3`) demonstrates that **NFR-2 does not close on passively cooled hardware**:
 
+$T_0$ = **acoustic end-of-speech** (the instant the speaker stops). Capture buffering and VAD silence detection both fall *inside* the E2E window.
+
 | Stage | Table 6 p95 Budget | Measured / Verified on Throttled Pi 5 (1.5 GHz, `-t 3`) | Basis | Status |
 | :--- | :--- | :--- | :--- | :--- |
+| **Capture buffering** | — | **$\approx$ 43 ms** | 1024-frame ALSA period @ 48 kHz + double buffer (S0 estimate, pending loopback) | Included |
 | **VAD endpointing** | 500 ms | 500 ms | Nominal silence wait | Upper bound |
 | **STT (`tiny.en` Q5, `-t 3`)** | 1,200 ms | **2,014 ms** | Measured ($N=20$, p95) | **+67.8% (OVER BUDGET)** |
 | **SLM prefill** (~15 tokens) | 250 ms | **335 ms** | Measured (`llama-bench -t 3`: 44.74 tok/s) | **+34.0% (OVER BUDGET)** |
 | **SLM decode** (~22 tokens) | 1,100 ms | **1,049 ms** | Measured (`llama-bench -t 3`: 20.97 tok/s) | −4.6% (Pass) |
 | **Validate + FSM + dispatch** | 50 ms | < 1 ms | Estimated Layer 2/3 execution | Pass |
-| **E2E from End-of-Speech (NFR-2)** | **$\leq$ 2,500 ms** | **$\approx$ 3,899 ms** | Sum of `-t 3` stages | **FAIL (+56.0%)** |
+| **E2E from End-of-Speech (NFR-2)** | **$\leq$ 2,500 ms** | **$\approx$ 3,942 ms** | Sum of `-t 3` stages (incl. capture) | **FAIL (+57.7%)** |
 
 *Note on PRD Table 6 Internal Over-Sum:*
 The PRD's individual stage targets ($500 + 1200 + 250 + 1100 + 50 = \mathbf{3,100\text{ ms}}$) over-sum the headline target ($\le \mathbf{2,500\text{ ms}}$) by 600 ms. This confirms that the stage ceilings were loose upper bounds; for NFR-2 to close in production, individual stages must execute with zero slack.
@@ -58,15 +61,16 @@ The PRD's individual stage targets ($500 + 1200 + 250 + 1100 + 50 = \mathbf{3,10
    - Under passive heatsink cooling, sustained CPU load drove temperatures to $85.1^\circ\text{C}$, triggering throttling flag `0xe0008`. The Linux CPU governor dropped clock speeds from nominal **2.40 GHz down to 1.50 GHz** (`frequency(0)=1500022656`).
    - Normalizing from median p50 (1,959 ms) at 1.5 GHz to nominal 2.4 GHz:
      $$1959.57\text{ ms} \times \frac{1.5\text{ GHz}}{2.4\text{ GHz}} = 1,224.7\text{ ms}$$
-2. **Honest 2.4 GHz Projection Range (2,591 – 2,984 ms $\rightarrow$ FAILS NFR-2):**
+2. **Honest 2.4 GHz Projection Range (2,634 – 3,027 ms $\rightarrow$ FAILS NFR-2):**
    - **Best-Case Compute Scaling:** If both Whisper encoder and SLM decode scale purely with CPU clock ($1.5 \to 2.4\text{ GHz}$):
+     - Capture buffering: $\approx 43\text{ ms}$
      - STT: $\approx 1,225\text{ ms}$
      - Prefill: $335 \times (1.5/2.4) \approx 209\text{ ms}$
      - Decode: $1,049 \times (1.5/2.4) \approx 656\text{ ms}$
      - VAD: $500\text{ ms}$
-     - Total: **$\approx 2,591\text{ ms}$** (103.6% of budget $\rightarrow$ **FAIL**).
-   - **Memory-Bandwidth Bound Reality:** LLM autoregressive token generation and Whisper's encoder attention are predominantly memory-bandwidth bound. The Pi 5 LPDDR4X memory clock does *not* scale with the CPU governor. If decode memory throughput remains flat, decode stays near $\approx 1,049\text{ ms}$, landing total E2E at **$\approx 2,984\text{ ms}$** (119% of budget $\rightarrow$ **FAIL**).
-   - **Critical Takeaway:** **Every point in the honest 2,591 – 2,984 ms range fails NFR-2.** Mounting the Active Cooler is necessary but not sufficient on its own. Closing NFR-2 requires architectural overlap (e.g. streaming STT before speech offset) or an explicit budget renegotiation in Exp-2.
+     - Total: **$\approx 2,634\text{ ms}$** (105.4% of budget $\rightarrow$ **FAIL**).
+   - **Memory-Bandwidth Bound Reality:** LLM autoregressive token generation and Whisper's encoder attention are predominantly memory-bandwidth bound. The Pi 5 LPDDR4X memory clock does *not* scale with the CPU governor. If decode memory throughput remains flat, decode stays near $\approx 1,049\text{ ms}$, landing total E2E at **$\approx 3,027\text{ ms}$** (121% of budget $\rightarrow$ **FAIL**).
+   - **Critical Takeaway:** **Every point in the honest 2,634 – 3,027 ms range fails NFR-2.** Mounting the Active Cooler is necessary but not sufficient on its own. Closing NFR-2 requires architectural overlap (e.g. streaming STT before speech offset) or an explicit budget renegotiation in Exp-2.
 3. **Memory Footprint:**
    - Model size: **31.57 MB**
    - Compute buffers: $\approx 95.9\text{ MB}$ decode, $\approx 17.7\text{ MB}$ encode

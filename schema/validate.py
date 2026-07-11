@@ -339,6 +339,23 @@ def validate(raw: str | Mapping[str, Any] | BaseModel, fallback: bool = True) ->
                     "SetParam requires at least one of speed, spacing, or alt", raw, fallback
                 )
 
+        elif intent == "abort":
+            # Abort takes no slots. Drop all stray slots with a structured log event
+            # so an emergency abort NEVER degrades to Hover fallback.
+            stray_keys = [k for k in list(data) if k != "intent"]
+            for k in stray_keys:
+                logger.info(
+                    "Superfluous slot dropped on emergency abort: slot=%s",
+                    k,
+                    extra={"event": "slot_dropped", "slot": k, "intent": "abort"},
+                )
+                data.pop(k, None)
+
+        elif intent == "unknown":
+            stray_keys = [k for k in list(data) if k != "intent"]
+            for k in stray_keys:
+                data.pop(k, None)
+
         # 5. Apply physical envelope clamping & wrapping to present slots
         for slot in ("radius", "spacing", "z", "speed", "dist", "alt"):
             if data.get(slot) is not None:

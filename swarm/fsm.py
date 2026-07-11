@@ -9,21 +9,26 @@ Enforces flight state transitions and command legality:
    - LANDING -> LANDED on ground contact
    - abort from any airborne state -> ABORTED
 3. Table 9 legality:
-   - Rejections resolve to safe HOVER with structured log entry.
-   - abort in LANDED/ABORTED is a logged no-op, never an error.
-   - unknown is never dispatched, logged only.
+    - Rejections resolve to safe HOVER where Table 9 permits hovering
+      (TAKING_OFF, FLYING). In states where hover is illegal (LANDED,
+      LANDING, ABORTED), rejections resolve to a safe no-op (None).
+    - abort in LANDED/ABORTED is a logged no-op, never an error.
+    - unknown is never dispatched, logged only.
 4. Manual non-vocal reset:
    - Recovery from ABORTED only when all drones report ground contact and near-zero velocity.
 """
 
 from __future__ import annotations
 
-import logging
+import json
 from collections.abc import Mapping
 from enum import Enum
 from typing import Any
 
-from schema.schema import Abort, Command, Hover
+from pydantic import BaseModel
+
+from schema.logger import get_structured_logger
+from schema.schema import Hover
 from schema.validate import validate
 
 __all__ = [
@@ -33,7 +38,7 @@ __all__ = [
     "logger",
 ]
 
-logger = logging.getLogger("swarm.fsm")
+logger = get_structured_logger("swarm.fsm")
 
 
 class FlightState(str, Enum):
@@ -44,11 +49,9 @@ class FlightState(str, Enum):
     ABORTED = "ABORTED"
 
 
-AIRBORNE_STATES = {
-    FlightState.TAKING_OFF,
-    FlightState.FLYING,
-    FlightState.LANDING,
-}
+# AIRBORNE_STATES removed: rejection fallback now uses is_legal("hover", ...)
+# directly against Table 9, eliminating a second hand-maintained encoding
+# that previously disagreed with TABLE_9_LEGALITY for LANDING.
 
 # Table 9: Intent legality per state
 TABLE_9_LEGALITY: dict[str, set[FlightState]] = {
@@ -141,9 +144,9 @@ class FlightStateMachine:
         Preserves original intent in audit logs and resolves rejections correctly:
           - Validated Command to dispatch if legal.
           - Abort command if abort triggered in airborne state.
-          - In airborne states (FLYING, TAKING_OFF, LANDING): rejections resolve to HOVER.
-          - In LANDED: rejections resolve to a safe grounded no-op (returns None),
-            honoring Table 9 which forbids HOVER while landed.
+          - Rejections resolve to HOVER only where Table 9 permits hovering
+            (TAKING_OFF, FLYING). In states where hover is illegal (LANDED,
+            LANDING, ABORTED), rejections resolve to a safe no-op (None).
           - None if unknown intent or abort no-op.
         """
         # Extract original intent before any Layer 2 fallback for audit preservation
@@ -155,8 +158,8 @@ class FlightStateMachine:
                 pass
         elif isinstance(cmd_input, Mapping):
             raw_intent = cmd_input.get("intent")  # type: ignore[assignment]
-        elif isinstance(cmd_input, Command):  # type: ignore[arg-type]
-            raw_intent = cmd_input.intent
+        elif isinstance(cmd_input, BaseModel):
+            raw_intent = getattr(cmd_input, "intent", None)
 
         # Validate through Layer 2
         cmd = validate(cmd_input)
@@ -170,9 +173,9 @@ class FlightStateMachine:
             )
             return None
 
-        # 2. Abort: legal in airborne states; logged no-op in LANDED or ABORTED
+        # 2. Abort: legal in TAKING_OFF, FLYING, LANDING; logged no-op otherwise
         if effective_intent == "abort":
-            if self.state in AIRBORNE_STATES:
+            if self.is_legal("abort", self.state):
                 logger.warning(
                     "FSM EMERGENCY ABORT: %s -> ABORTED",
                     self.state.value,
@@ -206,10 +209,10 @@ class FlightStateMachine:
                 self.state = FlightState.LANDING
             return cmd
 
-        # 4. Rejected: resolve according to state flight context
-        if self.state in AIRBORNE_STATES:
+        # 4. Rejected: resolve to HOVER only where Table 9 permits hovering
+        if self.is_legal("hover", self.state):
             logger.warning(
-                "FSM command rejected in airborne state: intent=%s is illegal in state=%s. Resolving to HOVER.",
+                "FSM command rejected: intent=%s is illegal in state=%s. Resolving to HOVER.",
                 effective_intent,
                 self.state.value,
                 extra={
@@ -221,16 +224,20 @@ class FlightStateMachine:
             )
             return Hover(intent="hover")
         else:
-            # In LANDED or ABORTED, Table 9 forbids HOVER. Drone remains safely grounded.
+            # Table 9 forbids HOVER in this state (LANDED, LANDING, ABORTED).
+            # Returning None lets the current trajectory complete safely:
+            #   - LANDED: drone stays grounded
+            #   - LANDING: descent completes uninterrupted
+            #   - ABORTED: remains aborted until manual reset
             logger.warning(
-                "FSM command rejected in grounded/aborted state: intent=%s is illegal in state=%s. Refusing as safe no-op.",
+                "FSM command rejected: intent=%s is illegal in state=%s. Safe no-op (hover illegal here).",
                 effective_intent,
                 self.state.value,
                 extra={
                     "event": "fsm_command_rejected",
                     "intent": effective_intent,
                     "state": self.state.value,
-                    "action": "noop_grounded",
+                    "action": "noop_hover_illegal",
                 },
             )
             return None

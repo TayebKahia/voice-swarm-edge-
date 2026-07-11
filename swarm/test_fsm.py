@@ -126,3 +126,77 @@ def test_manual_reset_from_aborted():
     # Accepted when all drones on ground and near-zero velocity
     assert fsm.manual_reset(all_ground_contact=True, all_near_zero_velocity=True)
     assert fsm.state == FlightState.LANDED
+
+
+def test_rejection_in_landing_is_noop_not_hover():
+    """Regression: illegal command during descent returns None, not HOVER.
+
+    Table 9 forbids hover in LANDING, so a rejection in LANDING must NOT
+    dispatch HOVER — that would arrest the descent at altitude.  Returning
+    None lets the landing finish uninterrupted.
+    """
+    fsm = FlightStateMachine(FlightState.LANDING)
+    # move is illegal in LANDING
+    res = fsm.handle_command('{"intent":"move","pos":[10.0,0.0,3.0]}')
+    assert res is None, "rejection in LANDING must return None, not Hover"
+    assert fsm.state == FlightState.LANDING
+
+
+@pytest.mark.parametrize("intent_json", [
+    '{"intent":"takeoff"}',
+    '{"intent":"altitude","z":5.0}',
+    '{"intent":"rotate","yaw":90.0}',
+    '{"intent":"formation","shape":"circle","radius":5.0}',
+    '{"intent":"hover"}',
+    '{"intent":"land"}',
+])
+def test_all_illegal_intents_in_landing_return_none(intent_json: str):
+    """Every illegal intent in LANDING resolves to None, never HOVER."""
+    fsm = FlightStateMachine(FlightState.LANDING)
+    res = fsm.handle_command(intent_json)
+    assert res is None, f"rejection of {intent_json} in LANDING must be None"
+    assert fsm.state == FlightState.LANDING
+
+
+def test_rejection_in_aborted_is_noop():
+    """Illegal command in ABORTED returns None (hover is illegal there too)."""
+    fsm = FlightStateMachine(FlightState.ABORTED)
+    res = fsm.handle_command('{"intent":"move","pos":[10.0,0.0,3.0]}')
+    assert res is None
+    assert fsm.state == FlightState.ABORTED
+
+
+def test_rejection_in_taking_off_resolves_to_hover():
+    """Table 9 permits hover in TAKING_OFF, so rejection there gives HOVER."""
+    fsm = FlightStateMachine(FlightState.TAKING_OFF)
+    # move is illegal in TAKING_OFF
+    res = fsm.handle_command('{"intent":"move","pos":[10.0,0.0,3.0]}')
+    assert isinstance(res, Hover)
+    assert fsm.state == FlightState.TAKING_OFF
+
+
+def test_handle_command_accepts_pydantic_model_directly():
+    """Regression (Defect B): handle_command accepts typed Pydantic models without TypeError."""
+    from schema.schema import Altitude, Hover
+    fsm = FlightStateMachine(FlightState.FLYING)
+    res = fsm.handle_command(Altitude(intent="altitude", z=4.0))
+    assert isinstance(res, Altitude)
+    assert res.z == 4.0
+
+
+def test_invalid_string_command_preserves_raw_intent_in_rejection_log(caplog):
+    """Regression (Defect A & C): invalid string move in TAKING_OFF logs rejection with raw intent 'move'."""
+    import logging
+    fsm = FlightStateMachine(FlightState.TAKING_OFF)
+    with caplog.at_level(logging.WARNING, logger="swarm.fsm"):
+        # Syntactically invalid move (missing pos and dir/dist) -> Layer 2 falls back to Hover
+        # But FSM must inspect raw_intent ('move') and log rejection of 'move' in TAKING_OFF!
+        res = fsm.handle_command('{"intent":"move"}')
+    
+    assert isinstance(res, Hover)
+    # Verify that the log message and structured record preserved 'move' rather than 'hover'
+    records = [r for r in caplog.records if r.name == "swarm.fsm" and getattr(r, "event", None) == "fsm_command_rejected"]
+    assert len(records) == 1
+    assert getattr(records[0], "intent") == "move"
+    assert getattr(records[0], "state") == "TAKING_OFF"
+

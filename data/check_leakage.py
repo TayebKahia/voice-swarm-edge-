@@ -207,7 +207,7 @@ def main() -> int:
 
     if all_errors:
         print(f"\n[-] Gate 2 FAILED with {len(all_errors)} errors.")
-        return 1 if args.strict else 0
+        return 1
 
     print("\n[+] Gate 2 verification SUCCESSFUL: No leakage detected.")
     return 0

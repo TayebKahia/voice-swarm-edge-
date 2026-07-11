@@ -114,7 +114,7 @@ ENVELOPE: dict[str, tuple[float, float]] = {
     "spacing": (1.0, 5.0),
     "z": (0.5, 15.0),
     "speed": (0.2, 2.0),
-    "yaw": (-180.0, 180.0),
+    "yaw": (-180.0, 180.0),  # Canonical range; enforced via periodic wrapping in _wrap_yaw (ADR-0001)
     "dist": (0.0, 50.0),  # ADR-0001, by analogy with POS_MAX_NORM
     "alt": (0.5, 15.0),  # ADR-0001, by analogy with `z`
 }
