@@ -3,8 +3,8 @@ Session: 01B (Tue 8 Sep, PRD D1/D2)
 Last updated: 2026-09-08T15:10:00+01:00
 
 ## Gates
-Gate 1 schema        : GREEN (pytest schema/ → 80 passed in 0.19s, Sep 8 15:06)
-Gate 2 leakage       : READY (check_leakage.py --strict → exit 0, Sep 8 15:06; Session 02B formal gate)
+Gate 1 schema        : GREEN (pytest schema/ → 83 passed in 0.20s, tag schema-v1.1)
+Gate 2 leakage       : READY (check_leakage.py --strict → exit 0; Session 02B formal gate)
 Gate 3 parity        : PENDING (Session 05B)
 Gate 4 fsm           : PENDING (Session 08; Table 9 legality & grounded rejection verified in swarm/test_fsm.py)
 Gate 5 dataset frozen: PENDING (Session 03)
@@ -52,13 +52,12 @@ environment.yml             : EXPORTED (conda env pfe_swarm)
   8. Authored ADR-0001 and ADR-0002 (`docs/adr/0002_fsm_grounded_rejection_and_canon_helpers.md`).
   9. Reconciled `issue-01` with measured S1/S2 spike reports.
   10. Gate 2 split leakage verification (`data/check_leakage.py`): Enforces family ID disjointness and surface-form lexical near-duplicate detection (> 0.85 Jaccard similarity) across splits; strict exit code hardened.
-- `schema/` and `swarm/`: All 116 tests pass green (Gate 1 verified).
+  11. GBNF `idlist` specification defect resolved (Item 3): Amended `idlist ::= [0-4] ( "," [0-4] ){0,4}` in `schema/cmd.gbnf:43`, eliminating hardware greedy decoding loops and bounding IDs to valid swarm range {0..4}. Verified in `schema/test_grammar.py` and tagged `schema-v1.1`.
+- `schema/` and `swarm/`: All 119 tests pass green (Gate 1 verified, tagged `schema-v1.1`).
 
 ## Blocked / needs human
 - Autorisation de soutenance: Requested Sep 6, pending formal receipt (tracked in Issue 24).
-- **CRITICAL (Item 3 Escalation): GBNF `idlist` specification defect:**
-  Spike S3 hardware run on Raspberry Pi 5 revealed that `idlist ::= [0-9] ( "," [0-9] )*` in `schema/cmd.gbnf:43` accepts digits 5–9 and has no repetition bound, causing greedy decoding to enter infinite ID loops on real hardware. Requires human approval to amend `schema/cmd.gbnf` to `idlist ::= [0-4] ( "," [0-4] ){0,4}` and tag `schema-v1.1` before Session 02A dataset generation.
 
 ## Next session starts with
-Session 02A Task 1. Label-first generation: upon GBNF amendment approval, run `data/generate.py`, author 200 `test_golden` transcripts from held-out template families, 2,400 raw pairs across 10 intents.
+Session 02A Task 1. Label-first generation: run `data/generate.py`, author 200 `test_golden` transcripts from held-out template families, 2,400 raw pairs across 10 intents.
 

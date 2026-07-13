@@ -50,7 +50,7 @@ from schema.validate import validate, ValidationError
 # ---------------------------------------------------------------------------
 
 NUM_PATTERN = r"-?[0-9]{1,3}(?:\.[0-9])?"
-IDLIST_PATTERN = r"[0-9](?:,[0-9])*"
+IDLIST_PATTERN = r"[0-4](?:,[0-4]){0,4}"
 SHAPE_PATTERN = r'"(?:circle|line|wedge|grid|column|flock)"'
 DIR_PATTERN = r'"(?:north|south|east|west|up|down|forward|back|left|right)"'
 
@@ -160,6 +160,9 @@ def test_gbnf_accepts_valid_commands(valid_cmd: str):
         ('{"intent":"rotate","yaw":--90.0}', "double minus"),
         ('{"intent":"formation"}', "missing required shape in formation"),
         ('{"intent":"abort","ids":[0]}', "abort with illegal ids slot"),
+        ('{"intent":"land","ids":[5]}', "drone id 5 out of range [0-4]"),
+        ('{"intent":"land","ids":[9]}', "drone id 9 out of range [0-4]"),
+        ('{"intent":"land","ids":[0,1,2,3,4,0]}', "idlist exceeds {0,4} limit"),
     ],
 )
 def test_gbnf_rejects_structural_adversarial_corpus(adversarial_str: str, reason: str):
