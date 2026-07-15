@@ -1,0 +1,200 @@
+0001	unit 1 heading 60.2 left
+0002	change spacing to 3.0 and the default height to 0.6
+0003	proceed to t— the point minus thirty-three point four, five point two, eight no more than two metres per second, everyone
+0004	maybe go east— eastbound about twenty-nine
+0005	spread out into a row spaced around two point seven, drones one and five
+0006	how long is the runway
+0007	birds three thru four just hold position for a moment
+0008	position -15.3, 16.8, 4 keep it to 0.3, everybody
+0009	what's the square root of one forty four
+0010	uh, so, waypoint -14.9, 19.1, 9.8 speed 0.6
+0011	erm, everyone, waypoint 7.6, 11.2, 3 keep it to 1.1
+0012	emergency erm, stop
+0013	so, bi— birds 2 to 4, circle formation, at 7.6 radius
+0014	can you li— limit the gap to one and transit altitude to twelve from now on
+0015	drone three, circle formation, radius one point eight metres
+0016	listen up, rot— rotate 46.0, unit 5
+0017	birds 2, 3 and 4 circular formation formation, radius 1.4
+0018	how far is it to oran
+0019	okay abort abort, all of you
+0020	recover, um, drone 2
+0021	hold at call it two point four for me
+0022	49.2m eastward
+0023	everybody set altitude three meters
+0024	what's the tide doing
+0025	all drones separation to three point four and transit altitude to twelve
+0026	level 10m, everyone
+0027	um, drones 2 thru 4, circle formation, with a radius of 1
+0028	drones 3 to 4 put it down on the pad
+0029	all drones move eastbound... 33 m i guess
+0030	number erm, 4, get airborne... okay get airborne to 8m
+0031	okay so, g— gap to 2.5 and default height to 7.0
+0032	play the next track
+0033	so, unit 5 let's put it down
+0034	bird 2, circle formation, at 3.1 radius
+0035	maybe er, proceed back — make that eastbound forty-six
+0036	heading 163.0 clockwise, number 1
+0037	six metres altitude, all of you
+0038	uh, right, waypoint -10.5, -12.6, 10.8 at 1.0
+0039	altitude 11.7
+0040	two po— point five metres altitude, all drones
+0041	so, birds one to three form a circular formation at ten meters radius
+0042	go up to twelve for me
+0043	i'd like to cap separation to something like one and the default height to about seven point nine, all of you
+0044	remind me about the inspection
+0045	right, number three come round twenty-eight left... yeah
+0046	drone 3— 3 maybe turn 71.8 deg clockwise
+0047	descend to an altitude of 7.4, everybody
+0048	okay kill it
+0049	listen up, units three to five get into a line abreast — one spacing maybe
+0050	numbers four through five, put it down on the pad
+0051	spell my surname
+0052	all drones para— parameter separation to 4.0 and cruise altitude to 3.0
+0053	drone 2, heading right 77
+0054	alright, birds 4 thru 5 go into a circular formation with a radius of 5
+0055	okay so, waypoint 23.8, -20.2, 6.7 no more than 1.0
+0056	maybe shift eastbound 28.3m, all of you
+0057	is the canteen open
+0058	all drones, about seventeen point six eastward
+0059	lift off immediately up to 7.0, birds 2 and 3
+0060	drone 1 and drone 4 line abreast formation, 4m separation
+0061	set gap to one metres and default height to six meters, all of you
+0062	drones one to two stop and stay put
+0063	what's the humidity in here
+0064	can you altitude ten point eight
+0065	erm, everyone position -18.5, 1.2, 3.8 keep it to 1
+0066	print the checklist
+0067	parameter separation to two point seven and transit altitude to one, all units
+0068	give me a recipe for couscous
+0069	sit at, uh, eleven maybe
+0070	take off now up to 11, birds 2 through 4
+0071	limit the separation to one metres and transit altitude to seven meters, all drones
+0072	altitude 4.0
+0073	bird one and bird two and bird four, circle, radius five meters
+0074	er, number five spin by right one hundred and seventy-one degrees
+0075	shift to x 8.7 y 2.7 z 9.6 at 0.8, all of you
+0076	number 3, hover there
+0077	maybe cap t— the gap to 5 m and the default height to 14.5 m
+0078	numbers three and four row formation, with roughly two between you
+0079	alright, drones two thru four let's spin roughly seventy-two clockwise
+0080	who's on duty tonight
+0081	alright, units two through four spin up and launch and hold fourteen meters
+0082	head um, roughly forty-nine right — make that eastward please
+0083	okay, shift eastbound... twenty-five i guess, all drones
+0084	right, let's limit the gap to four point nine and cruise altitude to ten point nine, all drones
+0085	let's get airborne up to 7m, birds 1 thru 3
+0086	cut the motors, and i mean now
+0087	rotate, uh, right forty-one point two, drone two
+0088	come down to around 7.4m and hold there
+0089	um, waypoint 38.3, 17.6, 2.0 no more than 2.0, all drones
+0090	uh, now then, change the gap to 4.6 and transit altitude to 5
+0091	drones 1, 2 and 3 hold where you are
+0092	right then, translate twenty-four eastward please
+0093	right, proceed to x -17.3 y -4.4 z 8.1 no more than 2.0, the swarm
+0094	14 altitude
+0095	units three through five, take up a line abreast — with three between you maybe
+0096	um, i need you to unit one row, three separation
+0097	how do you say thank you in japanese
+0098	birds 1 to 2 can you yaw right 40 deg
+0099	now then, just all stop i think, everybody
+0100	erm, right, the swarm parameter gap to call it one and default height to about eight point six
+0101	unit three launch whenever you're ready and climb to eleven point eight
+0102	drones tw— two, three and five, spread out into a row spaced four
+0103	circle formation, 3.0 radius, drone 5
+0104	head six point three, thirty-four, fourteen keep it to two metres per second
+0105	um, spacing to four metres and cruise altitude to two metres
+0106	number 2 and number 3 and number 5 spin, uh, 142 deg clockwise
+0107	bring everything do— down and set down, number one
+0108	come down to, uh, around nought point nine maybe
+0109	so, units 1 to 3 set up a... a line abreast, 4.5m apart i think
+0110	go into yourselves into a row 2m spacing, drones 1 to 3
+0111	take off now and climb to 4.6, numbers 2 and 3
+0112	all units hold at an altitude of 13.0
+0113	shift twenty-one point eight, thirty-nine, four speed one metres per second, everybody
+0114	right, go into a... a line abreast, spaced roughly three i think, bird two
+0115	position minus t— ten and a half, fifteen point four, thirteen point three at one metres per second
+0116	right, number 3, lift off and climb to 10.5
+0117	what's the score
+0118	numbers 3 to 5 take up up in a circular formation, radius 5
+0119	limit separation to 4.0 and cruise altitude to 11.4
+0120	er, okay so, put the spacing to 2.5 and cruise altitude to 14.4, the swarm
+0121	all units height fourteen
+0122	can you everyone push on eastward for around twenty point six
+0123	birds t— two thru three let's launch and hold fourteen
+0124	heading minus one hundred and forty-seven point three degrees, units two through four
+0125	circle formation, 6.5 radius, units 1 to 3
+0126	drone two and drone five can we get a line abreast, spaced four point six, sort of
+0127	so, units one through three, maybe hover for now
+0128	i need you to get into into a row 3m separation, bird 5
+0129	birds er, 1 through 3, get into yourselves into a row 1.8 m spacing
+0130	okay so, abort... abort now
+0131	form up in a circular formation, 2.0 in diameter, birds 4 through 5
+0132	erm, units one and four let's turn one hundred and fifty-seven
+0133	come round 148 left, bird 2
+0134	alright, um, all units, translate, uh, eastbound 11.1 m or so
+0135	come round 31.2 right, unit 3 and unit 4 and unit 5
+0136	everyone, parameter spacing to 2.5 and transit altitude to 5
+0137	all dro— drones, drop to 2
+0138	unit uh, 1 form a circular formation at 8.0 radius
+0139	erm, bird four set down... yeah set down
+0140	unit uh, 2 and unit 5, swing round 63.0 left
+0141	make separ— separation to 4.5 m and the default height to 9.6m... yeah
+0142	birds um, 1, 3 and 4, put it down... yeah put it down
+0143	numbers uh, four to five, can you come round about minus ten
+0144	can you level off at 10m, roughly
+0145	all of you, kill it
+0146	i need you to all units i'd like to cap spacing to about two and a half and transit altitude to call it three point four
+0147	number 3 and number 4 and number 5 uh, get airborne i suppose and climb to 11 m
+0148	altitude 2.— 2.7, all of you
+0149	units four to five, circle, four metres radius
+0150	shift, uh, eastbound about twenty-five point seven or so
+0151	so, units 3 thru 5 station keep
+0152	uh, settle to around 5 m and hold there
+0153	listen up, i'd like to set separation to 5 m and cruise altitude to 1m
+0154	everybody kill the motors, everything down
+0155	ascend to 8.2
+0156	now then, drone four can we get a line abreast, with something like two between you, sort of
+0157	spread out into a row two point four apart, birds three thru five
+0158	units on— one, two and four, let's come home
+0159	launch... okay launch and hold five point three, number five
+0160	freeze... just freeze, bird three
+0161	so, numbers 1 to 3 take up up in a circular formation, at 7.0 radius
+0162	listen up, cleared to lift off and climb to 5.0, numbers 3, 4 and 5
+0163	so, emergency stop, and i mean now, everybody
+0164	um, bird 4 and bird 5 can we get a line abreast, 2 m spacing, sort of
+0165	erm, bird four pivot, uh, something like one hundred and thirty-six counter-clockwise
+0166	okay so, numbers one and five take up a circular formation four point four meters radius
+0167	let's go eastward about 47 m
+0168	so, number 1, land
+0169	so, numbers one through three, heading one hundred and seventy-eight degrees clockwise
+0170	right, the swarm, position -13.5, 38.9, 14 at 1
+0171	okay, position -24, -4.4, 6.8 speed 1
+0172	the swarm let's go eastward about 22.2m
+0173	bird 2 and bird 4 and bird 5, touch down immediately
+0174	let's kill it, something's wrong, the swarm
+0175	now then, everybody, gap to 4 and cruise altitude to 10
+0176	everyone twenty-nine eastward
+0177	number one, le— let's swing round seven
+0178	freeze, units fo— four through five
+0179	alright, push to x 11 y 3 z 3 speed 2, all of you
+0180	circle, 10 radius, drone 3 and drone 4
+0181	right, come round 166 right, numbers 2 through 4
+0182	set an alarm for five in the morning
+0183	bird two and bird four and bird five, just hold station for a moment
+0184	parameter spacing to 4.6m and transit altitude to 14.4 m
+0185	um, bird 2 and bird 4, hold right there
+0186	um, units 2 and 4 rotate right around for me
+0187	bird er, one, cleared to spin up and launch up to eleven point eight metres
+0188	bird 3 uh, stay put i guess
+0189	maybe get in the air now to roughly three point one, drones three through five
+0190	units two through four, row formation, spaced call it four point three
+0191	uh, everybody, eastward thirty-eight
+0192	bird one time to get in the air and climb to around two point six
+0193	uh, drones 3 to 5, take off immediately and climb to 12.6
+0194	go to ten point seven, minus thirty-two point one, nine no more than one metres per second, all units
+0195	turn up the volume
+0196	maintain something li— like ten for me, all drones
+0197	erm, birds three and five maybe come home now
+0198	maybe move eastbound four
+0199	bring it down now, drone one and drone three
+0200	bird 3, hold position there

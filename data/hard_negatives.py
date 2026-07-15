@@ -33,7 +33,7 @@ symmetric: a spurious abort stops a swarm that did not need stopping, while a
 missed abort is the failure the reflex path exists to prevent. Teaching the model
 that "abort" is sometimes not an abort buys a little precision on a rare
 utterance and pays for it in the one case that matters. Recorded in
-`docs/adr/0002`.
+`docs/adr/0003`.
 """
 
 from __future__ import annotations
@@ -94,7 +94,6 @@ _LINE: list[HardNegative] = [
     _hn("line", "F006", "line abreast, one metre spacing", {"intent": "formation", "shape": "line", "spacing": 1.0}),
     _hn("line", "F006", "get in a line four metres apart", {"intent": "formation", "shape": "line", "spacing": 4.0}),
     _hn("line", "F117", "line of sight is clear", {"intent": "unknown"}),
-    _hn("line", "F117", "the line is busy", {"intent": "unknown"}),
 ]
 
 _HOLD: list[HardNegative] = [
@@ -156,7 +155,7 @@ _TRANSIT_ALT: list[HardNegative] = [
     _hn("transit_alt", "F109", "set the transit altitude to six metres", {"intent": "set_param", "alt": 6.0}),
     _hn("transit_alt", "F109", "default height five metres", {"intent": "set_param", "alt": 5.0}),
     _hn("transit_alt", "F109", "cruise altitude eight metres", {"intent": "set_param", "alt": 8.0}),
-    _hn("transit_alt", "F119", "set the transit", {"intent": "unknown"}),
+    _hn("transit_alt", "F117", "set the transit", {"intent": "unknown"}),
 ]
 
 _GRID: list[HardNegative] = [
@@ -213,9 +212,137 @@ _LAND: list[HardNegative] = [
 
 _MOVE_OVER: list[HardNegative] = [
     _hn("move", "F031", "move north ten metres", {"intent": "move", "dir": "north", "dist": 10.0}),
-    _hn("move", "F050", "move forward eight metres", {"intent": "move", "dir": "forward", "dist": 8.0}),
+    _hn("move", "F053", "move left five metres", {"intent": "move", "dir": "left", "dist": 5.0}),
+    _hn("move", "F054", "move right five metres", {"intent": "move", "dir": "right", "dist": 5.0}),
     _hn("move", "F117", "move over, i can't see the screen", {"intent": "unknown"}),
     _hn("move", "F117", "that was a smart move", {"intent": "unknown"}),
+]
+
+# --- ASR homophone traps --------------------------------------------------
+#
+# Spike S1 measured whisper.cpp on this vocabulary. These are the confusions it
+# actually makes, which is why the pairs are worth authoring: the acoustic model
+# hands the LLM a *plausible* wrong word, and only context distinguishes them.
+
+_TWO_TO_TOO: list[HardNegative] = [
+    _hn("two_to_too", "F058", "go to two metres", {"intent": "altitude", "z": 2.0}),
+    _hn("two_to_too", "F117", "too high", {"intent": "unknown"}),
+    _hn("two_to_too", "F117", "me too", {"intent": "unknown"}),
+]
+
+_ONE_WON: list[HardNegative] = [
+    _hn("one_won", "F086", "drone one, hover", {"intent": "hover", "ids": [0]}),
+    _hn("one_won", "F117", "we won the bid", {"intent": "unknown"}),
+]
+
+_POINT: list[HardNegative] = [
+    # "point" is a decimal separator in this corpus ("one point five"), so the
+    # verb sense has to be on the other side of the boundary explicitly.
+    _hn("point", "F064", "could you go to one point five metres", {"intent": "altitude", "z": 1.5}),
+    _hn("point", "F116", "point the camera at the barn", {"intent": "unknown"}),
+]
+
+# --- halt verbs -----------------------------------------------------------
+#
+# The single most consequential boundary in the corpus: which halt words mean
+# "stop translating and hold" (`hover`, recoverable) and which mean "cut thrust
+# now" (`abort`, terminal). Getting these backwards is either a swarm that keeps
+# flying through an emergency or one that drops out of the sky on a routine call.
+
+_STOP: list[HardNegative] = [
+    _hn("stop", "F088", "stop and hold position", {"intent": "hover"}),
+    _hn("stop", "F085", "stop where you are", {"intent": "hover"}),
+    _hn("stop", "F093", "emergency stop", {"intent": "abort"}),
+    _hn("stop", "F117", "stop the recording", {"intent": "unknown"}),
+]
+
+_FREEZE: list[HardNegative] = [
+    _hn("freeze", "F085", "freeze", {"intent": "hover"}),
+    _hn("freeze", "F088", "freeze right there", {"intent": "hover"}),
+    _hn("freeze", "F116", "freeze frame that video", {"intent": "unknown"}),
+]
+
+_SWARM: list[HardNegative] = [
+    # "swarm" is Branch A's wake word (PRD Sec. 4.2), so it prefixes real
+    # commands far more often than the corpus would otherwise contain it.
+    _hn("swarm", "F088", "swarm, hold position", {"intent": "hover"}),
+    _hn("swarm", "F077", "swarm land", {"intent": "land"}),
+    _hn("swarm", "F117", "the swarm of bees is back", {"intent": "unknown"}),
+]
+
+# --- turn vs translate ----------------------------------------------------
+#
+# `rotate` changes heading in place; `move dir:left` translates the body. English
+# uses "left" for both. Yaw sign is fixed by docs/adr/0003: positive is
+# counter-clockwise seen from above, so a left turn is +90 and a right turn -90.
+
+_LEFT_RIGHT: list[HardNegative] = [
+    _hn("left_right", "F099", "turn left ninety degrees", {"intent": "rotate", "yaw": 90.0}),
+    _hn("left_right", "F099", "turn right ninety degrees", {"intent": "rotate", "yaw": -90.0}),
+    _hn("left_right", "F117", "bank left", {"intent": "unknown"}),
+]
+
+# --- yaw sign, stated as rows ----------------------------------------------
+#
+# ADR-0003 decision 1 fixes positive yaw as counter-clockwise, hence left. The
+# convention is only real if the corpus contains it in both directions with
+# nothing else varying, so these four rows are the training signal for it.
+
+_YAW_SIGN: list[HardNegative] = [
+    _hn("yaw_sign", "F102", "yaw left forty five degrees", {"intent": "rotate", "yaw": 45.0}),
+    _hn("yaw_sign", "F102", "yaw right forty five degrees", {"intent": "rotate", "yaw": -45.0}),
+    _hn("yaw_sign", "F102", "spin counter-clockwise thirty degrees", {"intent": "rotate", "yaw": 30.0}),
+    _hn("yaw_sign", "F102", "spin clockwise thirty degrees", {"intent": "rotate", "yaw": -30.0}),
+]
+
+# --- diameter vs radius ---------------------------------------------------
+#
+# ADR-0003 decision 2: "ten metres wide" is a diameter, so radius 5. The only
+# place in the corpus where the operator's number and the label's number
+# legitimately differ, so it gets explicit contrast rows rather than relying on
+# the ~18% of generated circle rows that use the phrasing.
+
+_DIAMETER: list[HardNegative] = [
+    _hn("diameter", "F001", "form a circle ten metres wide", {"intent": "formation", "shape": "circle", "radius": 5.0}),
+    _hn("diameter", "F001", "circle six metres across", {"intent": "formation", "shape": "circle", "radius": 3.0}),
+    _hn("diameter", "F001", "a ring eight metres in diameter", {"intent": "formation", "shape": "circle", "radius": 4.0}),
+    _hn("diameter", "F001", "circle with a radius of ten metres", {"intent": "formation", "shape": "circle", "radius": 10.0}),
+]
+
+# --- recovery vocabulary --------------------------------------------------
+
+_HOME: list[HardNegative] = [
+    _hn("home", "F080", "come home", {"intent": "land"}),
+    _hn("home", "F077", "go home and land", {"intent": "land"}),
+    # No return-to-launch behaviour exists in v1.0 --- the schema has no way to
+    # express "fly to the launch point, then land", so this is out of scope
+    # rather than a landing.
+    _hn("home", "F116", "return to base", {"intent": "unknown"}),
+]
+
+_CLEAR: list[HardNegative] = [
+    _hn("clear", "F077", "clear to land", {"intent": "land"}),
+    _hn("clear", "F117", "clear the area", {"intent": "unknown"}),
+]
+
+_FOLLOW: list[HardNegative] = [
+    _hn("follow", "F006", "fall in line three metres apart", {"intent": "formation", "shape": "line", "spacing": 3.0}),
+    _hn("follow", "F116", "follow me", {"intent": "unknown"}),
+]
+
+_SET: list[HardNegative] = [
+    _hn("set", "F107", "set the cruise speed to one metre per second", {"intent": "set_param", "speed": 1.0}),
+    _hn("set", "F117", "set up the tripod", {"intent": "unknown"}),
+]
+
+_OVER: list[HardNegative] = [
+    _hn("over", "F037", "move over there twelve metres east", {"intent": "move", "dir": "east", "dist": 12.0}),
+    _hn("over", "F117", "over and out", {"intent": "unknown"}),
+]
+
+_DESCEND: list[HardNegative] = [
+    _hn("descend", "F056", "drone two, descend to three metres", {"intent": "altitude", "z": 3.0, "ids": [1]}),
+    _hn("descend", "F117", "the descent was rough", {"intent": "unknown"}),
 ]
 
 # --- negation: "don't land yet" -> hover, never land ----------------------
@@ -248,11 +375,10 @@ _NEGATION: list[HardNegative] = [
     _hn("negation_rotate", "F118", "stop turning", {"intent": "hover"}),
 ]
 
-# --- the remaining F117 slots ---------------------------------------------
+# --- the remaining slot -----------------------------------------------------
 #
-# F117 holds exactly 20 rows (one family's worth). The groups above fill most of
-# them; these complete the family with near-misses that have no natural partner
-# elsewhere.
+# One near-miss with no natural partner elsewhere: "form a ..." is the strongest
+# formation cue in the corpus, so it needs at least one counter-example.
 
 _F117_TAIL: list[HardNegative] = [
     _hn("misc_nearmiss", "F117", "form a queue at the canteen", {"intent": "unknown"}),
@@ -276,24 +402,63 @@ GROUPS: tuple[list[HardNegative], ...] = (
     _ROTATE,
     _LAND,
     _MOVE_OVER,
+    _YAW_SIGN,
+    _DIAMETER,
+    _TWO_TO_TOO,
+    _ONE_WON,
+    _POINT,
+    _STOP,
+    _FREEZE,
+    _SWARM,
+    _LEFT_RIGHT,
+    _HOME,
+    _CLEAR,
+    _FOLLOW,
+    _SET,
+    _OVER,
+    _DESCEND,
     _NEGATION,
     _F117_TAIL,
 )
 
 HARD_NEGATIVES: tuple[HardNegative, ...] = tuple(row for group in GROUPS for row in group)
 
-# Guard the two properties that make these rows worth their weight: no abort
-# utterance is ever labelled anything but abort (see the module docstring), and
-# no two rows share a surface form.
+# §3.3 asks for "the highest-value 150 rows". That is a floor on how much of the
+# corpus is authored adversarially, not a number to hit exactly --- the groups
+# above are sized by what each decisive token actually needs, and padding a group
+# to make a total come out round would add rows that teach nothing.
+#
+# The *binding* constraint is per-family: `data/generate.py` gives every family
+# exactly 20 rows, so no family may receive more authored rows than that. It is
+# enforced there, over hard negatives and `data/ood.py` pools together, because
+# neither module can see the other's contribution to a shared family.
+if len(HARD_NEGATIVES) < 150:
+    raise AssertionError(
+        f"§3.3 asks for at least 150 hard negatives, got {len(HARD_NEGATIVES)}"
+    )
+
 _ABORT_WORDS = ("abort", "kill it", "all stop", "cut the motors", "emergency stop")
 for _row in HARD_NEGATIVES:
     if any(word in _row.text for word in _ABORT_WORDS) and _row.gold["intent"] != "abort":
         raise AssertionError(
             f"hard negative {_row.text!r} contains an abort word but is labelled "
-            f"{_row.gold['intent']!r}; see docs/adr/0002"
+            f"{_row.gold['intent']!r}; see docs/adr/0003"
         )
 
 _texts = [row.text for row in HARD_NEGATIVES]
 if len(_texts) != len(set(_texts)):
     _dupes = sorted({t for t in _texts if _texts.count(t) > 1})
     raise AssertionError(f"duplicate hard-negative surface forms: {_dupes}")
+
+# And the property the module docstring claims: no contrast group straddles a
+# split boundary, which for these rows reduces to "every one of them is train".
+from data.template_families import FAMILY_MAP  # noqa: E402  (guard needs the table)
+
+_STRAY = sorted(
+    {row.family_id for row in HARD_NEGATIVES if FAMILY_MAP[row.family_id].split != "train"}
+)
+if _STRAY:
+    raise AssertionError(
+        f"hard negatives assigned to non-train families {_STRAY}; a contrast group "
+        f"split across a boundary teaches the easy half and scores the hard half"
+    )

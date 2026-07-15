@@ -94,8 +94,22 @@ def check_dataset_split_leakage(
     """Check for family ID overlap and surface-form lexical near-duplicates."""
     errors: list[str] = []
 
-    train_families = {r.get("family_id") for r in train_rows if r.get("family_id")}
-    held_out_families = {r.get("family_id") for r in held_out_rows if r.get("family_id")}
+    # `template_family` is the key §7.4 fixes for the record format; `family_id`
+    # is accepted as a fallback for hand-written fixtures. Reading only
+    # `family_id` (as this did before Session 02A) meant both sets came out empty
+    # on a conformant corpus and the overlap check passed without comparing
+    # anything --- a gate that cannot fail. Issue 26.
+    def _family(row: dict[str, Any]) -> str | None:
+        return row.get("template_family") or row.get("family_id")
+
+    train_families = {f for r in train_rows if (f := _family(r))}
+    held_out_families = {f for r in held_out_rows if (f := _family(r))}
+
+    if not train_families or not held_out_families:
+        errors.append(
+            f"no template_family on {'train' if not train_families else held_out_name} rows; "
+            f"the family-overlap check cannot run (expected key 'template_family', §7.4)"
+        )
 
     overlap_families = train_families & held_out_families
     if overlap_families:
@@ -180,28 +194,61 @@ def main() -> int:
     else:
         print("[+] Template family integrity: PASS (120 families: 96 train, 12 val, 12 test_synth)")
 
-    # 2. Check generated dataset files if present
+    # 2. Check the generated corpus.
+    #
+    # Session 02A writes one `raw_pairs.jsonl` carrying a `split` field per row
+    # rather than three pre-split files; the per-split files arrive in 02B, after
+    # augmentation, because a row's variants must land in its own split. Both
+    # layouts are read here so the gate works before and after that step.
+    raw_pairs_file = DATA_DIR / "raw_pairs.jsonl"
     train_file = DATA_DIR / "train.jsonl"
     val_file = DATA_DIR / "val.jsonl"
     test_file = DATA_DIR / "test_synth.jsonl"
+    golden_file = DATA_DIR / "test_golden.jsonl"
+
+    def _rows(path: Path) -> list[dict[str, Any]]:
+        return [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
+
+    held_out_sets: list[tuple[str, list[dict[str, Any]]]] = []
+    train_rows: list[dict[str, Any]] = []
 
     if train_file.is_file():
-        print("[*] Inspecting generated split files for leakage...")
-        train_rows = [json.loads(line) for line in train_file.read_text().splitlines() if line.strip()]
-
+        print("[*] Inspecting pre-split files for leakage...")
+        train_rows = _rows(train_file)
         for split_file, split_name in [(val_file, "val"), (test_file, "test_synth")]:
             if split_file.is_file():
-                held_rows = [json.loads(line) for line in split_file.read_text().splitlines() if line.strip()]
-                split_errors = check_dataset_split_leakage(
-                    train_rows, held_rows, split_name, sim_threshold=args.threshold
+                held_out_sets.append((split_name, _rows(split_file)))
+    elif raw_pairs_file.is_file():
+        print("[*] Inspecting raw_pairs.jsonl for leakage...")
+        all_rows = _rows(raw_pairs_file)
+        train_rows = [r for r in all_rows if r.get("split") == "train"]
+        for split_name in ("val", "test_synth"):
+            held = [r for r in all_rows if r.get("split") == split_name]
+            if held:
+                held_out_sets.append((split_name, held))
+        print(
+            f"    {len(all_rows)} rows: {len(train_rows)} train, "
+            + ", ".join(f"{len(h)} {n}" for n, h in held_out_sets)
+        )
+
+    if train_rows and golden_file.is_file():
+        held_out_sets.append(("test_golden", _rows(golden_file)))
+
+    if train_rows:
+        for split_name, held_rows in held_out_sets:
+            split_errors = check_dataset_split_leakage(
+                train_rows, held_rows, split_name, sim_threshold=args.threshold
+            )
+            all_errors.extend(split_errors)
+            if split_errors:
+                print(f"[-] Leakage detected between train and {split_name}:")
+                for err in split_errors[:5]:
+                    print(f"    - {err}")
+            else:
+                print(
+                    f"[+] Split isolation (train vs {split_name}): PASS "
+                    f"({len(held_rows)} rows, 0 overlaps, 0 near-duplicates)"
                 )
-                all_errors.extend(split_errors)
-                if split_errors:
-                    print(f"[-] Leakage detected between train and {split_name}:")
-                    for err in split_errors[:5]:
-                        print(f"    - {err}")
-                else:
-                    print(f"[+] Split isolation (train vs {split_name}): PASS (0 overlaps, 0 near-duplicates)")
     else:
         print("[*] Generated data splits not yet materialized (Session 02A pending). Family assignments verified.")
 

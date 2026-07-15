@@ -1,0 +1,131 @@
+{
+  "model": "tiny.en",
+  "binary": "/home/kahia-tayeb/whisper.cpp/build/bin/whisper-cli",
+  "sample_rate": 16000,
+  "seed": 42,
+  "note": "whisper.cpp output on synthesised silence and noise. Verbatim: punctuation and bracket markers are the artefact under test.",
+  "records": [
+    {
+      "stimulus": "silence_2s.wav",
+      "description": "digital silence, 2 s",
+      "text": "you"
+    },
+    {
+      "stimulus": "silence_5s.wav",
+      "description": "digital silence, 5 s",
+      "text": "you"
+    },
+    {
+      "stimulus": "silence_10s.wav",
+      "description": "digital silence, 10 s",
+      "text": "you"
+    },
+    {
+      "stimulus": "roomtone_3s.wav",
+      "description": "room tone, very low white noise",
+      "text": "[BLANK_AUDIO]"
+    },
+    {
+      "stimulus": "roomtone_8s.wav",
+      "description": "room tone, 8 s",
+      "text": "[BLANK_AUDIO]"
+    },
+    {
+      "stimulus": "white_low_4s.wav",
+      "description": "broadband noise, low level",
+      "text": "(buzzing)"
+    },
+    {
+      "stimulus": "white_mid_4s.wav",
+      "description": "broadband noise, mid level",
+      "text": "(blender whirring)"
+    },
+    {
+      "stimulus": "white_high_4s.wav",
+      "description": "broadband noise, high level",
+      "text": "(blender whirring)"
+    },
+    {
+      "stimulus": "rotorwash_5s.wav",
+      "description": "band-limited rotor wash",
+      "text": "(dramatic music)"
+    },
+    {
+      "stimulus": "rumble_5s.wav",
+      "description": "airframe rumble, 55 Hz plus low noise",
+      "text": "(dramatic music)"
+    },
+    {
+      "stimulus": "rumble_harmonic_6s.wav",
+      "description": "motor harmonics, 110/220 Hz",
+      "text": "(buzzing)"
+    },
+    {
+      "stimulus": "gusts_6s.wav",
+      "description": "wind gusts across the microphone",
+      "text": "[MUSIC PLAYING]"
+    },
+    {
+      "stimulus": "gusts_12s.wav",
+      "description": "wind gusts, long window",
+      "text": "[MUSIC PLAYING]"
+    },
+    {
+      "stimulus": "clicks_4s.wav",
+      "description": "transient clicks, no speech",
+      "text": "(beep)"
+    },
+    {
+      "stimulus": "clicks_in_noise_5s.wav",
+      "description": "transient clicks over room tone",
+      "text": "(fire crackling)"
+    },
+    {
+      "stimulus": "tone_sweep_pair_4s.wav",
+      "description": "steady two-tone, speech band",
+      "text": "(beeping)"
+    },
+    {
+      "stimulus": "roomtone_then_silence_9s.wav",
+      "description": "room tone that stops, then silence",
+      "text": "(water running)"
+    },
+    {
+      "stimulus": "silence_1s.wav",
+      "description": "digital silence, 1 s (below VAD window)",
+      "text": "you"
+    },
+    {
+      "stimulus": "white_mid_12s.wav",
+      "description": "broadband noise, long window",
+      "text": "(crickets chirping)"
+    },
+    {
+      "stimulus": "rotorwash_gusts_8s.wav",
+      "description": "rotor wash plus wind",
+      "text": "(engine revving)"
+    }
+  ],
+  "transcripts": [
+    "you",
+    "you",
+    "you",
+    "[BLANK_AUDIO]",
+    "[BLANK_AUDIO]",
+    "(buzzing)",
+    "(blender whirring)",
+    "(blender whirring)",
+    "(dramatic music)",
+    "(dramatic music)",
+    "(buzzing)",
+    "[MUSIC PLAYING]",
+    "[MUSIC PLAYING]",
+    "(beep)",
+    "(fire crackling)",
+    "(beeping)",
+    "(water running)",
+    "you",
+    "(crickets chirping)",
+    "(engine revving)"
+  ]
+}

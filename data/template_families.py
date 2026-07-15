@@ -12,9 +12,15 @@ This split assignment prevents template leakage across splits, verified by Gate 
 from __future__ import annotations
 
 import json
+import sys
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Literal
+
+if __package__ in (None, ""):  # `python data/template_families.py`
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+from schema.schema import KEY_ORDER
 
 FAMILIES_JSON_PATH = Path(__file__).parent / "template_families.json"
 
@@ -35,27 +41,40 @@ class TemplateFamily:
 FAMILIES: list[TemplateFamily] = []
 
 # --- Formation (24 families: 20 train, 2 val, 2 test) ---
+#
+# Four families (F002, F007, F012, F016) carried a `speed` slot as assigned in
+# 01B --- "circle with radius and transit speed". Schema v1.0 has no `speed` on
+# `formation`: `Formation` declares shape/radius/spacing/ids and `c-form` in
+# cmd.gbnf is `"shape":" shape o-radius o-spacing o-ids`, with no `o-speed`
+# (Issue 30). Every row those four families produced would have been rejected by
+# layer 1 and by `extra="forbid"` in layer 2.
+#
+# The unrepresentable `speed` slot is dropped, keeping the required size slot
+# (`radius` for circle, `spacing` for line/grid/column) as mandated by Layer 2
+# required-slot matrix (§2.4: circle requires radius; line, grid, column require
+# spacing). Transit-speed phrasing lives on in `set_param` (F107, F110-F113),
+# where the schema has a field for it.
 formation_configs = [
     # Circle (radius)
     ("F001", "formation", "shape:circle,radius", "Circle with explicit metric radius", "train"),
-    ("F002", "formation", "shape:circle,radius,speed", "Circle with radius and transit speed", "train"),
+    ("F002", "formation", "shape:circle,radius", "Circle with radius phrasing", "train"),
     ("F003", "formation", "shape:circle,radius,ids", "Circle formation for subset of drones", "train"),
     ("F004", "formation", "shape:circle,radius", "Circle with conversational radius phrasing", "val"),
     ("F005", "formation", "shape:circle,radius,ids", "Circle subset formation radio register", "test_synth"),
     # Line (spacing)
     ("F006", "formation", "shape:line,spacing", "Linear formation with inter-drone spacing", "train"),
-    ("F007", "formation", "shape:line,spacing,speed", "Line with spacing and transit speed", "train"),
+    ("F007", "formation", "shape:line,spacing", "Line with spacing phrasing", "train"),
     ("F008", "formation", "shape:line,spacing,ids", "Line formation for subset of drones", "train"),
     ("F009", "formation", "shape:line,spacing", "Line spacing imperative command", "val"),
     ("F010", "formation", "shape:line,spacing,ids", "Linear subset radio shorthand", "test_synth"),
     # Grid (spacing)
     ("F011", "formation", "shape:grid,spacing", "2D horizontal grid with spacing", "train"),
-    ("F012", "formation", "shape:grid,spacing,speed", "Grid with spacing and transit speed", "train"),
+    ("F012", "formation", "shape:grid,spacing", "Grid with spacing phrasing", "train"),
     ("F013", "formation", "shape:grid,spacing,ids", "Grid formation for drone subset", "train"),
     ("F014", "formation", "shape:grid,spacing", "Grid formation conversational phrasing", "train"),
     # Column (spacing)
     ("F015", "formation", "shape:column,spacing", "Vertical column stack with spacing", "train"),
-    ("F016", "formation", "shape:column,spacing,speed", "Column stack with transit speed", "train"),
+    ("F016", "formation", "shape:column,spacing", "Column stack with spacing phrasing", "train"),
     ("F017", "formation", "shape:column,spacing,ids", "Column stack for drone subset", "train"),
     ("F018", "formation", "shape:column,spacing", "Column formation terse radio command", "train"),
     # Wedge
@@ -94,7 +113,8 @@ move_configs = [
     ("F040", "move", "dir:west,dist", "Cardinal displacement west with distance", "train"),
     ("F041", "move", "dir:west,dist,speed", "Displacement west with speed", "train"),
     ("F042", "move", "dir:west,dist,ids", "Subset displacement west", "train"),
-    ("F043", "move", "dir:east,dist", "Eastward displacement imperative", "train"),
+    # F043 is the test_synth half of the split swap documented below, at F050.
+    ("F043", "move", "dir:east,dist", "Eastward displacement imperative", "test_synth"),  # 01B: train
     ("F044", "move", "dir:west,dist,ids", "Westward subset displacement radio register", "train"),
     # Direction: Up / Down
     ("F045", "move", "dir:up,dist", "Relative upward climb by distance", "train"),
@@ -103,11 +123,26 @@ move_configs = [
     ("F048", "move", "dir:down,dist,speed", "Downward descent with speed limit", "train"),
     ("F049", "move", "dir:up,dist,ids", "Subset relative climb", "train"),
     # Direction: Body-relative (forward, back, left, right)
-    ("F050", "move", "dir:forward,dist", "Body-relative forward translation", "train"),
+    #
+    # Split swap applied in Session 02A, before any row was generated (Issue 28).
+    # As assigned in 01B, `dir:left` (F053, val) and `dir:right` (F054,
+    # test_synth) were each covered by exactly one family, and both of those
+    # families sat outside `train` --- so two of the ten `dir` enum values would
+    # never have appeared in a training example, while val drove checkpoint
+    # selection on one of them and test_synth/test_golden scored the other. That
+    # is ~8% of the held-out rows made unlearnable by a bookkeeping artefact, on
+    # a benchmark whose bar is EM >= 0.85 (NFR-4).
+    #
+    # F053 and F054 move to `train`; F050 (`dir:forward`) goes to val and F043
+    # (`dir:east`) to test_synth. Both donors leave their direction covered in
+    # train --- forward by F051, east by F037/F038/F039 --- and the held-out
+    # families keep the same slot pattern (`dir,dist`), so the 96/12/12 counts
+    # and the pattern coverage of each split are unchanged.
+    ("F050", "move", "dir:forward,dist", "Body-relative forward translation", "val"),
     ("F051", "move", "dir:forward,dist,speed", "Forward translation with speed", "train"),
     ("F052", "move", "dir:back,dist", "Body-relative backward translation", "train"),
-    ("F053", "move", "dir:left,dist", "Body-relative lateral left translation", "val"),
-    ("F054", "move", "dir:right,dist", "Body-relative lateral right translation", "test_synth"),
+    ("F053", "move", "dir:left,dist", "Body-relative lateral left translation", "train"),
+    ("F054", "move", "dir:right,dist", "Body-relative lateral right translation", "train"),
 ]
 
 for fid, intent, sp, desc, sp_type in move_configs:
@@ -246,7 +281,90 @@ assert len(TRAIN_FAMILIES) == 96, f"Expected 96 train families, got {len(TRAIN_F
 assert len(VAL_FAMILIES) == 12, f"Expected 12 val families, got {len(VAL_FAMILIES)}"
 assert len(TEST_FAMILIES) == 12, f"Expected 12 test families, got {len(TEST_FAMILIES)}"
 
+# Every enum value the schema admits must be reachable from `train`, or the model
+# is asked at eval time for a token it was never shown. This is the regression
+# guard for the F050/F053 and F043/F054 swap documented above (Issue 28); the
+# assignment table is hand-maintained, so nothing else would catch a repeat.
+_TRAIN_DIRS = {
+    f.slot_pattern.split("dir:", 1)[1].split(",", 1)[0]
+    for f in TRAIN_FAMILIES
+    if "dir:" in f.slot_pattern
+}
+_ALL_DIRS = {
+    f.slot_pattern.split("dir:", 1)[1].split(",", 1)[0]
+    for f in FAMILIES
+    if "dir:" in f.slot_pattern
+}
+assert _TRAIN_DIRS == _ALL_DIRS, f"directions held out of train: {sorted(_ALL_DIRS - _TRAIN_DIRS)}"
+
+_TRAIN_SHAPES = {
+    f.slot_pattern.split("shape:", 1)[1].split(",", 1)[0]
+    for f in TRAIN_FAMILIES
+    if "shape:" in f.slot_pattern
+}
+_ALL_SHAPES = {
+    f.slot_pattern.split("shape:", 1)[1].split(",", 1)[0]
+    for f in FAMILIES
+    if "shape:" in f.slot_pattern
+}
+assert _TRAIN_SHAPES == _ALL_SHAPES, f"shapes held out of train: {sorted(_ALL_SHAPES - _TRAIN_SHAPES)}"
+
+# The converse does *not* hold and cannot, at 12 held-out families over 10
+# intents: only `circle` and `line` have a family in val/test_synth, so
+# `grid`/`column`/`wedge`/`flock` are trained but never scored (Issue 29). The
+# two that are held out are chosen to cover both formation slot types --- circle
+# exercises `radius`, line exercises `spacing` --- so no *slot* goes unscored,
+# only four `shape` enum values. Carried into the dataset card (Session 03).
+_HELDOUT_SHAPES = {
+    f.slot_pattern.split("shape:", 1)[1].split(",", 1)[0]
+    for f in FAMILIES
+    if "shape:" in f.slot_pattern and f.split != "train"
+}
+assert _HELDOUT_SHAPES == {"circle", "line"}, f"held-out shape coverage changed: {_HELDOUT_SHAPES}"
+
 FAMILY_MAP: dict[str, TemplateFamily] = {f.family_id: f for f in FAMILIES}
+
+
+# Every slot a family declares must be a field the frozen schema actually has for
+# that intent. `KEY_ORDER` is derived from the Pydantic models themselves, so this
+# compares the table against the contract rather than against a second copy of it
+# (README:56, Trap 5) --- adding a model field is enough to widen it, and nothing
+# here has to be kept in sync by hand.
+#
+# This is the regression guard for Issue 30: four `formation` families declared a
+# `speed` slot the intent has no field for, which would have failed FR-1 on 80
+# rows at generation time rather than here, at import.
+def _pattern_keys(slot_pattern: str) -> set[str]:
+    """The label keys a `slot_pattern` implies, in the 01B table's notation."""
+    keys: set[str] = set()
+    for token in slot_pattern.split(","):
+        token = token.strip()
+        if not token or token == "none":
+            continue
+        keys.add(token.split(":", 1)[0])  # `shape:circle` -> shape, `dir:east` -> dir
+    return keys
+
+
+_SLOT_ERRORS = [
+    f"{f.family_id} ({f.intent}) declares {sorted(_pattern_keys(f.slot_pattern) - set(KEY_ORDER[f.intent]))}"
+    for f in FAMILIES
+    if not _pattern_keys(f.slot_pattern) <= set(KEY_ORDER[f.intent])
+]
+assert not _SLOT_ERRORS, "slot patterns outside schema v1.0: " + "; ".join(_SLOT_ERRORS)
+
+# The converse, as a coverage report rather than an assertion: which representable
+# slots no family exercises. `pos` and `dir`/`dist` are alternatives in `c-move`,
+# so a move family covers one or the other and never both.
+UNCOVERED_SLOTS: dict[str, tuple[str, ...]] = {
+    intent: tuple(
+        sorted(
+            set(keys)
+            - {"intent"}
+            - {k for f in FAMILIES if f.intent == intent for k in _pattern_keys(f.slot_pattern)}
+        )
+    )
+    for intent, keys in KEY_ORDER.items()
+}
 
 
 def export_json(path: Path = FAMILIES_JSON_PATH) -> None:
@@ -262,3 +380,7 @@ if __name__ == "__main__":
     print(f"  train: {len(TRAIN_FAMILIES)} (80%)")
     print(f"  val: {len(VAL_FAMILIES)} (10%)")
     print(f"  test_synth: {len(TEST_FAMILIES)} (10%)")
+    print("  slot patterns: all inside schema v1.0")
+    for _intent, _slots in UNCOVERED_SLOTS.items():
+        if _slots:
+            print(f"  uncovered slots for {_intent}: {', '.join(_slots)}")

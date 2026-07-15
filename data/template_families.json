@@ -9,8 +9,8 @@
   {
     "family_id": "F002",
     "intent": "formation",
-    "slot_pattern": "shape:circle,radius,speed",
-    "description": "Circle with radius and transit speed",
+    "slot_pattern": "shape:circle,radius",
+    "description": "Circle with radius phrasing",
     "split": "train"
   },
   {
@@ -44,8 +44,8 @@
   {
     "family_id": "F007",
     "intent": "formation",
-    "slot_pattern": "shape:line,spacing,speed",
-    "description": "Line with spacing and transit speed",
+    "slot_pattern": "shape:line,spacing",
+    "description": "Line with spacing phrasing",
     "split": "train"
   },
   {
@@ -79,8 +79,8 @@
   {
     "family_id": "F012",
     "intent": "formation",
-    "slot_pattern": "shape:grid,spacing,speed",
-    "description": "Grid with spacing and transit speed",
+    "slot_pattern": "shape:grid,spacing",
+    "description": "Grid with spacing phrasing",
     "split": "train"
   },
   {
@@ -107,8 +107,8 @@
   {
     "family_id": "F016",
     "intent": "formation",
-    "slot_pattern": "shape:column,spacing,speed",
-    "description": "Column stack with transit speed",
+    "slot_pattern": "shape:column,spacing",
+    "description": "Column stack with spacing phrasing",
     "split": "train"
   },
   {
@@ -298,7 +298,7 @@
     "intent": "move",
     "slot_pattern": "dir:east,dist",
     "description": "Eastward displacement imperative",
-    "split": "train"
+    "split": "test_synth"
   },
   {
     "family_id": "F044",
@@ -347,7 +347,7 @@
     "intent": "move",
     "slot_pattern": "dir:forward,dist",
     "description": "Body-relative forward translation",
-    "split": "train"
+    "split": "val"
   },
   {
     "family_id": "F051",
@@ -368,14 +368,14 @@
     "intent": "move",
     "slot_pattern": "dir:left,dist",
     "description": "Body-relative lateral left translation",
-    "split": "val"
+    "split": "train"
   },
   {
     "family_id": "F054",
     "intent": "move",
     "slot_pattern": "dir:right,dist",
     "description": "Body-relative lateral right translation",
-    "split": "test_synth"
+    "split": "train"
   },
   {
     "family_id": "F055",

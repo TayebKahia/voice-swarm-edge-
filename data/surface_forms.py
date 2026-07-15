@@ -39,24 +39,28 @@ anyway, and EM is measured on this same text, so nothing downstream depends on
 casing. The round-trip variants added in Session 02B arrive in Whisper's own
 capitalised, punctuated style, which is what gives the model both distributions.
 
-**Two surface conventions are recorded in `docs/adr/0002`,** because they are
+**Four surface conventions are recorded in `docs/adr/0003`,** because they are
 semantic decisions the PRD does not make: the yaw sign convention (and therefore
-what "turn left" means), and the diameter-vs-radius reading of "ten metres wide".
+what "turn left" means), the diameter-vs-radius reading of "ten metres wide",
+negation resolving to `hover`, and unresolvable ellipsis resolving to `unknown`.
 """
 
 from __future__ import annotations
 
 import random
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 __all__ = [
     "REGISTERS",
     "NUMBER_FORMS",
     "ADDRESSING_MODES",
+    "ELLIPSIS_INTENTS",
     "Axes",
     "num_to_words",
     "render_number",
+    "render_addressing",
     "spoken_ids",
+    "synonym_pool",
     "realise",
     "SHAPE_SYNONYMS",
     "DIRECTION_SYNONYMS",
@@ -305,7 +309,7 @@ _MOVE_VERBS = ("move", "go", "head", "shift", "push", "proceed", "translate")
 _CLIMB_VERBS = ("climb to", "go up to", "ascend to", "rise to", "come up to")
 _DESCEND_VERBS = ("drop to", "descend to", "come down to", "go down to", "settle to")
 _HOLD_ALT_VERBS = ("hold at", "level off at", "sit at", "maintain")
-_TAKEOFF_VERBS = ("take off", "launch", "lift off", "get airborne", "spin up and launch", "up you go")
+_TAKEOFF_VERBS = ("take off", "launch", "lift off", "get airborne", "spin up and launch", "get in the air")
 _LAND_VERBS = ("land", "set down", "touch down", "put it down", "bring it down", "come home")
 _HOVER_VERBS = ("hover", "hold position", "hold", "stay put", "freeze", "hold station", "station keep")
 _ABORT_VERBS = ("abort", "emergency stop", "kill it", "all stop", "cut the motors", "abort abort", "kill the motors", "shut it down")
@@ -379,7 +383,10 @@ def _finish(core: str, addr: str, axes: Axes, rng: random.Random) -> str:
         text = _apply_politeness(text, axes.register, rng)
     if axes.disfluency:
         text = _inject_disfluency(text, rng)
-    return " ".join(text.split())
+    # Lowercase last, once: several frames above are written with a capital "I"
+    # because that is how the phrase reads in isolation, and the corpus
+    # convention is lowercase throughout (see the module docstring).
+    return " ".join(text.split()).lower()
 
 
 # --- per-intent cores ------------------------------------------------------
@@ -399,7 +406,7 @@ def _formation_cores(gold: dict, axes: Axes, rng: random.Random) -> list[str]:
     if gold.get("radius") is not None:
         radius = float(gold["radius"])
         # Diameter phrasing: "ten metres wide" is radius 5. Kept deliberately
-        # and at low frequency (ADR-0002) --- it is the one place the operator's
+        # and at low frequency (ADR-0003) --- it is the one place the operator's
         # words and the label's number legitimately differ, and a model that
         # cannot do it will mis-size half of the real commands it hears.
         if rng.random() < 0.18 and float(radius * 2).is_integer():
@@ -422,10 +429,14 @@ def _formation_cores(gold: dict, axes: Axes, rng: random.Random) -> list[str]:
             )
         )
 
-    speed = ""
-    if gold.get("speed") is not None:
-        value = render_number(float(gold["speed"]), axes.number_form, "mps", rng)
-        speed = rng.choice((f"at {value}", f"no faster than {value}", f"speed {value}"))
+    # `size` is empty for F019/F023, the bare-shape families (wedge and flock):
+    # the operator names a shape and gives no size, and the label omits the slot
+    # rather than inventing a value. Every branch below reads correctly without it.
+    #
+    # There is deliberately no transit-speed phrasing here. `Formation` has no
+    # `speed` field and `c-form` has no `o-speed`, so rendering one would produce a
+    # transcript no legal label can express (Issue 30). Transit speed is
+    # `set_param`, and `_set_cores` renders it.
 
     if reg == "terse_radio":
         candidates = [
@@ -452,8 +463,6 @@ def _formation_cores(gold: dict, axes: Axes, rng: random.Random) -> list[str]:
             f"can we get a {noun}{', ' + size if size else ''}, sort of",
         ]
 
-    if speed:
-        candidates = [f"{c} {speed}" for c in candidates]
     return candidates
 
 
@@ -569,7 +578,7 @@ def _takeoff_cores(gold: dict, axes: Axes, rng: random.Random) -> list[str]:
         height = rng.choice((f"to {value}", f"and climb to {value}", f"up to {value}", f"and hold {value}"))
 
     if reg == "terse_radio":
-        base = [f"{verb}", f"{verb} now", f"clear for {verb}"]
+        base = [f"{verb}", f"{verb} now", f"cleared to {verb}"]
     elif reg == "imperative":
         base = [f"{verb}", f"{verb} immediately", f"arm and {verb}"]
     elif reg == "conversational":
@@ -583,9 +592,12 @@ def _land_cores(gold: dict, axes: Axes, rng: random.Random) -> list[str]:
     verb = axes.synonym
     reg = axes.register
     if reg == "terse_radio":
-        return [f"{verb}", f"{verb} now", f"recover"]
+        return [f"{verb}", f"{verb} now", "recover"]
     if reg == "imperative":
-        return [f"{verb}", f"{verb} immediately", f"{verb} on the pad"]
+        # The pad phrasing stands alone rather than taking the synonym: several
+        # members of the pool ("come home", "bring it down") already carry a
+        # destination, and stacking two reads as neither.
+        return [f"{verb}", f"{verb} immediately", "put it down on the pad"]
     if reg == "conversational":
         return [f"let's {verb}", f"bring everything down and {verb}", f"{verb} when you can"]
     return [f"uh, {verb} I think", f"{verb}... yeah {verb}", f"maybe {verb} now"]
@@ -606,8 +618,11 @@ def _hover_cores(gold: dict, axes: Axes, rng: random.Random) -> list[str]:
 def _abort_cores(gold: dict, axes: Axes, rng: random.Random) -> list[str]:
     verb = axes.synonym
     reg = axes.register
+    # Repetition is how the call is actually made on the radio, but only for the
+    # one-word members --- "emergency stop emergency stop" is nobody's utterance.
+    doubled = f"{verb} {verb}" if " " not in verb else f"{verb}, and I mean now"
     if reg == "terse_radio":
-        return [f"{verb}", f"{verb} {verb}", f"{verb} now"]
+        return [f"{verb}", doubled, f"{verb} now"]
     if reg == "imperative":
         return [f"{verb}", f"{verb} immediately", f"{verb}, everything down"]
     if reg == "conversational":
@@ -620,7 +635,7 @@ def _rotate_cores(gold: dict, axes: Axes, rng: random.Random) -> list[str]:
     verb = axes.synonym
     reg = axes.register
 
-    # ADR-0002: positive yaw is counter-clockwise seen from above, so a positive
+    # ADR-0003: positive yaw is counter-clockwise seen from above, so a positive
     # angle is a turn to the LEFT and a negative angle a turn to the RIGHT. The
     # signed magnitude is what the label holds; the surface form may express the
     # sign either as a word ("minus ninety") or as a hand ("right ninety").
@@ -712,6 +727,65 @@ _SYNONYM_POOLS: dict[str, tuple[str, ...]] = {
 }
 
 
+# --- axis 5: ellipsis fragments -------------------------------------------
+#
+# An elliptical command drops the verb and keeps the content: "circle, radius
+# five", "north fifteen metres", "yaw ninety". It is the register a practised
+# operator falls into after the first few commands, and it is the case where the
+# model has the least to go on --- no verb means the intent has to come from the
+# slot shape alone.
+#
+# Ellipsis only exists where there *is* content to keep. `takeoff`, `land`,
+# `hover`, `abort` and `unknown` are carried entirely by their verb, so eliding
+# it leaves nothing; those intents opt out and `data/generate.py` reports axis
+# coverage over the applicable subset rather than pretending otherwise.
+ELLIPSIS_INTENTS: frozenset[str] = frozenset(
+    {"formation", "move", "altitude", "rotate", "set_param"}
+)
+
+_ALL_VERBS: tuple[str, ...] = tuple(
+    sorted(
+        set(
+            _FORM_VERBS
+            + _MOVE_VERBS
+            + _CLIMB_VERBS
+            + _DESCEND_VERBS
+            + _HOLD_ALT_VERBS
+            + _TAKEOFF_VERBS
+            + _LAND_VERBS
+            + _HOVER_VERBS
+            + _ABORT_VERBS
+            + _ROTATE_VERBS
+            + _SET_VERBS
+        ),
+        key=len,
+        reverse=True,
+    )
+)
+
+
+def _starts_with_verb(core: str) -> bool:
+    """Does this core open with a command verb, on a word boundary?"""
+    return any(core == v or core.startswith(v + " ") for v in _ALL_VERBS)
+
+
+def _elliptical_cores(gold: dict, axes: Axes, rng: random.Random) -> list[str]:
+    """The verbless frames for this label.
+
+    Built by asking the intent's own frame bank for its terse-radio candidates
+    and keeping the ones that do not open with a verb, rather than by editing
+    text after the fact. So there is exactly one place that knows how to render a
+    radius or a heading, and ellipsis cannot drift away from it.
+
+    Addressing, politeness and disfluency are still applied afterwards from the
+    row's *own* register, so an elliptical row is not a duplicate of a terse one.
+    """
+    terse = replace(axes, register="terse_radio")
+    candidates = _CORE_BUILDERS[gold["intent"]](gold, terse, rng)
+    verbless = [c for c in candidates if not _starts_with_verb(c)]
+    return verbless or candidates
+
+
 def synonym_pool(gold: dict, rng: random.Random) -> tuple[str, ...]:
     """Candidate head words for this label, i.e. axis 3's alphabet for the row."""
     intent = gold["intent"]
@@ -743,6 +817,10 @@ def realise(gold: dict, axes: Axes, rng: random.Random) -> str:
     correct by construction (`02_dataset_plan.md` §3.1).
     """
     builder = _CORE_BUILDERS[gold["intent"]]
-    core = rng.choice(builder(gold, axes, rng))
+    if axes.ellipsis:
+        candidates = _elliptical_cores(gold, axes, rng)
+    else:
+        candidates = builder(gold, axes, rng)
+    core = rng.choice(candidates)
     addr = render_addressing(gold.get("ids"), axes.addressing, axes.number_form, rng)
     return _finish(core, addr, axes, rng)
