@@ -90,8 +90,17 @@ def check_dataset_split_leakage(
     held_out_rows: list[dict[str, Any]],
     held_out_name: str = "held_out",
     sim_threshold: float = 0.85,
+    check_families: bool = True,
+    reference_name: str = "train",
 ) -> list[str]:
-    """Check for family ID overlap and surface-form lexical near-duplicates."""
+    """Check for family ID overlap and surface-form lexical near-duplicates.
+
+    `check_families` is False when comparing two *held-out* sets to each other.
+    Family disjointness there is already guaranteed by the 96/12/12 allocation
+    (`check_template_family_integrity`), so re-checking it proves nothing --- and
+    `test_golden` draws from the `test_synth` families by construction, so the
+    overlap check would misfire on a corpus that is behaving correctly.
+    """
     errors: list[str] = []
 
     # `template_family` is the key §7.4 fixes for the record format; `family_id`
@@ -105,16 +114,19 @@ def check_dataset_split_leakage(
     train_families = {f for r in train_rows if (f := _family(r))}
     held_out_families = {f for r in held_out_rows if (f := _family(r))}
 
-    if not train_families or not held_out_families:
+    if not check_families:
+        train_families = held_out_families = set()
+    elif not train_families or not held_out_families:
         errors.append(
-            f"no template_family on {'train' if not train_families else held_out_name} rows; "
+            f"no template_family on {reference_name if not train_families else held_out_name} rows; "
             f"the family-overlap check cannot run (expected key 'template_family', §7.4)"
         )
 
     overlap_families = train_families & held_out_families
     if overlap_families:
         errors.append(
-            f"Family ID leakage between train and {held_out_name}: {sorted(overlap_families)}"
+            f"Family ID leakage between {reference_name} and {held_out_name}: "
+            f"{sorted(overlap_families)}"
         )
 
     # Surface form leakage check
@@ -137,7 +149,7 @@ def check_dataset_split_leakage(
         # Exact match
         if norm in train_transcripts:
             errors.append(
-                f"Exact transcript match across split (train vs {held_out_name}): {text!r}"
+                f"Exact transcript match across split ({reference_name} vs {held_out_name}): {text!r}"
             )
             leakage_count += 1
             if leakage_count >= 10:
@@ -154,7 +166,8 @@ def check_dataset_split_leakage(
             sim = max(token_sim, ngram_sim)
             if sim >= sim_threshold:
                 errors.append(
-                    f"Surface-form near-duplicate ({sim:.2f}) across split (train vs {held_out_name}):\n"
+                    f"Surface-form near-duplicate ({sim:.2f}) across split "
+                    f"({reference_name} vs {held_out_name}):\n"
                     f"  held-out: {text!r}\n"
                     f"  train:    {train_transcripts[train_norm]!r}"
                 )
@@ -249,6 +262,32 @@ def main() -> int:
                     f"[+] Split isolation (train vs {split_name}): PASS "
                     f"({len(held_rows)} rows, 0 overlaps, 0 near-duplicates)"
                 )
+
+        # The held-out sets must also be independent of *each other*. Train-vs-each
+        # catches memorisation; it says nothing about whether `val`, `test_synth`
+        # and `test_golden` are measuring the same thing twice. Three eval scores
+        # that quietly agree because their rows overlap read as corroboration at
+        # Gate 3 when they are one signal reported three times.
+        for i, (name_a, rows_a) in enumerate(held_out_sets):
+            for name_b, rows_b in held_out_sets[i + 1:]:
+                pair_errors = check_dataset_split_leakage(
+                    rows_a,
+                    rows_b,
+                    name_b,
+                    sim_threshold=args.threshold,
+                    check_families=False,
+                    reference_name=name_a,
+                )
+                all_errors.extend(pair_errors)
+                if pair_errors:
+                    print(f"[-] Overlap detected between {name_a} and {name_b}:")
+                    for err in pair_errors[:5]:
+                        print(f"    - {err}")
+                else:
+                    print(
+                        f"[+] Eval independence ({name_a} vs {name_b}): PASS "
+                        f"({len(rows_b)} rows, 0 exact matches, 0 near-duplicates)"
+                    )
     else:
         print("[*] Generated data splits not yet materialized (Session 02A pending). Family assignments verified.")
 

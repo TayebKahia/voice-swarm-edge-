@@ -26,7 +26,7 @@ data/template_families.py   : AUTHORED (dataclass, split assignments, schema val
 data/harvest_asr_garbage.py : AUTHORED & HARVESTED (20 stimuli synthesized: silence, tone, rotorwash, gusts, rumbles; processed with whisper.cpp tiny.en; 12 distinct hallucinations)
 data/asr_garbage.json       : HARVESTED (20 stimuli records from whisper-cli on noise/silence)
 data/surface_forms.py       : AUTHORED (realisation engine with all 7 diversity axes: register, number forms, addressing modes, disfluency, politeness, ellipsis, synonyms)
-data/hard_negatives.py      : AUTHORED (155 contrast rows across 20 groups; negation -> hover, abort exempt)
+data/hard_negatives.py      : AUTHORED (155 contrast rows; 34 group lists, 38 labels; negation -> hover, abort exempt)
 data/ood.py                 : AUTHORED (150 eval-only OOD rows across 4 quarters: MASSIVE, drone-adjacent unsupported, whisper ASR garbage, truncated fragments)
 data/generate.py            : AUTHORED (seed 42 deterministic generator, cross-split Jaccard filtering < 0.85, non-singleton paraphrase grouping)
 data/raw_pairs.jsonl        : GENERATED (2,421 rows: 1,941 train [80.2%], 240 val [9.9%], 240 test_synth [9.9%])

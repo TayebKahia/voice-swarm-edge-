@@ -117,6 +117,7 @@ ROWS_PER_FAMILY = 20
 PARAPHRASES_K = 8          # §3.1: "K=8 distinct ways a human operator would say this"
 GOLDEN_ROWS = 200
 NEAR_DUPLICATE_JACCARD = 0.85
+HELD_OUT_SPLITS = ("val", "test_synth", "test_golden")
 
 # `dist` and `alt` are not in the PRD's Table 6; ADR-0001 derives them from the
 # envelope that is (|pos| <= 50 bounds a displacement, alt is an altitude).
@@ -350,17 +351,6 @@ def _literal_gold(gold: dict[str, object]) -> dict[str, object]:
         else:
             out[key] = value
     return out
-
-
-def _tokens(text: str) -> frozenset[str]:
-    norm = normalize_transcript(text)
-    return frozenset(norm.split())
-
-
-def _jaccard(a: frozenset[str], b: frozenset[str]) -> float:
-    if not a or not b:
-        return 0.0
-    return len(a & b) / len(a | b)
 
 
 def _leakage_features(text: str) -> tuple[set[str], set[tuple[str, ...]]]:
@@ -723,30 +713,51 @@ def check_no_duplicates(rows: list[dict[str, object]]) -> None:
         seen[text] = row["id"]
 
 
-def check_cross_split_near_duplicates(rows: list[dict[str, object]]) -> list[tuple[str, str, float]]:
+def check_cross_split_near_duplicates(
+    rows: list[dict[str, object]],
+    golden: list[dict[str, object]] | None = None,
+) -> list[tuple[str, str, float]]:
     """No held-out row may be a near-paraphrase of a training row.
 
     Family disjointness (Gate 2) is necessary but not sufficient: two different
     families can independently produce "hover" for the same label. Jaccard over
-    tokens catches what family bookkeeping cannot.
+    tokens and 2-grams catches what family bookkeeping cannot.
+
+    Similarity is `max(token Jaccard, 2-gram Jaccard)` via `_leakage_sim` --- the
+    same measure `data/check_leakage.py` gates on and the same one the rejection
+    sampler enforces, so this audit cannot pass something the Gate 2 runner would
+    reject. `test_golden` is audited alongside `val` and `test_synth`: its rows
+    carry `split="test_synth"` for provenance, so they are bucketed here under
+    their own name rather than by that field.
 
     Compared within an intent only. Across intents high overlap is *desirable* ---
     that is what the hard negatives are --- so a global comparison would flag the
-    corpus's most valuable rows.
+    corpus's most valuable rows. This is the one place the audit stays deliberately
+    narrower than `check_leakage.py`, which compares every held-out row against
+    every train row regardless of intent.
     """
-    buckets: dict[str, dict[str, list[tuple[str, frozenset[str]]]]] = defaultdict(
+    Feature = tuple[set[str], set[tuple[str, ...]]]
+    buckets: dict[str, dict[str, list[tuple[str, Feature]]]] = defaultdict(
         lambda: defaultdict(list)
     )
+
+    def _bucket(row: dict[str, object], split: str) -> None:
+        buckets[row["gold_intent"]][split].append(
+            (row["id"], _leakage_features(row["transcript"]))
+        )
+
     for row in rows:
-        buckets[row["gold_intent"]][row["split"]].append((row["id"], _tokens(row["transcript"])))
+        _bucket(row, row["split"])
+    for row in golden or ():
+        _bucket(row, "test_golden")
 
     offenders: list[tuple[str, str, float]] = []
-    for intent, by_split in buckets.items():
+    for by_split in buckets.values():
         train = by_split.get("train", [])
-        for split in ("val", "test_synth"):
-            for held_id, held_tokens in by_split.get(split, []):
-                for train_id, train_tokens in train:
-                    score = _jaccard(held_tokens, train_tokens)
+        for split in HELD_OUT_SPLITS:
+            for held_id, held_feat in by_split.get(split, []):
+                for train_id, train_feat in train:
+                    score = _leakage_sim(held_feat, train_feat)
                     if score >= NEAR_DUPLICATE_JACCARD:
                         offenders.append((held_id, train_id, score))
     return offenders
@@ -950,7 +961,7 @@ def main(argv: list[str] | None = None) -> int:
     check_family_budget(raw_pairs)
     counts = check_axis_coverage(raw_pairs)
 
-    near_dupes = check_cross_split_near_duplicates(raw_pairs)
+    near_dupes = check_cross_split_near_duplicates(raw_pairs, golden)
 
     write_jsonl(RAW_PAIRS_PATH, raw_pairs)
     write_jsonl(TEST_OOD_PATH, ood)
@@ -992,7 +1003,11 @@ def main(argv: list[str] | None = None) -> int:
     print(f"    {'hard negatives':<20} {sum(1 for r in raw_pairs if r.get('hard_negative')):>5}")
     print()
 
-    print("  diversity axes (§3.2)")
+    # Authored rows (hard negatives, `unknown`) bypass the realisation engine and
+    # carry no `axes`, so `axis_histogram` skips them. State the denominator rather
+    # than letting "all 7 axes swept" read as a claim over the whole corpus.
+    with_axes = sum(1 for r in raw_pairs if r.get("axes"))
+    print(f"  diversity axes (§3.2) --- over {with_axes}/{len(raw_pairs)} rows carrying axes")
     for axis in ("register", "number_form", "addressing", "disfluency", "politeness", "ellipsis"):
         items = ", ".join(f"{k}={v}" for k, v in sorted(counts[axis].items()))
         print(f"    {axis:<12} {items}")
@@ -1021,12 +1036,15 @@ def main(argv: list[str] | None = None) -> int:
     print(f"gate: canon(validate(target)) == target on all {len(raw_pairs) + len(golden)} rows")
     print(f"gate: {len(raw_pairs) + len(golden)} transcripts, no duplicates")
     if near_dupes:
-        print(f"WARNING: {len(near_dupes)} cross-split near-duplicates at Jaccard >= "
+        print(f"GATE FAIL: {len(near_dupes)} cross-split near-duplicates at Jaccard >= "
               f"{NEAR_DUPLICATE_JACCARD}:")
         for held_id, train_id, score in near_dupes[:10]:
             print(f"    {held_id} ~ {train_id}  {score:.2f}")
         return 1
-    print(f"gate: no cross-split near-duplicates at Jaccard >= {NEAR_DUPLICATE_JACCARD}")
+    print(
+        f"gate: no cross-split near-duplicates at max(token, 2-gram) Jaccard "
+        f">= {NEAR_DUPLICATE_JACCARD} (train vs {', '.join(HELD_OUT_SPLITS)}, within intent)"
+    )
     return 0
 
 

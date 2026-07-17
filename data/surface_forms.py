@@ -395,6 +395,10 @@ def _finish(core: str, addr: str, axes: Axes, rng: random.Random) -> str:
 # with the row's rng, so diversity is the product of (register x synonym x
 # number form x addressing x candidate), not the sum.
 
+# ADR-0003 Decision 2 requires this frequency to be named rather than inlined, so
+# the diameter/radius mix in the corpus is auditable without reading the sampler.
+DIAMETER_PHRASING_RATE = 0.18
+
 
 def _formation_cores(gold: dict, axes: Axes, rng: random.Random) -> list[str]:
     shape = gold["shape"]
@@ -409,7 +413,7 @@ def _formation_cores(gold: dict, axes: Axes, rng: random.Random) -> list[str]:
         # and at low frequency (ADR-0003) --- it is the one place the operator's
         # words and the label's number legitimately differ, and a model that
         # cannot do it will mis-size half of the real commands it hears.
-        if rng.random() < 0.18 and float(radius * 2).is_integer():
+        if rng.random() < DIAMETER_PHRASING_RATE and float(radius * 2).is_integer():
             span = render_number(radius * 2, axes.number_form, "m", rng)
             size = rng.choice((f"{span} wide", f"{span} across", f"{span} in diameter"))
         else:
@@ -436,7 +440,7 @@ def _formation_cores(gold: dict, axes: Axes, rng: random.Random) -> list[str]:
     # There is deliberately no transit-speed phrasing here. `Formation` has no
     # `speed` field and `c-form` has no `o-speed`, so rendering one would produce a
     # transcript no legal label can express (Issue 30). Transit speed is
-    # `set_param`, and `_set_cores` renders it.
+    # `set_param`, and `_set_param_cores` renders it.
 
     if reg == "terse_radio":
         candidates = [
@@ -693,8 +697,9 @@ def _unknown_cores(gold: dict, axes: Axes, rng: random.Random) -> list[str]:
     """`unknown` and `hover`-from-negation rows carry authored text.
 
     Their surface forms are the *point* of the row (a near-miss, a negation, a
-    fragment), so they are supplied by the caller in `Ctx.literal` rather than
-    composed from frames. Reaching this function means the caller forgot to.
+    fragment), so they are authored in `data/hard_negatives.py` and passed through
+    verbatim rather than composed from frames. Reaching this function means the
+    caller forgot to.
     """
     raise ValueError(
         "unknown/hard-negative rows must supply their own surface form; "

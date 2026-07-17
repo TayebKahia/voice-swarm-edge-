@@ -515,12 +515,39 @@ def test_corpus_invariants_via_generate(raw_pairs: list[dict], golden: list[dict
     check_axis_coverage(raw_pairs)
 
 
-def test_no_cross_split_near_duplicates(raw_pairs: list[dict]) -> None:
-    offenders = check_cross_split_near_duplicates(raw_pairs)
+def test_no_cross_split_near_duplicates(raw_pairs: list[dict], golden: list[dict]) -> None:
+    offenders = check_cross_split_near_duplicates(raw_pairs, golden)
     assert not offenders, (
         f"{len(offenders)} held-out rows are near-paraphrases of training rows at "
         f"Jaccard >= {NEAR_DUPLICATE_JACCARD}: {offenders[:5]}"
     )
+
+
+def _audit_row(row_id: str, split: str, text: str, intent: str = "move") -> dict:
+    return {"id": row_id, "split": split, "gold_intent": intent, "transcript": text}
+
+
+def test_near_duplicate_audit_sees_golden_rows() -> None:
+    """`test_golden` must be audited, not just `val` and `test_synth`.
+
+    Golden rows carry `split="test_synth"` for provenance, so an audit that
+    buckets on that field alone silently never compares them --- which is what
+    this guards. The 200 golden rows are the corpus's most valuable eval set.
+    """
+    train = [_audit_row("T1", "train", "move north 10 metres everyone")]
+    golden = [_audit_row("G1", "test_synth", "move north 10 metres everyone")]
+    offenders = check_cross_split_near_duplicates(train, golden)
+    assert [o[0] for o in offenders] == ["G1"], offenders
+
+
+
+def test_near_duplicate_audit_keeps_hard_negatives() -> None:
+    """Cross-intent overlap is the *point* of a contrast group, never leakage."""
+    rows = [
+        _audit_row("T3", "train", "hover now", intent="hover"),
+        _audit_row("V3", "val", "hover now", intent="unknown"),
+    ]
+    assert check_cross_split_near_duplicates(rows) == []
 
 
 def test_train_covers_every_shape_and_direction(raw_pairs: list[dict]) -> None:

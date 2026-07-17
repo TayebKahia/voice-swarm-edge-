@@ -11,7 +11,7 @@ Label-first synthetic dataset generation covering 7 diversity axes, hard negativ
 ## Deliverables
 - `data/generate.py`: Deterministic label-first synthetic generator under seed 42.
 - `data/surface_forms.py`: Realisation engine covering all 7 diversity axes (register, number form, addressing, disfluency, politeness, ellipsis, synonyms).
-- `data/hard_negatives.py`: 155 decisive-token contrast rows across 20 groups (negations -> hover, abort exempt).
+- `data/hard_negatives.py`: 155 decisive-token contrast rows across 34 group lists / 38 distinct group labels (`_NEGATION` is one list carrying five labels) (negations -> hover, abort exempt).
 - `data/ood.py`: 150 eval-only OOD rows across 4 quarters (MASSIVE assistant queries, drone-adjacent unsupported, whisper ASR garbage, truncated fragments).
 - `data/harvest_asr_garbage.py`: Stimuli synthesis and automated whisper.cpp tiny.en harvesting.
 - `data/asr_garbage.json`: 20 stimuli harvested from whisper-cli on noise/silence.
@@ -49,13 +49,16 @@ Running Gate 2 split leakage verification...
 [+] Split isolation (train vs val): PASS (240 rows, 0 overlaps, 0 near-duplicates)
 [+] Split isolation (train vs test_synth): PASS (240 rows, 0 overlaps, 0 near-duplicates)
 [+] Split isolation (train vs test_golden): PASS (200 rows, 0 overlaps, 0 near-duplicates)
+[+] Eval independence (val vs test_synth): PASS (240 rows, 0 exact matches, 0 near-duplicates)
+[+] Eval independence (val vs test_golden): PASS (200 rows, 0 exact matches, 0 near-duplicates)
+[+] Eval independence (test_synth vs test_golden): PASS (200 rows, 0 exact matches, 0 near-duplicates)
 
 [+] Gate 2 verification SUCCESSFUL: No leakage detected.
 ```
 
 ### Test Suite (`pytest -v`)
 ```
-============================= 235 passed in 0.97s ==============================
+============================= 237 passed in 0.97s ==============================
 ```
 
 ## Comments

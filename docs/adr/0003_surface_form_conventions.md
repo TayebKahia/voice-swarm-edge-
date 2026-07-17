@@ -107,8 +107,10 @@ parameter deltas to the schema, these rows are re-labelled, not re-authored.
 
 ## Consequences
 
-- `data/surface_forms.py` is the single implementation of decisions 1, 2 and 4;
-  `data/hard_negatives.py` enforces 3 at import time.
+- `data/surface_forms.py` is the single implementation of decisions 1 and 2.
+  `data/hard_negatives.py` enforces 3 at import time and authors the F117 rows
+  that realise 4 --- those rows carry authored text, so `_unknown_cores()` in
+  `surface_forms.py` raises rather than composing a surface form for them.
 - All four are restated in the dataset card (Session 03 Task 4), because a model
   consumer cannot read them off the corpus.
 - Decisions 1 and 2 are the two places where a *correct* label may look wrong to
