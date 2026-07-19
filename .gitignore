@@ -97,6 +97,11 @@ data/noise/*
 data/commonvoice/*
 !data/commonvoice/.gitkeep
 
+# Piper voice models fetched by data/fetch_assets.py (~190 MB of ONNX).
+# Provenance -- URL, SHA-256, licence -- lives in the committed
+# data/asset_manifest.json, so the bytes are reproducible without being tracked.
+data/tts_voices/
+
 # ---------------------------------------------------------------------
 # NOT ignored, listed here so the intent is explicit:
 #   data/audio/s1/  s2/  s3/   320 irreplaceable recordings (~154 MB)

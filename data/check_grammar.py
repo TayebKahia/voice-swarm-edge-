@@ -59,6 +59,16 @@ DEFAULT_FILES = (
     DATA_DIR / "test_ood.jsonl",
 )
 
+#: The assembled splits, checked too once Session 02B has written them. They are
+#: not merely a re-partition of `raw_pairs.jsonl`: guard (ii) rewrites a destroyed
+#: row's target to `{"intent":"unknown"}`, so a label that never existed in
+#: `raw_pairs.jsonl` can appear here, and FR-1 has to see it.
+OPTIONAL_FILES = (
+    DATA_DIR / "train.jsonl",
+    DATA_DIR / "val.jsonl",
+    DATA_DIR / "test_synth.jsonl",
+)
+
 VALIDATOR_NAMES = ("llama-gbnf-validator", "gbnf-validator")
 VALIDATOR_DIRS = (
     Path.home() / "llama.cpp" / "build" / "bin",
@@ -139,7 +149,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
-    files = args.files or [p for p in DEFAULT_FILES]
+    files = args.files or [*DEFAULT_FILES, *(p for p in OPTIONAL_FILES if p.is_file())]
     missing = [p for p in files if not p.is_file()]
     if missing:
         print("missing artefacts (run `python data/generate.py` first):", file=sys.stderr)

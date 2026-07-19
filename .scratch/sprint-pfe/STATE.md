@@ -1,64 +1,92 @@
 # STATE
-Session: 02A (Wed 9 Sep, PRD D2)
-Last updated: 2026-09-09T16:15:00+01:00
+Session: 02B (Sun 13 Sep, PRD D3)
+Last updated: 2026-09-13T22:40:00+01:00
 
 ## Gates
-Gate 1 schema        : GREEN (pytest schema/ → 83 passed in 0.20s, tag schema-v1.1)
-Gate 2 leakage       : READY (check_leakage.py --strict → exit 0, 0 near-duplicates; Session 02B formal gate)
+Gate 1 schema        : GREEN (pytest schema/ -> 83 passed, tag schema-v1.1)
+Gate 2 leakage       : GREEN (check_leakage.py --strict -> exit 0, Sep 13; family, surface-form, eval-independence and noise-partition isolation all clean)
 Gate 3 parity        : PENDING (Session 05B)
-Gate 4 fsm           : PENDING (Session 08; Table 9 legality & grounded rejection verified in swarm/test_fsm.py)
+Gate 4 fsm           : PENDING (Session 08; Table 9 legality verified in swarm/test_fsm.py)
 Gate 5 dataset frozen: PENDING (Session 03)
 D1 Environment Gate  : GREEN (requirements.txt pinned, environment.yml exported)
+FR-1 grammar         : GREEN (5,191 labels across six files, 0 rejected)
 
 ## Artefacts
-schema/                     : FROZEN (cmd.gbnf, schema.py, validate.py, canon.py, logger.py, test_grammar.py, test_canon.py)
-                              - cmd.gbnf: verbatim from §2.3
-                              - schema.py: 10 intent Pydantic models, declaration order fixes key order, nulls omitted
-                              - validate.py: Layer 2 validator, slot matrix, clamp-and-log, pos.z ceiling/floor & norm clamp, yaw periodic wrapping, non-finite (NaN/Inf) rejection to HOVER, structured logging
-                              - canon.py: canonicaliser rule 1-5, single comparator helper canon_equal(), non-finite protection, total id handling
-                              - logger.py: structured JSON lines logging with LogRecord extra field preservation
-                              - test_grammar.py: 72 tests (adversarial corpus, Layer 2 overflow/non-finite handling, all clamp boundaries from both sides, yaw wrapping)
-                              - test_canon.py: 8 tests (rules 1-5, banker's rounding on dyadic fractions, canon_equal equivalence)
-swarm/                      : fsm.py (Table 9 legality, grounded no-op on rejection in LANDED, airborne HOVER fallback), test_fsm.py (19 tests passing)
-docs/adr/                   : 0001_physical_envelope_analogies.md, 0002_fsm_grounded_rejection_and_canon_helpers.md, 0003_surface_form_conventions.md
-data/template_families.json : SYNCHRONIZED (120 families: 96 train [80%], 12 val [10%], 12 test_synth [10%]; enum coverage verified in train; formation size slot constraints verified per Table 14)
-data/template_families.py   : AUTHORED (dataclass, split assignments, schema validation)
-data/harvest_asr_garbage.py : AUTHORED & HARVESTED (20 stimuli synthesized: silence, tone, rotorwash, gusts, rumbles; processed with whisper.cpp tiny.en; 12 distinct hallucinations)
-data/asr_garbage.json       : HARVESTED (20 stimuli records from whisper-cli on noise/silence)
-data/surface_forms.py       : AUTHORED (realisation engine with all 7 diversity axes: register, number forms, addressing modes, disfluency, politeness, ellipsis, synonyms)
-data/hard_negatives.py      : AUTHORED (155 contrast rows; 34 group lists, 38 labels; negation -> hover, abort exempt)
-data/ood.py                 : AUTHORED (150 eval-only OOD rows across 4 quarters: MASSIVE, drone-adjacent unsupported, whisper ASR garbage, truncated fragments)
-data/generate.py            : AUTHORED (seed 42 deterministic generator, cross-split Jaccard filtering < 0.85, non-singleton paraphrase grouping)
-data/raw_pairs.jsonl        : GENERATED (2,421 rows: 1,941 train [80.2%], 240 val [9.9%], 240 test_synth [9.9%])
-data/test_ood.jsonl         : GENERATED (150 rows)
-data/test_golden.jsonl      : GENERATED (200 held-out rows across all 10 intents)
-data/test_golden_transcripts.txt: GENERATED (200 sequential `<id>\t<transcript>` lines for Session 03 audio recording)
-data/check_grammar.py       : AUTHORED & VERIFIED (2,771 labels accepted by cmd.gbnf, 0 rejected)
-data/check_leakage.py       : AUTHORED & VERIFIED (template family integrity & cross-split surface-form near-duplicate lexical leakage check)
-data/test_generate.py       : AUTHORED (110 tests passing)
-data/test_template_families.py: AUTHORED (6 tests passing)
-spikes/s0..s7 scripts       : 8 scripts authored in spikes/
-spikes/reports/S0..S7.md    : 8 spike reports in spikes/reports/
-requirements.txt            : PINNED (all dependencies pinned with ==, conda header updated)
-environment.yml             : EXPORTED (conda env pfe_swarm)
-.scratch/sprint-pfe/spec.md : AUTHORED (16-day sprint plan, cut ladder, milestones)
-.scratch/sprint-pfe/issues/ : Issue 01, 02, 03 resolved; 23 pending human.
+schema/                      : FROZEN (cmd.gbnf, schema.py, validate.py, canon.py, logger.py + tests). NOT touched in 02B.
+swarm/                       : fsm.py, test_fsm.py (19 tests)
+docs/adr/                    : 0001..0003 (02A) + 0004 augmentation substitution & noise partitioning (02B, 7 decisions)
+
+data/raw_pairs.jsonl         : 2,421 rows (1,941 train / 240 val / 240 test_synth) -- 02A, unchanged
+data/test_golden.jsonl       : 200 rows; data/test_golden_transcripts.txt: 200 lines -- ready for Session 03 recording
+data/test_ood.jsonl          : 150 rows
+data/train.jsonl             : 1,940 rows, §7.4 record format, augmented
+data/val.jsonl               : 240 rows, clean (never augmented -- checkpoint selection is on reference text)
+data/test_synth.jsonl        : 240 rows, clean (the McNemar paired sample)
+data/roundtrip.jsonl         : 873 records -- per-row voice, length_scale, noise excerpt, SNR, ASR transcript
+data/roundtrip_rejects.jsonl : 2 rows, eyeballed (see Decisions below)
+data/asset_manifest.json     : DREGON 1 file + ESC-50 80 clips + 3 Piper voices, each with URL, SHA-256, licence
+data/dataset_card.md         : §6 (corpora) and §6a (composition) are GENERATED from the manifest and the build -- do not hand-edit
+
+data/fetch_assets.py         : asset fetch + verify + card §6
+data/mix_noise.py            : THE only path producing noisy audio. 4 SNR levels (20/15/10/5), active-speech-level SNR, seeded, aug|eval noise partitions
+data/tts_synth.py            : Piper, 3 voices, per-row voice + speaking rate
+data/asr.py                  : deployed whisper.cpp config (tiny.en + S6 domain prompt) -- the runtime must import this, not copy it
+data/roundtrip.py            : TTS -> mix -> whisper.cpp orchestration, resumable
+data/composition.py          : intent-stratified variant assignment, largest-remainder quotas
+data/perturb.py              : the 5% hand-injected slice
+data/numwords.py             : spelled-out numbers -> digits
+data/build_splits.py         : the two guards + split assembly + card §6a
+data/check_leakage.py        : Gate 2, now with noise-partition isolation
+data/check_grammar.py        : FR-1, now also over train/val/test_synth
+
+Noise corpora on disk (gitignored, reproducible via fetch_assets.py):
+  data/noise/dregon/  63 MB  DREGON_hovering_nosource_room2.wav -- pure UAV ego-noise
+  data/noise/esc50/   35 MB  80 clips, helicopter + engine
+  data/tts_voices/   190 MB  3 Piper voices
+Derived audio (gitignored): data/audio/tts/ 873, data/audio/roundtrip/ 873
+
+Test suite: 346 passed.
 
 ## Decisions this session
-- Session 02A synthetic data generation implementation:
-  1. Fixed slot patterns for F002, F007, F012, F016: restored required `radius` on `circle` and `spacing` on `line`, `grid`, `column` per PRD Table 14 and Layer 2 validation matrix, removing unrepresentable `speed` slot without dropping required geometric size slots.
-  2. Implemented automated harvesting of real ASR noise hallucinations using local `whisper-cli` and `ggml-tiny.en.bin` over 20 synthesized acoustic stimuli (silence, room tone, rotorwash, gusts, rumbles).
-  3. Aligned `generate.py` leakage checking with `check_leakage.py`'s 2-gram and token Jaccard similarity metrics (max(token, 2-gram) < 0.85), ensuring zero cross-split near-duplicate leakage.
-  4. Resolved global transcript uniqueness by seeding generator's `seen` set with authored contrast and unknown rows.
-  5. Prevented singleton paraphrase samples when partitioning family budgets.
-  6. Generated 2,421 `raw_pairs.jsonl`, 150 `test_ood.jsonl`, 200 `test_golden.jsonl`, 200 `test_golden_transcripts.txt`.
-  7. Authored ADR-0003 (`docs/adr/0003_surface_form_conventions.md`) documenting semantic conventions (CCW yaw, diameter phrasing, hover negation, ellipsis).
-  8. All 235 pytest tests pass; Gate FR-1 and Gate 2 strict checks pass cleanly.
+1. **Augmentation is substitution, not inflation** (ADR-0004 D1). A row's surface
+   form is replaced; no row is added. This is the only reading that fits both
+   `02_dataset_plan.md` §4's composition table and `prd.md` Table 13's ~1,900 size.
+2. **Noise corpus partitioned** (D3): ESC-50 folds 1-4 + first 70% of the DREGON
+   flight augment; fold 5 + last 30% are held back for Exp-3. Enforced by Gate 2.
+3. **One noise excerpt per utterance across all its SNR levels** (D4), so Exp-3's
+   ANOVA measures level and not excerpt.
+4. **DREGON is available and was used.** It downloads directly ("free to use for
+   academic and educational purpose"), so the *right* propeller-noise citation is in
+   the corpus -- no ESC-50-only fallback and no fan-recording approximation. Both
+   corpora are in the card with licence and SHA-256.
+5. **`variant` now means the augmentation variant** (D5, per §7.4); 02A's generation
+   variant moved to `source_variant`. Nothing lost.
+6. **Identity round-trips are flagged, not re-rolled** (206 of 873). Re-drawing until
+   a row degraded would keep only the utterances whisper fails on and bias the corpus
+   away from the distribution the augmentation exists to reproduce. The card reports
+   both provenance (50.5% clean) and text (61.1% clean).
+7. **Two bugs found by the §4 eyeball pass, both label-corrupting:**
+   - guard (ii) relabelled 15 *correct* transcriptions `unknown` because character
+     similarity punishes "one hundred and twenty-eight point four" -> "128.4".
+     Fixed by `data/numwords.py`; 17 -> 1 relabels.
+   - `strip_punctuation` turned "1.5" into "15" against a label still reading 1.5.
+     Fixed; regression test added.
+   ADR-0004 D6/D7.
+8. `.gitignore` gained one line, `data/tts_voices/` (190 MB of ONNX). The spec-file
+   block at lines 119-125 was not touched.
 
 ## Blocked / needs human
-- Autorisation de soutenance: Requested Sep 6, pending formal receipt (tracked in Issue 24).
+- Autorisation de soutenance: requested Sep 6, still pending (Issue 24). Chase Sep 17.
+- `llama-gbnf-validator` is not built on the workstation, so FR-1 rests on
+  `data/gbnf.py` alone. S3 validated the grammar against real llama.cpp on the Pi.
+  Build it before Session 05B, where Gate 3 needs the live parser.
+- Session 03 needs the human for ~90 min of recording (200 utterances, quiet room,
+  48 kHz S16_LE mono, AGC/noise-suppression off). Transcripts are ready at
+  `data/test_golden_transcripts.txt`.
 
 ## Next session starts with
-Session 02B Task 1. Audio pipeline: author `data/mix_noise.py`, TTS synthesis (`piper` / `kokoro`), SNR mixing with rotorwash / room noise, audio augmentation, and round-trips.
-
-
+Session 03 Task 1 (`data/record_session.py`). Preconditions are met: Gate 1 green,
+S0 noise floor -64.47 dBFS (<= -50 required), 200 golden transcripts authored.
+**The ten-day annotation fuse starts the day s1 is recorded** -- pass 1 that day,
+pass 2 ten days later. Do NOT re-run Gate 1 or Gate 2.
+For Exp-3 later: `python data/mix_noise.py --input data/audio/s1 --output data/audio/mixed --sources dregon --partition eval`.

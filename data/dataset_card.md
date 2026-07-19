@@ -103,21 +103,140 @@ filler words, self-corrections, truncated utterances.
 
 ---
 
-## 6. Noise corpora — licences
+## 6. Downloaded corpora and models — licences
 
-| Corpus | Use | Licence | URL |
-|---|---|---|---|
-| ESC-50 | Environmental classes | TBD | TBD |
-| DREGON | UAV-embedded rotor noise | TBD | TBD |
-| Common Voice (English, validated) | Exp-0 | CC0 | TBD |
-| Wake-word negatives | NFR-15 denominator | TBD | TBD |
+Fetched and hash-verified by `python data/fetch_assets.py`. The table below is
+**rewritten from `data/asset_manifest.json` on every run** — do not hand-edit it.
 
-SNR levels for Exp-3 are mixed **digitally** from session 1's clean audio, so no
-level requires re-recording. Mixing is level-matched on the **speech-active
-region only** — leading silence would otherwise set the level and make nominal
-SNR depend on how promptly the speaker started.
+<!-- corpora:begin -->
 
-Levels: clean, 20, 15, 10, 5 dB.
+| Corpus | Files | Size | Licence | URL |
+|---|---:|---:|---|---|
+| DREGON | 1 | 63.3 MB | Free to use for academic and educational purpose (dregon.inria.fr, verbatim from the dataset homepage). Cite Strauss et al., IROS 2018. | <https://dregon.inria.fr/> |
+| ESC-50 | 80 | 35.3 MB | CC BY-NC 3.0 (non-commercial; this is a non-commercial thesis) | <https://github.com/karoldvl/ESC-50> |
+| piper-voices | 6 | 189.6 MB | MIT (piper-voices repository); underlying corpora per voice MODEL_CARD | <https://huggingface.co/rhasspy/piper-voices> |
+
+Retrieved 2026-09-13. Fetched and verified by `python data/fetch_assets.py`; per-file SHA-256 in `data/asset_manifest.json`.
+
+<!-- corpora:end -->
+
+| Corpus | Role here |
+|---|---|
+| DREGON | UAV-embedded rotor noise, recorded on a flying quadrotor. The `hovering_nosource_room2` flight: ego-noise with no source playing, so the file is pure propeller wash. This is the *right* citation for propeller noise (`02_dataset_plan.md` §5) and it was available, so no approximation was needed. |
+| ESC-50 | `helicopter` and `engine` classes, as environmental backing beside DREGON. CC-BY-**NC**: acceptable for a non-commercial thesis, recorded rather than glossed. |
+| Common Voice (English, validated) | Exp-0 speaker-sensitivity baseline. Fetched at D6 — see §8. |
+| Wake-word negatives | NFR-15 denominator. Fetched at D5 — see §8. |
+
+### Mixing policy
+
+`data/mix_noise.py` is the **only** path by which noisy audio is produced. It is
+committed and seeded (`--seed 42`, `prd.md` Table 14), so the corpus reproduces
+byte-for-byte.
+
+- **Digital mixing from session 1's clean audio only.** No level requires
+  re-recording. Recording a second acoustic condition instead would move room,
+  distance, mic placement and voice together with the noise and destroy Exp-3's
+  causal claim (`IMPLEMENTATION_ROADMAP.md` §0.2, conflict 4).
+- **SNR is defined on the active-speech level** against noise RMS, not full-file
+  RMS. The active level is the RMS over 20 ms frames within 30 dB of the loudest
+  frame. Leading silence would otherwise set the level and make nominal SNR depend
+  on how promptly the speaker started.
+- **The speech is never scaled; only the noise is.** Where the sum would clip, the
+  whole mixture is attenuated by one factor, which leaves the ratio exact. The
+  attenuation is recorded per file.
+- **One noise excerpt per utterance, shared across all its SNR levels.** Drawing a
+  fresh excerpt per level would confound level with excerpt in Exp-3's ANOVA.
+- **Corpus-balanced draws.** The corpus is chosen before the recording, so DREGON
+  (one long flight) and ESC-50 (80 short clips) are equally represented.
+- **Augmentation and evaluation share no noise bytes.** ESC-50 folds 1–4 and the
+  first 70% of the DREGON flight augment; fold 5 and the last 30% are held back for
+  Exp-3. See ADR-0004, Decision 3.
+
+Levels: clean, 20, 15, 10, 5 dB. Round-trip augmentation uses 20, 10 and 5.
+
+---
+
+## 6a. Round-trip augmentation — the training-set composition
+
+`gold_json` → clean transcript → Piper TTS → noise mix @ SNR → `whisper.cpp` →
+noisy transcript, **paired with the original `gold_json`**. This is the fix for the
+train/test distribution shift that otherwise costs 10–20 points of exact match
+(`02_dataset_plan.md` §4).
+
+| Field | Value |
+|---|---|
+| TTS | Piper, three voices: `en_US-lessac-medium`, `en_US-ryan-medium`, `en_GB-alba-medium` |
+| Voice + speaking rate | assigned per row from `(seed, id)`; `length_scale` ∈ [0.88, 1.12] |
+| ASR | `whisper.cpp` `tiny.en`, greedy, `-nt`, with the S6 domain prompt — **identical to the deployed runtime** (`data/asr.py`) |
+| Rate | 16 kHz mono throughout; resampling is `soxr` VHQ |
+| Applied to | the **train** split only. `val` and `test_synth` stay clean — both are measured on reference text (§2.6) |
+| Augmentation is | **substitution**, not inflation: a row's surface form is replaced, its label is not, and no row is added. See ADR-0004, Decision 1 |
+
+Composition of the final training set (`02_dataset_plan.md` §4), and what was
+actually realised — the difference is guard activity, reported rather than hidden:
+
+<!-- composition:begin -->
+
+| Variant | Intended | Realised | Rows |
+|---|---:|---:|---:|
+| `clean` | 50% | 50.5% | 980 |
+| `asr_20db` | 20% | 19.9% | 387 |
+| `asr_10db` | 15% | 15.0% | 291 |
+| `asr_5db` | 10% | 10.0% | 194 |
+| `perturb` | 5% | 4.5% | 88 |
+| **total** | 100% | 100% | **1940** |
+
+Of the 206 round-trip rows the recogniser returned unchanged, none is re-rolled: an identity round-trip is a true sample from the ASR output distribution, and re-drawing until it degraded would keep only the utterances whisper fails on. Counting text rather than provenance, the corpus is 61.1% clean.
+
+Guard and fall-back activity:
+
+| Action | Rows | Meaning |
+|---|---:|---|
+| `roundtrip_identical` | 206 | recogniser returned the clean wording; row keeps its variant |
+| `relabelled_unknown` | 1 | guard (ii): transcript destroyed, target -> `unknown` |
+| `perturb_noop_to_clean` | 9 | nothing in the sentence was perturbable |
+| `asr_missing_to_clean` | 0 | no transcript came back; fell back to clean |
+| `dropped_duplicate` | 1 | guard (i): same text, same target |
+| `reverted_conflict_to_clean` | 0 | guard (i): same text, different target |
+| `dropped_conflict` | 0 | guard (i): unresolvable, both clean |
+
+Split sizes as written: `train` 1940, `val` 240, `test_synth` 240.
+
+<!-- composition:end -->
+
+**Guard (i), de-duplication.** Identical post-augmentation transcripts carrying the
+same target collapse to one row. Carrying *different* targets, the later row is
+reverted to its clean form rather than dropped, so the label survives.
+
+**Guard (ii), destroyed utterances.** Below 0.55 character similarity to the clean
+form, the row keeps its degraded transcript and its target becomes
+`{"intent":"unknown"}` — a transcript too damaged to read *should* produce
+`unknown`, and these rows are the only naturally-occurring training signal for the
+safe-failure rate NFR-9 measures.
+
+Every row either guard touched is written to `data/roundtrip_rejects.jsonl`, and
+the full per-row audit trail — voice, noise excerpt, SNR, similarity — is in
+`data/roundtrip.jsonl`.
+
+---
+
+## 6b. Reproducing the corpus
+
+Ordered, and each step is idempotent — re-running skips what is already on disk.
+Steps 2–4 are CPU-bound and unattended.
+
+```bash
+python data/fetch_assets.py      # noise corpora + Piper voices, SHA-256 verified
+python data/generate.py          # D2: label-first generation -> raw_pairs.jsonl
+python data/roundtrip.py         # D3: TTS -> mix -> whisper.cpp -> roundtrip.jsonl
+python data/build_splits.py      # D3: composition + guards -> train/val/test_synth.jsonl
+python data/check_grammar.py     # FR-1: every label accepted by schema/cmd.gbnf
+python data/check_leakage.py --strict   # Gate 2
+```
+
+Everything is seeded at 42 (`prd.md` Table 14) and every random choice is drawn
+from a stable hash of `(seed, row id)` rather than from stream position, so the
+corpus reproduces byte-for-byte and adding a row does not re-roll the rest of it.
 
 ---
 

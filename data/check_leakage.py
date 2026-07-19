@@ -1,10 +1,15 @@
 """Split leakage verification gate (PRD Sec. 9, FR-1, Gate 2).
 
-Verifies strict isolation between training and evaluation splits across two axes:
+Verifies strict isolation between training and evaluation splits across three axes:
 1. Template Family Isolation: No template family ID spans across split boundaries.
 2. Surface-Form Lexical Isolation: No identical or near-duplicate transcripts
    (via token Jaccard similarity > 0.85 or exact string match) cross between
    train and held-out splits (val, test_synth, test_golden).
+3. Noise Partition Isolation (Session 02B): no noise excerpt used to build the
+   round-trip training text is also available to the Exp-3 evaluation sweep.
+   Sharing them would mean the model was tuned against transcripts whose error
+   pattern came from the very seconds of audio it is then evaluated against, and
+   the measured robustness would not generalise past those seconds (ADR-0004).
 
 Exit Codes:
 - 0: All leakage checks passed strictly (Gate 2 GREEN).
@@ -19,6 +24,9 @@ import re
 import sys
 from pathlib import Path
 from typing import Any
+
+if __package__ in (None, ""):  # `python data/check_leakage.py`
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 FAMILIES_JSON_PATH = Path(__file__).parent / "template_families.json"
 DATA_DIR = Path(__file__).parent
@@ -179,6 +187,54 @@ def check_dataset_split_leakage(
     return errors
 
 
+def check_noise_partition_isolation(
+    roundtrip_path: Path = DATA_DIR / "roundtrip.jsonl",
+    manifest_path: Path = DATA_DIR / "asset_manifest.json",
+) -> list[str]:
+    """Verify the augmentation partition and the Exp-3 partition share no noise.
+
+    Checked against what the pipeline *did* --- the noise keys recorded in
+    `roundtrip.jsonl` --- not against what `mix_noise.py` intends. A partition bug
+    that let an evaluation excerpt into the training mix would leave the intent in
+    the source unchanged and only show up here.
+    """
+    errors: list[str] = []
+    if not roundtrip_path.is_file():
+        return errors  # Session 02B has not run yet; nothing to check.
+    if not manifest_path.is_file():
+        return [f"{roundtrip_path.name} exists but {manifest_path.name} does not"]
+
+    from data.mix_noise import NoiseBank  # local: pulls numpy/soundfile
+
+    aug = NoiseBank(partition="aug", manifest_path=manifest_path)
+    evaluation = NoiseBank(partition="eval", manifest_path=manifest_path)
+
+    esc_aug = {k for k in aug.keys if k.startswith("esc50/")}
+    esc_eval = {k for k in evaluation.keys if k.startswith("esc50/")}
+    shared = esc_aug & esc_eval
+    if shared:
+        errors.append(f"ESC-50 clips in both noise partitions: {sorted(shared)[:5]}")
+    if not esc_aug or not esc_eval:
+        errors.append("one of the ESC-50 noise partitions is empty; the check cannot run")
+
+    used = {
+        json.loads(line).get("noise_key")
+        for line in roundtrip_path.read_text().splitlines()
+        if line.strip()
+    }
+    used.discard(None)
+    if not used:
+        errors.append(f"{roundtrip_path.name} records no noise_key; provenance is missing")
+
+    strayed = {k for k in used if k.startswith("esc50/")} - esc_aug
+    if strayed:
+        errors.append(
+            f"round-trip audio used evaluation-partition noise: {sorted(strayed)[:5]}"
+        )
+
+    return errors
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Verify dataset split isolation (Gate 2).")
     parser.add_argument(
@@ -290,6 +346,21 @@ def main() -> int:
                     )
     else:
         print("[*] Generated data splits not yet materialized (Session 02A pending). Family assignments verified.")
+
+    # 3. Noise partition isolation (Session 02B).
+    noise_errors = check_noise_partition_isolation()
+    all_errors.extend(noise_errors)
+    if noise_errors:
+        print("[-] Noise partition isolation FAILED:")
+        for err in noise_errors:
+            print(f"    - {err}")
+    elif (DATA_DIR / "roundtrip.jsonl").is_file():
+        print(
+            "[+] Noise partition isolation: PASS "
+            "(round-trip audio drew only from the augmentation partition)"
+        )
+    else:
+        print("[*] Noise partition isolation: SKIPPED (roundtrip.jsonl absent)")
 
     if all_errors:
         print(f"\n[-] Gate 2 FAILED with {len(all_errors)} errors.")

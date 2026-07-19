@@ -1,0 +1,2 @@
+{"id": "F115-u12", "reason": "destroyed_relabelled_unknown", "variant": "asr_20db", "snr_db": 20, "similarity": 0.5, "clean": "call mohamed", "asr": "call, no, high, mid,", "was": "unknown"}
+{"id": "F071-s1p05", "reason": "duplicate_transcript", "duplicate_of": "F067-s1p05", "transcript": "spin up and launch"}
