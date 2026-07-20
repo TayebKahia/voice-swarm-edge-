@@ -1,6 +1,6 @@
 """Split leakage verification gate (PRD Sec. 9, FR-1, Gate 2).
 
-Verifies strict isolation between training and evaluation splits across three axes:
+Verifies strict isolation between training and evaluation splits across four axes:
 1. Template Family Isolation: No template family ID spans across split boundaries.
 2. Surface-Form Lexical Isolation: No identical or near-duplicate transcripts
    (via token Jaccard similarity > 0.85 or exact string match) cross between
@@ -10,6 +10,11 @@ Verifies strict isolation between training and evaluation splits across three ax
    Sharing them would mean the model was tuned against transcripts whose error
    pattern came from the very seconds of audio it is then evaluated against, and
    the measured robustness would not generalise past those seconds (ADR-0004).
+4. Wake Corpus Isolation (Session 03): no base Piper rendition, negative speaker,
+   near-miss phrase, room impulse response or ESC-50 excerpt is shared between the
+   trained splits of the Branch A corpus and its held-out split. Exp-2 reports a
+   per-class ROC at a declared operating point (NFR-15/16); measured across any of
+   those, that ROC describes memorisation rather than detection (ADR-0005).
 
 Exit Codes:
 - 0: All leakage checks passed strictly (Gate 2 GREEN).
@@ -235,6 +240,83 @@ def check_noise_partition_isolation(
     return errors
 
 
+def check_wake_corpus_isolation(
+    manifest_path: Path = DATA_DIR / "wake" / "wake_manifest.json",
+) -> list[str]:
+    """Verify the Branch A corpus cannot report memorisation as a ROC (Session 03).
+
+    Exp-2 reports a per-class ROC with a declared operating point (NFR-15/16).
+    Three things would quietly turn that into a statement about the training set,
+    and none of them raises an error anywhere else:
+
+    1. A base Piper rendition whose 25 augmented variants straddle two splits ---
+       they are near-duplicates of each other.
+    2. A negative speaker, or an authored near-miss phrase, on both sides.
+    3. A room or a noise excerpt shared between the trained splits and the
+       held-out one, so the held-out figure describes acoustics the model heard.
+
+    Checked against the manifest --- what the builder *did* --- rather than
+    against `wake_corpus.py`'s constants.
+
+    ESC-50 keys carry the partition; DREGON does not, because it is one
+    continuous flight split by position and both partitions name the same file.
+    The `noise_partition` field the builder records per clip covers that half,
+    and the byte-level split itself is asserted in
+    `test_mix_noise.py::TestNoiseBank::test_partitions_are_disjoint`.
+    """
+    errors: list[str] = []
+    if not manifest_path.is_file():
+        return errors  # Session 03 has not run yet; nothing to check.
+
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    clips = manifest.get("clips", [])
+    if not clips:
+        return [f"{manifest_path.name} records no clips"]
+
+    by_base: dict[str, set[str]] = {}
+    rooms: dict[str, set[str]] = {}
+    esc50: dict[str, set[str]] = {}
+    declared = manifest.get("noise_partition", {})
+
+    for clip in clips:
+        by_base.setdefault(clip["base"], set()).add(clip["split"])
+        if clip.get("rir"):
+            rooms.setdefault(clip["split"], set()).add(clip["rir"])
+        key = clip.get("noise_key")
+        if key and key.startswith("esc50/"):
+            esc50.setdefault(clip["split"], set()).add(key)
+        if key and clip.get("noise_partition") != declared.get(clip["split"]):
+            errors.append(
+                f"clip {clip['path']} is in split {clip['split']} but drew noise from "
+                f"partition {clip.get('noise_partition')!r}, not {declared.get(clip['split'])!r}"
+            )
+
+    straddling = sorted(base for base, splits in by_base.items() if len(splits) > 1)
+    if straddling:
+        errors.append(
+            f"{len(straddling)} base rendition(s) appear in more than one split: {straddling[:5]}"
+        )
+
+    for label, seen in (("room", rooms), ("ESC-50 excerpt", esc50)):
+        trained = seen.get("train", set()) | seen.get("val", set())
+        held_out = seen.get("test", set())
+        if not trained or not held_out:
+            errors.append(f"no {label} recorded on one side of the split; the check cannot run")
+            continue
+        shared = trained & held_out
+        if shared:
+            errors.append(
+                f"held-out wake clips reuse {len(shared)} {label}(s) heard in training: "
+                f"{sorted(shared)[:5]}"
+            )
+
+    hours = manifest.get("summary", {}).get("neg", {}).get("hours", 0.0)
+    if hours < 3.0:
+        errors.append(f"negative corpus is {hours:.2f} h; NFR-15 requires at least 3 h")
+
+    return errors
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Verify dataset split isolation (Gate 2).")
     parser.add_argument(
@@ -346,6 +428,20 @@ def main() -> int:
                     )
     else:
         print("[*] Generated data splits not yet materialized (Session 02A pending). Family assignments verified.")
+
+    # 4. Wake corpus isolation (Session 03).
+    wake_errors = check_wake_corpus_isolation()
+    all_errors.extend(wake_errors)
+    if wake_errors:
+        print("[-] Wake corpus isolation FAILED:")
+        for err in wake_errors:
+            print(f"    - {err}")
+    elif (DATA_DIR / "wake" / "wake_manifest.json").is_file():
+        print(
+            "[+] Wake corpus isolation: PASS "
+            "(no base rendition, speaker, room or ESC-50 excerpt straddles the split; "
+            ">= 3 h negatives)"
+        )
 
     # 3. Noise partition isolation (Session 02B).
     noise_errors = check_noise_partition_isolation()

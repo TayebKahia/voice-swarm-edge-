@@ -1,0 +1,24 @@
+{
+  "seed": 42,
+  "clips": 300,
+  "hours": 0.451,
+  "speakers": 263,
+  "buckets": {
+    "India and South Asia (India, Pakistan, Sri Lanka)": 80,
+    "United States English": 57,
+    "England English": 45,
+    "Canadian English": 24,
+    "Australian English": 22,
+    "Hong Kong English": 12,
+    "Scottish English": 10,
+    "New Zealand English": 10,
+    "Irish English": 9,
+    "Southern African (South Africa, Zimbabwe, Namibia)": 7,
+    "Singaporean English": 6,
+    "Welsh English": 6,
+    "Filipino": 6,
+    "Malaysian English": 3,
+    "Other (free-text accent labels)": 3
+  },
+  "source": "Common Voice 17.0 en test (mirror fsicoli/common_voice_17_0)"
+}

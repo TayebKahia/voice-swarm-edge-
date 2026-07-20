@@ -1,5 +1,25 @@
 {
   "assets": {
+    "commonvoice/en_test_0.tar": {
+      "bytes": 711150592,
+      "corpus": "Common Voice 17.0 en (test)",
+      "homepage": "https://commonvoice.mozilla.org/en/datasets",
+      "licence": "CC0 1.0 (Mozilla Common Voice Corpus 17.0)",
+      "note": "ungated mirror fsicoli/common_voice_17_0 of the Mozilla 17.0 release",
+      "path": "data/commonvoice/_src/en_test_0.tar",
+      "sha256": "47160ec67fb545f41eba8103b0c0d7035dbb4ca3924043974449c7052c6f4775",
+      "url": "https://huggingface.co/datasets/fsicoli/common_voice_17_0/resolve/main/audio/en/test/en_test_0.tar"
+    },
+    "commonvoice/test.tsv": {
+      "bytes": 4887241,
+      "corpus": "Common Voice 17.0 en (test)",
+      "homepage": "https://commonvoice.mozilla.org/en/datasets",
+      "licence": "CC0 1.0 (Mozilla Common Voice Corpus 17.0)",
+      "note": "ungated mirror fsicoli/common_voice_17_0 of the Mozilla 17.0 release",
+      "path": "data/commonvoice/_src/test.tsv",
+      "sha256": "b4d4db369413fcacacebee7de48e94c96c4f63383d6582e18a9b0856c5c8461a",
+      "url": "https://huggingface.co/datasets/fsicoli/common_voice_17_0/resolve/main/transcript/en/test.tsv"
+    },
     "dregon/DREGON_hovering_nosource_room2.wav": {
       "bytes": 63333388,
       "corpus": "DREGON",
@@ -943,7 +963,34 @@
       "path": "data/tts_voices/en_US-ryan-medium.onnx.json",
       "sha256": "44034c056cb15681b2ad494307c7f3f2e4499d1253c700c711fa0a4607ffe78d",
       "url": "https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/ryan/medium/en_US-ryan-medium.onnx.json"
+    },
+    "wake/dev-clean.tar.gz": {
+      "bytes": 337926286,
+      "corpus": "LibriSpeech dev-clean",
+      "homepage": "https://www.openslr.org/12",
+      "licence": "CC BY 4.0",
+      "path": "data/wake/_src/dev-clean.tar.gz",
+      "sha256": "76f87d090650617fca0cac8f88b9416e0ebf80350acb97b343a85fa903728ab3",
+      "url": "https://www.openslr.org/resources/12/dev-clean.tar.gz"
+    },
+    "wake/mit_ir_survey.zip": {
+      "bytes": 11660005,
+      "corpus": "MIT Acoustical Reverberation Survey",
+      "homepage": "https://mcdermottlab.mit.edu/Reverb/IR_Survey.html",
+      "licence": "CC BY 4.0 (Traer & McDermott, PNAS 2016)",
+      "path": "data/wake/_src/mit_ir_survey.zip",
+      "sha256": "648e988c2b12b1df1d92abe78aff441d7cad65bee23dc91f6026d4506a389b70",
+      "url": "https://mcdermottlab.mit.edu/Reverb/IRMAudio/Audio.zip"
+    },
+    "wake/speech_commands_test_set_v0.02.tar.gz": {
+      "bytes": 112563277,
+      "corpus": "Speech Commands v0.02 (test set)",
+      "homepage": "https://arxiv.org/abs/1804.03209",
+      "licence": "CC BY 4.0",
+      "path": "data/wake/_src/speech_commands_test_set_v0.02.tar.gz",
+      "sha256": "cc2a00c1147c2254e9be3fa0f779d8c17421dc349b86366567a8edfa9acd51df",
+      "url": "http://download.tensorflow.org/data/speech_commands_test_set_v0.02.tar.gz"
     }
   },
-  "retrieved": "2026-09-13"
+  "retrieved": "2026-09-14"
 }

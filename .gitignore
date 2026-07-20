@@ -95,12 +95,25 @@ data/wake/neg/*
 data/noise/*
 !data/noise/.gitkeep
 data/commonvoice/*
+# ...except the Exp-0 sample's manifest: it carries the reference transcripts
+# every WER number is measured against, and the accent bucket that is Exp-0's
+# independent variable. The audio is regenerable from it; it is not regenerable
+# from the audio.
+!data/commonvoice/exp0_manifest.jsonl
+!data/commonvoice/exp0_summary.json
 !data/commonvoice/.gitkeep
 
 # Piper voice models fetched by data/fetch_assets.py (~190 MB of ONNX).
 # Provenance -- URL, SHA-256, licence -- lives in the committed
 # data/asset_manifest.json, so the bytes are reproducible without being tracked.
 data/tts_voices/
+
+# Session 03 source archives: LibriSpeech dev-clean, Speech Commands v2 test set,
+# the MIT impulse-response survey, and the Common Voice 17.0 en test shard. ~1.2 GB
+# of third-party corpora. URL, SHA-256 and licence for each are in the committed
+# data/asset_manifest.json; re-fetch with `python data/fetch_assets.py`.
+data/wake/_src/
+data/commonvoice/_src/
 
 # ---------------------------------------------------------------------
 # NOT ignored, listed here so the intent is explicit:

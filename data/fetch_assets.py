@@ -76,6 +76,40 @@ PIPER_VOICES: tuple[tuple[str, str], ...] = (
     ("en_GB-alba-medium", "en/en_GB/alba/medium"),
 )
 
+# Session 03. Three corpora for the Branch A wake-word corpus and one for Exp-0.
+# All four are directly downloadable and openly licensed -- Mozilla's own Common
+# Voice endpoint requires a browser consent step no script can perform, so the
+# Exp-0 clips come from an ungated mirror of the *same* release, recorded here as
+# such rather than passed off as the official distribution.
+WAKE_SRC_DIR = DATA_DIR / "wake" / "_src"
+COMMONVOICE_DIR = DATA_DIR / "commonvoice"
+
+LIBRISPEECH_URL = "https://www.openslr.org/resources/12/dev-clean.tar.gz"
+LIBRISPEECH_LICENCE = "CC BY 4.0"
+LIBRISPEECH_HOMEPAGE = "https://www.openslr.org/12"
+
+SPEECH_COMMANDS_URL = (
+    "http://download.tensorflow.org/data/speech_commands_test_set_v0.02.tar.gz"
+)
+SPEECH_COMMANDS_LICENCE = "CC BY 4.0"
+SPEECH_COMMANDS_HOMEPAGE = "https://arxiv.org/abs/1804.03209"
+
+MIT_RIR_URL = "https://mcdermottlab.mit.edu/Reverb/IRMAudio/Audio.zip"
+MIT_RIR_LICENCE = "CC BY 4.0 (Traer & McDermott, PNAS 2016)"
+MIT_RIR_HOMEPAGE = "https://mcdermottlab.mit.edu/Reverb/IR_Survey.html"
+
+COMMONVOICE_BASE = (
+    "https://huggingface.co/datasets/fsicoli/common_voice_17_0/resolve/main"
+)
+COMMONVOICE_LICENCE = "CC0 1.0 (Mozilla Common Voice Corpus 17.0)"
+COMMONVOICE_HOMEPAGE = "https://commonvoice.mozilla.org/en/datasets"
+
+WAKE_FILES: tuple[tuple[str, str, str, str, str], ...] = (
+    ("dev-clean.tar.gz", LIBRISPEECH_URL, "LibriSpeech dev-clean", LIBRISPEECH_LICENCE, LIBRISPEECH_HOMEPAGE),
+    ("speech_commands_test_set_v0.02.tar.gz", SPEECH_COMMANDS_URL, "Speech Commands v0.02 (test set)", SPEECH_COMMANDS_LICENCE, SPEECH_COMMANDS_HOMEPAGE),
+    ("mit_ir_survey.zip", MIT_RIR_URL, "MIT Acoustical Reverberation Survey", MIT_RIR_LICENCE, MIT_RIR_HOMEPAGE),
+)
+
 USER_AGENT = "pfe-swarm-dataset/1.0 (academic use)"
 CHUNK = 1 << 16
 
@@ -239,6 +273,56 @@ def fetch_voices(manifest: dict[str, Any], verify_only: bool) -> bool:
     return ok
 
 
+def fetch_wake_sources(manifest: dict[str, Any], verify_only: bool) -> bool:
+    """LibriSpeech, Speech Commands and the MIT impulse responses.
+
+    These are archives, not clips: `data/wake_corpus.py` extracts them once and
+    builds the corpus from what is inside. Hashing the archive rather than every
+    member keeps the manifest readable while still pinning the bytes.
+    """
+    ok = True
+    for name, url, corpus, licence, homepage in WAKE_FILES:
+        ok &= ensure(
+            manifest,
+            f"wake/{name}",
+            WAKE_SRC_DIR / name,
+            url,
+            corpus=corpus,
+            licence=licence,
+            homepage=homepage,
+            verify_only=verify_only,
+        )
+    print(f"    [+] wake sources: {', '.join(n for n, *_ in WAKE_FILES)}")
+    return ok
+
+
+def fetch_commonvoice(manifest: dict[str, Any], verify_only: bool) -> bool:
+    """The Exp-0 material: Common Voice 17.0 English `test`, transcript + audio.
+
+    Exp-0 asks what `tiny.en` does on speakers who are not the author, and reports
+    WER per accent bucket with the author placed as a percentile. That needs the
+    `accents` column, so the transcript TSV is as load-bearing as the audio.
+    """
+    ok = True
+    for name, remote in (
+        ("test.tsv", "transcript/en/test.tsv"),
+        ("en_test_0.tar", "audio/en/test/en_test_0.tar"),
+    ):
+        ok &= ensure(
+            manifest,
+            f"commonvoice/{name}",
+            COMMONVOICE_DIR / "_src" / name,
+            f"{COMMONVOICE_BASE}/{remote}",
+            corpus="Common Voice 17.0 en (test)",
+            licence=COMMONVOICE_LICENCE,
+            homepage=COMMONVOICE_HOMEPAGE,
+            verify_only=verify_only,
+            note="ungated mirror fsicoli/common_voice_17_0 of the Mozilla 17.0 release",
+        )
+    print("    [+] Common Voice 17.0 en test: transcript + audio shard")
+    return ok
+
+
 def card_table(manifest: dict[str, Any]) -> str:
     """The §6 corpus table, one row per corpus, rendered from the manifest."""
     grouped: dict[str, dict[str, Any]] = {}
@@ -290,13 +374,18 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Fetch noise corpora and Piper voices.")
     parser.add_argument("--noise", action="store_true", help="noise corpora only")
     parser.add_argument("--voices", action="store_true", help="Piper voices only")
+    parser.add_argument("--wake", action="store_true", help="wake-word source corpora only")
+    parser.add_argument("--commonvoice", action="store_true", help="Exp-0 Common Voice only")
     parser.add_argument(
         "--verify", action="store_true", help="re-hash what is on disk; download nothing"
     )
     args = parser.parse_args()
 
-    want_noise = args.noise or not args.voices
-    want_voices = args.voices or not args.noise
+    selected = args.noise or args.voices or args.wake or args.commonvoice
+    want_noise = args.noise or not selected
+    want_voices = args.voices or not selected
+    want_wake = args.wake or not selected
+    want_commonvoice = args.commonvoice or not selected
 
     manifest = load_manifest()
     ok = True
@@ -308,6 +397,12 @@ def main() -> int:
     if want_voices:
         print("[*] Piper voices")
         ok &= fetch_voices(manifest, args.verify)
+    if want_wake:
+        print("[*] Wake-word source corpora")
+        ok &= fetch_wake_sources(manifest, args.verify)
+    if want_commonvoice:
+        print("[*] Common Voice (Exp-0)")
+        ok &= fetch_commonvoice(manifest, args.verify)
 
     if not args.verify:
         save_manifest(manifest)

@@ -26,8 +26,26 @@ def draw_vu_meter(level_dbfs, peak_dbfs, label=""):
     meter = "#" * bars + "-" * (30 - bars)
     print(f"\r{label} [{meter}] RMS: {level_dbfs:6.1f} dBFS | Peak: {peak_dbfs:6.1f} dBFS", end="", flush=True)
 
-def record_stream(duration=5, rate=48000, filename="/tmp/s0_test.wav", label="Recording"):
-    print(f"\n=== Recording {duration}s of {label} (48 kHz mono) ===")
+def find_usb_input_device():
+    """Locate the USB Audio Device index in sounddevice."""
+    devices = sd.query_devices()
+    # First priority: direct ALSA hw/plughw USB device
+    for idx, dev in enumerate(devices):
+        if dev.get("max_input_channels", 0) > 0:
+            name = dev.get("name", "").lower()
+            if ("usb" in name or "generalplus" in name) and ("hw:" in name or "plughw:" in name):
+                return idx, dev["name"]
+    # Second priority: any USB input
+    for idx, dev in enumerate(devices):
+        if dev.get("max_input_channels", 0) > 0:
+            name = dev.get("name", "").lower()
+            if "usb" in name or "generalplus" in name:
+                return idx, dev["name"]
+    return None, None
+
+def record_stream(duration=5, rate=48000, filename="/tmp/s0_test.wav", label="Recording", device=None):
+    dev_str = f"Device {device}" if device is not None else "Default"
+    print(f"\n=== Recording {duration}s of {label} (48 kHz mono, {dev_str}) ===")
     
     total_frames = int(duration * rate)
     buffer = np.zeros((total_frames, 1), dtype=np.float32)
@@ -36,7 +54,12 @@ def record_stream(duration=5, rate=48000, filename="/tmp/s0_test.wav", label="Re
     chunk_size = 2400 # 50 ms chunks
 
     try:
-        with sd.InputStream(samplerate=rate, channels=1, dtype='float32', blocksize=chunk_size) as stream:
+        with sd.InputStream(device=device, samplerate=rate, channels=1, dtype='float32', blocksize=chunk_size) as stream:
+            # Settle ADC / capacitive coupling & discard initial Enter-key / power-on transient (300 ms)
+            warmup_frames = int(rate * 0.3)
+            for _ in range(0, warmup_frames, chunk_size):
+                stream.read(min(chunk_size, warmup_frames))
+
             for _ in range(0, total_frames, chunk_size):
                 chunk, overflowed = stream.read(chunk_size)
                 end_frame = min(frames_recorded + chunk_size, total_frames)
@@ -53,8 +76,9 @@ def record_stream(duration=5, rate=48000, filename="/tmp/s0_test.wav", label="Re
                 
         print() # Newline after meter
     except Exception as e:
-        print(f"\nsounddevice stream error: {e}. Falling back to arecord -D default...")
-        cmd = f"arecord -D default -d {duration} -f S16_LE -r {rate} -c 1 -t wav {filename}"
+        dev_arg = f"-D plughw:{device},0" if device is not None else "-D default"
+        print(f"\nsounddevice stream error: {e}. Falling back to arecord {dev_arg}...")
+        cmd = f"arecord {dev_arg} -d {duration} -f S16_LE -r {rate} -c 1 -t wav {filename}"
         subprocess.run(cmd, shell=True)
         data, _ = sf.read(filename)
         buffer = data.reshape(-1, 1)
@@ -80,17 +104,23 @@ def record_stream(duration=5, rate=48000, filename="/tmp/s0_test.wav", label="Re
 
 def main():
     print("=== Spike S0: Audio Bring-Up & Validation ===")
+    target_device = None
     try:
-        dev_info = sd.query_devices(kind='input')
-        print(f"Active Input Device: '{dev_info['name']}' (Host API: {sd.query_hostapis(dev_info['hostapi'])['name']})")
-    except Exception:
-        pass
+        usb_idx, usb_name = find_usb_input_device()
+        if usb_idx is not None:
+            print(f"[+] Found USB Microphone: [Device {usb_idx}] '{usb_name}'")
+            target_device = usb_idx
+        else:
+            dev_info = sd.query_devices(kind='input')
+            print(f"[!] Warning: No USB mic detected. Falling back to default: '{dev_info['name']}'")
+    except Exception as exc:
+        print(f"[-] Device query error: {exc}")
 
     input("\n[1/2] Press Enter to record 5s of ROOM SILENCE (keep quiet)...")
-    silence = record_stream(duration=5, filename="/tmp/s0_silence.wav", label="Silence")
+    silence = record_stream(duration=5, filename="/tmp/s0_silence.wav", label="Silence", device=target_device)
 
     input("\n[2/2] Press Enter to record 5s of SPEECH (speak: 'swarm move forward five meters')...")
-    speech = record_stream(duration=5, filename="/tmp/s0_speech.wav", label="Speech")
+    speech = record_stream(duration=5, filename="/tmp/s0_speech.wav", label="Speech", device=target_device)
 
     print("\n=== SPIKE S0 EVALUATION ===")
     if silence:
