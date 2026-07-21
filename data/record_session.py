@@ -95,11 +95,117 @@ MIN_MARGIN_SECONDS = 0.10
 MAX_ROOM_FLOOR_DBFS = -50.0
 SILENCE_REFERENCE_SECONDS = 5.0
 
+#: Mains hum. S0 found the AC charger raising the floor by ~22 dB with 50/100 Hz
+#: energy dominating, and it is the one contaminant on this chain that is
+#: diagnosable from the signal rather than guessed at: a 3.5 mm lavalier through
+#: an unshielded USB dongle is an antenna, so the *share* of energy in the mains
+#: bands says whether the floor is room tone or pickup.
+MAINS_HZ = 50.0
+MAINS_HARMONICS = 3
+MAINS_BANDWIDTH_HZ = 5.0
+MAINS_SHARE_WARN = 0.25
+
+#: The floor is estimated as this percentile of 20 ms frame energies, not as the
+#: RMS of the whole capture. Room tone is stationary; the things that ruin a
+#: five-second measurement --- a chair creak, a swallow, a keystroke, a car --- are
+#: not, and a plain RMS is dominated by them. A `--check-room` log taken in a room
+#: that was genuinely quiet still swung 20 dB window to window for exactly that
+#: reason. A low percentile reads the quiet bed underneath the transients, which
+#: is the quantity every nominal SNR in Exp-3 is actually defined against.
+FLOOR_PERCENTILE = 20.0
+FLOOR_FRAME_MS = 20.0
+
 BLOCK_FRAMES = 2_400  # 50 ms at 48 kHz
+
+#: Live meter, matching `spikes/test_boya_live.py` so the two read the same.
+METER_WIDTH = 20
+METER_FLOOR_DBFS = -60.0
+METER_REFRESH_BLOCKS = 2  # redraw every ~100 ms; faster just flickers
 
 
 def dbfs(level: float) -> float:
     return 20.0 * np.log10(max(level, 1e-12))
+
+
+def centred(x: np.ndarray) -> np.ndarray:
+    """The signal with its DC offset removed --- for *measurement only*.
+
+    S0 measured this chain at a constant +0.0065, which is about -43.7 dBFS: more
+    than 20 dB above the room floor it also measured. Any RMS taken without
+    removing it is reading the hardware bias rather than the room, and every take
+    in a session would then score ~0 dB over the "floor" and be refused as too
+    quiet. The meter, the floor and `verify` all measure on the centred signal.
+
+    The masters keep the offset. `audio/s1/` is what the ADC produced and is never
+    written to (ADR-0005 D1); `data/resample.py` removes the offset in the derived
+    16 kHz corpus, where it is a declared step and is recorded per file.
+    """
+    if x.size == 0:
+        return x
+    return x - float(np.mean(x, dtype=np.float64))
+
+
+def noise_floor(audio: np.ndarray, sample_rate: int = CAPTURE_RATE) -> float:
+    """Robust room-tone level: a low percentile of short-frame RMS, linear scale.
+
+    Falls back to the whole-signal RMS when there is not enough audio to frame.
+    """
+    signal = centred(audio)
+    frame = max(1, int(round(sample_rate * FLOOR_FRAME_MS / 1000.0)))
+    if signal.size < frame * 4:
+        return rms(signal)
+    usable = (signal.size // frame) * frame
+    frames = signal[:usable].reshape(-1, frame)
+    energies = np.sqrt(np.mean(np.square(frames, dtype=np.float64), axis=1))
+    return float(np.percentile(energies, FLOOR_PERCENTILE))
+
+
+def mains_share(audio: np.ndarray, sample_rate: int = CAPTURE_RATE) -> float:
+    """Fraction of the signal's energy sitting in the mains bands.
+
+    Returns 0.0 for a signal too short to resolve 50 Hz. A high share is the
+    fingerprint of electrical pickup rather than a noisy room, and the two have
+    completely different fixes -- one is a cable or a power supply, the other is
+    a fan or a window.
+    """
+    if audio.size < sample_rate // 4:
+        return 0.0
+    windowed = centred(audio) * np.hanning(audio.size)
+    spectrum = np.abs(np.fft.rfft(windowed)) ** 2
+    freqs = np.fft.rfftfreq(audio.size, 1.0 / sample_rate)
+    total = float(spectrum.sum())
+    if total <= 0.0:
+        return 0.0
+    hum = 0.0
+    for harmonic in range(1, MAINS_HARMONICS + 1):
+        centre = MAINS_HZ * harmonic
+        band = (freqs >= centre - MAINS_BANDWIDTH_HZ) & (freqs <= centre + MAINS_BANDWIDTH_HZ)
+        hum += float(spectrum[band].sum())
+    return hum / total
+
+
+def meter(rms_dbfs: float, peak_dbfs: float, status: str) -> str:
+    """One line of VU, `[####----------------] -47.2 dBFS | Pk: -37.5 dB | OK`."""
+    filled = int(np.clip((rms_dbfs - METER_FLOOR_DBFS) / -METER_FLOOR_DBFS, 0.0, 1.0) * METER_WIDTH)
+    bar = "#" * filled + "-" * (METER_WIDTH - filled)
+    return f"[{bar}] {rms_dbfs:6.1f} dBFS | Pk: {peak_dbfs:6.1f} dB | {status}"
+
+
+def live_status(peak_dbfs: float, floor_dbfs: float, clipped: int) -> str:
+    """What the meter says about the take *in progress*.
+
+    Thresholded against the room floor measured at session start rather than
+    against absolute dBFS: the BOYA runs 16 dB under Table 22's target, so a fixed
+    "-20 dBFS or it is too quiet" rule would condemn every usable take.
+    """
+    if clipped:
+        return "\u274c CLIPPED"
+    over = peak_dbfs - floor_dbfs
+    if over < MIN_SNR_DB:
+        return "\u274c TOO QUIET"
+    if over < GOOD_SNR_DB:
+        return "\u26a0\ufe0f  QUIET"
+    return "\u2705 OK"
 
 
 # --- device selection ------------------------------------------------------
@@ -168,8 +274,15 @@ def find_capture_device(preferred: str | None = None) -> tuple[int, str]:
 # --- capture ---------------------------------------------------------------
 
 
-def record_until_enter(device: int, max_seconds: float = MAX_SECONDS) -> np.ndarray:
-    """Stream mono float32 at 48 kHz until the author presses Enter or the cap hits."""
+def record_until_enter(
+    device: int, floor_dbfs: float = -60.0, max_seconds: float = MAX_SECONDS
+) -> np.ndarray:
+    """Stream mono float32 at 48 kHz until the author presses Enter or the cap hits.
+
+    Draws a live VU meter while it runs. Watching the level is the only way to
+    catch a mic knocked off-axis, a dead USB adapter or a hot take *during* the
+    90 minutes; `verify` catches them afterwards, which costs a retake each time.
+    """
     sd = _sounddevice()
     blocks: "queue.Queue[np.ndarray]" = queue.Queue()
     stop = threading.Event()
@@ -183,6 +296,8 @@ def record_until_enter(device: int, max_seconds: float = MAX_SECONDS) -> np.ndar
     waiter.start()
 
     collected: list[np.ndarray] = []
+    peak_dbfs = -120.0
+    clipped = 0
     with sd.InputStream(
         device=device,
         samplerate=CAPTURE_RATE,
@@ -199,8 +314,19 @@ def record_until_enter(device: int, max_seconds: float = MAX_SECONDS) -> np.ndar
                 continue
             collected.append(block)
             total += block.size
-            if len(collected) % 4 == 0:
-                print(f"\r  recording {total / CAPTURE_RATE:5.1f}s ", end="", flush=True)
+
+            centred_block = centred(block)
+            block_peak = float(np.max(np.abs(centred_block))) if centred_block.size else 0.0
+            peak_dbfs = max(peak_dbfs, dbfs(block_peak))
+            clipped += int(np.count_nonzero(np.abs(block) >= CLIP_LEVEL))
+            if len(collected) % METER_REFRESH_BLOCKS == 0:
+                rms_dbfs = dbfs(rms(centred_block))
+                status = live_status(peak_dbfs, floor_dbfs, clipped)
+                print(
+                    f"\033[2K\r  {total / CAPTURE_RATE:5.1f}s {meter(rms_dbfs, peak_dbfs, status)}",
+                    end="",
+                    flush=True,
+                )
     print()
 
     while True:  # drain whatever the callback queued after the loop exited
@@ -217,12 +343,44 @@ def record_until_enter(device: int, max_seconds: float = MAX_SECONDS) -> np.ndar
 
 
 def record_fixed(device: int, seconds: float) -> np.ndarray:
-    """Blocking capture of a known length --- used for the silence reference."""
+    """Capture of a known length, metered --- used for the silence reference.
+
+    Metered because watching the floor for five seconds is how a fan, a fridge
+    compressor or a passing car gets noticed before it is baked into the number
+    every nominal SNR in Exp-3 is measured against.
+    """
     sd = _sounddevice()
-    frames = int((seconds + WARMUP_SECONDS) * CAPTURE_RATE)
-    audio = sd.rec(frames, samplerate=CAPTURE_RATE, channels=1, dtype="float32", device=device)
-    sd.wait()
-    return audio[int(WARMUP_SECONDS * CAPTURE_RATE) :, 0].astype(np.float32)
+    total_frames = int(seconds * CAPTURE_RATE)
+    collected: list[np.ndarray] = []
+    peak_dbfs = -120.0
+
+    with sd.InputStream(
+        device=device,
+        samplerate=CAPTURE_RATE,
+        channels=1,
+        dtype="float32",
+        blocksize=BLOCK_FRAMES,
+    ) as stream:
+        stream.read(int(WARMUP_SECONDS * CAPTURE_RATE))
+        gathered = 0
+        while gathered < total_frames:
+            block, _ = stream.read(min(BLOCK_FRAMES, total_frames - gathered))
+            mono = block[:, 0].copy()
+            collected.append(mono)
+            gathered += mono.size
+
+            centred_block = centred(mono)
+            peak_dbfs = max(peak_dbfs, dbfs(float(np.max(np.abs(centred_block)))))
+            if len(collected) % METER_REFRESH_BLOCKS == 0:
+                rms_dbfs = dbfs(rms(centred_block))
+                print(
+                    f"\033[2K\r  {gathered / CAPTURE_RATE:5.1f}s "
+                    f"{meter(rms_dbfs, peak_dbfs, 'room tone')}",
+                    end="",
+                    flush=True,
+                )
+    print()
+    return np.concatenate(collected).astype(np.float32) if collected else np.zeros(0, dtype=np.float32)
 
 
 # --- verification ----------------------------------------------------------
@@ -237,6 +395,7 @@ class TakeReport:
     floor_dbfs: float
     snr_db: float
     clipped_samples: int
+    dc_offset: float
     lead_seconds: float
     tail_seconds: float
     failures: list[str]
@@ -265,12 +424,24 @@ def _speech_bounds(audio: np.ndarray, floor_linear: float) -> tuple[float, float
 
 
 def verify(item_id: str, audio: np.ndarray, floor_linear: float) -> TakeReport:
+    """Measure the take. Levels come from the centred signal, clipping from the raw.
+
+    The split matters. Every level here is a comparison against the room floor, and
+    a DC offset inflates both sides of that comparison by a constant that has
+    nothing to do with the room --- on this chain S0 measured +0.0065, some 20 dB
+    above the floor itself, which is enough to make every take read as ~0 dB of
+    headroom and be refused. Clipping is the opposite case: it is a property of the
+    samples the ADC actually wrote, so it is counted on the raw signal, where a
+    offset that pushes peaks into the rail is exactly what must be caught.
+    """
     seconds = audio.size / CAPTURE_RATE
-    peak = float(np.max(np.abs(audio))) if audio.size else 0.0
-    active = active_speech_rms(audio, CAPTURE_RATE) if audio.size else 0.0
+    signal = centred(audio)
+    offset = float(np.mean(audio, dtype=np.float64)) if audio.size else 0.0
+    peak = float(np.max(np.abs(signal))) if signal.size else 0.0
+    active = active_speech_rms(signal, CAPTURE_RATE) if signal.size else 0.0
     clipped = int(np.count_nonzero(np.abs(audio) >= CLIP_LEVEL))
     snr = dbfs(active) - dbfs(floor_linear)
-    lead, tail = _speech_bounds(audio, floor_linear)
+    lead, tail = _speech_bounds(signal, floor_linear)
 
     failures: list[str] = []
     warnings: list[str] = []
@@ -303,6 +474,7 @@ def verify(item_id: str, audio: np.ndarray, floor_linear: float) -> TakeReport:
         floor_dbfs=round(dbfs(floor_linear), 2),
         snr_db=round(snr, 2),
         clipped_samples=clipped,
+        dc_offset=round(offset, 6),
         lead_seconds=round(lead, 3),
         tail_seconds=round(tail, 3),
         failures=failures,
@@ -335,6 +507,54 @@ def _write_meta(meta_path: Path, meta: dict) -> None:
     meta_path.write_text(json.dumps(meta, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
+def measure_room(device: int, seconds: float = SILENCE_REFERENCE_SECONDS) -> tuple[float, float, float]:
+    """Record room tone and return (floor dBFS, mains share, DC offset)."""
+    silence = record_fixed(device, seconds)
+    dc = float(np.mean(silence, dtype=np.float64)) if silence.size else 0.0
+    return dbfs(noise_floor(silence)), mains_share(silence), dc
+
+
+def report_room(floor_dbfs: float, hum: float, dc: float) -> bool:
+    """Print the verdict and the diagnosis. Returns True if the room passes."""
+    passed = floor_dbfs <= MAX_ROOM_FLOOR_DBFS
+    print(f"  DC offset:  {dc:+.6f}  ({dbfs(abs(dc)):.1f} dBFS) -- removed before measuring")
+    print(
+        f"  room floor: {floor_dbfs:6.2f} dBFS  (need <= {MAX_ROOM_FLOOR_DBFS:.0f})  "
+        f"{'PASS' if passed else 'FAIL'}"
+    )
+    print(
+        f"  mains hum:  {hum:6.1%} of the energy at {MAINS_HZ:.0f} Hz and its harmonics"
+        f"   [floor = p{FLOOR_PERCENTILE:.0f} of 20 ms frames]"
+    )
+    if hum >= MAINS_SHARE_WARN:
+        print(
+            "\n  That is electrical pickup, not a noisy room, and no amount of quiet\n"
+            "  fixes it. In order of how often it works:\n"
+            "    1. Unplug the AC charger -- S0 measured it adding ~22 dB of exactly this.\n"
+            "    2. Move the mic cable away from power cables, power strips and chargers.\n"
+            "    3. Unplug anything else from USB; move away from monitors and fluorescents.\n"
+            "    4. Try a different room, or a different wall."
+        )
+    elif not passed:
+        print(
+            "\n  Broadband, so it is the room rather than the wiring: a fan, a fridge,\n"
+            "  a computer, traffic through a window. Find it and stop it."
+        )
+    return passed
+
+
+def check_room(device: int) -> int:
+    """Loop the room measurement so the author can hunt a hum source live."""
+    print("Room check. Ctrl+C to stop.\n")
+    try:
+        while True:
+            floor_dbfs, hum, dc = measure_room(device, seconds=3.0)
+            report_room(floor_dbfs, hum, dc)
+            print()
+    except KeyboardInterrupt:
+        return 0
+
+
 def run(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--session", default="s1", choices=("s1", "s2", "s3"))
@@ -345,6 +565,11 @@ def run(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--redo", action="store_true", help="re-record ids already on disk")
     parser.add_argument("--list-devices", action="store_true")
     parser.add_argument(
+        "--check-room",
+        action="store_true",
+        help="measure the floor and the mains-hum share on a loop; record nothing",
+    )
+    parser.add_argument(
         "--skip-floor",
         action="store_true",
         help="reuse the floor from a previous run of this session instead of measuring",
@@ -354,6 +579,11 @@ def run(argv: Sequence[str] | None = None) -> int:
     if args.list_devices:
         list_devices()
         return 0
+
+    if args.check_room:
+        device, device_name = find_capture_device(args.device)
+        print(f"capture device: [{device}] {device_name}\n")
+        return check_room(device)
 
     out_dir = args.out or (AUDIO_DIR / args.session)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -395,14 +625,21 @@ def run(argv: Sequence[str] | None = None) -> int:
     if floor_dbfs is None or not args.skip_floor:
         input(f"[Enter] record {SILENCE_REFERENCE_SECONDS:.0f}s of ROOM SILENCE (stay quiet) ")
         silence = record_fixed(device, SILENCE_REFERENCE_SECONDS)
-        floor_dbfs = round(dbfs(rms(silence)), 2)
+        measured, hum, dc = (
+            round(dbfs(noise_floor(silence)), 2),
+            mains_share(silence),
+            float(np.mean(silence, dtype=np.float64)) if silence.size else 0.0,
+        )
+        meta["floor_rms_dbfs"] = round(dbfs(rms(centred(silence))), 2)
+        floor_dbfs = measured
+        meta["dc_offset"] = round(dc, 6)
+        meta["mains_share"] = round(hum, 4)
         sf.write(out_dir / "_room_silence.wav", silence, CAPTURE_RATE, subtype=CAPTURE_SUBTYPE)
-        verdict = "PASS" if floor_dbfs <= MAX_ROOM_FLOOR_DBFS else "FAIL"
-        print(f"  room floor: {floor_dbfs:.2f} dBFS  (need <= {MAX_ROOM_FLOOR_DBFS:.0f})  {verdict}")
-        if verdict == "FAIL":
+        if not report_room(measured, hum, dc):
             print(
-                "  A floor this high contaminates every nominal SNR level in Exp-3.\n"
-                "  Fix the room (R-2 ladder) before recording; do not record around it."
+                "\n  A floor this high contaminates every nominal SNR level in Exp-3 --\n"
+                "  it is the denominator of every one of them. Fix it before recording.\n"
+                "  `python data/record_session.py --check-room` loops this measurement."
             )
             if input("  type 'override' to record anyway: ").strip() != "override":
                 return 2
@@ -441,7 +678,7 @@ def run(argv: Sequence[str] | None = None) -> int:
                 break
 
             print("  [Enter] to stop.")
-            audio = record_until_enter(device)
+            audio = record_until_enter(device, floor_dbfs)
             report = verify(item_id, audio, floor_linear)
 
             print(

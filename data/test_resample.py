@@ -24,6 +24,7 @@ from data.resample import (
     TARGET_RATE,
     dbfs,
     read_master,
+    remove_dc,
     resample,
     run,
 )
@@ -123,3 +124,50 @@ def test_the_output_is_16_bit_16_khz_mono(tmp_path):
     run(["--input", str(source), "--output", str(out)])
     info = sf.info(str(out / "0001.wav"))
     assert (info.samplerate, info.channels, info.subtype) == (TARGET_RATE, 1, "PCM_16")
+
+
+# --- DC offset -------------------------------------------------------------
+
+S0_DC_OFFSET = 0.0065  # measured at S0 on this capture chain
+
+
+def test_remove_dc_returns_what_it_removed():
+    signal, offset = remove_dc(tone(0.5, 0.2) + S0_DC_OFFSET)
+    assert offset == pytest.approx(S0_DC_OFFSET, abs=1e-5)
+    assert float(np.mean(signal)) == pytest.approx(0.0, abs=1e-6)
+
+
+def test_remove_dc_tolerates_an_empty_signal():
+    signal, offset = remove_dc(np.zeros(0, dtype=np.float32))
+    assert signal.size == 0 and offset == 0.0
+
+
+def test_the_offset_is_recorded_per_file_so_the_step_is_reversible(tmp_path):
+    source, out = tmp_path / "s1", tmp_path / "s1_16k"
+    source.mkdir()
+    write_master(source / "0001.wav", tone(1.0, 0.25) + S0_DC_OFFSET)
+    run(["--input", str(source), "--output", str(out)])
+    manifest = json.loads((out / "resample_manifest.json").read_text())
+    assert manifest["dc_removed"] is True
+    assert manifest["files"][0]["dc_offset_removed"] == pytest.approx(S0_DC_OFFSET, abs=2e-4)
+
+
+def test_the_derived_corpus_is_centred(tmp_path):
+    source, out = tmp_path / "s1", tmp_path / "s1_16k"
+    source.mkdir()
+    write_master(source / "0001.wav", tone(1.0, 0.25) + S0_DC_OFFSET)
+    run(["--input", str(source), "--output", str(out)])
+    audio, _ = sf.read(str(out / "0001.wav"), dtype="float32")
+    assert float(np.mean(audio)) == pytest.approx(0.0, abs=1e-3)
+
+
+def test_the_master_keeps_its_offset(tmp_path):
+    """`audio/s1/` is what the ADC produced. The offset is corrected downstream,
+    not edited out of the irreplaceable file."""
+    source, out = tmp_path / "s1", tmp_path / "s1_16k"
+    source.mkdir()
+    path = source / "0001.wav"
+    write_master(path, tone(1.0, 0.25) + S0_DC_OFFSET)
+    run(["--input", str(source), "--output", str(out)])
+    audio, _ = sf.read(str(path), dtype="float32")
+    assert float(np.mean(audio)) == pytest.approx(S0_DC_OFFSET, abs=2e-4)

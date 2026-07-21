@@ -97,6 +97,22 @@ def read_master(path: Path) -> np.ndarray:
     return np.ascontiguousarray(audio[:, 0], dtype=np.float32)
 
 
+def remove_dc(audio: np.ndarray) -> tuple[np.ndarray, float]:
+    """Subtract the constant offset, returning the signal and what was removed.
+
+    A DC offset is a hardware artifact with no acoustic content --- S0 measured
+    +0.0065 on this chain, about -43.7 dBFS and some 20 dB above the room floor.
+    It wastes headroom, biases every RMS taken over the file, and survives
+    resampling. Removing it here, in the derived corpus, keeps the masters as the
+    ADC wrote them (ADR-0005 D1) while giving every consumer a centred signal. The
+    removed constant is recorded per file, so the step is reversible.
+    """
+    if audio.size == 0:
+        return audio, 0.0
+    offset = float(np.mean(audio, dtype=np.float64))
+    return (audio - offset).astype(np.float32), offset
+
+
 def resample(audio: np.ndarray) -> np.ndarray:
     """The single resampling call in the project.
 
@@ -135,9 +151,11 @@ def run(argv: Sequence[str] | None = None) -> int:
     # Pass 1: convert, and find the session peak on the *converted* signal, since
     # the resampler's ringing can push a sample above the master's own peak.
     converted: dict[str, np.ndarray] = {}
+    offsets: dict[str, float] = {}
     session_peak = 0.0
     for path in masters:
-        samples = resample(read_master(path))
+        centred, offsets[path.stem] = remove_dc(read_master(path))
+        samples = resample(centred)
         converted[path.stem] = samples
         session_peak = max(session_peak, float(np.max(np.abs(samples))) if samples.size else 0.0)
 
@@ -169,6 +187,7 @@ def run(argv: Sequence[str] | None = None) -> int:
                 "master_sha256": sha256(path),
                 "output": _display(out_path),
                 "seconds": round(samples.size / TARGET_RATE, 3),
+                "dc_offset_removed": round(offsets[path.stem], 6),
                 "peak_dbfs": round(dbfs(float(np.max(np.abs(samples)))), 2),
                 "active_speech_dbfs": round(dbfs(active_speech_rms(samples, TARGET_RATE)), 2),
             }
@@ -179,6 +198,7 @@ def run(argv: Sequence[str] | None = None) -> int:
         "source_rate": SOURCE_RATE,
         "target_rate": TARGET_RATE,
         "resampler": f"soxr {soxr.__version__} quality={QUALITY}",
+        "dc_removed": True,
         "normalised": not args.no_normalise,
         "peak_ceiling_dbfs": args.peak_dbfs if not args.no_normalise else None,
         "session_gain_db": round(dbfs(gain), 4),
@@ -189,7 +209,9 @@ def run(argv: Sequence[str] | None = None) -> int:
     manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
 
     active = [r["active_speech_dbfs"] for r in records]
+    mean_offset = float(np.mean(list(offsets.values()))) if offsets else 0.0
     print(f"wrote {len(records)} files to {destination}")
+    print(f"mean DC offset removed: {mean_offset:+.6f} ({dbfs(abs(mean_offset)):.1f} dBFS)")
     print(
         f"active-speech level: median {float(np.median(active)):.1f} dBFS, "
         f"range [{min(active):.1f}, {max(active):.1f}]"
