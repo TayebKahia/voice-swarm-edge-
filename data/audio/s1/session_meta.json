@@ -1,0 +1,14 @@
+{
+  "room": "",
+  "mic_distance_cm": "10",
+  "floor_rms_dbfs": -63.96,
+  "dc_offset": 0.008576,
+  "mains_share": 0.227,
+  "session": "s1",
+  "device": "USB Audio Device: - (hw:2,0)",
+  "sample_rate": 48000,
+  "subtype": "PCM_16",
+  "noise_floor_dbfs": -67.22,
+  "started": "2026-09-17T14:52:24.593168+01:00",
+  "takes": {}
+}

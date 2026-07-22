@@ -23,6 +23,7 @@ from data.record_session import (
     dbfs,
     mains_share,
     noise_floor,
+    speech_level,
     live_status,
     meter,
     read_transcripts,
@@ -269,3 +270,50 @@ def test_mains_share_counts_harmonics_not_just_the_fundamental():
 
 def test_mains_share_is_zero_on_a_signal_too_short_to_resolve_50_hz():
     assert mains_share(room_tone(seconds=0.05)) == 0.0
+
+
+# --- the speech level ------------------------------------------------------
+
+
+def take_with_trailing_silence(
+    total_seconds: float, speech_seconds: float = 2.0, amplitude: float = 0.012
+) -> np.ndarray:
+    """One fixed utterance, padded to `total_seconds` with room tone."""
+    rng = np.random.default_rng(11)
+    audio = rng.normal(0.0, FLOOR, int(total_seconds * CAPTURE_RATE)).astype(np.float32)
+    n = int(speech_seconds * CAPTURE_RATE)
+    t = np.arange(n) / CAPTURE_RATE
+    burst = amplitude * np.sin(2 * np.pi * 180 * t) * (0.5 + 0.5 * np.sin(2 * np.pi * 3 * t))
+    start = int(0.4 * CAPTURE_RATE)
+    audio[start : start + n] += burst.astype(np.float32)
+    return audio
+
+
+def test_the_speech_level_does_not_depend_on_how_long_the_stream_ran():
+    """`active_speech_rms` keeps every frame within 30 dB of the loudest, which on
+    a mostly-silent take admits the room tone: the same utterance scored 20 dB in
+    a 2.5 s take and 12.5 dB in a 16 s one, and the long take was refused for its
+    length. This is the take the author actually lost to it."""
+    levels = [dbfs(speech_level(take_with_trailing_silence(s), FLOOR)) for s in (2.5, 4.0, 8.0, 16.0)]
+    assert max(levels) - min(levels) < 0.5
+
+
+def test_a_long_take_now_passes_verification():
+    report = verify("0001", take_with_trailing_silence(16.0), FLOOR)
+    assert report.ok, report.failures
+    assert report.snr_db > GOOD_SNR_DB
+
+
+def test_the_level_still_reflects_a_genuinely_quiet_speaker():
+    """Ignoring the silence must not mean ignoring the level."""
+    loud = dbfs(speech_level(take_with_trailing_silence(4.0, amplitude=0.012), FLOOR))
+    quiet = dbfs(speech_level(take_with_trailing_silence(4.0, amplitude=0.0012), FLOOR))
+    assert loud - quiet == pytest.approx(20.0, abs=2.0)
+    assert not verify("0003", take_with_trailing_silence(4.0, amplitude=0.0012), FLOOR).ok
+
+
+def test_a_take_with_no_speech_reports_a_level_rather_than_raising():
+    rng = np.random.default_rng(5)
+    tone = rng.normal(0.0, FLOOR, 3 * CAPTURE_RATE).astype(np.float32)
+    assert speech_level(tone, FLOOR) > 0.0
+    assert not verify("0002", tone, FLOOR).ok

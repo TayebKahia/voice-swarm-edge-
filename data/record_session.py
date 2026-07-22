@@ -406,21 +406,54 @@ class TakeReport:
         return not self.failures
 
 
-def _speech_bounds(audio: np.ndarray, floor_linear: float) -> tuple[float, float]:
-    """Seconds of room tone before the first and after the last active frame."""
+def speech_frames(
+    audio: np.ndarray, floor_linear: float
+) -> tuple[np.ndarray, np.ndarray, int]:
+    """Split a take into 20 ms frames and say which of them contain speech.
+
+    One definition, used for both the level and the bounds. `mix_noise`'s
+    `active_speech_rms` keeps every frame within 30 dB of the loudest, which is
+    right for a TTS clip that is nearly all speech and wrong for a live take: on a
+    16 s take holding 2 s of speech, 30 dB below the peak still admits the room
+    tone, and the level comes out diluted by however long the author left the
+    stream running. The same utterance then scores 20 dB in a 2.5 s take and
+    12.5 dB in a 16 s one, and the long one is refused for its length.
+
+    The threshold is anchored to the measured room floor instead, with a relative
+    term so a loud take is not judged by an absolute that no longer applies.
+    """
     frame = int(CAPTURE_RATE * 0.020)
     if audio.size < frame:
-        return 0.0, 0.0
+        return np.zeros(0), np.zeros(0, dtype=bool), frame
     usable = (audio.size // frame) * frame
     frames = audio[:usable].reshape(-1, frame)
     energy = np.sqrt(np.mean(np.square(frames, dtype=np.float64), axis=1))
     threshold = max(floor_linear * 4.0, float(energy.max()) * 0.05)
-    active = np.flatnonzero(energy >= threshold)
-    if active.size == 0:
+    return frames, energy >= threshold, frame
+
+
+def _speech_bounds(audio: np.ndarray, floor_linear: float) -> tuple[float, float]:
+    """Seconds of room tone before the first and after the last active frame."""
+    frames, active, frame = speech_frames(audio, floor_linear)
+    indices = np.flatnonzero(active)
+    if indices.size == 0:
         return 0.0, 0.0
-    lead = active[0] * frame / CAPTURE_RATE
-    tail = (len(frames) - 1 - active[-1]) * frame / CAPTURE_RATE
+    lead = indices[0] * frame / CAPTURE_RATE
+    tail = (len(frames) - 1 - indices[-1]) * frame / CAPTURE_RATE
     return float(lead), float(tail)
+
+
+def speech_level(audio: np.ndarray, floor_linear: float) -> float:
+    """RMS over the frames that hold speech, and nothing else.
+
+    Falls back to `active_speech_rms` when no frame clears the threshold, so a
+    take with no speech in it still reports a level rather than raising --- the
+    caller rejects it on that level.
+    """
+    frames, active, _ = speech_frames(audio, floor_linear)
+    if frames.size == 0 or not active.any():
+        return active_speech_rms(audio, CAPTURE_RATE) if audio.size else 0.0
+    return rms(frames[active].reshape(-1))
 
 
 def verify(item_id: str, audio: np.ndarray, floor_linear: float) -> TakeReport:
@@ -438,7 +471,7 @@ def verify(item_id: str, audio: np.ndarray, floor_linear: float) -> TakeReport:
     signal = centred(audio)
     offset = float(np.mean(audio, dtype=np.float64)) if audio.size else 0.0
     peak = float(np.max(np.abs(signal))) if signal.size else 0.0
-    active = active_speech_rms(signal, CAPTURE_RATE) if signal.size else 0.0
+    active = speech_level(signal, floor_linear) if signal.size else 0.0
     clipped = int(np.count_nonzero(np.abs(audio) >= CLIP_LEVEL))
     snr = dbfs(active) - dbfs(floor_linear)
     lead, tail = _speech_bounds(signal, floor_linear)
