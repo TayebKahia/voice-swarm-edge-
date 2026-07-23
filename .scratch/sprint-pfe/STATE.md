@@ -51,18 +51,22 @@ Corpora on disk (gitignored, all reproducible):
    position, so each clip now records `noise_partition` from the bank it drew from.
 5. **Keyword at a random offset, never centred**; 40 authored near-misses because no public
    corpus contains "swarm" or a phrase starting with "hold".
-6. **Annotation interval 10 -> 6 days.** Not reachable: execution began a day behind the
-   D-numbering, pass 1 is gated on the recording, the depot fixes the far end. Six days
-   controls for recall less well than ten and the bias runs toward HIGHER apparent agreement --
-   stated in SS9.3, Limitations, R-9 and card SS7. Pass 2 is shuffled as a partial mitigation.
+6. **The annotation claim was rescoped, not just renumbered.** The interval collapsed to 2 days
+   (recording slipped to Sep 17-18; depot is Mon 21 Sep), and at 2 days an agreement percentage
+   measures recall rather than schema clarity. So **no agreement rate is reported at all.** What
+   is reported is the list of items the two passes label DIFFERENTLY: recall can push the passes
+   together but never apart, so a disagreement is evidence of ambiguity at any interval. The count
+   is declared a lower bound, and a zero count is declared not to be a positive result.
+   `annotate.py:card_block` renders no rate -- the rates stay in stdout as working numbers.
 7. **Common Voice comes from an ungated mirror of release 17.0, recorded as a mirror**, and the
    sample is stratified by accent because a uniform draw is 39% US English.
 
 ## Blocked / needs human  <-- THE ONLY THING LEFT IN SESSION 03
-1. **Record s1 (~90 min).** `python data/record_session.py --session s1`
-   On battery. AGC off. Then `python data/resample.py --session s1`.
-2. **Annotation pass 1 (~45 min), same day.** `python data/annotate.py --pass 1`, then seal.
-   **Sealing starts the 6-day interval. Pass 2 is Sun 20 Sep.**
+1. ~~Record s1~~ **DONE Sep 17-18.** 200/200 masters + 200 resampled. Room floor -70.51 dBFS
+   (S0 was -64.47); active speech median -34.4 dBFS after a -13.56 dB session gain.
+   A refrigerator was the contaminant, not the charger -- see the two fix commits.
+2. **Annotation pass 1 (~40 min).** `python data/annotate.py --pass 1`, then seal.
+   Pass 2 is Sun 20 Sep. 10 of the 50 are 0-slot labels (abort/hover/land/unknown).
 3. Then Gate 5: `git tag dataset-v1.0`.
 - Autorisation de soutenance: requested Sep 6, still pending (Issue 24). Chase Sep 17.
 - `llama-gbnf-validator` still not built; needed before Session 05B (Gate 3).

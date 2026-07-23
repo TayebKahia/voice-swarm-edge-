@@ -304,34 +304,64 @@ def gap_days(seal_path: Path, pass2_path: Path) -> float | None:
 
 
 def card_block(result: dict, gap: float | None) -> str:
+    """The §7 block. Reports the disagreements and withholds the rate.
+
+    `prd.md` §9.3: at a two-day interval a matching pair of labels is as easily
+    recall as schema clarity, so an agreement percentage would measure memory. The
+    rate is *not* rendered here --- it stays in `--compare`'s stdout as a working
+    number and never reaches the card, because the card is what gets read.
+
+    What survives the short interval is the asymmetry: recall can only push the
+    two passes together, never apart. So an item labelled two different ways is
+    evidence the schema admits two readings regardless of the gap, and those items
+    are the output.
+    """
+    disagreements = result["disagreements"]
+    interval = f"{gap:.1f} days" if gap is not None else "TBD — pass 2 not recorded"
     lines = [
         CARD_BEGIN,
         "",
         "| Field | Value |",
         "|---|---|",
-        f"| Pass 1 | `annot/annot_pass1.jsonl` — sealed, authoritative |",
-        f"| Pass 2 | `annot/annot_pass2.jsonl` — cold relabel |",
-        f"| Gap | {'%.1f days' % gap if gap is not None else 'TBD — pass 2 not recorded'} |",
+        "| Pass 1 | `annot/annot_pass1.jsonl` — sealed under SHA-256, authoritative |",
+        "| Pass 2 | `annot/annot_pass2.jsonl` — reshuffled, blind to pass 1 |",
+        f"| Interval | {interval} |",
         f"| Items | {result['n']} |",
-        f"| Exact agreement | {result['exact_agreement']:.1%} |",
-        f"| Intent agreement | {result['intent_agreement']:.1%} |",
-        f"| Slot F1 between passes | {result['slot_f1']:.3f} |",
-        f"| Disagreements | {len(result['disagreements'])} |",
+        "| Agreement rate | **not reported** — see below |",
+        f"| Schema ambiguities found | {len(disagreements)} |",
+        "",
+        "**No agreement rate is reported.** At this interval a matching pair of",
+        "labels is as easily recall as schema clarity, so a percentage would measure",
+        "memory; it is withheld rather than caveated.",
+        "",
+        "What the comparison does support is one-directional: **recall can only push",
+        "the two passes toward agreement, never apart.** An item labelled two",
+        "different ways is therefore evidence that the schema admits two readings, at",
+        "any interval.",
         "",
     ]
-    if result["disagreements"]:
+    if disagreements:
         lines += [
-            "Every disagreement localises a schema ambiguity; each is listed so the",
-            "reader can judge it rather than take the aggregate on trust.",
+            f"The {len(disagreements)} item(s) below are that evidence. The count is a",
+            "**lower bound**: recall will have masked ambiguities a cold reader would",
+            "have hit.",
             "",
             "| id | pass 1 | pass 2 | intent moved |",
             "|---|---|---|---|",
         ]
-        for d in result["disagreements"]:
+        for d in disagreements:
             lines.append(
-                f"| {d['id']} | `{d['pass1']}` | `{d['pass2']}` | {'yes' if d['intent_differs'] else 'no'} |"
+                f"| {d['id']} | `{d['pass1']}` | `{d['pass2']}` | "
+                f"{'yes' if d['intent_differs'] else 'no'} |"
             )
         lines.append("")
+    else:
+        lines += [
+            "**No disagreement appeared.** This is not evidence that the schema is",
+            "unambiguous --- only that this interval was too short to find one. Stated",
+            "explicitly so the null result cannot be read as a positive one.",
+            "",
+        ]
     lines.append(CARD_END)
     return "\n".join(lines)
 
@@ -369,8 +399,13 @@ def run(argv: Sequence[str] | None = None) -> int:
             raise SystemExit("both passes must exist before they can be compared")
         result = compare(pass1, pass2)
         gap = gap_days(SEAL_PATH, PASS2_PATH)
+        # The rates stay here, as working numbers. `card_block` does not render
+        # them: at this interval they measure recall, and the card is what a
+        # reader sees. See `prd.md` §9.3.
         print(json.dumps({k: v for k, v in result.items() if k != "disagreements"}, indent=2))
+        print("  (rates above are diagnostic only and are NOT reported -- prd.md §9.3)")
         print(f"gap: {gap} days" if gap is not None else "gap: unknown (no seal record)")
+        print(f"\nschema ambiguities found: {len(result['disagreements'])}")
         for d in result["disagreements"]:
             print(f"  {d['id']}  {d['pass1']}   !=   {d['pass2']}")
         print("dataset card §7 rewritten" if update_card(card_block(result, gap)) else

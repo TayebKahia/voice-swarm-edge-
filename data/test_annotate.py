@@ -188,3 +188,46 @@ def test_the_card_block_lists_every_disagreement_not_just_the_count():
 
 def test_slot_pairs_splits_the_canonical_form():
     assert slot_pairs(raw_to_label('{"intent":"move","dir":"north","dist":10.0}'))
+
+
+# --- what the card may and may not claim (prd.md SS9.3) --------------------
+
+
+def test_the_card_never_renders_an_agreement_rate():
+    """At a two-day interval a matching pair is as easily recall as schema
+    clarity. The rate stays a working number in stdout; the card is what a reader
+    sees, and it must not carry a figure the interval cannot support."""
+    entries = {f"{i:04d}": '{"intent":"hover"}' for i in range(1, 11)}
+    block = card_block(compare(_pass(entries), _pass(entries)), gap=2.0)
+    assert "100.0%" not in block and "100%" not in block
+    assert "Exact agreement" not in block
+    assert "Intent agreement" not in block
+    assert "not reported" in block
+
+
+def test_the_card_states_that_no_disagreement_is_not_a_positive_result():
+    """Otherwise the construction is heads-I-win: a clean run would read as
+    evidence of clarity when it is evidence of nothing."""
+    entries = {"0001": '{"intent":"hover"}'}
+    block = card_block(compare(_pass(entries), _pass(entries)), gap=2.0)
+    assert "not evidence that the schema is" in block
+
+
+def test_the_card_calls_the_disagreement_count_a_lower_bound():
+    """Recall masks ambiguities a cold reader would have hit, so the count
+    understates. Claiming it as complete would overstate the evidence."""
+    first = _pass({"0001": '{"intent":"hover"}'})
+    second = _pass({"0001": '{"intent":"land"}'})
+    block = card_block(compare(first, second), gap=2.0)
+    assert "lower bound" in block
+    assert "0001" in block
+
+
+def test_compare_still_computes_the_rates_for_diagnostics():
+    """Withheld from the card is not the same as not computed --- the working
+    numbers stay available to the author."""
+    first = _pass({"0001": '{"intent":"hover"}', "0002": '{"intent":"abort"}'})
+    second = _pass({"0001": '{"intent":"hover"}', "0002": '{"intent":"land"}'})
+    result = compare(first, second)
+    assert result["exact_agreement"] == 0.5
+    assert "intent_agreement" in result and "slot_f1" in result

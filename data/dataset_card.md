@@ -280,11 +280,16 @@ corpus reproduces byte-for-byte and adding a row does not re-roll the rest of it
 
 ---
 
-## 7. Annotation agreement — intra-annotator
+## 7. Annotation — a search for schema ambiguity
 
-Measured on **50 golden-set utterances** by test–retest with a single annotator:
-labelled on the day session 1 is recorded, that pass **sealed**, the same items
-relabelled cold six days later in a **different presentation order**.
+Examined on **50 golden-set utterances** by a single annotator: labelled on the
+day session 1 is recorded, that pass **sealed** under a SHA-256, the same items
+relabelled two days later in a **different presentation order**, blind to pass 1
+and to the generated targets.
+
+**No agreement rate is reported.** Two days is too short for the second pass to
+be cold: a matching pair of labels is as easily recall as schema clarity, so a
+percentage would measure memory. It is withheld rather than caveated.
 
 The 50 are chosen stratified by intent — five per intent, all ten covered. A
 uniform draw from 200 would expect fewer than three `abort` rows and could return
@@ -296,31 +301,37 @@ The table below is **generated** by `python data/annotate.py --compare`.
 
 | Field | Value |
 |---|---|
-| Pass 1 | `annot/annot_pass1.jsonl` — sealed, authoritative |
-| Pass 2 | `annot/annot_pass2.jsonl` — cold relabel |
-| Gap | TBD — pass 2 not recorded |
+| Pass 1 | `annot/annot_pass1.jsonl` — sealed under SHA-256, authoritative |
+| Pass 2 | `annot/annot_pass2.jsonl` — reshuffled, blind to pass 1 |
+| Interval | TBD — pass 2 not recorded |
 | Items | 50 |
-| Exact agreement | TBD |
-| Intent agreement | TBD |
-| Slot F1 between passes | TBD |
-| Disagreements | TBD — each one localises a schema ambiguity |
+| Agreement rate | **not reported** — see below |
+| Schema ambiguities found | TBD |
 
 <!-- annotation:end -->
 
-Reported as **intra**-annotator agreement and never as inter-annotator. It
-establishes that the schema is applied *stably*; it does not establish that a
-second reader would apply it the same way, and that stronger claim is not made
-anywhere.
+Nothing here is inter-annotator agreement, and that stronger claim — that an
+independent reader applies the schema identically — is not made anywhere. Nor is
+the weaker intra-annotator one: with a two-day interval this section claims no
+reliability figure of any kind.
 
-**The gap is six days, not the ten `prd.md` §9.3 originally planned.** Execution
-began one day behind the PRD's own D-numbering, pass 1 is gated on the recording,
-and the dépôt fixes the far end — so ten days stopped being reachable in either
-direction. What makes the second pass a measurement rather than a recital is
-forgetting, and six days controls for recall **less well** than ten; the residual
-bias runs toward *higher* apparent agreement. Shuffling the presentation order is
-a real but partial mitigation, not a substitute for elapsed time. Both are stated
-here, in §9.3 and in the Limitations table rather than left for a reader to
-notice from the dates.
+**What survives the short interval.** Recall can only push the two passes toward
+agreement, never apart. An item labelled two different ways is therefore evidence
+that the schema admits two readings, at *any* interval — so those items are
+reported individually, with both readings, and they are the output of this
+exercise. Each one localises an ambiguity in the schema or in the required-slot
+matrix.
+
+Two were found by reading the specification rather than by the comparison, and
+are recorded as such: the **sign of `yaw`**
+(the range is fixed at [−180, 180] but the polarity of "left" and "clockwise" is
+never stated) and the **mapping from a spoken drone number to an `ids` index**
+(`ids ⊆ {0…N−1}` per §5.2, but whether "drone 2" is index 1 or 2 is nowhere
+written).
+
+**The count is a lower bound**, since recall will have masked ambiguities a cold
+reader would have hit. And no disagreements at all would not be evidence that the
+schema is unambiguous — only that two days was too short to find one.
 
 **Pass 1 remains the authoritative gold label.** The dataset freezes with it, so
 the second pass is a measurement of consistency, not a revision. A schema gap
