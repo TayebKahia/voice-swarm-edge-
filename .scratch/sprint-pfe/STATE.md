@@ -8,8 +8,8 @@ Gate 2 leakage       : GREEN (check_leakage.py --strict -> exit 0, Sep 14; famil
                        eval-independence, wake-corpus and noise-partition isolation all clean)
 Gate 3 parity        : PENDING (Session 05B)
 Gate 4 fsm           : PENDING (Session 08)
-Gate 5 dataset frozen: **BLOCKED ON THE HUMAN** -- needs 200 files in audio/s1/ and a sealed
-                       annot_pass1.jsonl before `git tag dataset-v1.0`. Everything else is ready.
+Gate 5 dataset frozen: GREEN (tag dataset-v1.0, Sep 18). 200/200 masters + 200 resampled;
+                       annot_pass1.jsonl sealed 23:41 under SHA-256 f1a1fe6c, verified intact.
 D1 Environment Gate  : GREEN
 FR-1 grammar         : GREEN (5,191 labels, 0 rejected)
 
@@ -61,15 +61,13 @@ Corpora on disk (gitignored, all reproducible):
 7. **Common Voice comes from an ungated mirror of release 17.0, recorded as a mirror**, and the
    sample is stratified by accent because a uniform draw is 39% US English.
 
-## Blocked / needs human  <-- THE ONLY THING LEFT IN SESSION 03
-1. ~~Record s1~~ **DONE Sep 17-18.** 200/200 masters + 200 resampled. Room floor -70.51 dBFS
-   (S0 was -64.47); active speech median -34.4 dBFS after a -13.56 dB session gain.
-   A refrigerator was the contaminant, not the charger -- see the two fix commits.
-2. **Annotation pass 1 (~40 min).** `python data/annotate.py --pass 1`, then seal.
-   Pass 2 is Sun 20 Sep. 10 of the 50 are 0-slot labels (abort/hover/land/unknown).
-3. Then Gate 5: `git tag dataset-v1.0`.
-- Autorisation de soutenance: requested Sep 6, still pending (Issue 24). Chase Sep 17.
-- `llama-gbnf-validator` still not built; needed before Session 05B (Gate 3).
+## Blocked / needs human
+1. **Annotation pass 2 -- Sun 20 Sep.** `python data/annotate.py --pass 2`, then
+   `python data/annotate.py --compare`. ~20 min. Do NOT open annot_pass1.jsonl first.
+   Reports the DISAGREEMENTS only; no agreement rate (see Decisions 6).
+2. Autorisation de soutenance: requested Sep 6, still pending (Issue 24). **Depot is Mon 21 Sep --
+   this is now the project's top risk.**
+3. `llama-gbnf-validator` still not built; needed before Session 05B (Gate 3).
 
 ## Next session starts with
 Session 04 Task 2 (`eval/norm.py`) -- and it MUST import `data/numwords.py` rather than define a
