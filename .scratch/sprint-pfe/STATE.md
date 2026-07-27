@@ -1,19 +1,44 @@
 # STATE
-Session: 03 (Mon 14 Sep, PRD D4 + D5a)
-Last updated: 2026-09-14T23:15:00+01:00
+Session: 04 (Fri 18 -> Sat 19 Sep) -- COMPRESSED. Depot moved to **Thu 24 Sep**.
+Last updated: 2026-09-19T02:05:00+01:00
+
+## THE CALENDAR, as of Sat 19 Sep
+Build days left: Sat 19, Sun 20, Mon 21, Tue 22, Wed 23. Depot Thu 24 (buffer morning only).
+Five days, thirteen roadmap sessions. The roadmap does NOT fit and is not being followed
+session-by-session; see "Triage" below for what was cut and why.
+**The binding constraint is writing, not experiments.** thesis/master and thesis/ingenieur
+contain a .gitkeep each. Zero words. An experiment with no chapter scores zero; a chapter about
+a smaller experiment scores most of the marks. Writing days are protected; experiments fit
+around them.
+
+## Triage (decided Sat 19, deviations from IMPLEMENTATION_ROADMAP Part 3)
+Cut, each declared as a Limitation rather than silently dropped:
+  - golden sessions s2 and s3        -> single recording session; no day-to-day variation claim
+  - Exp-1 200 -> 60 timed runs, Q4_K_M configs only   -> wider CIs, n reported per 2.7
+  - Exp-2 200 -> 60 trials/branch (BOTH conditions kept: NFR-1 is meaningless without both)
+  - Exp-4 150 -> 60 trials (20/formation)             -> report achieved power
+  - PyFlyt backend -> hover smoke test only; Exp-4 on the NumPy backend
+Not cut, because they ARE the contributions: grammar ablation (C1), quantisation delta (C3),
+wake-branch membership rule (C4), annotation pass 2.
+
+**The decision that unlocks the schedule: accuracy is hardware-independent, latency is not.**
+Every EM / F1 / CRR / schema-validity number runs on the workstation (greedy decode under a
+fixed grammar is deterministic). The Pi is used ONLY for p50/p95/p99, peak RSS, thermals and
+throttle flags. This makes Tables 17 and 18 -- the Master's core -- reachable without the Pi.
 
 ## Gates
 Gate 1 schema        : GREEN (pytest schema/ -> 83 passed, tag schema-v1.1)
 Gate 2 leakage       : GREEN (check_leakage.py --strict -> exit 0, Sep 14; family, surface-form,
                        eval-independence, wake-corpus and noise-partition isolation all clean)
-Gate 3 parity        : PENDING (Session 05B)
+Gate 3 parity        : PENDING. HF side dumps on Kaggle (notebook cell); llama.cpp side
+                       local. llama.cpp NOW BUILT on the workstation -- see below.
 Gate 4 fsm           : PENDING (Session 08)
 Gate 5 dataset frozen: GREEN (tag dataset-v1.0, Sep 18). 200/200 masters + 200 resampled;
                        annot_pass1.jsonl sealed 23:41 under SHA-256 f1a1fe6c, verified intact.
 D1 Environment Gate  : GREEN
 FR-1 grammar         : GREEN (5,191 labels, 0 rejected)
 
-Test suite: 420 passed (was 346; +74 this session).
+Test suite: 540 passed (was 451 at the end of Session 03).
 
 ## What Session 03 delivered
 data/record_session.py   : capture tool. 48 kHz S16_LE mono, device found by NAME, per-take
@@ -65,14 +90,51 @@ Corpora on disk (gitignored, all reproducible):
 1. **Annotation pass 2 -- Sun 20 Sep.** `python data/annotate.py --pass 2`, then
    `python data/annotate.py --compare`. ~20 min. Do NOT open annot_pass1.jsonl first.
    Reports the DISAGREEMENTS only; no agreement rate (see Decisions 6).
-2. Autorisation de soutenance: requested Sep 6, still pending (Issue 24). **Depot is Mon 21 Sep --
-   this is now the project's top risk.**
-3. `llama-gbnf-validator` still not built; needed before Session 05B (Gate 3).
+2. RESOLVED Sat 19: **autorisation de soutenance requested AND approved.** R-15 closed.
+3. RESOLVED Sat 19: llama.cpp built on the workstation at the spike commit 88ada91c
+   (build 10863, the same one S1/S3 used, so Gate 3 compares like with like).
+   ~/llama.cpp/build/bin: llama-cli, llama-quantize, llama-bench, test-gbnf-validator.
+   NOTE the target is `test-gbnf-validator`, not `llama-gbnf-validator`, at this commit.
+   cmake lives in the conda env, NOT on the base PATH -- a background build without
+   `export PATH=$CONDA_PREFIX/bin:$PATH` fails with "cmake: command not found".
+
+## Session 04 delivered (night of Fri 18 -> Sat 19)
+eval/norm.py     : the fixed SS2.7 normalisation. Imports data/numwords.py (ADR-0004 D6).
+                   Expansion runs BEFORE punctuation stripping or "17.3" becomes "17 3"; a
+                   leading minus is protected or "minus two point five" and "two point five"
+                   both normalise to 2.5 and a sign error on an altitude reads as correct.
+eval/stats.py    : nearest-rank percentiles (numpy's default interpolates and would report a
+                   p95 no trial achieved) and a bootstrap that resamples UTTERANCES, not rates.
+eval/exp0.py     : Table 16, POPULATED -> results/exp0.csv + table16_*.md.
+eval/bench.py    : the shared harness. --dry-run green on experiments 0-4 (Session 04 gate).
+train/           : three Table 14 configs, make_kaggle_bundle.py, kaggle_finetune.ipynb.
+data/asr.py      : sidecars removed before AND after each batch -- a stale .txt from an earlier
+                   run was being returned as a fresh transcript when whisper declined a file.
+pytest.ini       : eval/ added to testpaths; it had been silently uncollected.
+
+## Exp-0 RESULT (Table 16)
+Author WER 23.1% [20.3, 25.9] on 200 golden utterances, unprompted.
+Lower than 7 of the 15 accent buckets -- 53rd percentile. Corpus 22.4%.
+Range: New Zealand 6.2% -> Hong Kong 49.5%. No pass/fail claimed; NFR-11 asks for a position.
+**A confound was found and measured rather than argued about.** Exp-0 had been transcribed with
+data/asr.py's DOMAIN_PROMPT, which names the command vocabulary. Those words are present in the
+author's commands and absent from Common Voice sentences, so the prompt could only inflate the
+native speakers' WER while leaving the author's alone -- flattering exactly the comparison the
+table exists to make honestly. Both conditions are now run: +0.5 pp on Common Voice, -0.1 pp on
+the author's. Real, small, reported. Table 16 positions the author on the MATCHED (unprompted)
+pass. One confound remains and cannot be removed: the author read drone commands, the Common
+Voice speakers read general English. Stated in the table. Upgrade path: the author reads ~20
+Common Voice sentences (about 10 minutes) and the comparison becomes matched.
 
 ## Next session starts with
-Session 04 Task 2 (`eval/norm.py`) -- and it MUST import `data/numwords.py` rather than define a
-second digit mapping (SS2.7 defines WER against that mapping; ADR-0004 D6).
-Overnight tonight -- Pi: Exp-0, the 300 clips in `data/commonvoice/clips/` through `tiny.en`.
+1. **Kaggle.** `python train/make_kaggle_bundle.py` -> upload train/pfe_kaggle_data.zip as a
+   Dataset named `pfe-swarm-data`; upload train/kaggle_finetune.ipynb; GPU T4, Internet ON;
+   HF_TOKEN secret for the gated Llama-3.2. Run All, ~2 h unattended.
+   It produces: adapters, zero-shot AND fine-tuned Surface-A EM, parity_hf.json, GGUF f16.
+   **Merging and GGUF conversion moved onto Kaggle** -- both need torch+peft and SS0.5 keeps
+   those off this workstation. Only llama-quantize (pure C++) runs locally.
+2. Power the Pi. Nothing needs it until the quantised artefacts exist, i.e. Saturday afternoon.
+3. Then locally: llama-quantize -> Q8_0 + Q4_K_M (six artefacts), Gate 3, Surface-B, ablation.
 For Exp-3 later: `python data/mix_noise.py --input data/audio/s1_16k --output data/audio/mixed
 --sources dregon --partition eval`  (note: s1_16k, the normalised corpus, not the masters).
 Do NOT re-run Gate 1 or Gate 2.

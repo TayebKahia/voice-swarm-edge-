@@ -285,6 +285,17 @@ def train_one(config_path):
 
     model = AutoModelForCausalLM.from_pretrained(
         hf_id, torch_dtype=torch.float16, token=token).cuda()
+    # Zero-shot FIRST, before any adapter touches the weights: Table 17's "before"
+    # rows, obtained free while the base model is already resident. Same generator,
+    # same comparator and same precision as the fine-tuned rows, so the two are
+    # directly subtractable. Expect these to be low --- spike S3 showed base models
+    # degenerating into unbounded id lists without a grammar to stop them.
+    zero_shot = {}
+    for split, rows in TESTS.items():
+        score, _ = exact_match(model, tokenizer, rows)
+        zero_shot[split] = score
+        print(f"  zero-shot {split:12s} EM={score:.4f}")
+
     model.config.use_cache = False               # incompatible with grad checkpointing
     model = get_peft_model(model, LoraConfig(
         r=cfg["lora"]["r"], lora_alpha=cfg["lora"]["alpha"],
@@ -326,7 +337,7 @@ def train_one(config_path):
         "final_train_loss": result.training_loss,
         "dropped_over_max_len": train_ds.overflow}, indent=2))
     return {"name": name, "hf_id": hf_id, "tokenizer": tokenizer, "token": token,
-            "model": model, "best_val_em": callback.best}
+            "model": model, "best_val_em": callback.best, "zero_shot": zero_shot}
 ''')
 
 code(r'''
@@ -357,10 +368,16 @@ import csv
 
 rows_out = []
 for entry in trained:
+    # The "before" rows, captured before training in train_one().
+    for split, score in entry["zero_shot"].items():
+        rows_out.append({"model": entry["name"], "surface": "A_fp16_zeroshot",
+                         "split": split, "n": len(TESTS[split]),
+                         "exact_match": round(score, 6), "best_val_em": ""})
+
     entry["model"].cuda()
     for split, rows in TESTS.items():
         score, hypotheses = exact_match(entry["model"], entry["tokenizer"], rows)
-        rows_out.append({"model": entry["name"], "surface": "A_fp16_hf",
+        rows_out.append({"model": entry["name"], "surface": "A_fp16_finetuned",
                          "split": split, "n": len(rows), "exact_match": round(score, 6),
                          "best_val_em": round(entry["best_val_em"], 6)})
         print(f"{entry['name']:28s} {split:12s} n={len(rows):4d}  EM={score:.4f}")
