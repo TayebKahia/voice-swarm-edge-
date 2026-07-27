@@ -81,6 +81,13 @@ def transcribe_batch(
     transcribe at all would silently shift every subsequent transcript onto the
     wrong row --- a failure that produces a plausible-looking corpus with
     systematically mismatched labels.
+
+    The sidecars are removed before the run and again after being read. Leaving them
+    in place turns a *later* failure into silent bad data: if whisper declines a file
+    on a second run, an untouched sidecar from the first is still on disk, still
+    readable, and would be returned as though it were this run's output. Deleting up
+    front means a missing sidecar always means "this invocation produced nothing",
+    which is what the branch below assumes.
     """
     if binary is None or model is None:
         found_binary, found_model = find_whisper()
@@ -96,9 +103,12 @@ def transcribe_batch(
         for path in batch:
             command += ["-f", str(path)]
 
+        sidecars = [path.with_name(path.name + ".txt") for path in batch]
+        for sidecar in sidecars:
+            sidecar.unlink(missing_ok=True)
+
         completed = subprocess.run(command, capture_output=True, text=True)
-        for path in batch:
-            sidecar = path.with_name(path.name + ".txt")
+        for path, sidecar in zip(batch, sidecars):
             if completed.returncode != 0 and not sidecar.is_file():
                 results.append(
                     Transcription(path, "", False, f"whisper exit {completed.returncode}")
@@ -108,6 +118,9 @@ def transcribe_batch(
                 results.append(Transcription(path, "", False, "no transcript written"))
                 continue
             results.append(Transcription(path, _clean(sidecar.read_text(encoding="utf-8")), True))
+
+        for sidecar in sidecars:
+            sidecar.unlink(missing_ok=True)
     return results
 
 

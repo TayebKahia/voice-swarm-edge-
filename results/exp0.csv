@@ -1,0 +1,33 @@
+condition,bucket,n,ref_words,wer,ci_low,ci_high,sub,del,ins
+prompted,Australian English,22,175,0.154286,0.081522,0.235669,21,5,1
+prompted,Canadian English,24,209,0.191388,0.095694,0.298429,32,0,8
+prompted,England English,45,444,0.182432,0.112971,0.261641,62,3,16
+prompted,Filipino,6,50,0.260000,nan,nan,8,1,4
+prompted,Hong Kong English,12,105,0.428571,0.320000,0.559140,34,1,10
+prompted,"India and South Asia (India, Pakistan, Sri Lanka)",80,721,0.259362,0.208333,0.314050,153,6,28
+prompted,Irish English,9,96,0.406250,nan,nan,26,0,13
+prompted,Malaysian English,3,29,0.137931,nan,nan,3,1,0
+prompted,New Zealand English,10,96,0.093750,0.020202,0.183333,7,1,1
+prompted,Other (free-text accent labels),3,24,0.125000,nan,nan,3,0,0
+prompted,Scottish English,10,87,0.264368,0.070588,0.510417,16,2,5
+prompted,Singaporean English,6,59,0.322034,nan,nan,17,0,2
+prompted,"Southern African (South Africa, Zimbabwe, Namibia)",7,75,0.280000,nan,nan,17,1,3
+prompted,United States English,57,504,0.194444,0.133056,0.262525,73,13,12
+prompted,Welsh English,6,43,0.302326,nan,nan,8,2,3
+unprompted,Australian English,22,175,0.165714,0.076923,0.265432,24,2,3
+unprompted,Canadian English,24,209,0.191388,0.083333,0.315789,28,1,11
+unprompted,England English,45,444,0.175676,0.111369,0.246883,59,4,15
+unprompted,Filipino,6,50,0.240000,nan,nan,8,1,3
+unprompted,Hong Kong English,12,105,0.495238,0.350000,0.636364,41,2,9
+unprompted,"India and South Asia (India, Pakistan, Sri Lanka)",80,721,0.278779,0.224719,0.335570,156,13,32
+unprompted,Irish English,9,96,0.312500,nan,nan,23,0,7
+unprompted,Malaysian English,3,29,0.137931,nan,nan,3,1,0
+unprompted,New Zealand English,10,96,0.062500,0.000000,0.163265,3,1,2
+unprompted,Other (free-text accent labels),3,24,0.166667,nan,nan,4,0,0
+unprompted,Scottish English,10,87,0.160920,0.042105,0.296703,13,0,1
+unprompted,Singaporean English,6,59,0.338983,nan,nan,18,1,1
+unprompted,"Southern African (South Africa, Zimbabwe, Namibia)",7,75,0.253333,nan,nan,16,0,3
+unprompted,United States English,57,504,0.178571,0.120079,0.246548,72,8,10
+unprompted,Welsh English,6,43,0.232558,nan,nan,6,1,3
+author_prompted,"Author (L2 English, domain commands)",200,1822,0.229967,0.199886,0.261246,266,79,74
+author_unprompted,"Author (L2 English, domain commands)",200,1822,0.231065,0.203371,0.259239,282,71,68

@@ -1,0 +1,24 @@
+### Table 16: ASR speaker sensitivity (Exp-0) --- matched condition, no domain prompt
+
+| Accent bucket | n | words | WER % | 95% CI | S / D / I |
+| :--- | ---: | ---: | ---: | :--- | :--- |
+| New Zealand English | 10 | 96 | 6.2 | [0.0, 16.3] | 3 / 1 / 2 |
+| Malaysian English | 3 | 29 | 13.8 | n too small | 3 / 1 / 0 |
+| Scottish English | 10 | 87 | 16.1 | [4.2, 29.7] | 13 / 0 / 1 |
+| Australian English | 22 | 175 | 16.6 | [7.7, 26.5] | 24 / 2 / 3 |
+| Other (free-text accent labels) | 3 | 24 | 16.7 | n too small | 4 / 0 / 0 |
+| England English | 45 | 444 | 17.6 | [11.1, 24.7] | 59 / 4 / 15 |
+| United States English | 57 | 504 | 17.9 | [12.0, 24.7] | 72 / 8 / 10 |
+| Canadian English | 24 | 209 | 19.1 | [8.3, 31.6] | 28 / 1 / 11 |
+| Welsh English | 6 | 43 | 23.3 | n too small | 6 / 1 / 3 |
+| Filipino | 6 | 50 | 24.0 | n too small | 8 / 1 / 3 |
+| Southern African (South Africa, Zimbabwe, Namibia) | 7 | 75 | 25.3 | n too small | 16 / 0 / 3 |
+| India and South Asia (India, Pakistan, Sri Lanka) | 80 | 721 | 27.9 | [22.5, 33.6] | 156 / 13 / 32 |
+| Irish English | 9 | 96 | 31.2 | n too small | 23 / 0 / 7 |
+| Singaporean English | 6 | 59 | 33.9 | n too small | 18 / 1 / 1 |
+| Hong Kong English | 12 | 105 | 49.5 | [35.0, 63.6] | 41 / 2 / 9 |
+| **Author (L2 English, domain commands)** | **200** | **1822** | **23.1** | **[20.3, 25.9]** | **282 / 71 / 68** |
+
+The author's WER is lower than 7 of the 15 accent buckets (53rd percentile of the bucket distribution). The comparison is indicative, not matched: the author read drone commands and the Common Voice speakers read general English, so the two figures are over different text. No pass/fail is claimed --- NFR-11 asks for a position.
+
+Domain prompt on Common Voice: 22.4 % -> 22.9 % (+0.5 pp). Domain prompt on the author's commands: 23.1 % -> 23.0 % (-0.1 pp). The deployed configuration keeps the prompt; Table 16 positions the author without it, because only the unprompted pass puts both speakers under the same condition.

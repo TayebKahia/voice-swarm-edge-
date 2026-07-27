@@ -1,0 +1,37 @@
+# Table 14 (prd.md), verbatim except the precision line -- see `precision_note`.
+# This file is read by train/kaggle_finetune.ipynb; nothing here is a tuning knob.
+name: qwen2.5-0.5b-instruct
+hf_id: Qwen/Qwen2.5-0.5B-Instruct
+gated: false
+chat_template: ChatML (the model's own tokenizer.apply_chat_template -- never hand-written)
+
+lora:
+  r: 16
+  alpha: 32
+  dropout: 0.05
+  target_modules: [q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj]
+
+optim:
+  optimizer: adamw_torch
+  learning_rate: 2.0e-4
+  lr_scheduler_type: cosine
+  warmup_ratio: 0.03
+
+train:
+  epochs: 3
+  per_device_train_batch_size: 4
+  gradient_accumulation_steps: 4      # effective batch 16
+  max_seq_length: 256
+  packing: false                      # packing corrupts completion masking
+  completion_only_loss: true          # prompt tokens contribute no gradient
+  seed: 42                            # identical across all three runs
+
+precision: fp16
+precision_note: >
+  Table 14 specifies bf16. Kaggle's free accelerators are T4 (SM 7.5) and P100
+  (SM 6.0); neither has hardware bf16, which needs Ampere (SM 8.0+). All three
+  runs therefore use fp16 -- identically, so RQ1's "hold everything constant
+  except the model" still holds and the ranking, which is the claim, is
+  unaffected. Declared in the Table 17 caption and the Limitations table.
+
+checkpoint_selection: best validation exact match   # NOT best validation loss
