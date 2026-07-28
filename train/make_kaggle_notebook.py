@@ -343,14 +343,32 @@ def train_one(config_path):
 code(r'''
 CONFIGS = ["configs/qwen2.5-0.5b.yaml", "configs/smollm2-360m.yaml", "configs/llama-3.2-1b.yaml"]
 
-trained, started = [], time.time()
+trained, failed, started = [], [], time.time()
 for relative in CONFIGS:
-    entry = train_one(DATA / relative)
+    # Each model is isolated. This notebook is meant to be launched with
+    # "Save & Run All" and left overnight, so an exception on the third model must
+    # not take cells 14-21 with it -- that would discard the Surface-A CSV, the
+    # parity dump and the GGUFs for the two models that trained perfectly well,
+    # with nobody awake to notice. Failures are collected and reported at the end.
+    try:
+        entry = train_one(DATA / relative)
+    except Exception as exc:
+        import traceback
+        failed.append((relative, f"{type(exc).__name__}: {exc}"))
+        print(f"\n!! {relative} FAILED -- continuing with the rest")
+        traceback.print_exc()
+        torch.cuda.empty_cache()
+        continue
     if entry:
         trained.append(entry)
         # Free the GPU between runs; three models do not fit at once.
         entry["model"].cpu(); torch.cuda.empty_cache()
+
 print(f"\ntrained {len(trained)}/{len(CONFIGS)} in {(time.time() - started) / 60:.1f} min")
+for relative, reason in failed:
+    print(f"  FAILED {relative}: {reason}")
+if not trained:
+    raise SystemExit("no model trained -- nothing downstream can run")
 ''')
 
 md(r"""
@@ -438,7 +456,11 @@ code(r'''
 bundle = WORK / "pfe_outputs.zip"
 with zipfile.ZipFile(bundle, "w", zipfile.ZIP_DEFLATED) as archive:
     for path in sorted(WORK.rglob("*")):
-        if path.is_file() and path != bundle:
+        # The GGUFs are gigabytes and are downloaded individually from the Output
+        # panel. Including them here would double the disk they occupy and turn a
+        # ~10 MB download into a ~4 GB one -- and the cell below says they are not
+        # in the zip, so it had better be true.
+        if path.is_file() and path != bundle and GGUF not in path.parents:
             archive.write(path, path.relative_to(WORK))
 
 print(f"{bundle}  ({bundle.stat().st_size / 1e6:.1f} MB)\n")
