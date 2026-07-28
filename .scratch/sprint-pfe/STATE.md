@@ -16,8 +16,8 @@ Cut, each declared as a Limitation rather than silently dropped:
   - golden sessions s2 and s3        -> single recording session; no day-to-day variation claim
   - Exp-1 200 -> 60 timed runs, Q4_K_M configs only   -> wider CIs, n reported per 2.7
   - Exp-2 200 -> 60 trials/branch (BOTH conditions kept: NFR-1 is meaningless without both)
-  - Exp-4 150 -> 60 trials (20/formation)             -> report achieved power
-  - PyFlyt backend -> hover smoke test only; Exp-4 on the NumPy backend
+  - Exp-4 150 -> 60 trials       ** UN-CUT. Ran in full: 150 trials in under a minute. **
+  - PyFlyt backend -> smoke only ** UN-CUT. Same controller, same gains, both backends. **
 Not cut, because they ARE the contributions: grammar ablation (C1), quantisation delta (C3),
 wake-branch membership rule (C4), annotation pass 2.
 
@@ -32,13 +32,14 @@ Gate 2 leakage       : GREEN (check_leakage.py --strict -> exit 0, Sep 14; famil
                        eval-independence, wake-corpus and noise-partition isolation all clean)
 Gate 3 parity        : PENDING. HF side dumps on Kaggle (notebook cell); llama.cpp side
                        local. llama.cpp NOW BUILT on the workstation -- see below.
-Gate 4 fsm           : PENDING (Session 08)
+Gate 4 fsm           : PENDING (Session 08). swarm/ controller, both backends and Exp-4
+                       are DONE; what remains for Gate 4 is Table 9 cell coverage + runtime/bus.py.
 Gate 5 dataset frozen: GREEN (tag dataset-v1.0, Sep 18). 200/200 masters + 200 resampled;
                        annot_pass1.jsonl sealed 23:41 under SHA-256 f1a1fe6c, verified intact.
 D1 Environment Gate  : GREEN
 FR-1 grammar         : GREEN (5,191 labels, 0 rejected)
 
-Test suite: 540 passed (was 451 at the end of Session 03).
+Test suite: 584 passed (was 451 at the end of Session 03).
 
 ## What Session 03 delivered
 data/record_session.py   : capture tool. 48 kHz S16_LE mono, device found by NAME, per-take
@@ -125,6 +126,21 @@ the author's. Real, small, reported. Table 16 positions the author on the MATCHE
 pass. One confound remains and cannot be removed: the author read drone commands, the Common
 Voice speakers read general English. Stated in the table. Upgrade path: the author reads ~20
 Common Voice sentences (about 10 minutes) and the comparison becomes matched.
+
+## Exp-4 RESULT (done, night of Fri 18 -> Sat 19)
+Full pre-registered protocol: 50 trials x circle/line/wedge, 60 s, 50 Hz, seed = index x 42.
+  FA 1.000 +/- 0.000 on all 150 trials; 150/150 meet NFR-13. **NFR-13 PASS.**
+  **Collisions: 0 observed. NFR-12 PASS.** Closest approach 0.800 m vs a 0.8 m clamp.
+  The clamp resolved 432 pair violations -- reported beside the zero, because that is the
+  number of times APF alone was not enough, and it is what makes "zero observed, backed by
+  a clamp" an honest sentence rather than "guaranteed by APF", which is unprovable.
+  Convergence 100%; median 4.06 s circle / 3.26 s line / 2.30 s wedge.
+  One-way ANOVA on convergence time: F(2,147) = 3500.7, p = 1e-124; all three Tukey pairs
+  separated. ANOVA on FA: NOT APPLICABLE and said so in words -- zero variance, nothing to
+  partition. **FA is saturated**: Table 15's N(0, 0.5 m) spawn is small against a multi-metre
+  formation and 60 s leaves ~55 s of settled flight. Reported as pre-registered rather than
+  made harder afterwards to manufacture variance. Convergence time is the discriminating metric.
+PyFlyt: FA 1.00 on all three shapes, mean slot error 0.135 m, stable over 20 s.
 
 ## Next session starts with
 1. **Kaggle.** `python train/make_kaggle_bundle.py` -> upload train/pfe_kaggle_data.zip as a
