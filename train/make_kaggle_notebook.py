@@ -42,9 +42,18 @@ QLoRA (Table 14 excludes QLoRA).
 """)
 
 code(r"""
-# Kaggle ships torch. Everything else is pinned so a rerun in December behaves.
-!pip install -q -U "transformers==4.44.2" "peft==0.12.0" "datasets==2.21.0" \
-                   "accelerate==0.33.0" "pyyaml" 2>&1 | tail -2
+# Kaggle ships torch, and its image is built against numpy 2.x.
+#
+# Pinning transformers 4.44 / datasets 2.21 here silently resolved numpy DOWN to
+# 1.26, and the preinstalled TensorFlow and jax are compiled against numpy 2 --- so
+# the first transformers import died with "numpy.dtype size changed, Expected 96
+# from C header, got 88". The pins are therefore ranges that are numpy-2 clean, and
+# numpy itself is named so pip cannot quietly move it.
+#
+# `datasets` is gone rather than repinned: this notebook never imports it (the
+# Dataset class below is torch's), and it was the package doing most of the pulling.
+!pip install -q -U "numpy>=2" "transformers>=4.46,<5" "peft>=0.13,<1" \
+                   "accelerate>=1.0,<2" "pyyaml" 2>&1 | tail -3
 """)
 
 code(r'''
@@ -52,8 +61,24 @@ import json, os, random, sys, time, zipfile, shutil
 from dataclasses import dataclass, field
 from pathlib import Path
 
+# Belt and braces with the pins above. transformers imports its TensorFlow and Flax
+# paths lazily, and merely touching `TFPreTrainedModel` is enough to drag the whole
+# of TensorFlow -> jax -> numpy into the process. Nothing here trains in TF, so both
+# backends are switched off BEFORE transformers is first imported; with them off the
+# TF symbols resolve to dummy objects and tensorflow is never loaded at all.
+os.environ["USE_TF"] = "0"
+os.environ["USE_FLAX"] = "0"
+os.environ["USE_JAX"] = "0"
+os.environ["TRANSFORMERS_VERBOSITY"] = "error"
+
 import numpy as np
 import torch
+
+# Fail here, loudly and in two seconds, rather than 40 minutes into a run that was
+# launched with Save & Run All and left overnight.
+assert int(np.__version__.split(".")[0]) >= 2, (
+    f"numpy was resolved down to {np.__version__}; the Kaggle image needs 2.x. "
+    "Re-run the pip cell and check what pulled it down.")
 import yaml
 from torch.utils.data import Dataset
 from transformers import (AutoModelForCausalLM, AutoTokenizer, Trainer,
@@ -76,6 +101,9 @@ set_seed(SEED); random.seed(SEED); np.random.seed(SEED)
 AUDIT = json.loads((DATA / "eval" / "fixed_audit_prompts.json").read_text())
 SYSTEM_PROMPT = AUDIT["system_prompt"]
 
+import transformers, peft
+print("numpy", np.__version__, "| transformers", transformers.__version__,
+      "| peft", peft.__version__)
 print("torch", torch.__version__, "| cuda", torch.cuda.is_available())
 print("gpu  ", torch.cuda.get_device_name(0) if torch.cuda.is_available() else "NONE")
 cap = torch.cuda.get_device_capability(0) if torch.cuda.is_available() else (0, 0)
