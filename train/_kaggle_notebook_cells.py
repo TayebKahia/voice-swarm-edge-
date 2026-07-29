@@ -17,7 +17,10 @@ Q8_0 and Q4_K_M. So the split is
 
 MERGE_SETUP = r"""
 !git clone --depth 1 --quiet https://github.com/ggml-org/llama.cpp /kaggle/tmp/llama.cpp
-!pip install -q gguf sentencepiece 2>&1 | tail -1
+# --no-deps for the same reason as the first cell: this runs AFTER training, and a
+# dependency resolution that moved numpy here would lose the GGUF conversion at the
+# very end of an overnight run. `gguf` needs numpy/tqdm/pyyaml, all already present.
+!pip install -q --no-deps gguf sentencepiece 2>&1 | tail -1
 !ls -l /kaggle/tmp/llama.cpp/convert_hf_to_gguf.py
 """
 

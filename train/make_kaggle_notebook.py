@@ -42,18 +42,40 @@ QLoRA (Table 14 excludes QLoRA).
 """)
 
 code(r"""
-# Kaggle ships torch, and its image is built against numpy 2.x.
+# Install as little as possible. Kaggle's image already ships torch, numpy 2.x and
+# a modern transformers, and BOTH failures of this notebook came from upgrading
+# packages that were already there:
 #
-# Pinning transformers 4.44 / datasets 2.21 here silently resolved numpy DOWN to
-# 1.26, and the preinstalled TensorFlow and jax are compiled against numpy 2 --- so
-# the first transformers import died with "numpy.dtype size changed, Expected 96
-# from C header, got 88". The pins are therefore ranges that are numpy-2 clean, and
-# numpy itself is named so pip cannot quietly move it.
+#   run 1: pinning transformers==4.44/datasets==2.21 resolved numpy DOWN to 1.26,
+#          and the image's TensorFlow/jax are built against numpy 2 ->
+#          "numpy.dtype size changed, Expected 96 from C header, got 88"
+#   run 2: `pip install -U transformers` overwrote the preinstalled package inside
+#          a LIVE kernel, leaving a new top level against a stale generation/
+#          subpackage -> "cannot import name GenerationMixin"
 #
-# `datasets` is gone rather than repinned: this notebook never imports it (the
-# Dataset class below is torch's), and it was the package doing most of the pulling.
-!pip install -q -U "numpy>=2" "transformers>=4.46,<5" "peft>=0.13,<1" \
-                   "accelerate>=1.0,<2" "pyyaml" 2>&1 | tail -3
+# So nothing is upgraded. Only genuinely absent packages are installed, and with
+# --no-deps so pip cannot touch numpy, torch or transformers as a side effect.
+import importlib, subprocess, sys
+
+def present(module):
+    try:
+        importlib.import_module(module)
+        return True
+    except Exception:
+        return False
+
+REQUIRED = [("peft", "peft"), ("yaml", "pyyaml"), ("accelerate", "accelerate")]
+missing = [package for module, package in REQUIRED if not present(module)]
+
+if missing:
+    print("installing (no deps):", missing)
+    subprocess.run([sys.executable, "-m", "pip", "install", "-q", "--no-deps", *missing],
+                   check=True)
+    print("If anything below still fails to import, START A FRESH SESSION rather than "
+          "re-running this cell: pip cannot safely replace a package the kernel has "
+          "already imported.")
+else:
+    print("nothing to install -- the image already has everything")
 """)
 
 code(r'''
@@ -77,8 +99,8 @@ import torch
 # Fail here, loudly and in two seconds, rather than 40 minutes into a run that was
 # launched with Save & Run All and left overnight.
 assert int(np.__version__.split(".")[0]) >= 2, (
-    f"numpy was resolved down to {np.__version__}; the Kaggle image needs 2.x. "
-    "Re-run the pip cell and check what pulled it down.")
+    f"numpy is {np.__version__}; the Kaggle image needs 2.x. Something installed a "
+    "package with dependencies -- start a fresh session.")
 import yaml
 from torch.utils.data import Dataset
 from transformers import (AutoModelForCausalLM, AutoTokenizer, Trainer,
