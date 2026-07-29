@@ -128,6 +128,7 @@ WORK = Path("/kaggle/working")
 # for a landmark file is stable against both, and it fails with a directory listing
 # instead of a bare ModuleNotFoundError forty lines later.
 LANDMARKS = ("schema/canon.py", "data/train.jsonl")
+INPUT = Path("/kaggle/input")
 
 
 def _is_bundle(candidate):
@@ -135,31 +136,39 @@ def _is_bundle(candidate):
 
 
 def find_data_root():
-    roots = sorted(Path("/kaggle/input").glob("*"))
-    # The dataset directory itself, or one level down if the zip carried a folder.
-    for candidate in roots + [child for root in roots for child in sorted(root.glob("*"))]:
-        if candidate.is_dir() and _is_bundle(candidate):
+    """Locate the bundle at whatever depth Kaggle mounted it.
+
+    Kaggle nests a Dataset as /kaggle/input/datasets/<owner>/<slug>/, but has also
+    mounted it as /kaggle/input/<slug>/ --- and the slug is the normalised title, not
+    anything we choose. Rather than guess a depth, search for one of the landmark
+    files and work back up to the directory holding it; that is correct at any depth
+    and stays correct if the layout changes again.
+    """
+    marker = Path(LANDMARKS[0])              # schema/canon.py
+    for hit in sorted(INPUT.rglob(marker.name)):
+        candidate = hit.parents[len(marker.parts) - 1]
+        if _is_bundle(candidate):
             return candidate
 
     # Not extracted: Kaggle kept the archive whole. /kaggle/input is read-only, so
     # unpack into /kaggle/tmp.
-    for archive in sorted(Path("/kaggle/input").rglob("*.zip")):
+    for archive in sorted(INPUT.rglob("*.zip")):
         destination = Path("/kaggle/tmp/pfe_data")
         destination.mkdir(parents=True, exist_ok=True)
         zipfile.ZipFile(archive).extractall(destination)
-        for candidate in [destination, *sorted(destination.glob("*"))]:
-            if candidate.is_dir() and _is_bundle(candidate):
+        for hit in sorted(destination.rglob(marker.name)):
+            candidate = hit.parents[len(marker.parts) - 1]
+            if _is_bundle(candidate):
                 print(f"extracted {archive.name} -> {candidate}")
                 return candidate
 
-    listing = "\n".join(
-        f"  {path}" for path in sorted(Path("/kaggle/input").rglob("*"))[:40]
-    ) or "  (/kaggle/input is empty -- no dataset is attached)"
+    listing = "\n".join(f"  {path}" for path in sorted(INPUT.rglob("*"))[:40])
     raise SystemExit(
-        "could not find the data bundle. Expected a directory containing "
-        f"{LANDMARKS[0]} and {LANDMARKS[1]}.\n"
-        "Attach the pfe-swarm-data dataset (Add Data, right-hand panel).\n"
-        f"What is actually under /kaggle/input:\n{listing}")
+        f"could not find the data bundle -- a directory holding both {LANDMARKS[0]} "
+        f"and {LANDMARKS[1]}.\n"
+        + ("/kaggle/input is empty: the dataset is not attached to this notebook "
+           "(Add Data, right-hand panel).\n" if not listing else
+           f"Found these, but none is a complete bundle:\n{listing}\n"))
 
 
 DATA = find_data_root()
