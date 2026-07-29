@@ -120,8 +120,50 @@ from transformers import (AutoModelForCausalLM, AutoTokenizer, Trainer,
                           TrainerCallback, TrainingArguments, set_seed)
 from peft import LoraConfig, get_peft_model
 
-DATA = Path("/kaggle/input/pfe-swarm-data")
 WORK = Path("/kaggle/working")
+
+# Find the uploaded bundle rather than hard-coding its path. A Kaggle Dataset's
+# directory name is its slug, which is whatever the title was normalised to, and
+# whether the zip is auto-extracted or left whole is not under our control. Hunting
+# for a landmark file is stable against both, and it fails with a directory listing
+# instead of a bare ModuleNotFoundError forty lines later.
+LANDMARKS = ("schema/canon.py", "data/train.jsonl")
+
+
+def _is_bundle(candidate):
+    return all((candidate / relative).is_file() for relative in LANDMARKS)
+
+
+def find_data_root():
+    roots = sorted(Path("/kaggle/input").glob("*"))
+    # The dataset directory itself, or one level down if the zip carried a folder.
+    for candidate in roots + [child for root in roots for child in sorted(root.glob("*"))]:
+        if candidate.is_dir() and _is_bundle(candidate):
+            return candidate
+
+    # Not extracted: Kaggle kept the archive whole. /kaggle/input is read-only, so
+    # unpack into /kaggle/tmp.
+    for archive in sorted(Path("/kaggle/input").rglob("*.zip")):
+        destination = Path("/kaggle/tmp/pfe_data")
+        destination.mkdir(parents=True, exist_ok=True)
+        zipfile.ZipFile(archive).extractall(destination)
+        for candidate in [destination, *sorted(destination.glob("*"))]:
+            if candidate.is_dir() and _is_bundle(candidate):
+                print(f"extracted {archive.name} -> {candidate}")
+                return candidate
+
+    listing = "\n".join(
+        f"  {path}" for path in sorted(Path("/kaggle/input").rglob("*"))[:40]
+    ) or "  (/kaggle/input is empty -- no dataset is attached)"
+    raise SystemExit(
+        "could not find the data bundle. Expected a directory containing "
+        f"{LANDMARKS[0]} and {LANDMARKS[1]}.\n"
+        "Attach the pfe-swarm-data dataset (Add Data, right-hand panel).\n"
+        f"What is actually under /kaggle/input:\n{listing}")
+
+
+DATA = find_data_root()
+print("data root:", DATA)
 ADAPTERS = WORK / "adapters"; ADAPTERS.mkdir(parents=True, exist_ok=True)
 
 # The schema package travels with the data so exact match here is the SAME
