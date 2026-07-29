@@ -1,7 +1,20 @@
-import json, pathlib
+"""Generate train/kaggle_finetune.ipynb. The notebook is an artefact; this is its source.
 
-import sys; sys.path.insert(0, '/tmp/claude-1000/-home-kahia-tayeb-PFE/e48efa90-3b08-4c92-a78e-16adf1900a9a/scratchpad')
-from merge_cells import MERGE_MD, MERGE_SETUP, MERGE_RUN
+Edit this file (or `_kaggle_notebook_cells.py`) and re-run --- never hand-edit the
+.ipynb, which is regenerated wholesale.
+"""
+
+import json, pathlib, sys
+
+HERE = pathlib.Path(__file__).resolve().parent
+REPO = HERE.parent
+
+# The merge/convert cells live beside this file, in the repository. They were briefly
+# imported from a session scratchpad under /tmp, which meant the notebook could not be
+# regenerated from a clean clone -- and an edit to the in-repo copy silently did
+# nothing, because nothing read it.
+sys.path.insert(0, str(HERE))
+from _kaggle_notebook_cells import MERGE_MD, MERGE_SETUP, MERGE_RUN
 
 MD = []
 CODE = []
@@ -536,6 +549,6 @@ nb = {"cells": cells,
                    "language_info": {"name": "python", "version": "3.11"},
                    "accelerator": "GPU"},
       "nbformat": 4, "nbformat_minor": 5}
-out = pathlib.Path("train/kaggle_finetune.ipynb")
+out = HERE / "kaggle_finetune.ipynb"
 out.write_text(json.dumps(nb, indent=1))
-print(f"wrote {out}  ({len(cells)} cells, {out.stat().st_size/1024:.0f} KB)")
+print(f"wrote {out.relative_to(REPO)}  ({len(cells)} cells, {out.stat().st_size/1024:.0f} KB)")
