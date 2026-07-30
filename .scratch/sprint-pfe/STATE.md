@@ -26,6 +26,29 @@ Every EM / F1 / CRR / schema-validity number runs on the workstation (greedy dec
 fixed grammar is deterministic). The Pi is used ONLY for p50/p95/p99, peak RSS, thermals and
 throttle flags. This makes Tables 17 and 18 -- the Master's core -- reachable without the Pi.
 
+## The five days -- who does what
+This division is the plan of record. It existed only in conversation until Sat 19; if context
+is lost, THIS is the schedule. Human items are the bottleneck and are listed first each day,
+because the agent's work parallelises and the author's does not.
+
+Sat 19  AUTHOR: launch Kaggle (blocked on it all day -- start first) | **write Ch 1-2 of BOTH
+                theses**, which depend on no result and are the biggest outstanding debt
+        AGENT : Table 9 cell coverage + runtime/bus.py -> Gate 4 | quantise + Gate 3 + Surface-B
+                the moment the Kaggle artefacts land
+Sun 20  AUTHOR: **annotation pass 2** (~20 min, hard-dated in the PRD, do not move) | Master Ch 3
+        AGENT : grammar ablation (C1) | McNemar + Figure 2 | Tables 17/18/19
+Mon 21  AUTHOR: Master Ch 4-5 | record the demo video (live mic, networking off camera,
+                including the ABORTED recovery path)
+        AGENT : runtime pipeline end to end | Exp-2 / Exp-3 analysis
+Tue 22  AUTHOR: Ingenieur Ch 4-6 | Table 21 positioning against Lim et al.
+        AGENT : regenerate every table and figure by script
+Wed 23  AUTHOR: read-through against the write-once rule, cover pages, print, DVDs
+        AGENT : run_all.sh from a clean clone -- if a number cannot be traced to a CSV it does
+                not go in a thesis
+Thu 24  DEPOT. Buffer morning only.
+
+Overnights: Exp-1 on the Pi (Sat), Exp-2 (Sun), Exp-3 (Mon). Exp-4 is already done.
+
 ## Gates
 Gate 1 schema        : GREEN (pytest schema/ -> 83 passed, tag schema-v1.1)
 Gate 2 leakage       : GREEN (check_leakage.py --strict -> exit 0, Sep 14; family, surface-form,
@@ -39,7 +62,7 @@ Gate 5 dataset frozen: GREEN (tag dataset-v1.0, Sep 18). 200/200 masters + 200 r
 D1 Environment Gate  : GREEN
 FR-1 grammar         : GREEN (5,191 labels, 0 rejected)
 
-Test suite: 584 passed (was 451 at the end of Session 03).
+Test suite: 614 passed, 3 skipped (was 451 at the end of Session 03).
 
 ## What Session 03 delivered
 data/record_session.py   : capture tool. 48 kHz S16_LE mono, device found by NAME, per-take
@@ -56,7 +79,9 @@ data/fetch_assets.py     : --wake and --commonvoice; four new corpora in asset_m
 data/dataset_card.md     : SS1/SS3/SS5 TBDs filled; SS7 rewritten with generated markers;
                            SS9 (wake) and SS10 (Exp-0) added.
 docs/adr/0005            : 7 decisions.
-prd.md + docs/project/PRD.tex : annotation interval 10 -> 6 days (SS9.3, Limitations, R-9, Table 25).
+prd.md + docs/project/PRD.tex : annotation interval 10 -> **2** days AND the agreement rate
+                           withheld entirely (SS9.3, Limitations, R-9, Table 25). An earlier
+                           line here said '10 -> 6 days'; that was the superseded first pass.
 
 Corpora on disk (gitignored, all reproducible):
   data/wake/pos_swarm_hold/  1,500 clips   data/wake/pos_swarm_abort/ 1,500 clips
@@ -78,7 +103,9 @@ Corpora on disk (gitignored, all reproducible):
 5. **Keyword at a random offset, never centred**; 40 authored near-misses because no public
    corpus contains "swarm" or a phrase starting with "hold".
 6. **The annotation claim was rescoped, not just renumbered.** The interval collapsed to 2 days
-   (recording slipped to Sep 17-18; depot is Mon 21 Sep), and at 2 days an agreement percentage
+   (recording slipped to Sep 17-18; depot was Mon 21 Sep, since moved to Thu 24 -- the interval
+   is NOT reopened, because pass 1 is already sealed and pass 2 is dated in the PRD),
+   and at 2 days an agreement percentage
    measures recall rather than schema clarity. So **no agreement rate is reported at all.** What
    is reported is the list of items the two passes label DIFFERENTLY: recall can push the passes
    together but never apart, so a disagreement is evidence of ambiguity at any interval. The count
