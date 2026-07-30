@@ -77,6 +77,25 @@ def present(module):
     except Exception:
         return False
 
+# torchao must GO, not be upgraded. Kaggle ships 0.10.0; the preinstalled peft
+# demands >0.16 and its is_torchao_available() RAISES instead of returning False, so
+# every get_peft_model call dies in the torchao dispatcher -- on a run that uses LoRA,
+# not QLoRA, and never touches torchao for anything. Upgrading it would drag a
+# matching torch build; removing it makes peft skip that dispatcher and fall through
+# to the plain nn.Linear one, which is the path this recipe actually wants.
+#
+# This has to happen BEFORE peft is imported in the next cell: find_spec is consulted
+# at dispatch time, but unloading an already-imported package is not reliable.
+try:
+    import torchao
+    torchao_version = tuple(int(part) for part in torchao.__version__.split(".")[:2])
+    if torchao_version < (0, 16):
+        print(f"removing torchao {torchao.__version__} (peft needs >0.16 and we use neither)")
+        subprocess.run([sys.executable, "-m", "pip", "uninstall", "-y", "-q", "torchao"],
+                       check=False)
+except ImportError:
+    pass
+
 REQUIRED = [("peft", "peft"), ("yaml", "pyyaml"), ("accelerate", "accelerate")]
 missing = [package for module, package in REQUIRED if not present(module)]
 
@@ -119,6 +138,41 @@ from torch.utils.data import Dataset
 from transformers import (AutoModelForCausalLM, AutoTokenizer, Trainer,
                           TrainerCallback, TrainingArguments, set_seed)
 from peft import LoraConfig, get_peft_model
+
+# The image pairs peft 0.19 with torchao 0.10. When peft builds a LoRA layer it walks
+# a chain of dispatchers, and `dispatch_torchao` calls `is_torchao_available()` --
+# which RAISES on a torchao below 0.16 rather than returning False. Nothing here uses
+# torchao: it is a quantisation backend we never ask for, and the exception lands in
+# the middle of get_peft_model, so all three models die before a single training step.
+#
+# Reporting it unavailable is the honest answer -- it genuinely is not usable -- and
+# lets the dispatcher fall through to the ordinary Linear -> lora.Linear path. This is
+# done in-process rather than by uninstalling or upgrading torchao: the two failures
+# before this one both came from mutating the image, and a monkeypatch touches no
+# disk, needs no network and cannot resolve some other package underneath us.
+def _silence_broken_torchao():
+    try:
+        import peft.import_utils as peft_imports
+    except Exception:
+        return
+    try:
+        peft_imports.is_torchao_available()
+        return                                    # a usable torchao; leave it alone
+    except Exception as exc:
+        print(f"torchao unusable, reporting it as absent: {exc}")
+
+    unavailable = lambda: False
+    peft_imports.is_torchao_available = unavailable
+    # The dispatcher imported the name into its own module namespace, so patching
+    # peft.import_utils alone would not be seen there.
+    try:
+        import peft.tuners.lora.torchao as lora_torchao
+        lora_torchao.is_torchao_available = unavailable
+    except Exception:
+        pass
+
+
+_silence_broken_torchao()
 
 WORK = Path("/kaggle/working")
 
@@ -481,6 +535,10 @@ for relative in CONFIGS:
 print(f"\ntrained {len(trained)}/{len(CONFIGS)} in {(time.time() - started) / 60:.1f} min")
 for relative, reason in failed:
     print(f"  FAILED {relative}: {reason}")
+    if "gated repo" in reason or "403" in reason or "401" in reason:
+        print("     -> This is an ACCESS grant, not a token problem. Request access at")
+        print("        the model's Hugging Face page and wait for approval, then rerun.")
+        print("        The other models are unaffected and their artefacts are below.")
 if not trained:
     raise SystemExit("no model trained -- nothing downstream can run")
 ''')
