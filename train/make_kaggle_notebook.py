@@ -77,25 +77,6 @@ def present(module):
     except Exception:
         return False
 
-# torchao must GO, not be upgraded. Kaggle ships 0.10.0; the preinstalled peft
-# demands >0.16 and its is_torchao_available() RAISES instead of returning False, so
-# every get_peft_model call dies in the torchao dispatcher -- on a run that uses LoRA,
-# not QLoRA, and never touches torchao for anything. Upgrading it would drag a
-# matching torch build; removing it makes peft skip that dispatcher and fall through
-# to the plain nn.Linear one, which is the path this recipe actually wants.
-#
-# This has to happen BEFORE peft is imported in the next cell: find_spec is consulted
-# at dispatch time, but unloading an already-imported package is not reliable.
-try:
-    import torchao
-    torchao_version = tuple(int(part) for part in torchao.__version__.split(".")[:2])
-    if torchao_version < (0, 16):
-        print(f"removing torchao {torchao.__version__} (peft needs >0.16 and we use neither)")
-        subprocess.run([sys.executable, "-m", "pip", "uninstall", "-y", "-q", "torchao"],
-                       check=False)
-except ImportError:
-    pass
-
 REQUIRED = [("peft", "peft"), ("yaml", "pyyaml"), ("accelerate", "accelerate")]
 missing = [package for module, package in REQUIRED if not present(module)]
 
@@ -138,6 +119,30 @@ from torch.utils.data import Dataset
 from transformers import (AutoModelForCausalLM, AutoTokenizer, Trainer,
                           TrainerCallback, TrainingArguments, set_seed)
 from peft import LoraConfig, get_peft_model
+
+# peft's LoRA dispatcher chain has a torchao branch whose availability check RAISES
+# when torchao is present but older than it wants -- Kaggle ships 0.10.0, peft wants
+# >0.16 -- so get_peft_model dies before reaching the plain nn.Linear branch. This
+# recipe is LoRA, not QLoRA, and never touches torchao, so the branch is simply told
+# it is unavailable and the chain falls through to the path Table 14 wants.
+#
+# Patched, NOT uninstalled. `pip uninstall torchao` removes the distribution metadata
+# but can leave the package directory importable; transformers' own quantizer_torchao
+# then passes its is_torchao_available() check and calls
+# importlib.metadata.version("torchao") on it -> PackageNotFoundError, which breaks
+# transformers itself and cascades into every later import. Lying to one predicate is
+# a far smaller intervention than editing the image.
+_patched = []
+for _module_name in ("peft.import_utils", "peft.tuners.lora.torchao"):
+    try:
+        import importlib as _importlib
+        _module = _importlib.import_module(_module_name)
+        if hasattr(_module, "is_torchao_available"):
+            _module.is_torchao_available = lambda: False
+            _patched.append(_module_name)
+    except Exception:
+        pass
+print("torchao dispatcher disabled in:", _patched or "(nothing to patch)")
 
 # The image pairs peft 0.19 with torchao 0.10. When peft builds a LoRA layer it walks
 # a chain of dispatchers, and `dispatch_torchao` calls `is_torchao_available()` --
