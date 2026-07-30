@@ -509,7 +509,29 @@ def train_one(config_path):
 ''')
 
 code(r'''
-CONFIGS = ["configs/qwen2.5-0.5b.yaml", "configs/smollm2-360m.yaml", "configs/llama-3.2-1b.yaml"]
+ALL_CONFIGS = ["configs/qwen2.5-0.5b.yaml", "configs/smollm2-360m.yaml",
+               "configs/llama-3.2-1b.yaml"]
+
+# Train a subset by naming them here; empty list means all three.
+#
+# Kaggle gives no persistence between sessions, so a rerun retrains everything from
+# scratch by default. That is the right default -- all three artefacts then come out
+# of one session under one image, which is what RQ1's "hold everything constant
+# except the model" asks for, and fp16 training on a GPU is not bit-reproducible, so
+# artefacts from two sessions are not quite the same experiment.
+#
+# The escape hatch is for the case where one model was gated at the time and its
+# access grant arrived later: set ONLY = ["configs/llama-3.2-1b.yaml"] to add just
+# that one. Its adapter, GGUF and per-model prediction files stand alone, but
+# surface_a.csv and parity_hf.json will then describe ONLY that model and have to be
+# concatenated with the earlier download rather than replacing it.
+ONLY: list[str] = []
+
+CONFIGS = ONLY or ALL_CONFIGS
+if ONLY:
+    print(f"PARTIAL RUN -- {len(CONFIGS)} of {len(ALL_CONFIGS)} models.")
+    print("surface_a.csv and parity_hf.json will cover only these; merge with the "
+          "earlier download, do not overwrite it.")
 
 trained, failed, started = [], [], time.time()
 for relative in CONFIGS:
