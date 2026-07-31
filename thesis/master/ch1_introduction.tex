@@ -1,0 +1,31 @@
+% Introduction
+% Scaffold only --- section structure from prd.md 3.1, ownership from Table 3.
+% The NOTE comments say what belongs in each section and where the material already is.
+% Delete each NOTE as you fill the section. Prose is yours to write.
+
+\chapter{Introduction}
+
+\section{The edge-inference problem}
+% NOTE: Why run a language model on a Raspberry Pi 5 at all: no network, no cloud latency, no data
+%       leaving the aircraft. Source: prd.md 1.
+% NOTE: Ground the difficulty with a measured number, not an assertion: spikes/reports/S1 has
+%       Qwen2.5-0.5B Q4_K_M at 20.97 tok/s on 3 threads against a >=20 tok/s budget -- a 4.9%
+%       margin. That thin margin IS the problem statement.
+
+\section{Why structured output matters for robot control}
+% NOTE: A chat model that is 95% right about JSON is 100% useless to a flight controller. Motivate
+%       the schema-as-contract idea that C1 formalises.
+% NOTE: spikes/reports/S3 is the evidence: base models degenerating into unbounded id lists. Cite it
+%       as motivation, not as a result.
+
+\section{Objectives}
+% NOTE: RQ1 verbatim from prd.md:113. This document owns RQ1 only (Table 2); RQ2/RQ3 belong to the
+%       Ingenieur.
+
+\section{Contributions}
+% NOTE: C1, C2, C3 from prd.md:121-123. C4 is the Ingenieur's -- do not claim it here.
+% NOTE: State each as what was DONE, not what was intended.
+
+\section{Structure of this document}
+% NOTE: One short paragraph, five chapters.
+
