@@ -61,7 +61,12 @@ def llama_cpp_token_ids(gguf: Path, text: str, tmp_path: Path) -> list[int]:
         [str(LLAMA_TOKENIZE), "-m", str(gguf), "-f", str(prompt_file),
          "--ids", "--no-escape",
          # Match transformers' add_special_tokens=False -- see the module docstring.
-         "--override-kv", "tokenizer.ggml.add_bos_token=bool:false"],
+         # `--no-bos`, not `--override-kv tokenizer.ggml.add_bos_token=bool:false`:
+         # the override is accepted silently and does NOT suppress the BOS, which
+         # showed up as Llama-3.2 -- the one model whose template emits
+         # <|begin_of_text|> itself -- mismatching on all ten prompts by exactly one
+         # leading 128000, while Qwen and SmolLM2 passed.
+         "--no-bos"],
         capture_output=True, text=True)
     if completed.returncode != 0:
         raise RuntimeError(f"llama-tokenize failed: {completed.stderr[-500:]}")

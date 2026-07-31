@@ -1,0 +1,22 @@
+{
+  "model": "llama-3.2-1b-instruct",
+  "hf_id": "meta-llama/Llama-3.2-1B-Instruct",
+  "precision": "fp16",
+  "best_val_exact_match": 0.9,
+  "history": [
+    {
+      "epoch": 1.0,
+      "val_exact_match": 0.875
+    },
+    {
+      "epoch": 2.0,
+      "val_exact_match": 0.9
+    },
+    {
+      "epoch": 3.0,
+      "val_exact_match": 0.9
+    }
+  ],
+  "final_train_loss": 0.15812986107960425,
+  "dropped_over_max_len": 0
+}

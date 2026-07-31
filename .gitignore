@@ -49,6 +49,10 @@ build/
 gguf/*
 !gguf/.gitkeep
 !gguf/LICENSE_MODELS.md
+# The manifest is provenance, not an artefact: it names the llama.cpp build and the
+# SHA-256 of each quantised file. Table 18 is a claim about specific bytes, and
+# "the Q4_K_M scored X" is unreproducible without saying which Q4_K_M.
+!gguf/artefacts.json
 
 # LoRA adapters and HF checkpoints. Training LOGS are committed
 # (tab:repo requires them); weights are not.
@@ -146,3 +150,8 @@ START_SESSION.md
 train/pfe_kaggle_data.zip
 # whisper.cpp -otxt sidecars; data/asr.py removes them, this catches interrupted runs.
 *.wav.txt
+
+# Kaggle outputs. The weights are large and reproducible from the notebook; the small
+# result files beside them are evidence for Tables 17 and 18 and are tracked.
+train/kaggle_out/gguf/
+train/kaggle_out/adapters/**/adapter_model.safetensors

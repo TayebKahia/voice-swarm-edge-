@@ -1,0 +1,22 @@
+{
+  "model": "smollm2-360m-instruct",
+  "hf_id": "HuggingFaceTB/SmolLM2-360M-Instruct",
+  "precision": "fp16",
+  "best_val_exact_match": 0.775,
+  "history": [
+    {
+      "epoch": 1.0,
+      "val_exact_match": 0.65
+    },
+    {
+      "epoch": 2.0,
+      "val_exact_match": 0.75
+    },
+    {
+      "epoch": 3.0,
+      "val_exact_match": 0.775
+    }
+  ],
+  "final_train_loss": 0.27458594047306667,
+  "dropped_over_max_len": 0
+}

@@ -1,0 +1,69 @@
+{
+  "llama_cpp_build": "88ada91c1",
+  "quantisations": [
+    "Q8_0",
+    "Q4_K_M"
+  ],
+  "artefacts": [
+    {
+      "model": "llama-3.2-1b-instruct",
+      "quantisation": "Q8_0",
+      "ok": true,
+      "path": "gguf/llama-3.2-1b-instruct-Q8_0.gguf",
+      "bytes": 1321082624,
+      "mb": 1259.9,
+      "sha256": "c6d6aa1a7c9d97c9eb9057824bd9bddf28b5116360e438dbfc83dbe50cfc4051",
+      "seconds": 5.8
+    },
+    {
+      "model": "llama-3.2-1b-instruct",
+      "quantisation": "Q4_K_M",
+      "ok": true,
+      "path": "gguf/llama-3.2-1b-instruct-Q4_K_M.gguf",
+      "bytes": 807694080,
+      "mb": 770.3,
+      "sha256": "046cf2de462c8685bcca22312344f6f5588e65b9f520b530dff122154ad281be",
+      "seconds": 19.4
+    },
+    {
+      "model": "qwen2.5-0.5b-instruct",
+      "quantisation": "Q8_0",
+      "ok": true,
+      "path": "gguf/qwen2.5-0.5b-instruct-Q8_0.gguf",
+      "bytes": 531067808,
+      "mb": 506.5,
+      "sha256": "2fe5b2066ddc7f863f3e41d278be3c3febb64a807c9caf673be82bfec2155c55",
+      "seconds": 3.3
+    },
+    {
+      "model": "qwen2.5-0.5b-instruct",
+      "quantisation": "Q4_K_M",
+      "ok": true,
+      "path": "gguf/qwen2.5-0.5b-instruct-Q4_K_M.gguf",
+      "bytes": 397807520,
+      "mb": 379.4,
+      "sha256": "ee914fa8a49c121ea07250d0f16e71ac8de015290ba4519de679d1dc892ac8ad",
+      "seconds": 2.7
+    },
+    {
+      "model": "smollm2-360m-instruct",
+      "quantisation": "Q8_0",
+      "ok": true,
+      "path": "gguf/smollm2-360m-instruct-Q8_0.gguf",
+      "bytes": 386404928,
+      "mb": 368.5,
+      "sha256": "58aebea48306901859e72f672594c3b3dc97c6e91f4db8e90ecede3580b5976a",
+      "seconds": 6.0
+    },
+    {
+      "model": "smollm2-360m-instruct",
+      "quantisation": "Q4_K_M",
+      "ok": true,
+      "path": "gguf/smollm2-360m-instruct-Q4_K_M.gguf",
+      "bytes": 270590528,
+      "mb": 258.1,
+      "sha256": "bcb3c988146f195633dfe4581b713ba430fd3395737de8dceb57a19a9dad0084",
+      "seconds": 2.1
+    }
+  ]
+}
