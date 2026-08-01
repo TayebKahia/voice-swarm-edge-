@@ -169,6 +169,49 @@ Full pre-registered protocol: 50 trials x circle/line/wedge, 60 s, 50 Hz, seed =
   made harder afterwards to manufacture variance. Convergence time is the discriminating metric.
 PyFlyt: FA 1.00 on all three shapes, mean slot error 0.135 m, stable over 20 s.
 
+## Surface-B RESULT (Tables 17/18, Sat 19 Sep 16:18)
+
+Six artefacts x three splits, 590 items each, llama.cpp b10863 (88ada91c), GBNF grammar
+on, one slot, greedy, workstation. Raw: `results/surface_b.csv`; per-item predictions in
+`results/surface_b_preds/` (Session 07's McNemar test needs those, not the summary).
+Tables rendered by `python eval/tables.py` -> `results/table17_model_comparison.md`,
+`results/table18_quantisation_delta.md`, `results/nfr18_false_command.md`.
+
+Exact match, Surface B (quantised + grammar):
+
+| model | quant | test_synth | test_golden | test_ood |
+| :--- | :--- | ---: | ---: | ---: |
+| llama-3.2-1b | Q4_K_M | 0.9583 | 0.9100 | 0.8133 |
+| llama-3.2-1b | Q8_0   | 0.9625 | 0.9150 | 0.8000 |
+| qwen2.5-0.5b | Q4_K_M | 0.9542 | 0.9350 | 0.7467 |
+| qwen2.5-0.5b | Q8_0   | 0.9583 | 0.9300 | 0.7333 |
+| smollm2-360m | Q4_K_M | 0.8125 | 0.7600 | 0.6600 |
+| smollm2-360m | Q8_0   | 0.8125 | 0.7900 | 0.6067 |
+
+Schema validity is 1.0000 in all eighteen rows.
+
+Three things the chapters must carry:
+
+1. **Quantisation is nearly free.** test_golden delta vs FP16 runs -1.5 to +1.5 pp, with no
+   consistent Q8_0 > Q4_K_M ordering (smollm2 is +1.5 at Q8_0 and -1.5 at Q4_K_M). At
+   n=200 that is noise, not precision. Q4_K_M is therefore defensible as the deployed
+   artefact on accuracy grounds alone, before the memory argument.
+
+2. **NFR-18 is MISSED by every configuration.** False-command rate on test_ood is 0.187 to
+   0.393 against a <=0.05 budget. The grammar guarantees structure, not abstention: an
+   out-of-domain utterance still decodes to a well-formed command. Report as measured.
+   Do NOT reconcile. This is a genuine limitation and the honest discussion is that
+   abstention needs a mechanism the grammar cannot provide (a confidence gate or an
+   `unknown`-biased decoding rule), which is future work.
+
+3. **On test_ood, Surface B beats its own FP16 parent** (llama 0.7333 -> 0.8133). That is
+   the GBNF constraint, not the quantisation -- contribution C1 appearing inside the C3
+   measurement. Say so explicitly or a reader will read it as quantisation improving
+   weights, which would be absurd.
+
+Still to run on this harness: `python eval/surface_b.py --no-grammar` -> Table 19, C1
+measured directly rather than inferred.
+
 ## Next session starts with
 1. **Kaggle.** `python train/make_kaggle_bundle.py` -> upload train/pfe_kaggle_data.zip as a
    Dataset named `pfe-swarm-data`; upload train/kaggle_finetune.ipynb; GPU T4, Internet ON;
