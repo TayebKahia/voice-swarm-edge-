@@ -37,7 +37,7 @@ Sat 19  AUTHOR: launch Kaggle (blocked on it all day -- start first) | **write C
                 the moment the Kaggle artefacts land
 Sun 20  AUTHOR: **annotation pass 2** (~20 min, hard-dated in the PRD, do not move) | Master Ch 3
         AGENT : grammar ablation (C1) | McNemar + Figure 2 | Tables 17/18/19
-Mon 21  AUTHOR: Master Ch 4-5 | record the demo video (live mic, networking off camera,
+Mon 21  AUTHOR: Master Ch 4-6 | record the demo video (live mic, networking off camera,
                 including the ABORTED recovery path)
         AGENT : runtime pipeline end to end | Exp-2 / Exp-3 analysis
 Tue 22  AUTHOR: Ingenieur Ch 4-6 | Table 21 positioning against Lim et al.
@@ -48,6 +48,17 @@ Wed 23  AUTHOR: read-through against the write-once rule, cover pages, print, DV
 Thu 24  DEPOT. Buffer morning only.
 
 Overnights: Exp-1 on the Pi (Sat), Exp-2 (Sun), Exp-3 (Mon). Exp-4 is already done.
+
+**Master went 5 -> 6 chapters (decided Sat 19 evening, after Ch 1-2 were drafted and reviewed.)**
+Discussion and Conclusion were one chapter in the original PRD outline; splitting them lets
+Discussion stay hedged (trade-off, failure modes, threats to validity) while Conclusion stays a
+clean, unhedged answer to RQ1 -- the two registers were fighting each other in one chapter, and
+ch1_introduction.tex's own closing section had already drifted into ending on logistics instead of
+a verdict, which is the failure mode a dedicated Conclusion chapter exists to prevent. No new
+writing day was added: the 6th chapter is absorbed into the existing Mon 21 slot. prd.md Table 2
+and SS3.1 updated to match; thesis-writing SKILL.md's chapter blueprint updated to stop presenting
+one generic 6-chapter template for both documents (it previously implied Master was 6 chapters
+when the PRD said 5, and misassigned Ingenieur's TTFT metric to Master's Results chapter).
 
 ## Gates
 Gate 1 schema        : GREEN (pytest schema/ -> 83 passed, tag schema-v1.1)
@@ -211,6 +222,49 @@ Three things the chapters must carry:
 
 Still to run on this harness: `python eval/surface_b.py --no-grammar` -> Table 19, C1
 measured directly rather than inferred.
+
+## Table 19 -- GRAMMAR ABLATION RESULT (Sat 19 Sep)
+
+`python eval/surface_b.py --no-grammar`, then `python eval/tables.py`.
+Raw: `results/surface_b_nogrammar.csv`, preds in `results/surface_b_preds/*_nogrammar_*`.
+
+| Condition | Items | Schema validity | Malformed | EM (pooled) |
+| :--- | ---: | ---: | ---: | ---: |
+| Grammar on | 3540 | 1.0000 | 0 | 0.8508 |
+| Grammar off | 3540 | 0.9997 | 1 | 0.8492 |
+
+**The effect is one item in 3540.** Do not oversell C1. Three epochs of supervised
+fine-tuning on nothing but canonical JSON taught the format so thoroughly that the
+unconstrained model almost never leaves it. Writing the ablation up as "the grammar
+rescues broken output" would be contradicted by our own table.
+
+The defensible C1 claim is narrower and stronger:
+
+  Fine-tuning makes valid output *overwhelmingly likely*; the grammar makes it
+  *certain*. On a flight-control path the difference between 0.9997 and 1.0000 is
+  not a rounding error -- it is whether a malformed command can reach the vehicle
+  at all. The guarantee is structural and holds under distribution shift; the
+  tendency is statistical and was learned on a distribution the aircraft will leave.
+
+The single failure is the whole argument in one line. llama-3.2-1b Q4_K_M, test_ood:
+
+  transcript   : "what does lidar stand for"
+  gold         : {"intent":"unknown"}
+  grammar OFF  : "Lidar" stands for Light Detection and Ranging.
+  grammar ON   : {"intent":"unknown"}
+
+Unconstrained, the model stopped being a command parser and became a chatbot -- and it
+did so on out-of-domain input, exactly where the training distribution ends. The grammar
+did not tidy up malformed JSON; it made that failure mode unreachable. Use this example
+verbatim in Master Ch4; it is worth more than the aggregate row.
+
+Caveat to state honestly: the ablation cannot separate "the grammar constrains" from
+"the fine-tune already complies", because both surfaces use the fine-tuned weights. A
+base-model ablation would separate them, and is not being run (no time, and the zero-shot
+Surface-A baseline of 0.0000 EM already shows base models do not produce the format).
+
+Decode p95 for Table 19's last column comes from Exp-1 on the Pi, not from the
+workstation.
 
 ## Next session starts with
 1. **Kaggle.** `python train/make_kaggle_bundle.py` -> upload train/pfe_kaggle_data.zip as a

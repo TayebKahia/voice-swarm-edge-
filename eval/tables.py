@@ -24,6 +24,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent
 SURFACE_A = REPO / "train" / "kaggle_out" / "surface_a.csv"
 SURFACE_B = REPO / "results" / "surface_b.csv"
+SURFACE_B_NOGRAMMAR = REPO / "results" / "surface_b_nogrammar.csv"
 RESULTS = REPO / "results"
 
 SPLITS = ("test_synth", "test_golden", "test_ood")
@@ -116,6 +117,37 @@ def nfr18(surface_b: list[dict]) -> str:
     return "\n".join(lines) + "\n"
 
 
+def table19(constrained: list[dict], ablated: list[dict]) -> str:
+    """Table 19, the grammar ablation --- contribution C1 measured rather than asserted."""
+
+    def totals(rows: list[dict]) -> tuple[int, int, float]:
+        items = sum(int(r["n"]) for r in rows)
+        valid = sum(_f(r["schema_validity"]) * int(r["n"]) for r in rows)
+        matched = sum(_f(r["exact_match"]) * int(r["n"]) for r in rows)
+        return items, round(items - valid), matched / items
+
+    on_items, on_invalid, on_em = totals(constrained)
+    off_items, off_invalid, off_em = totals(ablated)
+    lines = [
+        "### Table 19: Grammar ablation",
+        "",
+        "Same six artefacts, same 590 items, same greedy decode; the only change is whether",
+        "`llama.cpp` is given `schema/cmd.gbnf`. Decode p95 is Exp-1 on the Pi and is filled",
+        "by that run --- the workstation's decode time is not the deployed latency.",
+        "",
+        "| Condition | Items | Schema validity | Malformed | EM (pooled) | Decode p95 |",
+        "| :--- | ---: | ---: | ---: | ---: | :--- |",
+        f"| Grammar on | {on_items} | {1 - on_invalid / on_items:.4f} | {on_invalid} "
+        f"| {on_em:.4f} | -- |",
+        f"| Grammar off | {off_items} | {1 - off_invalid / off_items:.4f} | {off_invalid} "
+        f"| {off_em:.4f} | -- |",
+        "",
+        "Pooled over every model, quantisation and split. Exact match is pooled by item, not",
+        "averaged over the eighteen rows, so the larger splits carry their real weight.",
+    ]
+    return "\n".join(lines) + "\n"
+
+
 def run() -> int:
     surface_a, surface_b = _rows(SURFACE_A), _rows(SURFACE_B)
     written = []
@@ -123,6 +155,7 @@ def run() -> int:
         ("table17_model_comparison.md", table17(surface_b)),
         ("table18_quantisation_delta.md", table18(surface_a, surface_b, DELTA_SPLIT)),
         ("nfr18_false_command.md", nfr18(surface_b)),
+        ("table19_grammar_ablation.md", table19(surface_b, _rows(SURFACE_B_NOGRAMMAR))),
     ):
         (RESULTS / name).write_text(text, encoding="utf-8")
         written.append(name)

@@ -1,0 +1,150 @@
+{"id": "ood-0001", "transcript": "wake me up at half past six", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0002", "transcript": "what alarms do i have set", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0003", "transcript": "make it louder", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0004", "transcript": "mute yourself", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0005", "transcript": "put a meeting in for thursday morning", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0006", "transcript": "am i free on friday", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0007", "transcript": "cancel the thursday meeting", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0008", "transcript": "how do i make chakhchoukha", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0009", "transcript": "what day of the week is the fourteenth", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0010", "transcript": "what time is it in tokyo", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0011", "transcript": "any new email from the lab", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0012", "transcript": "send an email to the department head", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0013", "transcript": "say something funny", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0014", "transcript": "do you dream", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0015", "transcript": "switch the hallway light off", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0016", "transcript": "make me a coffee", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0017", "transcript": "start the robot vacuum", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0018", "transcript": "put propeller guards on the list", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0019", "transcript": "what's on my list", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0020", "transcript": "what song is this", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0021", "transcript": "i like this one", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0022", "transcript": "any news about the flight ban", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0023", "transcript": "continue the audiobook", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0024", "transcript": "put on the latest episode", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0025", "transcript": "tune in to the local station", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0026", "transcript": "how deep is the mediterranean", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0027", "transcript": "what does lidar stand for", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0028", "transcript": "what's seventeen percent of two hundred", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0029", "transcript": "how many euros is five thousand dinars", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0030", "transcript": "anything on this weekend", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0031", "transcript": "where's the nearest hardware shop", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0032", "transcript": "recommend a film for tonight", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0033", "transcript": "post that to the group", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0034", "transcript": "order a pizza for the team", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0035", "transcript": "has the delivery arrived", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0036", "transcript": "when's the next bus to the campus", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0037", "transcript": "get me a taxi", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0038", "transcript": "will it be windy at the test site", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0039", "transcript": "follow the vehicle on the road", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0040", "transcript": "track the moving target", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0041", "transcript": "shadow the boat", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0042", "transcript": "mirror what drone one does", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0043", "transcript": "count the cattle in the paddock", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0044", "transcript": "search the ravine for the missing hiker", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0045", "transcript": "check the fence line for breaks", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0046", "transcript": "measure the height of the chimney", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0047", "transcript": "photograph the roof from every angle", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0048", "transcript": "orbit the mast at ten metres", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0049", "transcript": "fly a lawnmower pattern over the field", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0050", "transcript": "fly a grid search over the woods", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0051", "transcript": "circle the perimeter twice", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0052", "transcript": "fly under the bridge", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0053", "transcript": "return to launch", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"takeoff\"}"}
+{"id": "ood-0054", "transcript": "form up on my position", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"formation\",\"shape\":\"flock\"}"}
+{"id": "ood-0055", "transcript": "hold a fifty metre standoff from the crowd", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"formation\",\"shape\":\"line\",\"spacing\":50.0}"}
+{"id": "ood-0056", "transcript": "maintain visual separation from the helicopter", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"set_param\",\"spacing\":2.0}"}
+{"id": "ood-0057", "transcript": "stay upwind of the smoke", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0058", "transcript": "keep two metres above the canopy", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"altitude\",\"z\":2.0}"}
+{"id": "ood-0059", "transcript": "climb above the treeline", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0060", "transcript": "descend below the cloud base", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0061", "transcript": "set the geofence radius to a hundred metres", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"set_param\",\"spacing\":100.0}"}
+{"id": "ood-0062", "transcript": "spray the third row", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0063", "transcript": "drop the sensor package at the marker", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0064", "transcript": "log the gps coordinates here", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0065", "transcript": "relay comms for the ground team", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0066", "transcript": "wait for my mark then go", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0067", "transcript": "on my count, three two one", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0068", "transcript": "split into two groups", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"formation\",\"shape\":\"flock\"}"}
+{"id": "ood-0069", "transcript": "leader take point", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0070", "transcript": "increase the number of drones to eight", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0071", "transcript": "hand over control to the second operator", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0072", "transcript": "arm the motors", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"takeoff\"}"}
+{"id": "ood-0073", "transcript": "run the pre-flight checks", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0074", "transcript": "calibrate the compass", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0075", "transcript": "land on the moving truck", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"land\"}"}
+{"id": "ood-0076", "transcript": "you", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0077", "transcript": "[BLANK_AUDIO]", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0078", "transcript": "(buzzing)", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0079", "transcript": "(blender whirring)", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0080", "transcript": "(dramatic music)", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0081", "transcript": "[MUSIC PLAYING]", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0082", "transcript": "(beep)", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0083", "transcript": "(fire crackling)", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0084", "transcript": "(beeping)", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0085", "transcript": "(water running)", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0086", "transcript": "(crickets chirping)", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0087", "transcript": "(engine revving)", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0088", "transcript": "[blank_audio]", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0089", "transcript": "(silence)", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"hover\"}"}
+{"id": "ood-0090", "transcript": "", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0091", "transcript": "thank you.", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0092", "transcript": "thanks for watching!", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0093", "transcript": "we'll be right back.", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0094", "transcript": "sub by the amara.org community", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0095", "transcript": "bye.", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0096", "transcript": "all right.", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0097", "transcript": "let's go.", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0098", "transcript": "i'm not sure.", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0099", "transcript": "okay.", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0100", "transcript": "yes.", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0101", "transcript": "no.", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0102", "transcript": "what?", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0103", "transcript": "hello?", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0104", "transcript": "the", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0105", "transcript": "and", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0106", "transcript": "he", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0107", "transcript": "it's", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0108", "transcript": "so", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0109", "transcript": "oh", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0110", "transcript": "uh", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0111", "transcript": "um", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0112", "transcript": "hmm", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0113", "transcript": "form a circle radius", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"formation\",\"shape\":\"circle\",\"radius\":2.0}"}
+{"id": "ood-0114", "transcript": "move north", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"move\",\"dir\":\"north\",\"dist\":0.0}"}
+{"id": "ood-0115", "transcript": "take off to", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"takeoff\"}"}
+{"id": "ood-0116", "transcript": "set the spacing to", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"set_param\",\"spacing\":2.0}"}
+{"id": "ood-0117", "transcript": "rotate by", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"rotate\",\"yaw\":180.0}"}
+{"id": "ood-0118", "transcript": "hold at", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"hover\"}"}
+{"id": "ood-0119", "transcript": "land on", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"land\"}"}
+{"id": "ood-0120", "transcript": "go to the", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0121", "transcript": "climb to about", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"altitude\",\"z\":2.0}"}
+{"id": "ood-0122", "transcript": "descend to sev", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"altitude\",\"z\":7.0}"}
+{"id": "ood-0123", "transcript": "spacing of four me", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"set_param\",\"spacing\":4.0}"}
+{"id": "ood-0124", "transcript": "yaw one hundred and", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"rotate\",\"yaw\":100.0}"}
+{"id": "ood-0125", "transcript": "at an altitude of", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"altitude\",\"z\":2.0}"}
+{"id": "ood-0126", "transcript": "with a speed of", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"move\",\"dir\":\"right\",\"dist\":5.0}"}
+{"id": "ood-0127", "transcript": "position two comma", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"move\",\"pos\":[2.0]}"}
+{"id": "ood-0128", "transcript": "degrees to the", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"rotate\",\"yaw\":180.0}"}
+{"id": "ood-0129", "transcript": "metres per", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0130", "transcript": "point five", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"move\",\"dir\":\"right\",\"dist\":5.0}"}
+{"id": "ood-0131", "transcript": "shape is", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"formation\",\"shape\":\"wedge\"}"}
+{"id": "ood-0132", "transcript": "formation at", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"formation\",\"shape\":\"wedge\"}"}
+{"id": "ood-0133", "transcript": "everyone go", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0134", "transcript": "drone three", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0135", "transcript": "drones one and", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"formation\",\"shape\":\"wedge\",\"ids\":[0]}"}
+{"id": "ood-0136", "transcript": "and the second drone", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0137", "transcript": "can you all", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0138", "transcript": "i need everyone to", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0139", "transcript": "what i want is for the", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0140", "transcript": "let's have you", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0141", "transcript": "if you could just", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0142", "transcript": "so the plan is", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0143", "transcript": "right so", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0144", "transcript": "one two thr", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0145", "transcript": "no wait", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0146", "transcript": "actually never mind the", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0147", "transcript": "scratch that", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0148", "transcript": "hang on a", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"hover\"}"}
+{"id": "ood-0149", "transcript": "give me a sec", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
+{"id": "ood-0150", "transcript": "on second thoughts", "gold": "{\"intent\":\"unknown\"}", "raw": "{\"intent\":\"unknown\"}"}
