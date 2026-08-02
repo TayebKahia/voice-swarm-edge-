@@ -12,7 +12,7 @@ against language models whose usual home is a data-centre accelerator.
 
 That difficulty is not unique to this hardware or this task: a recent survey of language-model
 throughput across single-board computers finds the same ceiling recurring across boards and model
-families~\cite{sbc2025}, and Chapter~\ref{chap:related_work} takes up that literature in full. Here
+families~\cite{sbc2025}, and Chapter~\ref{chap:related-work} takes up that literature in full. Here
 the same constraint is stated for one target device and three candidate models, and it is not a
 matter of degree that can be waved at; it is a margin narrow enough to measure. A structured
 command in this system is short: a 22-token decode is budgeted to
@@ -33,18 +33,21 @@ about the intent and the slot values but wrong about the syntax has produced not
 can use, so structural correctness has to be treated as a precondition, not as a component folded
 into an accuracy score.
 
-Spike S3 gave direct evidence of why this precondition cannot be left to the model's own judgement.
-Prompted zero-shot, without fine-tuning or a constraining grammar, the same Qwen2.5-0.5B-Instruct
-model reproduced the intent of an emergency abort command exactly, but elsewhere degenerated
-under greedy decoding: a collective command such as ``swarm takeoff'' came back addressed to a
-single drone instead of the whole formation, and an unbounded repetition rule in the
-drone-identifier list let the decoder loop on digits until the output was truncated, on commands
-including ``swarm land''. These are not occasional slips to be tolerated at some acceptable rate;
-a mis-addressed collective command or a truncated identifier list reaching a swarm controller
-unfiltered is a safety failure, not a scoring error. The lesson this motivates is a schema-as-contract design: constrain what the model can
-emit by construction, with a grammar and a semantic validator, so that structural validity stops
-being a property to be measured after the fact and becomes a property of the decoder itself. That
-design is Contribution C1, below.
+Spike S3 gave direct evidence of why this precondition cannot be left to the model's own judgement,
+or to a grammar alone. Prompted zero-shot, without fine-tuning, under the grammar drafted at the
+time, the same Qwen2.5-0.5B-Instruct model reproduced the intent of an emergency abort command
+exactly, but elsewhere degenerated under greedy decoding while every output stayed grammar-valid:
+a collective command such as ``swarm takeoff'' came back addressed to a single drone instead of
+the whole formation -- a semantic error no grammar can reject, since ``which drones'' is a meaning
+question, not a structural one -- and an unbounded repetition rule in that grammar's own
+drone-identifier list, since fixed to a bounded form, let the decoder loop on digits until the
+output was truncated, on commands including ``swarm land''. These are not occasional slips to be tolerated at
+some acceptable rate; a mis-addressed collective command or a truncated identifier list reaching a
+swarm controller unfiltered is a safety failure, not a scoring error. The lesson this motivates is
+a schema-as-contract design: constrain what the model can emit by construction, with a bounded
+grammar and a semantic validator, so that structural validity stops being a property to be
+measured after the fact and becomes a property of the decoder itself. That design is Contribution
+C1, below.
 
 \section{Objectives}
 This document pursues one research question, stated in full because everything in the chapters
@@ -52,12 +55,12 @@ that follow answers to it:
 
 \begin{quote}
 \textbf{RQ1 (Accuracy--efficiency trade-off).} What is the trade-off across small language models
-of 0.36--1.2\,B parameters, fine-tuned for drone-swarm command parsing and quantised for
+of 0.36--1.2~B parameters, fine-tuned for drone-swarm command parsing and quantised for
 CPU-only execution on a Raspberry Pi 5?
 \end{quote}
 
 The two remaining research questions of the wider project, on pipeline latency and on acoustic
-robustness, are pursued by the companion \emph{Mémoire d'Ingénieur}, which also carries the
+robustness, are pursued by the companion \emph{M\'emoire d'Ing\'enieur}, which also carries the
 engineering architecture, the runtime implementation, and the live demonstration built on top of
 the model this document selects.
 
@@ -65,7 +68,8 @@ the model this document selects.
 Three contributions belong to this document.
 
 \begin{itemize}
-    \item \textbf{C1.} A frozen command schema paired with a matched GBNF grammar and a two-layer
+    \item \textbf{C1.} A frozen command schema paired with a matched GBNF (GGML BNF)
+    grammar~\cite{llamacpp} and a two-layer
     semantic validator, built so that structural validity is a property of the decoder rather than
     a rate measured against a test set.
     \item \textbf{C2.} A label-first dataset pipeline, built and run end to end from natural-language
@@ -79,12 +83,12 @@ Three contributions belong to this document.
 \end{itemize}
 
 The fourth contribution of the wider project, the dual-path runtime that lets a keyword spotter
-preempt language-model inference for safety-critical commands, belongs to the \emph{Mémoire
-d'Ingénieur}.
+preempt language-model inference for safety-critical commands, belongs to the \emph{M\'emoire
+d'Ing\'enieur}.
 
 \section{Structure of this document}
-The rest of this document has five chapters. Chapter~\ref{chap:related_work} surveys the
-literature this work builds on and positions it against edge LLM inference, quantisation,
+The rest of this document has five chapters. Chapter~\ref{chap:related-work} surveys the
+literature this work builds on and positions it against edge language-model inference, quantisation,
 constrained decoding, and spoken-language understanding for robotics. Chapter~\ref{chap:method}
 sets out the command schema and grammar, the dataset construction, the fine-tuning recipe, the
 quantisation procedure, and the evaluation protocol. Chapter~\ref{chap:results} reports Exp-0,
