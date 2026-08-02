@@ -14,6 +14,10 @@ The five canonical triage roles, unchanged: `needs-triage`, `needs-info`, `ready
 
 Single-context: one `CONTEXT.md` and `docs/adr/` at the repo root, both created lazily. See `docs/agents/domain.md`.
 
+### Thesis writing
+
+Standards, academic tone, chapter formulas, LaTeX guidelines, and quality checklists for drafting and reviewing thesis chapters live under `.agents/skills/thesis-writing/SKILL.md`. Inspect this skill whenever drafting, editing, or reviewing files under `thesis/`.
+
 ## Commits
 
 **One commit per coherent change, not per edit.** While iterating on a single problem ---
