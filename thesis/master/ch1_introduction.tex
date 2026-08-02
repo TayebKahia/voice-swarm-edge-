@@ -1,31 +1,100 @@
-% Introduction
-% Scaffold only --- section structure from prd.md 3.1, ownership from Table 3.
-% The NOTE comments say what belongs in each section and where the material already is.
-% Delete each NOTE as you fill the section. Prose is yours to write.
-
 \chapter{Introduction}
 
 \section{The edge-inference problem}
-% NOTE: Why run a language model on a Raspberry Pi 5 at all: no network, no cloud latency, no data
-%       leaving the aircraft. Source: prd.md 1.
-% NOTE: Ground the difficulty with a measured number, not an assertion: spikes/reports/S1 has
-%       Qwen2.5-0.5B Q4_K_M at 20.97 tok/s on 3 threads against a >=20 tok/s budget -- a 4.9%
-%       margin. That thin margin IS the problem statement.
+A drone that answers to spoken commands is only as autonomous as its network connection allows it
+to be, unless the language model that turns speech into a command lives on the aircraft itself.
+This work fixes that constraint at the outset: every stage of command parsing, from the transcript
+to the validated structured command, runs on a Raspberry Pi 5, with no network access at any point
+in the pipeline. Removing the network removes cloud latency and removes a channel by which data
+could leave the aircraft, but it also removes the option of falling back on a large model when a
+small one struggles. The inference budget has to be closed entirely on CPU-only edge hardware,
+against language models whose usual home is a data-centre accelerator.
+
+That difficulty is not unique to this hardware or this task: a recent survey of language-model
+throughput across single-board computers finds the same ceiling recurring across boards and model
+families~\cite{sbc2025}, and Chapter~\ref{chap:related_work} takes up that literature in full. Here
+the same constraint is stated for one target device and three candidate models, and it is not a
+matter of degree that can be waved at; it is a margin narrow enough to measure. A structured
+command in this system is short: a 22-token decode is budgeted to
+complete within 1{,}100~ms, which sets a throughput floor of at least 20~tokens per second.
+Spike S1 benchmarked Qwen2.5-0.5B-Instruct at Q4\_K\_M quantisation on the target Raspberry Pi~5,
+restricted to the three threads the production configuration reserves for the rest of the
+pipeline, and measured 20.97~tok/s -- a margin of 4.9\% over the floor. The next quantisation level
+up, Q5\_K\_M, already misses it, at 18.16~tok/s. That thin, one-configuration-wide margin, on the
+smallest of the three candidate models, is the edge-inference problem this thesis works inside of:
+not whether a small language model can be made accurate enough for the task, but whether an
+accurate-enough one can also be made to fit.
 
 \section{Why structured output matters for robot control}
-% NOTE: A chat model that is 95% right about JSON is 100% useless to a flight controller. Motivate
-%       the schema-as-contract idea that C1 formalises.
-% NOTE: spikes/reports/S3 is the evidence: base models degenerating into unbounded id lists. Cite it
-%       as motivation, not as a result.
+Accuracy is not the only property this system needs from its language model, and on its own it is
+not even the useful one. A flight controller downstream does not read prose; it reads a fixed JSON
+schema, and it cannot act on ninety-five percent of a well-formed command. A model that is right
+about the intent and the slot values but wrong about the syntax has produced nothing a controller
+can use, so structural correctness has to be treated as a precondition, not as a component folded
+into an accuracy score.
+
+Spike S3 gave direct evidence of why this precondition cannot be left to the model's own judgement.
+Prompted zero-shot, without fine-tuning or a constraining grammar, the same Qwen2.5-0.5B-Instruct
+model reproduced the intent of an emergency abort command exactly, but elsewhere degenerated
+under greedy decoding: a collective command such as ``swarm takeoff'' came back addressed to a
+single drone instead of the whole formation, and an unbounded repetition rule in the
+drone-identifier list let the decoder loop on digits until the output was truncated, on commands
+including ``swarm land''. These are not occasional slips to be tolerated at some acceptable rate;
+a mis-addressed collective command or a truncated identifier list reaching a swarm controller
+unfiltered is a safety failure, not a scoring error. The lesson this motivates is a schema-as-contract design: constrain what the model can
+emit by construction, with a grammar and a semantic validator, so that structural validity stops
+being a property to be measured after the fact and becomes a property of the decoder itself. That
+design is Contribution C1, below.
 
 \section{Objectives}
-% NOTE: RQ1 verbatim from prd.md:113. This document owns RQ1 only (Table 2); RQ2/RQ3 belong to the
-%       Ingenieur.
+This document pursues one research question, stated in full because everything in the chapters
+that follow answers to it:
+
+\begin{quote}
+\textbf{RQ1 (Accuracy--efficiency trade-off).} What is the trade-off across small language models
+of 0.36--1.2\,B parameters, fine-tuned for drone-swarm command parsing and quantised for
+CPU-only execution on a Raspberry Pi 5?
+\end{quote}
+
+The two remaining research questions of the wider project, on pipeline latency and on acoustic
+robustness, are pursued by the companion \emph{Mémoire d'Ingénieur}, which also carries the
+engineering architecture, the runtime implementation, and the live demonstration built on top of
+the model this document selects.
 
 \section{Contributions}
-% NOTE: C1, C2, C3 from prd.md:121-123. C4 is the Ingenieur's -- do not claim it here.
-% NOTE: State each as what was DONE, not what was intended.
+Three contributions belong to this document.
+
+\begin{itemize}
+    \item \textbf{C1.} A frozen command schema paired with a matched GBNF grammar and a two-layer
+    semantic validator, built so that structural validity is a property of the decoder rather than
+    a rate measured against a test set.
+    \item \textbf{C2.} A label-first dataset pipeline, built and run end to end from natural-language
+    transcripts to swarm-control primitives, with splits enforced at the template-family level,
+    round-trip audio augmentation, and a dataset card documenting the result. The dataset this
+    pipeline produced is frozen and sealed.
+    \item \textbf{C3.} A quantised-inference harness that measures exact match, intent and slot F1,
+    schema validity, and false-command rate for each fine-tuned model at each quantisation level on
+    the deployed edge hardware, built to make the accuracy cost of quantisation a reported number
+    rather than an assumption. Chapter~\ref{chap:results} presents what it measured.
+\end{itemize}
+
+The fourth contribution of the wider project, the dual-path runtime that lets a keyword spotter
+preempt language-model inference for safety-critical commands, belongs to the \emph{Mémoire
+d'Ingénieur}.
 
 \section{Structure of this document}
-% NOTE: One short paragraph, five chapters.
+The rest of this document has five chapters. Chapter~\ref{chap:related_work} surveys the
+literature this work builds on and positions it against edge LLM inference, quantisation,
+constrained decoding, and spoken-language understanding for robotics. Chapter~\ref{chap:method}
+sets out the command schema and grammar, the dataset construction, the fine-tuning recipe, the
+quantisation procedure, and the evaluation protocol. Chapter~\ref{chap:results} reports Exp-0,
+Exp-1, the quantisation delta, and the grammar ablation, with the statistical analysis and the
+selection rule applied to them. Chapter~\ref{chap:discussion} discusses the accuracy--efficiency
+trade-off this comparison exposes, the failure modes observed along the way, and the threats to
+the validity of the comparison itself. Chapter~\ref{chap:conclusion} closes with a direct answer
+to RQ1 and the work this comparison leaves for later.
+
+The problem, in short, is to close a throughput margin measured in single digits without loosening
+the schema a flight controller has to be able to trust; the chapters that follow report how far
+that margin closes, and what it costs in accuracy to close it.
 
