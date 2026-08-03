@@ -266,6 +266,35 @@ Surface-A baseline of 0.0000 EM already shows base models do not produce the for
 Decode p95 for Table 19's last column comes from Exp-1 on the Pi, not from the
 workstation.
 
+## Writing progress -- Master Ch 2 (Sun 20 Sep, Block B session)
+thesis/master/ch2_related_work.tex is now fully drafted, all five sections, no NOTE markers left:
+  2.1 Edge LLM inference / SBC benchmarking -- positions this work against \cite{sbc2025} as
+      narrower (one task, one device) and deeper (task accuracy measured, not throughput alone).
+  2.2 Quantisation (\label{sec:quantisation}) -- Q8_0/Q4_K_M mechanics via \cite{llamacpp}; the
+      gap named is "accuracy cost reported as generic perplexity, not task accuracy" -- C3 closes it.
+  2.3 Constrained decoding (\label{sec:constrained-decoding}) -- the GBNF argument: structural
+      validity moves from a measured rate to a decoder property. Deliberately does NOT preview
+      the Table 19 number (0.9997 vs 1.0000, the one-item delta) -- that stays in Ch 4's register
+      per rule 10; Ch 2 only sets up the conceptual distinction Table 19 will demonstrate.
+      Closes with the write-once exclusivity note for the Ingenieur (Table 3).
+  2.4 SLU for robotics (\label{sec:slu-robotics}) -- \cite{massive} for the solved task shape;
+      the gap is the resource envelope (offline, sub-1B, Pi-5 budget, no human in the loop), not
+      the task shape itself.
+  2.5 Positioning (\label{sec:positioning}) -- Synthesis / Gap / Delta shape per the skill;
+      Delta ties directly to C1/C2/C3. No voice-UAV literature discussed (Table 3 reserves that
+      for Ingenieur Ch 2).
+
+No numbers are hand-typed anywhere in this chapter -- it is entirely conceptual/positioning prose,
+so there was nothing to trace to a CSV and no \TODO{} was needed.
+`python tools/check_tex.py thesis/master/ch2_related_work.tex` run: 5 problems reported, all
+expected cross-file false positives (refs to chap:method / chap:results, not yet written; cites
+to llamacpp/massive/sbc2025, bibliography is the sibling file) -- conclusive only once main.tex
+exists. No in-file dangling refs, no table/ASCII issues.
+
+Stopped here: Master Ch 2 done in full. Not started: Master Ch 3 (Sun 20 AUTHOR slot per the
+five-day plan above), Ingenieur Ch 2 (B7, also owed a State-of-the-Art draft but for the DISTINCT
+voice-UAV literature -- do not reuse any of the above prose there, per write-once).
+
 ## Next session starts with
 1. **Kaggle.** `python train/make_kaggle_bundle.py` -> upload train/pfe_kaggle_data.zip as a
    Dataset named `pfe-swarm-data`; upload train/kaggle_finetune.ipynb; GPU T4, Internet ON;
