@@ -15,7 +15,8 @@ something with the tokens it produces. Their outcome metric is throughput -- tok
 latency, memory footprint -- measured independently of any downstream task, so a configuration that
 clears a throughput floor and one that clears it while degenerating into ungrammatical or
 semantically wrong output are indistinguishable in their tables. This thesis narrows the scope to
-one task, one device, and three candidate models, and in exchange measures what the survey
+one task, one device, and three candidate models (Qwen2.5-0.5B~\cite{qwen25},
+SmolLM2-360M~\cite{smollm2}, and Llama-3.2-1B~\cite{llama32}), and in exchange measures what the survey
 literature does not: exact match, intent and slot F1, and schema validity, reported at the same
 quantisation levels and against the same throughput floor. The accuracy cost of meeting a
 throughput budget on a single-board computer is treated here as a number to be measured, not an
@@ -24,7 +25,7 @@ assumption carried over from a benchmark that stops counting at tokens per secon
 The runtime that makes this measurement possible on the target hardware is llama.cpp, a C\,++
 inference engine for quantised language models with no dependency on a GPU driver or a Python
 runtime~\cite{llamacpp}. Its GGUF weight format and its k-quant schemes are what let a
-0.5\,B-parameter model fit and run inside the memory and thread budget of a Raspberry~Pi~5 at all;
+0.5~B-parameter model fit and run inside the memory and thread budget of a Raspberry~Pi~5 at all;
 Section~\ref{sec:quantisation} takes up what those schemes cost in accuracy.
 
 \section{Quantisation}
