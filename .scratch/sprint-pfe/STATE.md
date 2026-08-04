@@ -66,14 +66,17 @@ Gate 2 leakage       : GREEN (check_leakage.py --strict -> exit 0, Sep 14; famil
                        eval-independence, wake-corpus and noise-partition isolation all clean)
 Gate 3 parity        : PENDING. HF side dumps on Kaggle (notebook cell); llama.cpp side
                        local. llama.cpp NOW BUILT on the workstation -- see below.
-Gate 4 fsm           : PENDING (Session 08). swarm/ controller, both backends and Exp-4
-                       are DONE; what remains for Gate 4 is Table 9 cell coverage + runtime/bus.py.
+Gate 4 fsm           : PENDING. swarm/ controller, both backends, Exp-4, and now
+                       runtime/bus.py + the full pipeline wiring are DONE (see below);
+                       what remains for Gate 4 is Table 9 cell-coverage proof (A3, not run
+                       this session -- rule 10, one task).
 Gate 5 dataset frozen: GREEN (tag dataset-v1.0, Sep 18). 200/200 masters + 200 resampled;
                        annot_pass1.jsonl sealed 23:41 under SHA-256 f1a1fe6c, verified intact.
 D1 Environment Gate  : GREEN
 FR-1 grammar         : GREEN (5,191 labels, 0 rejected)
 
-Test suite: 614 passed, 3 skipped (was 451 at the end of Session 03).
+Test suite: 650 passed, 0 skipped (was 614 passed, 3 skipped before this session's
+runtime/ work; the 3 previously-skipped are not these -- see below).
 
 ## What Session 03 delivered
 data/record_session.py   : capture tool. 48 kHz S16_LE mono, device found by NAME, per-take
@@ -294,6 +297,59 @@ exists. No in-file dangling refs, no table/ASCII issues.
 Stopped here: Master Ch 2 done in full. Not started: Master Ch 3 (Sun 20 AUTHOR slot per the
 five-day plan above), Ingenieur Ch 2 (B7, also owed a State-of-the-Art draft but for the DISTINCT
 voice-UAV literature -- do not reuse any of the above prose there, per write-once).
+
+## Writing progress -- Master Ch 3 (Sun 20 Sep, Block B session, B2)
+thesis/master/ch3_method.tex is now fully drafted, all five sections, no NOTE markers left:
+  3.1 Command schema and grammar design (\label{sec:schema}) -- the ten intents, the JSON wire
+      format with the 40->18 token latency argument, the full cmd.gbnf grammar, and the num rule's
+      digit-count-vs-range distinction (sets up sec:definitions-of-record's one-decimal rounding).
+      Validator/FSM layers handed to the Mémoire d'Ingénieur in one paragraph, per Table 3.
+  3.2 Label-first dataset construction (\label{sec:dataset}) -- Table~\ref{tab:dataset} (all 8
+      Table 13 rows). test_golden corrected to 200 files/200 transcripts (NOT the prd.md 9.2
+      three-session 320-file design) to match the actual Sat 19 triage cut (sessions s2/s3 dropped);
+      the cut and its consequence are handed to the Ingénieur's Ch6 Limitations, not re-argued here.
+      Annotation pass 2's disagreement count is \TODO{} -- not yet in STATE.md as of this session.
+      Wake corpus (wake_pos/wake_neg) and commonvoice construction included here per Table 3
+      ("dataset construction" ownership is Master's in full; Ingénieur Ch4 gets one naming paragraph).
+  3.3 The LoRA recipe (\label{sec:lora}) -- Table~\ref{tab:lora}, full Table 14 recipe. **The
+      fp16-for-bf16 deviation is declared here, once, and explicitly says it is not repeated in
+      Ch4**: Table 14 specifies bf16, Kaggle's T4 is sm_7.5 (Turing, no hardware bf16 -- that needs
+      Ampere sm_8.0+), so all three models trained in fp16 identically, which is why the RQ1 ranking
+      is not confounded by precision. Verified against train/make_kaggle_notebook.py's own header
+      comment and the fp16=True training call before writing this -- not asserted from memory.
+  3.4 Quantisation procedure (\label{sec:quantisation-procedure}) -- merge/GGUF conversion on
+      Kaggle (needs torch+peft, kept off the workstation by the environment gate), llama-quantize
+      locally (pure C++). Surface A (fp16, reference) vs Surface B (quantised, what ships) kept
+      strictly apart. Chat-template parity gate (test_template_parity.py) described as a mandatory
+      per-conversion gate; deliberately does NOT assert Gate 3's current pass/fail status, since
+      STATE.md still shows it PENDING as of Sep 19 even though Surface-B results already exist --
+      contradiction not resolved here, left to whoever next touches Gate 3.
+  3.5 Evaluation protocol and the definitions of record (\label{sec:definitions-of-record},
+      prd.md S6) -- greedy/deterministic decoding, accuracy-on-workstation vs latency-on-Pi split,
+      n_accuracy vs n_latency distinction, the canon() comparator, the EM-minus-CRR-is-a-result
+      argument, and Table~\ref{tab:metrics} (full Table 10). Noted explicitly which rows this
+      document's own Ch4 draws on (EM, F1 x2, schema validity, safe-failure, false-command,
+      throughput) vs which the Ingénieur reports (latency, FA, convergence) -- this section has no
+      Table 3 ownership row of its own, but the task and prd.md S6 both point here, so it is treated
+      as the one place both documents' metric definitions are derived, with the Ingénieur expected
+      to cite rather than re-derive.
+
+No fabricated bibitems: all cites (qwen25, smollm2, llama32, lora, llamacpp, piper, oww,
+commonvoice, esc50, dregon) verified present in thesis/bibliography.tex before use. No
+"Table 3"/"write-once" project-process language leaked into the prose (caught and fixed twice
+during drafting -- once in the dataset table caption, once in the golden-set paragraph). One
+speculative claim (that fp16 training showed no divergence/needed no loss-scaling) was drafted,
+found unverifiable against train/ and STATE.md, and removed rather than kept as a plausible-sounding
+detail.
+
+`python tools/check_tex.py thesis/master/ch3_method.tex`: 0 in-file problems on every pass; the
+final pass reports 14 problems, all confirmed cross-file (ch2's sec:constrained-decoding, ch4's
+chap:results -- not yet written, bibliography.tex's 10 cited keys).
+
+Stopped here: Master Ch 3 done in full, one \TODO{} outstanding (annotation pass 2 disagreement
+count -- run `python data/annotate.py --pass 2` then `--compare` when ready, then fill the TODO).
+Not started: Master Ch 4 (Mon 21 AUTHOR slot per the five-day plan), Ingenieur Ch 2 (B7, still
+owed, distinct voice-UAV literature only).
 
 ## Next session starts with
 1. **Kaggle.** `python train/make_kaggle_bundle.py` -> upload train/pfe_kaggle_data.zip as a
