@@ -75,8 +75,10 @@ Gate 5 dataset frozen: GREEN (tag dataset-v1.0, Sep 18). 200/200 masters + 200 r
 D1 Environment Gate  : GREEN
 FR-1 grammar         : GREEN (5,191 labels, 0 rejected)
 
-Test suite: 650 passed, 0 skipped (was 614 passed, 3 skipped before this session's
-runtime/ work; the 3 previously-skipped are not these -- see below).
+Test suite: 650 passed, 0 skipped, `python -m pytest -q` (was 614 passed, 3 skipped as of
+the last STATE.md entry recording it; not investigated further here whether the +36 is
+exactly this session's new runtime/ tests plus 3 previously-skipped now passing, or
+includes other sessions' concurrent commits -- see below for this session's own additions).
 
 ## What Session 03 delivered
 data/record_session.py   : capture tool. 48 kHz S16_LE mono, device found by NAME, per-take
@@ -350,6 +352,106 @@ Stopped here: Master Ch 3 done in full, one \TODO{} outstanding (annotation pass
 count -- run `python data/annotate.py --pass 2` then `--compare` when ready, then fill the TODO).
 Not started: Master Ch 4 (Mon 21 AUTHOR slot per the five-day plan), Ingenieur Ch 2 (B7, still
 owed, distinct voice-UAV literature only).
+
+## runtime/bus.py and the pipeline wiring (Sun 20 Sep, Block A session, A2)
+
+Task: build runtime/bus.py and wire wake -> ASR -> LLM -> validator -> FSM so Exp-2 and
+Exp-3 can run. `runtime/` held only `__init__.py` before this session.
+
+Five new modules, each wiring an existing or newly-built stage rather than reimplementing
+one -- schema/validate.py and swarm/fsm.py are untouched:
+
+  runtime/bus.py      : Table 4's Command Bus. Real UDP/JSON, one CommandBus instance per
+                        process holds ONE monotonic sequence counter shared by both branches
+                        (`publish`), plus `next_seq()` to *reserve* a slot ahead of a slow
+                        Branch B decode -- see the correctness note below, this is the one
+                        design point that took a wrong first pass to get right.
+  runtime/branch_a.py : Table 5 / contribution C4's membership rule, encoded as
+                        KEYWORD_TO_INTENT = {"swarm_hold": "hover", "swarm_abort": "abort"}
+                        and asserted at import time to be exactly these two -- no third
+                        intent can be added without editing and re-justifying this file.
+                        No trained openWakeWord model exists yet (data/wake_corpus.py built
+                        the 3,000+5,040-clip corpus, not the classifier) -- BranchA depends
+                        on a WakeDetector Protocol instead, tested against a fake. Training
+                        that model is separate work, NOT done this session (rule 10).
+  runtime/stt.py      : one function, transcribe_utterance(), wrapping data/asr.py's
+                        existing single-file transcribe() -- no whisper.cpp invocation is
+                        re-derived here, per that module's own docstring on why not to.
+  runtime/parser.py   : CommandParser + LlamaServerProcess. Same request shape as
+                        eval/surface_b.py (Gate-3-proven): /apply-template -> /tokenize
+                        (add_special=false) -> /completion under schema/cmd.gbnf, against a
+                        persistent llama-server per PRD Sec. 4's "schema out of the prompt,
+                        static prefix KV-cached" decision. abort() closes the in-flight
+                        request's socket from another thread (Sec. 4.3's "optimisation,
+                        desirable" half) -- Spike S7's in-process-callback-with-
+                        signalable-worker-process architecture, applied to the server
+                        process llama-server already is.
+  runtime/pipeline.py : Dispatcher (owns Sec. 4.3's correctness rule + the FSM) and
+                        PipelineRuntime (the two publish paths). Table 4 assigns the
+                        bus-staleness discard to "the state machine", not the bus, so it
+                        lives in Dispatcher rather than inside swarm/fsm.py or runtime/bus.py.
+
+**The one real bug this session found, in itself, before it shipped.** First pass assigned
+a Branch B message's sequence number in `publish()`, i.e. at *decode completion*. That is
+wrong: Sec. 4.3 needs a slow, in-flight decode that finishes *after* a later Branch A
+trigger to still compare as *older*, and a sequence number assigned at completion time
+would instead make it compare as *newer*, silently defeating the rule it exists to
+implement -- a stale move could have overwritten an abort. Fixed by adding
+`CommandBus.next_seq()`, reserved by `PipelineRuntime.on_utterance` before transcription
+even starts, carried through to `publish(..., seq=reserved)` regardless of how long the
+decode takes. `runtime/test_pipeline.py::test_stale_branch_b_message_is_discarded_after_a_later_branch_a_trigger`
+is the regression test -- it fails without the fix (verified) and is the closest thing
+this repo has to a proof of Sec. 4.3's mandatory correctness clause.
+
+A second, smaller bug: `Dispatcher.drain()`'s zero-timeout read for a queued burst raised
+`BlockingIOError` (Errno 11) instead of returning None on a tight race against the kernel's
+UDP receive queue -- caught in `CommandBus.recv()` now, and `drain()` uses a 50 ms grace
+period after the first message instead of a hard 0.0.
+
+Every module above is exercised against the REAL binding it wraps, not only against fakes:
+`runtime/test_parser.py::test_real_llama_server_produces_a_grammar_valid_command` runs the
+real `llama-server` against `gguf/smollm2-360m-instruct-Q4_K_M.gguf`;
+`runtime/test_stt.py::test_transcribe_utterance_runs_the_real_binary` runs the real
+`whisper-cli` against `data/audio/s1_16k/0001.wav`; `runtime/test_end_to_end.py` chains
+both of those plus schema/validate.py, the real UDP bus, and swarm/fsm.py in one pass,
+Branch A only (no trained model). All three are marked `slow` (subprocess/model-load cost)
+and skip cleanly, not fail, on a checkout without the binaries/GGUFs -- they ran and passed
+here. `abort()`'s causal effect (a 2 s fake decode cut to well under 1.5 s) is tested
+separately against a fake HTTP server so that assertion does not depend on how fast a real
+model happens to decode on this machine.
+
+```
+$ python -m pytest runtime/ -v
+...
+======================= 33 tests: 30 passed + 3 slow marker-deselected on the -m "not slow" run =====
+$ python -m pytest runtime/ -v -m slow
+runtime/test_end_to_end.py::test_golden_clip_reaches_the_fsm_through_the_real_chain PASSED
+runtime/test_parser.py::test_real_llama_server_produces_a_grammar_valid_command PASSED
+runtime/test_stt.py::test_transcribe_utterance_runs_the_real_binary PASSED
+======================= 3 passed, 30 deselected in 3.37s =======================
+$ python -m pytest -q          # whole repo, both env vars unset, pfe_swarm active
+650 passed in 59.21s
+```
+
+`pytest.ini` testpaths gained `runtime` (was missing it entirely -- the directory had no
+tests to collect before this session).
+
+**Named, not started (rule 10 -- one task):** `runtime/audio.py` (capture) and
+`runtime/vad.py` (endpointing) are Table 4 rows this task's own scope did not include --
+the task was named as wake -> ASR -> LLM -> validator -> FSM, which is exactly what got
+built; Branch B's entry point is therefore an already-segmented utterance (a WAV path), not
+a live audio stream. Training the Branch A keyword-spotter model (openWakeWord, on the
+already-built corpus) is also not done. Table 9 cell-coverage proof for Gate 4 (A3) was not
+touched, though `swarm/fsm.py` was read closely while wiring `Dispatcher` and looked
+consistent with Table 9 on inspection -- that is not the coverage proof A3 asks for.
+
+Stopped here: runtime/bus.py and the wake->ASR->LLM->validator->FSM wiring are done and
+tested against real llama.cpp/whisper.cpp bindings on this workstation. Exp-2 and Exp-3 are
+unblocked on the runtime side; Exp-1's Pi triage is a separate, hardware-side blocker this
+session did not touch. Next: either A3 (Table 9 coverage, closes Gate 4) or A6/A7 (Exp-2 /
+Exp-3 themselves, both now runnable against this pipeline) -- and, out of session scope
+entirely, training the Branch A keyword-spotter model, without which Branch A's real
+detector never runs, only its wiring.
 
 ## Next session starts with
 1. **Kaggle.** `python train/make_kaggle_bundle.py` -> upload train/pfe_kaggle_data.zip as a
