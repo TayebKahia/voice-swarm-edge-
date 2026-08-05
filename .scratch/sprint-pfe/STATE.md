@@ -453,6 +453,77 @@ Exp-3 themselves, both now runnable against this pipeline) -- and, out of sessio
 entirely, training the Branch A keyword-spotter model, without which Branch A's real
 detector never runs, only its wiring.
 
+## Writing progress -- Ingenieur Ch 1 (Sun 20 Sep, Block B session)
+thesis/ingenieur/ch1_introduction.tex is now fully drafted, all six sections, no NOTE markers left:
+  1.1 Operational context -- one operator, five aircraft, outdoor site, no infrastructure. Offline
+      argued as THREE independently sufficient reasons (availability / an uncontrolled latency tail
+      inside a p95 budget / a stop channel that must survive what else fails), because one reason
+      reads as a preference. States the simulation boundary at the outset -- aircraft simulated,
+      audio path not -- rather than leaving it for Ch 6 to concede. Master's edge-inference
+      exposition NOT repeated: one fresh sentence handing model selection to the Master (Table 3).
+  1.2 Engineering requirements (\label{sec:engineering-requirements}) -- Tables 1.1/1.2 carry 17 of
+      the project's 33 requirement rows. **Selection rule is traceability, not judgement: this
+      document answers RQ2+RQ3, so it carries the union of those two rows of prd.md Table 31**, and
+      says so in the prose. NFR-11 is the one Table 31 row deliberately dropped (listed under RQ3
+      there, but its exposition is Exp-0 in the Master's Ch 4) -- cross-referenced, not tabulated.
+      The argued point is the NFR-1/NFR-2 ratio (150 ms vs 2,500 ms) forcing the dual path.
+      A first draft justified that with "the transcription stage alone exceeds 150 ms" -- plausible,
+      but NOT measured anywhere in this repo, so it was cut per rule 6 and replaced with the
+      anchor-point argument (NFR-1 runs from keyword offset, NFR-2 from end-of-speech; the reflex
+      must answer mid-utterance), which needs no measurement and is the stronger claim.
+      NFR-15/16 given a paragraph committing this document to always quoting them as one operating
+      point on one ROC.
+  1.3 The safety problem (\label{sec:safety-problem}) -- the chapter's argumentative centre, built
+      as one chain: errors are asymmetric -> accuracy is silent about direction -> three layers,
+      one exit (every rejection resolves to a hold) -> layers cannot fix a LATE stop -> so the stop
+      gets its own path -> which is only safe under a closed membership rule (C4, cost-of-a-false-
+      accept argument: a path skipping validation may carry only commands that remove energy from
+      the system) -> and correct commands still need a bound at the integrator.
+      **NFR-12 phrasing fixed here at first mention and used 3x in the chapter** (Table 1.2 target
+      cell + twice in 1.3). "guaranteed" appears twice, both inside an explicit denial of the
+      stronger claim. 1.3 also argues why the weaker sentence is MORE informative (it names the
+      mechanism the result rests on), so Ch 5 inherits a claim it does not have to apologise for.
+      Forward-promises the STRUCTURE of the Exp-4 report -- collision count reported beside
+      clamp-intervention count -- without quoting either figure.
+  1.4 Objectives (\label{sec:objectives}) -- RQ2 and RQ3 verbatim from prd.md:114-115 in quote
+      blocks; VAD/STT/SLM defined in the lead-in so the quotes stay unedited. Commentary picks out
+      the clause a reader skips in each: RQ2's per-stage distribution (why NFR-3 exists) and RQ3's
+      "safely rather than wrongly". Names the Exp-3/Exp-4 separation as confound avoidance.
+  1.5 Contributions (\label{sec:contributions}) -- C4 only, verbatim from prd.md:124. Second
+      paragraph draws the claim boundary explicitly: pipeline, bus, FSM, controller, both backends
+      and the demo are the document's substance but are NOT claimed as novel. A one-bullet section
+      invites "is that all?", so the boundary is defended in the text rather than padded.
+  1.6 Structure (\label{sec:structure}) -- five-chapter map, closing on the document's thesis rather
+      than on logistics (the failure mode flagged against Master Ch 1 above).
+
+**No measured number and no \TODO{} anywhere in this chapter.** 1.2 promises in its own prose that
+results arrive in Ch 5, so the Exp-4 figures already in STATE.md (150 trials / 0 collisions / 432
+clamp interventions) were deliberately not used, and 1.3 was written to forward-promise their
+structure instead. Whoever writes Ingenieur Ch 5 should quote NFR-12 in 1.3's exact words.
+
+Write-once held against Master Ch 1, which was re-read before drafting: the Master owns the
+structured-output argument (controller reads JSON, spike S3's mis-addressed collective command), so
+1.3 gives Layer 1 one sentence with ownership named and argues error DIRECTION and stop-path
+LATENCY instead. The sentence handing C1-C3 back to the Master is freshly worded, as is 1.6's
+closing thesis statement.
+
+Label convention for this document fixed in a header comment so Ch 2-6 resolve against it:
+chap:introduction / chap:state-of-the-art / chap:architecture / chap:implementation /
+chap:validation / chap:demonstration. **ch2_state_of_the_art.tex still has no \label on its
+\chapter -- whoever drafts B7 should add \label{chap:state-of-the-art}**; not touched here (one
+task per session).
+
+`python tools/check_tex.py thesis/ingenieur/ch1_introduction.tex`: 10 problems, all confirmed
+cross-file false positives (5 refs to chapters not yet written; 5 cites -- lim2025, llamacpp,
+pyflyt, reynolds1987, whisper -- all verified present in thesis/bibliography.tex before use). No
+in-file dangling refs, no cell-count or column-width findings on either tabularx, ASCII clean.
+Both tables need tabularx + booktabs in a preamble that does not exist yet; Master Ch 3 carries
+the same outstanding dependency, and neither thesis has a main.tex.
+
+Stopped here: Ingenieur Ch 1 done in full, nothing waiting on a measurement. Not started:
+Ingenieur Ch 2 (B7, still owed, distinct voice-UAV literature only -- do not reuse Master Ch 2
+prose), Master Ch 4-6 (Mon 21 AUTHOR slot), Ingenieur Ch 3-6 (Tue 22 AUTHOR slot).
+
 ## Next session starts with
 1. **Kaggle.** `python train/make_kaggle_bundle.py` -> upload train/pfe_kaggle_data.zip as a
    Dataset named `pfe-swarm-data`; upload train/kaggle_finetune.ipynb; GPU T4, Internet ON;
