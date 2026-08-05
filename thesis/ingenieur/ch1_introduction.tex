@@ -1,30 +1,353 @@
-% Introduction
-% Scaffold only --- section structure from prd.md 3.1, ownership from Table 3.
-% The NOTE comments say what belongs in each section and where the material already is.
-% Delete each NOTE as you fill the section. Prose is yours to write.
+% Introduction --- section structure from prd.md 3.1, ownership from Table 3.
+%
+% Label convention for this document, fixed here so later chapters match:
+%   chap:introduction  chap:state-of-the-art  chap:architecture
+%   chap:implementation  chap:validation  chap:demonstration
 
 \chapter{Introduction}
+\label{chap:introduction}
 
 \section{Operational context}
-% NOTE: An operator commanding five drones by voice, outdoors, with no network. Why offline is a
-%       requirement and not a preference.
+\label{sec:operational-context}
+The system described in this document places one operator in front of five aircraft and gives
+that operator a single control surface: speech. The formation is addressed as a unit --- an
+utterance such as ``form a circle with radius five metres'' commands five vehicles at once, where
+a manual interface would require either five sets of stick inputs or a ground-control station the
+operator has to look down at. The unit of command is therefore the formation rather than the
+vehicle, and the operator's attention stays on the airspace instead of on a screen. That is the
+first constraint the system inherits, and it is an interface constraint before it is a modelling
+one.
+
+The second constraint comes from where the operator stands. The deployment setting is an outdoor
+site chosen for the flight rather than for its connectivity: no operator-controlled access point,
+no assurance of cellular coverage, and no prepared infrastructure of any kind. A pipeline stage
+that reaches the network is consequently a stage whose availability is a property of the site and
+not of the system, and no requirement can be placed on it that the site is able to violate.
+
+Offline operation is therefore a requirement and not a preference, for three reasons of which any
+one alone would be sufficient. Availability is the first, as above. Latency is the second: a
+remote call inserts a tail the system does not control into a loop that must hold a p95 budget,
+and a budget is defensible only when the worst case of every stage in it is locally bounded
+(Section~\ref{sec:engineering-requirements}). The safety path is the third and the most binding.
+The two spoken phrases that stop the swarm have to remain available precisely when other parts of
+the deployment have failed, and a command channel that can be partitioned away from the aircraft
+is not a fail-safe in any useful sense. Section~\ref{sec:engineering-requirements} states this as
+NFR-14, verified by an end-to-end run with networking disabled.
+
+What that decision puts on the device is the entire chain. The keyword spotter, the voice-activity
+detector, the speech-recognition model, the language model, the validator and the swarm controller
+all execute on one Raspberry Pi~5 with 8~GB of memory, sharing four Cortex-A76 cores with each
+other and with the operating system. The consequence of that for model selection --- which small language
+models can meet a throughput floor on this device at all, and at what accuracy --- is the subject
+of the \emph{M\'emoire de Master}, which owns that comparison; the present document takes the
+configuration that comparison selects as given and is concerned with the runtime built around it.
+
+One boundary of the operational context must be stated at the outset, because every claim in this
+document is scoped by it: the aircraft are simulated. The controller drives a networked
+software-in-the-loop simulation of $N = 5$ vehicles at 50~Hz, through a single environment
+interface with two interchangeable backends~\cite{pyflyt}. The audio path is not simulated --- the
+evaluation corpus is recorded through the deployed microphone in a real room, and the
+demonstration runs from a live microphone --- but the flight is. Results reported here therefore
+characterise the command pipeline and the controller, not airframe behaviour in wind, and
+Chapter~\ref{chap:demonstration} returns to this as a limitation rather than leaving it implicit.
 
 \section{Engineering requirements}
-% NOTE: FR-1..FR-12 and the NFR table from prd.md 2.10. Present as requirements, not as results --
-%       the numbers arrive in Ch. 5.
+\label{sec:engineering-requirements}
+Every requirement in this project is written with its verification method attached, on the
+principle that a requirement naming no way to check it is a statement of intent rather than a
+requirement. Twelve functional requirements and twenty-one non-functional rows govern the project
+as a whole, and they are shared between this document and the \emph{M\'emoire de Master}. The
+subset stated here is not a matter of editorial judgement: this document answers RQ2 and RQ3
+(Section~\ref{sec:objectives}), so it carries the requirements those two questions resolve to, and
+the remainder are stated, verified and discussed by the document that owns RQ1. Every target below
+is a commitment made before measurement; the measured values appear in
+Chapter~\ref{chap:validation}, and no requirement is quoted here with a result attached to it.
+
+\begin{table}[htbp]
+\centering
+\caption{Functional requirements driving this document. Each row names a capability the system
+must provide and the artefact that demonstrates it. The remaining six functional requirements
+concern the schema, the dataset, the fine-tuning and the export pipeline, and belong to the
+\emph{M\'emoire de Master}.}
+\label{tab:functional-requirements}
+\begin{tabularx}{\textwidth}{@{}l X X@{}}
+\toprule
+ID & Requirement & Verification \\
+\midrule
+FR-5 & Speech recognition runs offline on-device via \texttt{whisper.cpp tiny.en}~\cite{whisper,llamacpp}, with no network access at any point in the pipeline & End-to-end run with networking disabled \\
+FR-6 & Branch~A provides two fail-safe keyword classes, \texttt{swarm hold} $\rightarrow$ \texttt{hover} and \texttt{swarm abort} $\rightarrow$ \texttt{abort}, either of which preempts an in-flight Branch~B inference. No movement verb may be added to Branch~A & Exp-2 preemption trials; a $2 \times 2$ cross-trigger matrix \\
+FR-7 & The swarm controller implements vectorised flocking~\cite{reynolds1987}, formation slot assignment, artificial-potential-field (APF) separation with a hard geometric clamp at the integrator, and PID point navigation, for $N = 5$ at 50~Hz & Exp-4 \\
+FR-8 & Two interchangeable simulation backends sit behind one environment interface: PyFlyt/PyBullet~\cite{pyflyt} and a kinematic simulator & Both pass a hover smoke test \\
+FR-9 & The full pipeline runs end to end from the live microphone for the demonstration & Demonstration video, networking disabled on camera \\
+FR-11 & The flight state machine is implemented as the third validation layer, including the explicit non-vocal recovery path out of \texttt{ABORTED} & Automated coverage of every state $\times$ command cell \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Table~\ref{tab:functional-requirements} divides into three commitments. FR-5 and FR-9 fix the
+deployment: every model executes locally, and the demonstration is performed from a live
+microphone with networking disabled on camera, so that offline operation is exercised rather than
+asserted. FR-7 and FR-8 fix the controller and the simulation interface it drives. FR-6 and FR-11
+fix the two structural safety mechanisms this document owns --- a reflex path with a closed
+membership rule, and a state machine that is the last stage between a validated command and the
+vehicle. FR-6 is worth reading twice, because its final clause states what may \emph{not} be
+built: no movement verb is admissible on the reflex path. A requirement phrased as a prohibition
+is unusual, and it is deliberate; Section~\ref{sec:safety-problem} gives the argument behind it,
+and Chapter~\ref{chap:architecture} derives the membership rule that makes it checkable rather
+than a matter of restraint.
+
+\begin{table}[htbp]
+\centering
+\caption{Non-functional requirements driving this document, each stated as a number a script can
+check and attributed to the experiment that produces it. Percentiles are nearest-rank on the
+sorted sample. CRR denotes the command recognition rate on the golden set; SNR denotes
+signal-to-noise ratio. NFR-15 and NFR-16 are one operating point on one curve and are quoted
+together throughout.}
+\label{tab:nonfunctional-requirements}
+\begin{tabularx}{\textwidth}{@{}l X X l@{}}
+\toprule
+ID & Requirement & Target & Source \\
+\midrule
+NFR-1 & Reflex latency on Branch~A, from keyword offset, measured both idle and under active Branch~B inference & p95 $\leq$ 150~ms & Exp-2 \\
+NFR-2 & Branch~B latency, from end-of-speech & p95 $\leq$ 2{,}500~ms & Exp-2 \\
+NFR-3 & Per-stage latency instrumented and reported against the budget & Every stage, p50/p95/p99 & Exp-2 \\
+NFR-17 & Preemption recovery: from a Branch~A trigger until Branch~B can accept a new utterance & p95 $\leq$ 300~ms & Exp-2 \\
+NFR-15 & Keyword false accepts, aggregated over both Branch~A classes, on ambient-speech negatives & $\leq$ 1 per hour & Exp-2 \\
+NFR-16 & Keyword false rejects per class at the selected operating point & $\leq$ 0.10 & Exp-2 \\
+NFR-7 & CRR on the golden set, clean audio & $\geq$ 0.80 & Exp-3 \\
+NFR-8 & CRR at 10~dB SNR under propeller-type noise & $\geq$ 0.65 & Exp-3 \\
+NFR-12 & Inter-drone collisions & Zero observed across all trials, with a hard geometric separation clamp at the integrator & Exp-4 \\
+NFR-13 & Formation accuracy: fraction of drones within $\tau = 0.5$~m of the assigned slot over the final 5~s of a 60~s trial & $\geq$ 0.85 & Exp-4 \\
+NFR-14 & Offline operation & 100\%, no network dependency & FR-5 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Table~\ref{tab:nonfunctional-requirements} contains one ratio that determines the architecture
+before any component is chosen. The reflex budget and the parse budget are not one budget with two
+tolerances: NFR-1 allows 150~ms and NFR-2 allows 2{,}500~ms, a separation of more than sixteenfold,
+and no single path can satisfy both. The two are not even anchored at the same instant: NFR-1 is
+measured from the keyword offset, part-way through the utterance, while NFR-2 starts at
+end-of-speech. The reflex has to answer while the operator is still speaking, and the parse path
+cannot begin until the operator has stopped --- so no amount of tuning brings one path inside both
+budgets. NFR-1 also carries a condition that makes it an architectural
+requirement rather than a benchmark: it must hold \emph{while} Branch~B is decoding, which is a
+statement about scheduling and core allocation on a four-core device, not about the spotter in
+isolation. NFR-17 closes the same loop from the other end by bounding the time before the parse
+path can accept a new utterance, so that a reflex does not leave the system deaf.
+
+The keyword rows must be read as a pair. NFR-15 and NFR-16 are not two independent claims but a
+single operating point selected from one receiver-operating-characteristic (ROC) curve, and a
+detection threshold trades false accepts against false rejects directly: a system quoting only its
+false-accept rate has not stated its operating point at all. Chapter~\ref{chap:validation}
+therefore reports the full per-class curve with the chosen threshold marked, and this document
+quotes the two numbers together wherever either appears.
+
+NFR-12 is stated in the form it will keep for the remainder of this document. The commitment is
+zero collisions \emph{observed} across all trials, backed by a hard geometric separation clamp at
+the integrator --- not zero collisions guaranteed by the potential field. The distinction is
+not modesty but accuracy about what the mechanism provides, and
+Section~\ref{sec:safety-problem} gives the reason in full. NFR-13 pairs with it: separation
+without formation quality would be satisfied by drones that simply keep away from one another.
+
+The requirements not tabulated here fall into two groups. Those belonging to RQ1 --- the command
+schema and grammar, the dataset pipeline, the fine-tuning and export procedure, the canonicaliser,
+and the accuracy, memory, thermal and false-command targets measured against them --- are stated
+and verified in the \emph{M\'emoire de Master}, which owns the model comparison this runtime
+consumes the result of. Two further requirements are project-wide verification hygiene rather than
+architecture: one CSV row per benchmark trial, from which every table and figure in both documents
+derives, and full reproducibility through pinned dependency versions, fixed seeds and a
+single-command rerun. Chapter~\ref{chap:validation} reports against both. One requirement sits
+across the boundary and is worth naming explicitly: the safe-failure rate, which asks what
+proportion of errors resolve to \texttt{unknown} or a hold rather than to a wrong action, is the
+numeric form of the design principle Section~\ref{sec:safety-problem} argues for. It is measured
+in both documents' experiments, and Chapter~\ref{chap:demonstration} returns to what the
+measurement showed.
 
 \section{The safety problem}
-% NOTE: The core argument of this document: a misheard command must not become motion. Introduce the
-%       dual-path idea and forward-reference C4 in Ch. 3.
-% NOTE: NFR-12's framing matters: 'zero collisions OBSERVED, backed by a geometric clamp' -- never
-%       'guaranteed by APF'. Set that up honestly here.
+\label{sec:safety-problem}
+In a system that turns speech into vehicle motion, the two ways of being wrong are not equally
+expensive. A command that fails to be acted on costs the operator a repetition. A command that is
+acted on wrongly moves five aircraft, and it does so with the same authority as a correct one,
+because nothing downstream of the parser can tell the difference. The failure surface is wide
+enough to make this more than a remote concern: the speech-recognition stage can mishear a word,
+the parser can assign the wrong intent to a correctly transcribed sentence, a slot value can be
+recovered with the wrong magnitude or sign, and a command correct in isolation can arrive while
+the swarm is in a state that cannot accept it. The design objective that follows is not the
+minimisation of the error rate, which is the \emph{M\'emoire de Master}'s concern, but control
+over the \emph{direction} of the errors that remain. A misheard command must not become motion.
+
+An accuracy target on its own does not express that objective, because an accuracy figure is
+silent about what the failures do. Two systems scoring identically on exact match can differ
+completely in consequence, one resolving an ambiguous utterance to a hold and the other to a
+heading change, and the score that ranks them equal is measuring the wrong property for a
+flight-control path. The architecture therefore places three layers between a spoken utterance and
+the vehicle: a grammar that constrains the decoder so that structurally invalid output cannot be
+emitted, a semantic validator that enforces the meaning constraints a context-free grammar cannot
+express, and a flight state machine that admits a command only if the swarm's current state can
+accept it. The first layer is specified in the \emph{M\'emoire de Master}, which owns the schema
+and grammar; the second and third belong to this document and are designed in
+Chapter~\ref{chap:architecture}. What makes them a safety mechanism rather than a filter is the
+exit they share: every rejection at every layer resolves to a hold with a log entry, never to a
+substituted or best-guess movement. The vocabulary of failure has one word in it.
+
+Those three layers protect against commands that are wrong. They do nothing about commands that
+are late, and the distinction matters most for the one command that exists to prevent an accident
+already in progress. An operator who sees the formation begin to do something unintended and says
+\emph{swarm hold} is making a request whose value decays with every millisecond it spends in a
+queue. Routed through the ordinary path, that request inherits the ordinary path's cost: it waits
+for the utterance to end, then for transcription, then for a language model to decode a structured
+command, then for three validation layers to admit it --- a budget of 2{,}500~ms at p95
+(Section~\ref{sec:engineering-requirements}), and a budget whose clock does not start until the
+operator has stopped speaking. A stopping command routed through the same path as a movement
+command is a stopping command with a movement command's latency, which is the wrong design for the
+only utterance in the vocabulary whose purpose is to arrest motion.
+
+The response is to give that utterance its own path. A two-class keyword spotter listens
+continuously and reacts to two phrases, \texttt{swarm hold} and \texttt{swarm abort}, without
+transcription and without invoking the language model at all, preempting an in-flight decode if
+one is running. The reflex is bounded at 150~ms at p95 and is required to hold that bound
+\emph{while} the language model is decoding, which is what makes the dual path an argument about
+processor allocation rather than a second copy of the same pipeline. The design is contribution
+C4 (Section~\ref{sec:contributions}), and Chapter~\ref{chap:architecture} derives it in full.
+
+The reflex path introduces a hazard of its own, and the membership rule that governs it is the
+part of this design that most repays explanation. A phrase admitted to Branch~A is a phrase that
+reaches the swarm without passing through any of the three validation layers; speed is bought by
+removing exactly the machinery the previous paragraphs justified. A path that trades validation
+for latency may therefore carry only commands whose incorrect execution is harmless, and in a
+flight vocabulary the commands meeting that condition are precisely those that remove energy from
+the system. A spurious \texttt{swarm hold} costs an unnecessary hover, recoverable by speaking
+again. A movement verb admitted to the same path --- a phrase as ordinary as \emph{swarm
+forward} --- would on a false accept produce unvalidated motion from a stage with no semantic
+check behind it, which is the accident the architecture was built to prevent, arriving by the
+route built to prevent it. The membership rule is consequently derived from the latency argument
+rather than chosen by preference, it admits exactly two classes, and it is closed: no movement
+verb may be added later without invalidating the reason Branch~A is permitted to skip validation.
+
+Command-level correctness is still not the whole of the safety problem, because a stream of
+correct commands can produce an unsafe trajectory. Five aircraft converging on assigned formation
+slots have crossing paths by construction, and separation between them is maintained by an
+artificial potential field, which is a soft mechanism: it shapes the velocity field so that
+vehicles repel one another, but with discrete timesteps and bounded actuation a vehicle can still
+cross a boundary within a single integration step, and potential fields carry well-documented
+failure modes including local minima and oscillation. The architecture therefore adds a hard
+geometric separation clamp at the integrator --- at the point where position is actually updated,
+rather than where motion is requested. The placement mirrors the flight state machine one level
+up: at the command level the last word belongs to a check immediately before the command takes
+effect, and at the trajectory level to a check immediately before the position does. Neither
+mechanism trusts the stage that produced its input.
+
+That placement determines what this document may claim, and the claim is stated once here in the
+form it keeps throughout. The commitment is zero inter-drone collisions \emph{observed} across all
+trials, backed by a hard geometric separation clamp at the integrator. It is not a claim that
+collisions are impossible, and it is not a claim that the potential field guarantees separation.
+The difference between those sentences is the difference between a statement about the trials
+Chapter~\ref{chap:validation} reports and a statement about every state the controller could ever
+reach; the first is what an experiment can establish, and the second would require a proof over
+the reachable set that this work does not attempt. The weaker sentence is also the more
+informative one, because it names the mechanism the result rests on instead of attributing the
+result to a method that cannot supply it. Chapter~\ref{chap:validation} accordingly reports beside
+the collision count the number of occasions on which the clamp had to intervene, that being the
+count of timesteps at which the potential field alone was not sufficient --- and the reason the
+observed figure is evidence of a working mechanism rather than evidence that the mechanism was
+never needed.
+
+The safety problem, stated once and carried through the rest of this document, is therefore
+threefold: a wrong command must be hard to act on, a stopping command must be fast to act on, and
+the execution of any command must be bounded at the point where it takes effect.
+Chapter~\ref{chap:architecture} builds the three mechanisms this requires and
+Chapter~\ref{chap:implementation} realises them; Chapter~\ref{chap:validation} measures whether
+each holds.
 
 \section{Objectives}
-% NOTE: RQ2 and RQ3 verbatim from prd.md:114-115. RQ1 belongs to the Master.
+\label{sec:objectives}
+The project poses three research questions, of which this document pursues two. Both concern the
+system as an operating whole rather than any component within it, and both are stated here in full
+because the chapters that follow are organised to answer them. The pipeline they refer to is the
+chain named in Section~\ref{sec:operational-context}: a keyword spotter, a voice-activity detector
+(VAD), a speech-to-text stage (STT), a grammar-constrained small language model (SLM), the
+validator, and the swarm controller.
+
+\begin{quote}
+\textbf{RQ2 (Pipeline latency).} Can a fully offline pipeline (keyword spotter + VAD + STT +
+grammar-constrained SLM + validator + controller) meet a p95 budget compatible with interactive
+swarm control, and how is that budget distributed across stages?
+\end{quote}
+
+\begin{quote}
+\textbf{RQ3 (Acoustic robustness and control quality).} How do command recognition rate and word
+error rate degrade as SNR falls from clean to 5~dB under propeller-type noise, does the system
+degrade \emph{safely} rather than \emph{wrongly}, and does the controller hold formation to
+specification?
+\end{quote}
+
+The second clause of RQ2 carries as much weight as the first. A pipeline that meets its budget
+without an account of where the time went has demonstrated one configuration on one device and
+established nothing about which stage would break first under a longer utterance, a slower model
+or a warmer processor; per-stage attribution is what turns a passing measurement into a result
+that transfers, and it is why NFR-3 instruments every stage rather than only the endpoints. RQ3 is
+similarly three questions in one sentence, and the middle one is the one this document was built
+around. Degradation under noise is expected and is measured as a curve; what
+Section~\ref{sec:safety-problem} committed the architecture to is the \emph{direction} that curve
+takes as it falls, which is a separate measurement from the rate itself. The third clause is
+deliberately answered by a separate experiment: formation quality is measured on its own rather
+than inside the acoustic trials, because a single experiment varying both the signal-to-noise
+ratio and the controller's workload would confound speech-recognition performance with control
+performance and leave neither interpretable.
+
+The remaining research question, on the accuracy--efficiency trade-off across small language
+models quantised for CPU-only execution, is pursued by the \emph{M\'emoire de Master}. This
+document consumes its answer --- the selected model and quantisation level --- as a fixed input to
+the runtime described here.
 
 \section{Contributions}
-% NOTE: C4 only (prd.md:124). C1-C3 are the Master's.
+\label{sec:contributions}
+One of the project's four claimed contributions belongs to this document.
+
+\begin{itemize}
+    \item \textbf{C4.} A dual-path runtime in which a two-class keyword spotter provides a bounded
+    safety reflex that preempts language-model inference, with the membership rule for that path
+    derived from a latency argument rather than chosen by preference.
+\end{itemize}
+
+The transferable part of C4 is the second clause. A fast path that bypasses validation is a
+familiar pattern, and a system can readily be given one; what is easy to omit is a principled
+answer to which utterances may travel on it, with the result that the path grows by convenience
+until it carries the commands it was never safe to carry. The rule derived in
+Chapter~\ref{chap:architecture} answers that question from the cost of a false accept rather than
+from preference, it yields exactly two classes for this vocabulary, and it states the condition
+under which a third could ever be admitted --- which is what makes it auditable by someone who did
+not write it, and what makes it apply to systems other than this one.
+
+The engineering realised in this document is considerably larger than the contribution it claims.
+A complete offline voice pipeline, a validated command bus, a flight state machine, a swarm
+controller with two interchangeable simulation backends and a live demonstration are the substance
+of the chapters that follow, and none of them is claimed as novel: assembling known components
+into a system that runs within a measured budget on a fixed device is engineering work, and
+reporting it as a research contribution would inflate the claim. The three remaining contributions
+--- the frozen command schema with its matched grammar, the label-first dataset pipeline, and the
+measured accuracy--latency--memory comparison across models and quantisation levels --- are
+claimed by the \emph{M\'emoire de Master}.
 
 \section{Structure of this document}
-% NOTE: One short paragraph, six chapters.
+\label{sec:structure}
+Five chapters follow. Chapter~\ref{chap:state-of-the-art} reviews voice-controlled unmanned
+aerial vehicle systems and positions this work against the natural-language drone-control agent of
+Lim et al.~\cite{lim2025}, which is the project's named baseline.
+Chapter~\ref{chap:architecture} presents the design: the dual-path decomposition, the Branch~A
+membership rule derived rather than asserted, the three validation layers, the stage-by-stage
+latency budget and the allocation of a four-core processor between paths that must not starve one
+another. Chapter~\ref{chap:implementation} describes what was built --- the audio chain, the
+runtime and its command bus, the flight state machine, the swarm controller and both simulation
+backends. Chapter~\ref{chap:validation} reports the three experiments that test the design against
+the requirements of Section~\ref{sec:engineering-requirements}: preemption and latency under load,
+end-to-end accuracy as the signal-to-noise ratio falls, and formation quality, each with its
+statistical analysis. Chapter~\ref{chap:demonstration} presents the live demonstration, states the
+limitations the measurements expose, and closes with the work this system leaves to be done.
 
+Stated as a single engineering problem: a spoken command must reach five aircraft quickly enough
+to be useful and must be stopped by the same voice quickly enough to matter, with every route from
+the microphone to the vehicle bounded by a check placed where the action occurs rather than where
+it is requested. The chapters that follow report how far that was built, how much of it the
+measurements support, and where they fall short of what was committed here.
