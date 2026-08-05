@@ -1,6 +1,6 @@
 # STATE
 Session: 04 (Fri 18 -> Sat 19 Sep) -- COMPRESSED. Depot moved to **Thu 24 Sep**.
-Last updated: 2026-09-19T02:05:00+01:00
+Last updated: 2026-09-20T01:56:00+01:00
 
 ## THE CALENDAR, as of Sat 19 Sep
 Build days left: Sat 19, Sun 20, Mon 21, Tue 22, Wed 23. Depot Thu 24 (buffer morning only).
@@ -141,6 +141,14 @@ Corpora on disk (gitignored, all reproducible):
    NOTE the target is `test-gbnf-validator`, not `llama-gbnf-validator`, at this commit.
    cmake lives in the conda env, NOT on the base PATH -- a background build without
    `export PATH=$CONDA_PREFIX/bin:$PATH` fails with "cmake: command not found".
+4. **No active cooler is fitted on the Pi** (confirmed with the author Sun 20 -- not yet
+   purchased). Spike S1 flagged mounting one as mandatory before Exp-1; it still wasn't
+   done, and tonight's Exp-1 ran, and measured, 100% throttled (see RESULT below).
+   Recommendation: buy it before Sun-night's Exp-2 run if at all possible -- Exp-2's
+   Branch A budget (NFR-1, p95 <=150 ms) is far tighter than Exp-1's decode budget and
+   would be hurt more by the same throttling. A cooled Exp-1 re-run is optional, not
+   required (tonight's uncooled numbers are being kept, not discarded) -- see the
+   projection in the RESULT section for which configs a cooler would most likely help.
 
 ## Session 04 delivered (night of Fri 18 -> Sat 19)
 eval/norm.py     : the fixed SS2.7 normalisation. Imports data/numwords.py (ADR-0004 D6).
@@ -536,3 +544,101 @@ prose), Master Ch 4-6 (Mon 21 AUTHOR slot), Ingenieur Ch 3-6 (Tue 22 AUTHOR slot
 For Exp-3 later: `python data/mix_noise.py --input data/audio/s1_16k --output data/audio/mixed
 --sources dregon --partition eval`  (note: s1_16k, the normalised corpus, not the masters).
 Do NOT re-run Gate 1 or Gate 2.
+
+## Exp-1 RESULT (Sun 20 Sep, Block A session, A1)
+
+Task: 60 timed runs, Q4_K_M only, on the Pi (Sat-19 triage). Raw: `results/exp1.csv`
+(1,647 trial rows: 180 scored + 1,467 warm-up, tagged `<artefact>-warmup` and excluded
+from percentiles by name, not discarded -- every request the Pi answered is still in
+the CSV). New: `eval/exp1.py` (the Pi runner). `eval/bench.py` gained
+`tokens_predicted`/`tokens_evaluated` columns and a `tokens_per_second` aggregate --
+Table 17's tok/s column had nothing to read before this session. `eval/tables.py` now
+actually reads `results/exp1.csv` to fill Table 17's p50/p95/tok-s/Peak-RSS columns and
+Table 19's Decode p95, instead of hard-coding `--`. `python -m pytest -q`: 650 passed
+(unchanged), `python -m pytest eval/ -q`: 122 passed.
+
+Protocol: llama.cpp b10863 (88ada91c, the Gate-3/Surface-B commit) built fresh on the
+Pi -- only llama-cli/llama-quantize/test-gbnf-validator existed there before, not
+llama-server. `taskset -c 1-3 -t 3` per Table 7; governor forced to `performance`
+(the script refuses to run otherwise -- spike S1's own numbers were confounded by an
+`ondemand` governor mid-throttle, and this run does not repeat that mistake); swap
+disabled for the duration, restored after; page cache dropped between configs;
+ten-minute warm-up per config before anything is scored; `cache_prompt=true`
+(deliberately unlike Surface-B's accuracy sweep, which disables the cache for
+single-slot determinism -- Table 6's "cached prefix" prefill budget is a claim about
+the deployed runtime, which does cache the prefix across requests).
+
+**No active cooler is fitted on the Pi (confirmed with the author -- not yet
+purchased).** All 180 scored trials, across all three configs, ran under active
+thermal throttling: `throttled_now` = 1 on every single trial, core clock capped at
+1.5 GHz (down from the pinned 2.4 GHz "performance" target), steady-state temperature
+90.6-91.1C. This is not a harness bug -- it is exactly what spike S1 flagged and
+recommended fixing ("Mount the Raspberry Pi Active Cooler... prior to Exp-1"), and
+what still hadn't been done before tonight's run. **NFR-10 (throttled trials <=5%) is
+missed by the widest possible margin: 100% vs a 5% budget.** Reported as measured, not
+reconciled.
+
+| Config (Q4_K_M) | n | Prefill p50/p95 (ms) | Decode p50/p95 (ms) | tok/s | Peak RSS | Decode budget (<=1,100 ms p95) | NFR-9a (<=2.5 GB) |
+| :--- | ---: | :--- | :--- | ---: | :--- | :--- | :--- |
+| llama-3.2-1b-instruct | 60 | 430.8/787.4 | 1504.6/2458.9 | 10.75 | 1.63 GB | **MISS** (+123%) | MEETS |
+| qwen2.5-0.5b-instruct | 60 | 74.7/614.2 | 922.5/1518.9 | 18.13 | 0.68 GB | **MISS** (+38%) | MEETS |
+| smollm2-360m-instruct | 60 | 51.6/516.7 | 701.1/1338.9 | 24.11 | 0.55 GB | **MISS** (+22%) | MEETS |
+
+**NFR-9a (peak RSS <=2.5 GB) is MET by every configuration, comfortably** --
+consistent with Table 8's worst-case estimate, and now a real measurement rather
+than the Table 8 arithmetic bound. This closes NFR-9a for the model selection rule.
+
+**The decode budget (Table 6, <=1,100 ms p95) is MISSED by all three Q4_K_M
+configurations under present (uncooled) conditions**, including qwen2.5-0.5b, which
+spike S1 had projected as the one configuration meeting it (by a 51 ms margin -- and
+that margin was itself measured under an already-throttled 1.5 GHz clock per S1's own
+report, so the two measurements are on comparable footing, not apples-to-oranges).
+Per prd.md SS10.2 this is reported as a genuine miss, not reconciled: **if Exp-2's
+NFR-2 (E2E p95 <=2,500 ms) is measured under the same uncooled conditions, it is very
+unlikely to be met by llama-3.2-1b** -- its decode p95 alone (2,458.9 ms) consumes
+essentially the entire E2E budget before VAD, STT, prefill, validate or dispatch are
+even added.
+
+**Llama-3.2-1B's elimination, previously extrapolated from spike S1, is now CONFIRMED
+by direct measurement.** S1 scaled qwen's throttled 20.97 tok/s baseline by parameter
+count to project ~10.7 tok/s for llama-3.2-1b Q4_K_M; tonight's real measurement is
+10.75 tok/s -- within 0.5% of the extrapolation. It is also the worst of the three
+configs against the decode budget by a wide margin (+123% vs +22-38% for the other
+two).
+
+**The Q8_0 elimination remains UNMEASURED, still an extrapolation from S1.** This
+triage explicitly scoped Exp-1 to Q4_K_M only (STATE.md, Sat 19); no Q8_0 artefact ran
+on the Pi tonight. Table 17's Q8_0 rows keep `--` in the latency/RSS columns for that
+reason, not because the join failed. S1's claim that "Q8_0 variants are physically
+incapable of closing the decode latency budget" is therefore **still an inference from
+measured Q4_K_M numbers and architecture scaling, not a direct Pi measurement** --
+flagged here rather than silently treated as closed.
+
+**Rough, unverified projection if a cooler removes the throttle:** decode time should
+scale close to linearly with clock for this compute-bound workload. At the full
+2.4 GHz pinned clock (1.6x the throttled 1.5 GHz), a naive linear rescale of tonight's
+p95s gives ~1,536 ms (llama, still a MISS), ~949 ms (qwen, would MEET), ~837 ms
+(smollm2, would MEET). This is NOT a measurement and must not be quoted as one in
+either thesis -- it is only grounds for prioritising a cooled re-run of qwen/smollm2
+over llama-3.2-1b if the cooler arrives before Exp-2.
+
+**Two bugs found on the Pi's actual configuration while running this, fixed in
+`eval/exp1.py` before being reported as data:**
+1. `swapon -a` (meant to restore swap after the run) silently does nothing on this
+   Pi: it manages its swapfile via `dphys-swapfile`, not an `/etc/fstab` entry, so
+   `-a` had nothing to reactivate. Found by checking `free -h` after the run showed
+   0B swap where 511 MiB was expected. Fixed by recording the actual device path
+   from `swapon --show` before turning swap off, and swapping back on by that exact
+   path afterward -- verified restored (511 MiB) before moving on.
+2. `swapon`/`swapoff` are not on PATH under a bare `ssh host cmd` (no login shell) --
+   hardcoded to `/sbin/swapon`, `/sbin/swapoff`.
+
+Governor is left at `performance` intentionally, not reverted to `ondemand` --
+Exp-2 needs the same setting (Table 7: "verified during Exp-1 and Exp-2").
+
+Stopped here: Exp-1 done for all three Q4_K_M configs; `results/exp1.csv` written;
+Tables 17 and 19 regenerated (`python eval/tables.py`) and now carry real p50/p95,
+tok/s, Peak RSS and Decode-p95 numbers instead of `--`. Not done, named per rule 10:
+a cooled re-run (blocked on the cooler purchase, see "Blocked / needs human" above),
+Q8_0 on the Pi (out of this triage's scope), and Exp-2/Exp-3 themselves (A6/A7,
+runtime side already unblocked per the A2 entry above).

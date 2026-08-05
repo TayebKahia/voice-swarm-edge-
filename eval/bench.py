@@ -228,6 +228,10 @@ class Trial:
     throttle_flags: str | None = None
     throttled_now: bool | None = None
     note: str = ""
+    #: Set by callers that decode tokens (Exp-1's tok/s column). None elsewhere --
+    #: a pure timing sweep with no generation has nothing to divide by.
+    tokens_predicted: int | None = None
+    tokens_evaluated: int | None = None
 
     @property
     def total_ms(self) -> float:
@@ -262,6 +266,8 @@ class Trial:
             "throttle_flags": "" if self.throttle_flags is None else self.throttle_flags,
             "throttled_now": "" if self.throttled_now is None else int(self.throttled_now),
             "note": self.note,
+            "tokens_predicted": "" if self.tokens_predicted is None else self.tokens_predicted,
+            "tokens_evaluated": "" if self.tokens_evaluated is None else self.tokens_evaluated,
         }
         for name in STAGES:
             value = self.stages_ms.get(name)
@@ -275,6 +281,7 @@ FIELDNAMES: tuple[str, ...] = (
     "total_ms", "onset_total_ms",
     *(f"{name}_ms" for name in STAGES),
     "peak_rss_mb", "temperature_c", "throttle_flags", "throttled_now", "note",
+    "tokens_predicted", "tokens_evaluated",
     "host_host", "host_machine", "host_model", "host_is_pi", "host_cores",
 )
 
@@ -359,6 +366,7 @@ def aggregate(rows: Iterable[dict], *, percentiles: Sequence[float] = (50, 95, 9
             "experiment": row["experiment"], "config": row["config"],
             "stages": {name: [] for name in (*STAGES, "total")},
             "correct": [], "items": set(), "rss": [], "temp": [], "throttled": 0,
+            "tokens_predicted": 0, "decode_seconds": 0.0,
         })
         for name in (*STAGES, "total"):
             raw = row.get(f"{name}_ms" if name != "total" else "total_ms", "")
@@ -372,6 +380,10 @@ def aggregate(rows: Iterable[dict], *, percentiles: Sequence[float] = (50, 95, 9
                 slot[target].append(float(row[source]))
         if str(row.get("throttled_now", "")) == "1":
             slot["throttled"] += 1
+        decode_ms = row.get("slm_decode_ms", "")
+        if row.get("tokens_predicted") not in ("", None) and decode_ms not in ("", None):
+            slot["tokens_predicted"] += int(row["tokens_predicted"])
+            slot["decode_seconds"] += float(decode_ms) / 1000.0
 
     summaries = []
     for slot in grouped.values():
@@ -387,6 +399,12 @@ def aggregate(rows: Iterable[dict], *, percentiles: Sequence[float] = (50, 95, 9
             "max_temperature_c": round(max(slot["temp"]), 1) if slot["temp"] else "",
             "throttled_trials": slot["throttled"],
             "throttled_fraction": round(slot["throttled"] / n_latency, 4) if n_latency else "",
+            #: Tokens summed over decode-seconds summed, not the mean of per-trial
+            #: ratios --- the same "resample the right unit" reasoning as stats.py's
+            #: bootstrap: a fast short trial should not count equally with a slow long
+            #: one when they are averaged into one throughput figure.
+            "tokens_per_second": (round(slot["tokens_predicted"] / slot["decode_seconds"], 2)
+                                  if slot["decode_seconds"] else ""),
         }
         for name, samples in slot["stages"].items():
             summary[f"{name}_n"] = len(samples)
