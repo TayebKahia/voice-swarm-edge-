@@ -831,3 +831,162 @@ Nothing in this task touched `thesis/`, `schema/`, or prd.md. Named, not started
 whoever drafts Master Ch 5 / Ingenieur Ch 6 (B4 / B11) should cite
 `results/limitation_abstention.md` rather than re-derive it, and must carry the Exp-3
 caveat above. A4's McNemar work needs its own commit from its own session.
+
+## McNEMAR + FIGURE 2 (Sun 20 Sep, Block A session, A4)
+
+Task: run the paired tests that answer RQ1 and produce Figure 2, from the per-item
+predictions already on disk. No model re-run, no server started. New: `eval/mcnemar.py`
+(the runner), `eval/plots.py` (Figure 2 -- the file `eval/__init__.py` has promised since
+Session 04 and that `run_all.sh` already required), `mcnemar()` + `bonferroni_alpha()` in
+`eval/stats.py`, `eval/test_mcnemar.py` (12), `eval/test_plots.py` (9), 13 added to
+`eval/test_stats.py`. Outputs: `results/mcnemar.csv`, `results/mcnemar.md`,
+`results/figure2_pareto.pdf` + `.png`.
+
+**Provenance first: the per-item files reproduce Table 17 exactly.** Exact match
+re-derived from `results/surface_b_preds/*.jsonl` through `eval/metrics.py` matches all
+eighteen `grammar=on` rows of `results/surface_b.csv` to four decimals. This is asserted
+on every run, not checked once by hand -- `check_against_surface_b()` returns a non-empty
+problem list and `eval/mcnemar.py` exits 1 if the two ever drift. Without it the McNemar
+tables would be a second, independently-computed set of numbers sitting beside Table 17
+with nothing tying them together.
+
+### Family 1 -- model against model, `test_golden`, Q4_K_M (confirmatory, alpha = 0.0167)
+
+| A vs B | EM A | EM B | a | b | c | d | b+c | test | p | signif. |
+| :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | :--- | ---: | :--- |
+| llama-3.2-1b vs qwen2.5-0.5b | 0.9100 | 0.9350 | 182 | 0 | 5 | 13 | 5 | exact | 0.0625 | **no** |
+| llama-3.2-1b vs smollm2-360m | 0.9100 | 0.7600 | 148 | 34 | 4 | 14 | 38 | chi2_cc | 2.5e-06 | **yes** |
+| qwen2.5-0.5b vs smollm2-360m | 0.9350 | 0.7600 | 149 | 38 | 3 | 10 | 41 | chi2_cc | 1.1e-07 | **yes** |
+
+### Family 2 -- Q4_K_M against Q8_0 within each model, `test_golden` (confirmatory, alpha = 0.0167)
+
+| A vs B | EM A | EM B | a | b | c | d | b+c | test | p | signif. |
+| :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | :--- | ---: | :--- |
+| llama-3.2-1b Q4_K_M vs Q8_0 | 0.9100 | 0.9150 | 182 | 0 | 1 | 17 | 1 | exact | 1.0 | **no** |
+| qwen2.5-0.5b Q4_K_M vs Q8_0 | 0.9350 | 0.9300 | 186 | 1 | 0 | 13 | 1 | exact | 1.0 | **no** |
+| smollm2-360m Q4_K_M vs Q8_0 | 0.7600 | 0.7900 | 144 | 8 | 14 | 34 | 22 | exact | 0.286 | **no** |
+
+Secondary rows (not corrected, not evidence in their own right): the model comparison
+repeated at Q8_0 reproduces the same verdicts (llama vs qwen p = 0.375 n.s.; both vs
+smollm2 significant), and the quantisation pairs on `test_synth`/`test_ood` are all
+non-significant (p = 0.0768 to 1.0). Full table in `results/mcnemar.md`.
+
+**The RQ1 answer, stated at the strength the evidence supports.** The 360M model is
+separated from both larger models decisively, on both quantisations. **llama-3.2-1b and
+qwen2.5-0.5b are NOT separated** (p = 0.0625 against alpha = 0.0167): qwen's 2.5 pp EM
+lead on `test_golden` rests on five items. Note the shape of that table -- **b = 0**:
+there is no `test_golden` item llama gets right that qwen gets wrong, so the disagreement
+is entirely one-directional and qwen's predictions are a strict superset of llama's on
+this split. One-directional and still not significant at a corrected alpha, because five
+items is five items. Ch 4 should say the two are indistinguishable on accuracy and let
+Figure 2's other two axes break the tie; it must not say they are equal.
+
+**Two statements the write-up must not make, both of which the contingency counts refuse.**
+
+1. **Non-significant is not equivalent.** Where `b+c = 1` (llama and qwen, each against
+   its own Q8_0) the smallest attainable exact p-value is 1.0 -- the test cannot reject
+   whatever the truth is. What those rows report is a *bound*: the two quantisations of
+   one model disagreed on exactly one item in 200. That is a stronger and more honest
+   sentence than "no significant difference", and it is the one to use.
+2. **An identical EM is not an identical model.** smollm2-360m scores 0.8125 at both
+   quantisations on `test_synth` -- a delta of exactly zero. The pairing shows 24
+   disagreements split 12/12. Comparing the summary column alone would have reported
+   agreement where there are two dozen differences that happen to cancel.
+
+Together these put a test under the Sat-19 claim that "quantisation is nearly free", which
+until now was an eyeballed comparison of point estimates: six paired comparisons, none
+significant, discordance 1 to 24 items. **Q4_K_M's selection is now defensible on measured
+paired evidence, not on the absence of a visible gap.**
+
+**Test choice, stated because it changes two p-values.** Exact binomial below 25 discordant
+pairs, continuity-corrected chi-square above (`EXACT_BELOW_DISCORDANT`). Only the two
+comparisons against smollm2-360m (b+c = 38 and 41) take the chi-square branch. Both
+p-values are carried in `results/mcnemar.csv` for every row and the verdict is identical
+under either test throughout -- so the threshold is documented rather than load-bearing.
+Bonferroni is applied **per family of three**, not once across all fifteen rows: the two
+confirmatory families answer different questions, and pooling them would penalise each for
+the other's existence.
+
+### Figure 2 -- `results/figure2_pareto.pdf`
+
+Spec (prd.md 8.2 / roadmap Session 07): EM vs p95 latency, marker area proportional to peak
+RSS, one point per model x quantisation, 2.5 s target as a vertical line. Three deviations,
+each drawn on the figure's own face rather than left to a caption:
+
+1. **Three of the six specified points do not exist.** Exp-1 was scoped to Q4_K_M by the
+   Sat-19 triage, so no Q8_0 artefact has a Pi latency or RSS. They are named in a box on
+   the axes with their EM, not dropped and not plotted at a guessed x.
+2. **The x-axis is not the quantity the 2.5 s line bounds.** NFR-2 runs end-to-end from
+   end-of-speech; Exp-1 measured the SLM stages only (Table 6's prefill + decode, summed,
+   nearest-rank p95 of the per-trial sums -- not the sum of the two p95s). Every plotted x
+   is a **lower bound** on E2E, so a point left of the line has not met NFR-2, only failed
+   to rule itself out. Exp-2 (A6) measures the real thing. A second, solid line at 1,350 ms
+   (Table 6's own SLM allowance, 250 + 1,100) is the budget actually comparable to the axis
+   -- and **every config clears 2,500 ms on SLM stages alone except llama-3.2-1b, which
+   does not: 3,238.6 ms before VAD, STT, validate, FSM or bus are added.**
+3. **Every trial was thermally throttled** (100%, 1.5 GHz cap, no cooler). Said in the
+   subtitle, because a Pareto plot invites the reader to read the x-axis as a property of
+   the model when here it is partly a property of the enclosure.
+
+**llama-3.2-1b Q4_K_M is Pareto-dominated** -- slower *and* less accurate than
+qwen2.5-0.5b Q4_K_M (3,238.6 ms / 0.9100 against 1,771.5 ms / 0.9350) and 2.4x its peak
+RSS. The frontier is {smollm2-360m, qwen2.5-0.5b}, and smollm2 is on it only because it is
+cheaper, not because it is adequate: at EM 0.7600 it is under NFR-4's 0.85 floor, drawn as
+a dotted horizontal line so the frontier cannot be misread as a menu of deployable options.
+`pareto_frontier()` is tested against these exact three points.
+
+**`run_all.sh` stage_report was broken and is fixed.** It called
+`python eval/stats.py --in results/ --out thesis/`, but `eval/stats.py` is a library with
+no `__main__` and no argparse: that invocation ran no analysis, ignored both flags and
+exited 0 -- the silent partial run the file's own header warns produces stale thesis
+numbers. `require eval/stats.py` also could not fail, since the file existed. The stage now
+requires and runs `eval/mcnemar.py` and `eval/plots.py` with no invented flags, and the
+`DUE` map tracks `eval/mcnemar.py` instead. Verified: `bash run_all.sh report` regenerates
+all four artefacts from `results/*.csv` alone.
+
+```
+$ python eval/mcnemar.py
+  ... 15 comparisons ...
+wrote results/mcnemar.csv and results/mcnemar.md
+provenance: recomputed exact match matches results/surface_b.csv on all 18 rows
+
+$ python eval/plots.py
+wrote results/figure2_pareto.pdf
+wrote results/figure2_pareto.png
+  frontier  smollm2-360m-instruct    Q4_K_M  EM 0.7600  p95  1610.21 ms  RSS 0.55 GB
+  frontier  qwen2.5-0.5b-instruct    Q4_K_M  EM 0.9350  p95  1771.54 ms  RSS 0.68 GB
+  dominated llama-3.2-1b-instruct    Q4_K_M  EM 0.9100  p95  3238.57 ms  RSS 1.63 GB
+  UNMEASURED (x3, Q8_0) -- Exp-1 covers Q4_K_M only
+
+$ python -m pytest eval/ -q
+163 passed in 12.25s
+$ python -m pytest -q
+761 passed in 55.94s
+```
+
+Correction to the A5 entry's test-count arithmetic above: its 727 was measured **without**
+this session's files, not partly with them. Baseline at HEAD (this session's work stashed
+and its new files ignored) collects 727; A4 adds 34 (13 in `test_stats.py`, 12 in
+`test_mcnemar.py`, 9 in `test_plots.py`) for 761. A5's +7 and A3's +63 are correct.
+
+One bug found in this session's own code before it shipped: `load_correct()` reported a
+missing prediction file with `path.relative_to(REPO)`, which raises its own `ValueError`
+for any path outside the repo -- the error message's construction crashing in place of the
+error it was written to report. Caught by the test that asserts the message names
+`surface_b.py`. Fixed with a `_display()` helper in both new modules.
+
+**Named, not started (rule 10 -- one task):**
+  - **The 2.9 model selection rule is NOT applied.** Session 07's item 2, and it needs
+    Exp-2's E2E p95, not Exp-1's SLM-only figure: NFR-2 bounds a quantity nothing has yet
+    measured. Figure 2 shows where the candidates sit; it does not select one, and nothing
+    in this session records a deployment decision. A6 unblocks that.
+  - `run_all.sh` has no stage running `eval/tables.py` at all, so Tables 16-19 are not on
+    the one-command reproduction path even though every figure in them is script-generated.
+    One line, but a different subsystem's omission than the one this task owns.
+  - Figure 2's Q8_0 points stay absent until Q8_0 runs on the Pi -- out of the Sat-19
+    triage's scope, still flagged at the Exp-1 entry above.
+
+Stopped here: McNemar and Figure 2 done, both regenerating from `results/*.csv` through
+`bash run_all.sh report`. Nothing in this task touched `thesis/`, `schema/`, `prd.md` or
+any existing result CSV. Master Ch 4 SS4.5 (B3) can now cite `results/mcnemar.md` and
+`results/figure2_pareto.pdf` rather than ranking Table 17's point estimates.
