@@ -31,7 +31,7 @@ declare -A DUE=(
   [data/check_leakage.py]="D3"
   [eval/test_template_parity.py]="D9"
   [eval/bench.py]="D11"
-  [eval/stats.py]="D14"
+  [eval/mcnemar.py]="D14"
   [eval/plots.py]="D14"
 )
 
@@ -104,12 +104,19 @@ stage_exp4() {  # swarm convergence
 # ---------------------------------------------------------------------
 stage_report() {
   banner "statistics and figures"
-  require eval/stats.py
+  require eval/mcnemar.py
   require eval/plots.py
-  # McNemar with Bonferroni alpha = 0.0167 (Exp-1); ANOVA + Tukey HSD
-  # on arcsine-transformed CRR (Exp-3); trials as replicates (Exp-4).
-  python eval/stats.py  --in results/ --out thesis/
-  python eval/plots.py  --in results/ --out thesis/
+  # `eval/stats.py` is a library, not a stage: it holds the conventions
+  # (nearest-rank percentiles, the bootstrap unit, McNemar) that the
+  # runners below import. Invoking it as a script -- which this stage
+  # used to do -- runs no analysis and exits 0, which is the silent
+  # partial run this file's header warns about.
+  #
+  # McNemar with Bonferroni alpha = 0.0167 within each family of three,
+  # on the paired Surface-B predictions (RQ1).
+  python eval/mcnemar.py
+  # Figure 2, the accuracy/latency Pareto plot, from results/*.csv.
+  python eval/plots.py
 }
 
 STAGES=(gates exp0 exp1 exp2 exp3 exp4 report)

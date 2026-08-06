@@ -1,0 +1,16 @@
+family,role,split,context,system_a,system_b,n,em_a,em_b,delta,both_correct,only_a,only_b,both_wrong,discordant,test,statistic,p_exact,p_chi2,p_value,alpha,significant
+model,primary,test_golden,Q4_K_M,llama-3.2-1b-instruct,qwen2.5-0.5b-instruct,200,0.91,0.935,-0.025,182,0,5,13,5,exact,3.2,0.0625,0.0736383,0.0625,0.0167,no
+model,primary,test_golden,Q4_K_M,llama-3.2-1b-instruct,smollm2-360m-instruct,200,0.91,0.76,0.15,148,34,4,14,38,chi2_cc,22.1316,6.03854e-07,2.54587e-06,2.54587e-06,0.0167,yes
+model,primary,test_golden,Q4_K_M,qwen2.5-0.5b-instruct,smollm2-360m-instruct,200,0.935,0.76,0.175,149,38,3,10,41,chi2_cc,28.1951,1.04792e-08,1.09681e-07,1.09681e-07,0.0167,yes
+quantisation,primary,test_golden,llama-3.2-1b-instruct,llama-3.2-1b-instruct Q4_K_M,llama-3.2-1b-instruct Q8_0,200,0.91,0.915,-0.005,182,0,1,17,1,exact,0.0,1,1,1,0.0167,no
+quantisation,primary,test_golden,qwen2.5-0.5b-instruct,qwen2.5-0.5b-instruct Q4_K_M,qwen2.5-0.5b-instruct Q8_0,200,0.935,0.93,0.005,186,1,0,13,1,exact,0.0,1,1,1,0.0167,no
+quantisation,primary,test_golden,smollm2-360m-instruct,smollm2-360m-instruct Q4_K_M,smollm2-360m-instruct Q8_0,200,0.76,0.79,-0.03,144,8,14,34,22,exact,1.1364,0.286279,0.286422,0.286279,0.0167,no
+model,secondary,test_golden,Q8_0,llama-3.2-1b-instruct,qwen2.5-0.5b-instruct,200,0.915,0.93,-0.015,182,1,4,13,5,exact,0.8,0.375,0.371093,0.375,0.0167,no
+model,secondary,test_golden,Q8_0,llama-3.2-1b-instruct,smollm2-360m-instruct,200,0.915,0.79,0.125,154,29,4,13,33,chi2_cc,17.4545,1.09286e-05,2.9426e-05,2.9426e-05,0.0167,yes
+model,secondary,test_golden,Q8_0,qwen2.5-0.5b-instruct,smollm2-360m-instruct,200,0.93,0.79,0.14,155,31,3,11,34,chi2_cc,21.4412,7.66013e-07,3.64851e-06,3.64851e-06,0.0167,yes
+quantisation,secondary,test_synth,llama-3.2-1b-instruct,llama-3.2-1b-instruct Q4_K_M,llama-3.2-1b-instruct Q8_0,240,0.9583,0.9625,-0.0042,229,1,2,8,3,exact,0.0,1,1,1,0.0167,no
+quantisation,secondary,test_synth,qwen2.5-0.5b-instruct,qwen2.5-0.5b-instruct Q4_K_M,qwen2.5-0.5b-instruct Q8_0,240,0.9542,0.9583,-0.0042,229,0,1,10,1,exact,0.0,1,1,1,0.0167,no
+quantisation,secondary,test_synth,smollm2-360m-instruct,smollm2-360m-instruct Q4_K_M,smollm2-360m-instruct Q8_0,240,0.8125,0.8125,0.0,183,12,12,33,24,exact,0.0417,1,0.838256,1,0.0167,no
+quantisation,secondary,test_ood,llama-3.2-1b-instruct,llama-3.2-1b-instruct Q4_K_M,llama-3.2-1b-instruct Q8_0,150,0.8133,0.8,0.0133,119,3,1,27,4,exact,0.25,0.625,0.617075,0.625,0.0167,no
+quantisation,secondary,test_ood,qwen2.5-0.5b-instruct,qwen2.5-0.5b-instruct Q4_K_M,qwen2.5-0.5b-instruct Q8_0,150,0.7467,0.7333,0.0133,109,3,1,37,4,exact,0.25,0.625,0.617075,0.625,0.0167,no
+quantisation,secondary,test_ood,smollm2-360m-instruct,smollm2-360m-instruct Q4_K_M,smollm2-360m-instruct Q8_0,150,0.66,0.6067,0.0533,87,12,4,47,16,exact,3.0625,0.0768127,0.0801183,0.0768127,0.0167,no
