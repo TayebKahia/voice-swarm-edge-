@@ -737,3 +737,97 @@ one-directional reflex Ingenieur Ch 1 Sec. 1.3 argues for, now asserted rather t
 Stopped here: Gate 4 closed and recorded. `swarm/fsm.py` unmodified (verified with
 `git status` after each mutation revert) -- this session added tests only. Not started:
 A6/A7 (Exp-2, Exp-3), A4 (McNemar), A5 (the NFR-9/NFR-18 limitation).
+
+## NFR-9 / NFR-18 LIMITATION (Sun 20 Sep, Block A session, A5)
+
+Task: write the Limitations entry for NFR-9 and NFR-18 together, once, citable by both
+theses. New: `eval/abstention.py` (+ `eval/test_abstention.py`, 7 tests),
+`results/limitation_abstention.md` (the entry), `results/nfr9_nfr18_abstention.csv`
+(per-configuration counts), `docs/adr/0006`. The entry is GENERATED from
+`results/surface_b_preds/*.jsonl` -- rule 5, no figure in it is typed by hand. Master Ch 5
+and Ingenieur Ch 6 both cite it; neither re-derives it.
+
+**Both budgets missed by every artefact, reported as measured per prd.md SS10.2:**
+NFR-9 safe-failure 0.0000-0.1579, pooled **0.0530** (28 of 528 errors) vs a >=0.70 budget;
+NFR-18 false-command 0.1867-0.3933 vs <=0.05. Re-baselined against the measured figures
+and the re-baselining reported (ADR-0006 D4), explicitly as descriptive baselines, not as
+targets lowered until they could be met. prd.md Table 12's rows are NOT edited.
+
+**Two corrections to the task brief's own numbers, both in the direction of the brief
+being wrong, not the data.**
+
+1. **The brief gave NFR-9 as "0.00 to 0.23". The deployed surface measures 0.0000 to
+   0.1579.** The 0.2308 figure is real but belongs to `qwen2.5-0.5b Q4_K_M test_ood`
+   **with the grammar OFF** (`results/surface_b_nogrammar.csv`) -- the ablation surface,
+   which is not what ships. Quoting it as Surface B would have overstated the system's
+   safe-failure rate, i.e. flattered it on the safety metric. The entry quotes the
+   grammar-on range and says in SS6 why the ablation figure is excluded.
+2. The brief's NFR-18 range (0.187-0.393) and its Qwen claim (13 errors on `test_golden`,
+   none resolving to `unknown` or HOVER) both CONFIRMED exactly against the per-item files.
+
+**Two findings sharper than the brief's framing, both from the per-item files rather than
+the summary CSV:**
+
+  a. **Almost nothing the safe-failure metric counts is an abstention.** Of the 28 safe
+     failures: **24 are the model emitting `hover`** (a command to hold -- safe, but
+     indistinguishable from the model believing the operator said "hold"), **3 are the
+     validator falling back to HOVER** (each a `formation` missing a slot its shape
+     requires), and **1 is the model emitting `unknown`** -- one instance in 3,540 items
+     of the model declining to answer. The metric cannot make this split by construction
+     (it is defined over the dispatched action), which is why the entry reports the origin
+     breakdown beside the rate.
+     **Got this wrong first and caught it before it shipped:** the initial `_origin`
+     classified EVERY `hover` as a validator fallback, which would have reported "27
+     validator catches, 1 abstention" -- a system that checks itself -- instead of "24
+     confident commands, 3 catches, 1 abstention". The headline claim survives either way;
+     the mechanism it names does not, and the wrong version credits `schema/validate.py`
+     with work it never did. `eval/test_abstention.py` regression-tests exactly that.
+  b. **Abstention is topic-triggered, not confidence-triggered.** On `test_ood` (all 150
+     references `unknown`) the models DO abstain, 60.7%-81.3% of the time -- the
+     capability is present and reachable under the grammar. On the in-domain splits it
+     vanishes: 282 errors, and `unknown` volunteered on a real-command item exactly **once
+     in 2,640** -- and that once was itself an error (smollm2 declined a valid `hover`,
+     item 0178, "freeze, units fo-- four through five"). The system can tell "this is not
+     about drones"; it cannot tell "this is about drones and I did not catch it". This
+     selects the future work: a confidence gate addresses it, more OOD training data does
+     not.
+
+**In-domain error taxonomy (new, Master Ch 5's material).** Pooled over six artefacts on
+`test_synth`+`test_golden`, 282 errors: 240 (85.1%) right intent / wrong parameters, 39
+(13.8%) wrong intent but still actionable, 3 (1.1%) safe. **98.9% of in-domain errors
+dispatch an executable command.** Largest single family: the **yaw sign flip**, 114 of 282
+(40.4%) -- the swarm turns through the correct angle the wrong way. Structurally invisible
+to all three validation layers (schema-valid, in-envelope, internally consistent); no
+consistency check distinguishes clockwise from anticlockwise. Quotable example on real
+recorded speech is in the entry (qwen Q4_K_M `test_golden` item 0036).
+
+Future work named as future work, not as done: a confidence gate on decoder
+log-probabilities, and oversampling `unknown` in training. Neither implemented, measured
+or claimed.
+
+**Caveat carried into both theses (entry SS6, ADR-0006 D4):** NFR-9 is sourced to Exp-1
+**and Exp-3** (prd.md Table 12), and Exp-3 has not run. This baseline rests on Exp-1
+evidence only and must be revisited when A7 lands -- Exp-3 puts real ASR error into the
+input, which can only move the figure.
+
+```
+$ python eval/abstention.py
+wrote results/nfr9_nfr18_abstention.csv
+wrote results/limitation_abstention.md
+$ python -m pytest eval/test_abstention.py -q
+7 passed in 0.11s
+$ python -m pytest -q
+727 passed in 53.31s
+```
+
+Note on that 727 (was 650 at the Exp-1 entry): +63 is A3's Gate 4 cell coverage, already
+committed (8ac396c, 68511d9); +7 is this session; the remainder is A4's McNemar work
+**uncommitted in the working tree** (`eval/mcnemar.py`, `eval/plots.py`, modified
+`eval/stats.py`/`eval/test_stats.py`, `results/mcnemar.*`, `results/figure2_pareto.*`).
+Those files are NOT part of this session's commit -- a concurrent Block A session owns them.
+
+Stopped here: the limitation entry is written, generated, tested and reported in ADR-0006.
+Nothing in this task touched `thesis/`, `schema/`, or prd.md. Named, not started (rule 10):
+whoever drafts Master Ch 5 / Ingenieur Ch 6 (B4 / B11) should cite
+`results/limitation_abstention.md` rather than re-derive it, and must carry the Exp-3
+caveat above. A4's McNemar work needs its own commit from its own session.
