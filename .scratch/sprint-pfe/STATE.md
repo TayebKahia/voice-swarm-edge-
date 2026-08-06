@@ -1,6 +1,6 @@
 # STATE
 Session: 04 (Fri 18 -> Sat 19 Sep) -- COMPRESSED. Depot moved to **Thu 24 Sep**.
-Last updated: 2026-09-20T01:56:00+01:00
+Last updated: 2026-09-21T00:00:00+01:00
 
 ## THE CALENDAR, as of Sat 19 Sep
 Build days left: Sat 19, Sun 20, Mon 21, Tue 22, Wed 23. Depot Thu 24 (buffer morning only).
@@ -66,16 +66,21 @@ Gate 2 leakage       : GREEN (check_leakage.py --strict -> exit 0, Sep 14; famil
                        eval-independence, wake-corpus and noise-partition isolation all clean)
 Gate 3 parity        : PENDING. HF side dumps on Kaggle (notebook cell); llama.cpp side
                        local. llama.cpp NOW BUILT on the workstation -- see below.
-Gate 4 fsm           : PENDING. swarm/ controller, both backends, Exp-4, and now
-                       runtime/bus.py + the full pipeline wiring are DONE (see below);
-                       what remains for Gate 4 is Table 9 cell-coverage proof (A3, not run
-                       this session -- rule 10, one task).
+Gate 4 fsm           : **GREEN** (Sun 20 Sep, A3). All 50 Table 9 cells (5 states x 10
+                       intents) covered by `swarm/test_fsm.py`; `python -m pytest
+                       swarm/test_fsm.py -q` -> 100 passed. Coverage is structural (the
+                       parametrisation is generated from the cross product) and the
+                       transcription of Table 9 is cross-checked against prd.md at run
+                       time. See the Gate 4 RESULT section below for the output and the
+                       three mutations used to show the proof can fail.
 Gate 5 dataset frozen: GREEN (tag dataset-v1.0, Sep 18). 200/200 masters + 200 resampled;
                        annot_pass1.jsonl sealed 23:41 under SHA-256 f1a1fe6c, verified intact.
 D1 Environment Gate  : GREEN
 FR-1 grammar         : GREEN (5,191 labels, 0 rejected)
 
-Test suite: 650 passed, 0 skipped, `python -m pytest -q` (was 614 passed, 3 skipped as of
+Test suite: 720 passed, 0 skipped, `python -m pytest -q` (Sun 20 Sep, after A3 added 70
+tests to swarm/test_fsm.py). The 650 below is the figure before that.
+Previously: 650 passed, 0 skipped, `python -m pytest -q` (was 614 passed, 3 skipped as of
 the last STATE.md entry recording it; not investigated further here whether the +36 is
 exactly this session's new runtime/ tests plus 3 previously-skipped now passing, or
 includes other sessions' concurrent commits -- see below for this session's own additions).
@@ -642,3 +647,93 @@ tok/s, Peak RSS and Decode-p95 numbers instead of `--`. Not done, named per rule
 a cooled re-run (blocked on the cooler purchase, see "Blocked / needs human" above),
 Q8_0 on the Pi (out of this triage's scope), and Exp-2/Exp-3 themselves (A6/A7,
 runtime side already unblocked per the A2 entry above).
+
+## Gate 4 RESULT -- Table 9 cell coverage (Sun 20 Sep, Block A session, A3)
+
+Task: prove every flight-state x command cell of prd.md Table 9 is covered by a test, and
+that rejections resolve to HOVER with a log entry. `swarm/fsm.py` already existed and was
+not changed by this session -- the gap was the proof, and the proof is what was built.
+
+**Gate 4 is GREEN.** `swarm/test_fsm.py` grew from 30 to 100 tests; whole repo 650 -> 720.
+
+```
+$ python -m pytest swarm/test_fsm.py -q
+100 passed in 0.22s
+
+$ python -m pytest swarm/test_fsm.py -v -k "table_9_cell"
+collected 100 items / 50 deselected / 50 selected
+swarm/test_fsm.py::test_table_9_cell[LANDED-formation] PASSED            [  2%]
+swarm/test_fsm.py::test_table_9_cell[LANDED-move] PASSED                 [  4%]
+...  (50 cells: LANDED / TAKING_OFF / FLYING / LANDING / ABORTED x the ten intents)
+swarm/test_fsm.py::test_table_9_cell[ABORTED-unknown] PASSED             [100%]
+====================== 50 passed, 50 deselected in 0.15s =======================
+
+$ python -m pytest -q            # whole repo, pfe_swarm active
+720 passed in 52.78s
+```
+
+**What makes this a proof rather than 50 more passing tests.** Three things are separated,
+because each can be wrong independently:
+
+1. `TABLE_9_AS_SPECIFIED` -- Table 9 transcribed by hand into the test file, keyed on plain
+   strings. It deliberately does NOT import `TABLE_9_LEGALITY`; a test that derives its
+   expectations from the code under test agrees with it by construction and proves nothing.
+   `test_fsm_table_matches_the_specification` then compares the two encodings.
+2. `test_transcription_matches_prd_table_9` parses Table 9 out of `prd.md` at run time and
+   compares it to the hand transcription -- so a typo in the test file fails the suite rather
+   than silently redefining the gate. prd.md is untracked by design (roadmap 0.4a), so this
+   one **skips** rather than fails when the file is absent; on this workstation it ran and
+   passed, and the parse was inspected by hand (all ten intents, including the two prose
+   cells -- set_param's "Every state except `ABORTED`" and unknown's bare em dash).
+3. The 50 cells are a **generated** cross product, `[(s, i) for s in FlightState for i in
+   INTENTS]`, with `test_the_cell_matrix_is_the_complete_cross_product` asserting
+   5 x 10 = 50. A cell cannot be omitted without the generator changing; there is no
+   hand-maintained list of cells to fall out of date.
+
+Each cell drives `handle_command` with a real payload and asserts three things: what is
+dispatched, the state afterwards, and the log entry. `test_every_cell_payload_survives_
+layer_2` asserts all ten payloads pass `validate()` unchanged -- without it, a payload that
+fell back to Hover inside Layer 2 would make its cell pass for the wrong reason.
+
+**The proof was mutation-tested before being called green** (each mutation applied to
+`swarm/fsm.py`, run, then `git checkout`):
+
+  - hover made legal in LANDING (fsm.py drifts from Table 9)  -> 17 failed, 83 passed
+  - airborne rejection returns None instead of Hover          ->  9 failed, 91 passed
+  - the hover-illegal rejection log silenced                  -> 24 failed, 76 passed
+
+**On "rejections resolve to HOVER with a log entry".** Table 9's caption says exactly that,
+and it cannot be literally true in all five states: Table 9's own rows declare `hover`
+illegal in LANDED, LANDING and ABORTED, so resolving a rejection there to HOVER would
+dispatch a command the same table rejects -- and that rejection would resolve to HOVER
+again. ADR-0002 already settled this (it predates this session): rejections resolve to
+HOVER where Table 9 permits hovering (TAKING_OFF, FLYING) and to a logged no-op where it
+does not, because dispatching HOVER would otherwise spin up a grounded swarm, arrest a
+descent at altitude, or fly out of an abort. The gate is therefore recorded as green
+against **that** reading, not against the caption's literal wording, and the tests assert
+the property the caption is actually about:
+`test_no_rejection_is_ever_silent` asserts, for all five states, that every illegal intent
+produces a structured log record and resolves to either HOVER or a no-op -- never to a
+movement command. The whole-thesis version of this sentence is one an examiner may ask
+about, so it is stated here in full rather than left implicit in a passing test.
+
+FR-11's second half -- "the explicit non-vocal recovery path out of `ABORTED`" -- is covered
+by `test_recovery_out_of_aborted_is_reachable_only_off_the_voice_path`: all ten intents are
+fed to an ABORTED machine and none of them escapes, then `manual_reset()` does. That is the
+one-directional reflex Ingenieur Ch 1 Sec. 1.3 argues for, now asserted rather than asserted-in-prose.
+
+**Named, not started (rule 10 -- one task):**
+  - ADR-0002 documents the rejection log as carrying `"action": "fallback_hover"`; the code
+    actually emits `"fallback": "HOVER"` on that branch (the no-op branch does use `action`).
+    The new tests do not depend on either key, so nothing is blocked, but ADR and code
+    disagree on a field name and one of them should be corrected.
+  - `swarm/fsm.py:141` annotates `handle_command`'s parameter as `Command | Mapping | str`
+    without importing `Command`. Harmless at run time (`from __future__ import annotations`),
+    but it would fail a type-checker or any `get_type_hints()` call.
+  - Gate 3 parity is still PENDING in this file while Surface-B results already exist --
+    the contradiction Master Ch 3.4 flagged and declined to resolve. Still unresolved; not
+    this task.
+
+Stopped here: Gate 4 closed and recorded. `swarm/fsm.py` unmodified (verified with
+`git status` after each mutation revert) -- this session added tests only. Not started:
+A6/A7 (Exp-2, Exp-3), A4 (McNemar), A5 (the NFR-9/NFR-18 limitation).
