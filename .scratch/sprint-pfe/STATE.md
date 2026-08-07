@@ -990,3 +990,46 @@ Stopped here: McNemar and Figure 2 done, both regenerating from `results/*.csv` 
 `bash run_all.sh report`. Nothing in this task touched `thesis/`, `schema/`, `prd.md` or
 any existing result CSV. Master Ch 4 SS4.5 (B3) can now cite `results/mcnemar.md` and
 `results/figure2_pareto.pdf` rather than ranking Table 17's point estimates.
+
+## BIBLIOGRAPHY AUDIT + .bib MIGRATION (Tue 22 Sep)
+
+Three commits: 72a02e1 (verify), 59ae943 (migrate), and an untracked PRD sync recorded
+here because git cannot see it.
+
+**What was wrong.** The 18 entries were lifted verbatim from `docs/project/PRD.tex` in
+3ff4cf4 and never checked. Checking all of them against primary sources found `sbc2025`
+attributed to an author who did not write the paper -- "J. Gou et al., Benchmarking 25
+LLMs on Single-Board Computers" does not exist; the real work is arXiv:2511.07425,
+Nguyen and Nguyen. `pyflyt` credited "J. Jet" (Jun Jet Tai). `esc50` gave the dataset's
+name as the paper's title. `smollm2` and `llama32` pointed at blog posts, and `llamacpp`
+bundled two projects under a URL whose org had moved.
+
+**The part that was not a bibliography problem.** Three passages in Master Ch 1 and Ch 2
+described `sbc2025` as finding a ceiling "independent of which model" and throughput that
+"does not vary meaningfully with the choice of board." The real paper reports
+architecture-specific bottlenecks and a runtime effect (Llamafile 4x over Ollama) plus a
+~1.5B parameter ceiling -- close to the opposite. Prose was rewritten to what the source
+supports, which reads as a stronger warrant for this project's design, not a weaker one:
+the thesis picks a runtime and sub-1.5B models, the exact lever the survey says dominates.
+
+**Format.** `thesis/bibliography.tex` is gone; `thesis/references.bib` replaces it,
+biblatex + biber, matching `thesis/sample_thesis`. The old `thebibliography` printed every
+entry regardless of citation, so each thesis would have listed references it never cites
+(the Ingenieur: 12 of 19). All 19 keys carried over unchanged -- no chapter text needed
+editing. `tools/check_tex.py` now resolves citations against the `.bib`, so a standalone
+chapter check is conclusive about `\cite` for the first time; `\ref` still needs a
+`main.tex`.
+
+**PRD sync (untracked, invisible to git).** `docs/project/PRD.tex`'s own
+`thebibliography` held the pre-verification copy, so a future session extracting from it
+would have reintroduced "J. Gou". All six corrected entries are synced there, `whispercpp`
+added, the L205 runtime row now cites both, and the block carries a header naming
+`thesis/references.bib` as authoritative. PRD and `.bib` hold the same 19 keys.
+
+**Not verified:** no TeX toolchain in the environment. The `.bib` was checked structurally
+(19 entries, no duplicate keys, balanced braces, ASCII-clean) but never run through biber.
+First compile is the real test.
+
+**Open:** `speechcmd` is still cited by nothing -- expected, Master Ch 4-6 are unwritten.
+Neither thesis has a `main.tex`; the biblatex wiring for one is recorded in the
+thesis-writing skill.
