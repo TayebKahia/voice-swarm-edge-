@@ -1,0 +1,223 @@
+% thesis/references.bib
+% Shared bibliography for both theses. Migrated from thesis/bibliography.tex (a hand-written
+% thebibliography) in the .bib migration; entry content was verified against primary sources in
+% September 2026 -- see commit 72a02e1 for what was wrong before that pass.
+%
+% Both documents \addbibresource this file, so a reference cannot drift between them. Unlike the
+% thebibliography it replaces, biblatex prints only the entries a given document actually cites.
+%
+% House rules for adding an entry:
+%   - Verify against the primary source (publisher page, ACL Anthology, arXiv abs page) first.
+%     Do not add an entry from memory or from another document's reference list.
+%   - Record a retrievable identifier: doi where one exists, otherwise eprint, otherwise url.
+%   - Software and blog posts get url + urldate.
+%   - Keys are stable and shared across both theses: add a key rather than renaming one.
+
+% -- Primary baseline ---------------------------------------------------------
+@misc{lim2025,
+  title        = {Taking Flight with Dialogue: Enabling Natural Language Control for
+                  {PX4}-based Drone Agent},
+  author       = {Lim, Shoon Kit and Chong, Melissa Jia Ying and Khor, Jing Huey and
+                  Ling, Ting Yang},
+  year         = {2025},
+  eprint       = {2506.07509},
+  archivePrefix= {arXiv},
+  primaryClass = {cs.RO},
+  url          = {https://arxiv.org/abs/2506.07509},
+  note         = {Primary baseline for this work}
+}
+
+% -- Swarm behaviour and simulation -------------------------------------------
+@article{reynolds1987,
+  title   = {Flocks, Herds and Schools: A Distributed Behavioral Model},
+  author  = {Reynolds, Craig W.},
+  journal = {ACM SIGGRAPH Computer Graphics},
+  volume  = {21},
+  number  = {4},
+  pages   = {25--34},
+  year    = {1987},
+  doi     = {10.1145/37402.37406}
+}
+
+@misc{pyflyt,
+  title        = {{PyFlyt} -- {UAV} Simulation Environments for Reinforcement Learning Research},
+  author       = {Tai, Jun Jet and Wong, Jim and Innocente, Mauro and Horri, Nadjim and
+                  Brusey, James and Phang, Swee King},
+  year         = {2023},
+  eprint       = {2304.01305},
+  archivePrefix= {arXiv},
+  primaryClass = {cs.RO},
+  url          = {https://arxiv.org/abs/2304.01305},
+  note         = {Code: \url{https://github.com/jjshoots/PyFlyt}}
+}
+
+% -- Edge inference: hardware envelope and runtimes ---------------------------
+@misc{sbc2025,
+  title        = {An Evaluation of {LLMs} Inference on Popular Single-board Computers},
+  author       = {Nguyen, Tung and Nguyen, Tuyen},
+  year         = {2025},
+  eprint       = {2511.07425},
+  archivePrefix= {arXiv},
+  primaryClass = {cs.DC},
+  url          = {https://arxiv.org/abs/2511.07425},
+  note         = {25 quantised models across three SBCs under two runtimes}
+}
+
+@misc{llamacpp,
+  title        = {llama.cpp: {LLM} Inference in {C/C++}},
+  author       = {Gerganov, Georgi and {the ggml contributors}},
+  howpublished = {\url{https://github.com/ggml-org/llama.cpp}},
+  url          = {https://github.com/ggml-org/llama.cpp},
+  urldate      = {2026-09-22},
+  note         = {{GGUF} weight format, k-quant schemes, and {GBNF} grammar-constrained decoding}
+}
+
+@misc{whispercpp,
+  title        = {whisper.cpp: Port of {OpenAI}'s {Whisper} Model in {C/C++}},
+  author       = {Gerganov, Georgi and {the ggml contributors}},
+  howpublished = {\url{https://github.com/ggml-org/whisper.cpp}},
+  url          = {https://github.com/ggml-org/whisper.cpp},
+  urldate      = {2026-09-22}
+}
+
+% -- Candidate language models ------------------------------------------------
+@misc{qwen25,
+  title        = {{Qwen2.5} Technical Report},
+  author       = {{Qwen Team}},
+  year         = {2024},
+  eprint       = {2412.15115},
+  archivePrefix= {arXiv},
+  primaryClass = {cs.CL},
+  url          = {https://arxiv.org/abs/2412.15115}
+}
+
+@misc{smollm2,
+  title        = {{SmolLM2}: When Smol Goes Big --- Data-Centric Training of a Small Language Model},
+  author       = {Ben Allal, Loubna and others},
+  year         = {2025},
+  eprint       = {2502.02737},
+  archivePrefix= {arXiv},
+  primaryClass = {cs.CL},
+  url          = {https://arxiv.org/abs/2502.02737}
+}
+
+@misc{llama32,
+  title        = {{Llama} 3.2: Revolutionizing Edge {AI} and Vision with Open, Customizable Models},
+  author       = {{Meta AI}},
+  year         = {2024},
+  howpublished = {Meta AI blog},
+  url          = {https://ai.meta.com/blog/llama-3-2-connect-2024-vision-edge-mobile-devices/},
+  urldate      = {2026-09-22},
+  note         = {No technical report accompanies the 3.2 release; this is the primary announcement}
+}
+
+@inproceedings{lora,
+  title        = {{LoRA}: Low-Rank Adaptation of Large Language Models},
+  author       = {Hu, Edward J. and Shen, Yelong and Wallis, Phillip and
+                  Allen-Zhu, Zeyuan and Li, Yuanzhi and Wang, Shean and
+                  Wang, Lu and Chen, Weizhu},
+  booktitle    = {International Conference on Learning Representations (ICLR)},
+  year         = {2022},
+  eprint       = {2106.09685},
+  archivePrefix= {arXiv},
+  url          = {https://arxiv.org/abs/2106.09685}
+}
+
+% -- Speech recognition and wake word -----------------------------------------
+@inproceedings{whisper,
+  title     = {Robust Speech Recognition via Large-Scale Weak Supervision},
+  author    = {Radford, Alec and Kim, Jong Wook and Xu, Tao and Brockman, Greg and
+               McLeavey, Christine and Sutskever, Ilya},
+  booktitle = {Proceedings of the 40th International Conference on Machine Learning (ICML)},
+  series    = {Proceedings of Machine Learning Research},
+  volume    = {202},
+  pages     = {28492--28518},
+  year      = {2023},
+  publisher = {PMLR},
+  url       = {https://proceedings.mlr.press/v202/radford23a.html}
+}
+
+@misc{oww,
+  title        = {{openWakeWord}},
+  author       = {Scripka, David},
+  howpublished = {\url{https://github.com/dscripka/openWakeWord}},
+  url          = {https://github.com/dscripka/openWakeWord},
+  urldate      = {2026-09-22}
+}
+
+@misc{silero,
+  title        = {{Silero VAD}: Pre-trained Enterprise-Grade Voice Activity Detector},
+  author       = {{Silero Team}},
+  howpublished = {\url{https://github.com/snakers4/silero-vad}},
+  url          = {https://github.com/snakers4/silero-vad},
+  urldate      = {2026-09-22}
+}
+
+@misc{piper,
+  title        = {{Piper}: A Fast, Local Neural Text-to-Speech System},
+  author       = {Hansen, Michael},
+  howpublished = {\url{https://github.com/rhasspy/piper}},
+  url          = {https://github.com/rhasspy/piper},
+  urldate      = {2026-09-22}
+}
+
+% -- Corpora ------------------------------------------------------------------
+@inproceedings{massive,
+  title     = {{MASSIVE}: A 1{M}-Example Multilingual Natural Language Understanding
+               Dataset with 51 Typologically-Diverse Languages},
+  author    = {FitzGerald, Jack and Hench, Christopher and Peris, Charith and
+               Mackie, Scott and Rottmann, Kay and Sanchez, Ana and
+               Nash, Aaron and Urbach, Liam and Kakarala, Vishesh and
+               Singh, Richa and Ranganath, Swetha and Crist, Laurie and
+               Britan, Misha and Leeuwis, Wouter and Tur, Gokhan and Natarajan, Prem},
+  booktitle = {Proceedings of the 61st Annual Meeting of the Association for
+               Computational Linguistics (Volume 1: Long Papers)},
+  pages     = {4277--4302},
+  year      = {2023},
+  publisher = {Association for Computational Linguistics},
+  doi       = {10.18653/v1/2023.acl-long.235},
+  url       = {https://aclanthology.org/2023.acl-long.235/}
+}
+
+@inproceedings{commonvoice,
+  title     = {{Common Voice}: A Massively-Multilingual Speech Corpus},
+  author    = {Ardila, Rosana and Branson, Megan and Davis, Kelly and Kohler, Michael and
+               Meyer, Josh and Henretty, Michael and Morais, Reuben and Saunders, Lindsay and
+               Tyers, Francis and Weber, Gregor},
+  booktitle = {Proceedings of the Twelfth Language Resources and Evaluation Conference (LREC)},
+  pages     = {4218--4222},
+  year      = {2020},
+  publisher = {European Language Resources Association},
+  url       = {https://aclanthology.org/2020.lrec-1.520/}
+}
+
+@misc{speechcmd,
+  title        = {Speech Commands: A Dataset for Limited-Vocabulary Speech Recognition},
+  author       = {Warden, Pete},
+  year         = {2018},
+  eprint       = {1804.03209},
+  archivePrefix= {arXiv},
+  primaryClass = {cs.CL},
+  url          = {https://arxiv.org/abs/1804.03209}
+}
+
+@inproceedings{dregon,
+  title     = {{DREGON}: Dataset and Methods for {UAV}-Embedded Sound Source Localization},
+  author    = {Strauss, Martin and Mordel, Pol and Miguet, Victor and Deleforge, Antoine},
+  booktitle = {2018 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)},
+  pages     = {1--8},
+  year      = {2018},
+  publisher = {IEEE},
+  doi       = {10.1109/IROS.2018.8593581}
+}
+
+@inproceedings{esc50,
+  title     = {{ESC}: Dataset for Environmental Sound Classification},
+  author    = {Piczak, Karol J.},
+  booktitle = {Proceedings of the 23rd ACM International Conference on Multimedia},
+  pages     = {1015--1018},
+  year      = {2015},
+  publisher = {ACM},
+  doi       = {10.1145/2733373.2806390},
+  note      = {Source of the {ESC-50} dataset}
+}

@@ -141,7 +141,34 @@ def count_cells(row: str) -> int:
 # main check
 # ---------------------------------------------------------------------------
 
-def check(raw: str) -> tuple[list[str], list[str], dict]:
+def bib_keys(doc: str, src: Path | None) -> set[str]:
+    """Citation keys defined in BibTeX files.
+
+    The bibliography used to be a `thebibliography` in a sibling .tex, so a chapter
+    checked on its own could never resolve its own \\cite calls.  It is now
+    thesis/references.bib, which this walks up to find -- so a standalone chapter
+    check is conclusive about citations.  Files named by \\addbibresource are read
+    too, for a main.tex that points somewhere else.
+    """
+    base = (src.parent if src else Path(".")).resolve()
+    files = [base / name for name in re.findall(r"\\addbibresource\{([^}]+)\}", doc)]
+    for d in (base, *base.parents):
+        cand = d / "references.bib"
+        if cand.exists():
+            files.append(cand)
+            break
+    keys: set[str] = set()
+    for f in files:
+        try:
+            text = f.read_text(encoding="utf-8")
+        except OSError:
+            continue                           # named but absent: not this tool's problem
+        keys |= {k for t, k in re.findall(r"@([A-Za-z]+)\s*\{\s*([^,\s]+)\s*,", text)
+                 if t.lower() not in {"string", "comment", "preamble"}}
+    return keys
+
+
+def check(raw: str, src: Path | None = None) -> tuple[list[str], list[str], dict]:
     problems: list[str] = []
     notes: list[str] = []
 
@@ -344,6 +371,7 @@ def check(raw: str) -> tuple[list[str], list[str], dict]:
     refs = {r.strip() for g in re.findall(r"\\(?:ref|autoref|pageref)\{([^}]+)\}", doc)
             for r in g.split(",")}
     bibs = set(re.findall(r"\\bibitem\{([^}]+)\}", doc))
+    bibs |= bib_keys(doc, src)
     cites = {c.strip() for g in re.findall(r"\\cite[tp]?\{([^}]+)\}", doc)
              for c in g.split(",")}
     for r in sorted(refs - labels):
@@ -494,7 +522,7 @@ def main(argv: list[str]) -> int:
         return 2
 
     raw = path.read_text(encoding="utf-8")
-    problems, notes, st = check(raw)
+    problems, notes, st = check(raw, path)
 
     print(f"checked {path}  ({st['lines']} lines, {st['tables']} tables)")
     print(f"  {st['labels']} labels, {st['refs']} refs, "

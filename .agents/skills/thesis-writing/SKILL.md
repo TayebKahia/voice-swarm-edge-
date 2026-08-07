@@ -15,7 +15,7 @@ Any agent working on the thesis must inspect and adhere to these guidelines to e
 
 `prd.md` (untracked, the project's living contract) is the authoritative source for chapter
 outlines (§3.1), material ownership across the two documents (Table 3, the write-once rule), and
-the closed citation set (`thesis/bibliography.tex`). This skill operationalises that contract into
+the closed citation set (`thesis/references.bib`). This skill operationalises that contract into
 writing craft. If the two ever disagree, `prd.md` wins, and this file must be updated to match —
 not the other way around.
 
@@ -120,10 +120,19 @@ first, then the scaffold, then the prose — never the prose alone.
 1. **Citations:**
    - Always use `\cite{key}` for references. Never write author names without a citation key.
    - Use non-breaking spaces before citations and cross-references: `Figure~\ref{fig:arch}`, `Table~\ref{tab:results}`, `Model~\cite{sbc2025}`.
-   - **Closed set only:** cite exclusively from the 19 keys already in `thesis/bibliography.tex`.
+   - **Closed set only:** cite exclusively from the 19 keys already in `thesis/references.bib`.
      If a claim needs a source that is not there, say so in prose (or mark a `\TODO{}`) instead of
-     inventing a `\bibitem`. Do not name-drop a tool, model, or method this project never actually
+     inventing an entry. Do not name-drop a tool, model, or method this project never actually
      used just because it is common in the field.
+   - **Adding an entry is the author's job, not an agent's.** The file's header carries the rules:
+     verify against the primary source first, and record a `doi`, `eprint` or `url`. The closed-set
+     rule exists because the original bibliography was inherited unverified and two entries turned
+     out to be wrong — one with an author who had not written the paper (commit 72a02e1).
+   - **Bibliography is biblatex + biber** over `thesis/references.bib`. A `main.tex` wires it with
+     `\usepackage[backend=biber, sorting=none, style=numeric-comp]{biblatex}`,
+     `\addbibresource{references.bib}`, and `\printbibliography` where the list should appear.
+     Only cited entries are printed, so the two documents can share one file without either
+     listing references it never mentions.
    - **When referring to the companion document,** always say "the \emph{Mémoire d'Ingénieur}" (or
      "\emph{Mémoire de Master}") — never a paraphrase like "the companion report." Naming a
      specific chapter number across documents is fragile: the two are compiled separately with no
@@ -151,11 +160,11 @@ first, then the scaffold, then the prose — never the prose alone.
    `\TODO{}` will not compile stand-alone — note this rather than silently dropping the marker.
 5. **Validate before calling a chapter done:** run `python tools/check_tex.py <file>` — it catches
    dangling `\ref`/`\cite`, wrong table cell counts, over-wide columns, and non-ASCII characters
-   without needing a TeX install. It checks labels/bibitems *within the file it is given*, so
-   running it against one chapter scaffold in isolation will false-positive on every cross-chapter
-   `\ref` and on citations (the bibliography lives in `thesis/bibliography.tex`, a sibling file) —
-   it is only conclusive once run against the assembled `main.tex`, which does not exist yet for
-   either thesis. `tools/build_pdf.py` compiles a document end to end once one does; today it only
+   without needing a TeX install. Citations are resolved against `thesis/references.bib`, which the
+   checker finds by walking up from the file it is given, so a **standalone chapter check is
+   conclusive about `\cite`** — a reported dangling citation is real, not an artefact of checking
+   one file. Labels are still file-local, so every cross-chapter `\ref` will false-positive until
+   it is run against an assembled `main.tex`, which does not exist yet for either thesis. `tools/build_pdf.py` compiles a document end to end once one does; today it only
    targets `docs/project/PRD.tex`.
 6. **Never hand-type a number that a script could produce.** `eval/tables.py` already renders
    Tables 17–18 straight from `results/surface_b.csv` and the Kaggle CSV with the explicit
@@ -175,7 +184,8 @@ Before finalizing any section or chapter, the agent must verify:
 - [ ] Does every figure and table have an explicit in-text reference and discussion?
 - [ ] Are all speculative or promotional adjectives removed?
 - [ ] Is there a clear connection back to the document's central Research Question(s)?
-- [ ] Does every citation key exist in `thesis/bibliography.tex`? (No fabricated `\bibitem`s.)
+- [ ] Does every citation key exist in `thesis/references.bib`? (No fabricated entries —
+      `check_tex.py` now catches this on a single chapter.)
 - [ ] Does every number trace to a named `results/*.csv` row, a `spikes/reports/*` file, or
       `STATE.md`? If not, is it marked with a visible `\TODO{}` instead of a plausible figure?
 - [ ] Does this chapter's section list match `prd.md` §3.1 exactly — no chapters added, merged,
