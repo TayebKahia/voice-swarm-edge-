@@ -74,7 +74,7 @@ concern the schema, the dataset, the fine-tuning and the export pipeline, and be
 \toprule
 ID & Requirement & Verification \\
 \midrule
-FR-5 & Speech recognition runs offline on-device via \texttt{whisper.cpp tiny.en}~\cite{whisper,llamacpp}, with no network access at any point in the pipeline & End-to-end run with networking disabled \\
+FR-5 & Speech recognition runs offline on-device via \texttt{whisper.cpp tiny.en}~\cite{whisper,whispercpp}, with no network access at any point in the pipeline & End-to-end run with networking disabled \\
 FR-6 & Branch~A provides two fail-safe keyword classes, \texttt{swarm hold} $\rightarrow$ \texttt{hover} and \texttt{swarm abort} $\rightarrow$ \texttt{abort}, either of which preempts an in-flight Branch~B inference. No movement verb may be added to Branch~A & Exp-2 preemption trials; a $2 \times 2$ cross-trigger matrix \\
 FR-7 & The swarm controller implements vectorised flocking~\cite{reynolds1987}, formation slot assignment, artificial-potential-field (APF) separation with a hard geometric clamp at the integrator, and PID point navigation, for $N = 5$ at 50~Hz & Exp-4 \\
 FR-8 & Two interchangeable simulation backends sit behind one environment interface: PyFlyt/PyBullet~\cite{pyflyt} and a kinematic simulator & Both pass a hover smoke test \\

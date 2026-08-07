@@ -11,12 +11,12 @@ small one struggles. The inference budget has to be closed entirely on CPU-only 
 against language models whose usual home is a data-centre accelerator.
 
 That difficulty is not unique to this hardware or this task: a recent survey of language-model
-throughput across single-board computers finds the same ceiling recurring across boards and model
-families~\cite{sbc2025}, and Chapter~\ref{chap:related-work} takes up that literature in full. Here
-the same constraint is stated for one target device and three candidate models, and it is not a
-matter of degree that can be waved at; it is a margin narrow enough to measure. A structured
-command in this system is short: a 22-token decode is budgeted to
-complete within 1{,}100~ms, which sets a throughput floor of at least 20~tokens per second.
+throughput across single-board computers finds a parameter ceiling above which no board in its
+sample serves a model reliably~\cite{sbc2025}, and Chapter~\ref{chap:related-work} takes up that
+literature in full. Here the same constraint is stated for one target device and three candidate
+models, and it is not a matter of degree that can be waved at; it is a margin narrow enough to
+measure. A structured command in this system is short: a 22-token decode is budgeted to complete
+within 1{,}100~ms, which sets a throughput floor of at least 20~tokens per second.
 Spike S1 benchmarked Qwen2.5-0.5B-Instruct at Q4\_K\_M quantisation on the target Raspberry Pi~5,
 restricted to the three threads the production configuration reserves for the rest of the
 pipeline, and measured 20.97~tok/s -- a margin of 4.9\% over the floor. The next quantisation level

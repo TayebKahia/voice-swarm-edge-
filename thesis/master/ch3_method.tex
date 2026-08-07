@@ -153,7 +153,7 @@ unreachable target that silently caps the accuracy any model could ever reach ag
 
 \paragraph{Audio: bulk synthesis and the golden set.} Bulk training and validation audio is
 synthesised with Piper text-to-speech~\cite{piper}, mixed with noise at four signal-to-noise
-levels, and passed back through \texttt{whisper.cpp}~\cite{llamacpp} in a round-trip: the training
+levels, and passed back through \texttt{whisper.cpp}~\cite{whispercpp} in a round-trip: the training
 data is built from what the automatic speech recogniser actually transcribes, transcription errors
 included, rather than from the clean text a model will never see at inference time. The evaluation
 set that anchors every headline accuracy figure is different in kind: a single-speaker

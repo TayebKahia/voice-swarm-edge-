@@ -4,11 +4,14 @@
 \section{Edge LLM inference and single-board-computer benchmarking}
 Running a language model without a network connection or a data-centre accelerator is no longer a
 niche exercise, and a growing body of work profiles what single-board computers can sustain when
-asked to do it. The broadest of these surveys benchmarks twenty-five language models across a
-range of single-board computers and reports the same throughput ceiling recurring across boards
-and model families, independent of which model is asked to run~\cite{sbc2025}. That result
-establishes the shape of the problem this thesis inherits: on CPU-only edge hardware, throughput is
-the scarce resource, and it does not improve by choosing a different board.
+asked to do it. The broadest of these surveys benchmarks twenty-five quantised language
+models across three single-board computers under two inference runtimes, and reports a
+parameter ceiling --- above roughly 1.5~billion parameters no board in its sample serves a model
+reliably --- together with a throughput spread of up to four times that is attributable to the
+runtime rather than to the model~\cite{sbc2025}. That result establishes the shape of the problem
+this thesis inherits: on CPU-only edge hardware throughput is the scarce resource, the models that
+fit within it are small ones, and the largest single lever on it is the inference runtime rather
+than the board.
 
 What that survey and its relatives do not report is what happens to a model once it is asked to do
 something with the tokens it produces. Their outcome metric is throughput -- tokens per second,
@@ -111,8 +114,9 @@ unread -- that is the question this thesis's evaluation protocol
 
 \paragraph{Synthesis.} Each of the four literatures reviewed in this chapter is, on its own,
 mature. Single-board-computer benchmarking has established that throughput is the binding
-constraint on this hardware class and that it does not vary meaningfully with the choice of
-board~\cite{sbc2025}. Quantisation is the accepted technique for fitting a model to that
+constraint on this hardware class, that it bounds the servable model to roughly 1.5~billion
+parameters, and that the runtime chosen to serve that model moves the bound further than the board
+does~\cite{sbc2025}. Quantisation is the accepted technique for fitting a model to that
 constraint, with an accuracy cost that is conventionally reported in terms the runtime itself
 provides -- a perplexity delta on a generic corpus -- rather than in terms of any specific
 downstream task~\cite{llamacpp}. Grammar-constrained decoding offers a mechanism, independent of

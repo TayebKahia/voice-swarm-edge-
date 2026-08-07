@@ -120,7 +120,7 @@ first, then the scaffold, then the prose — never the prose alone.
 1. **Citations:**
    - Always use `\cite{key}` for references. Never write author names without a citation key.
    - Use non-breaking spaces before citations and cross-references: `Figure~\ref{fig:arch}`, `Table~\ref{tab:results}`, `Model~\cite{sbc2025}`.
-   - **Closed set only:** cite exclusively from the 18 keys already in `thesis/bibliography.tex`.
+   - **Closed set only:** cite exclusively from the 19 keys already in `thesis/bibliography.tex`.
      If a claim needs a source that is not there, say so in prose (or mark a `\TODO{}`) instead of
      inventing a `\bibitem`. Do not name-drop a tool, model, or method this project never actually
      used just because it is common in the field.
