@@ -75,7 +75,7 @@ o-speed   ::= ( ",\"speed\":"   num )?
 o-alt     ::= ( ",\"alt\":"     num )?
 o-z       ::= ( ",\"z\":"       num )?
 o-ids     ::= ( ",\"ids\":[" idlist "]" )?
-idlist    ::= [0-9] ( "," [0-9] )*
+idlist    ::= [0-4] ( "," [0-4] ){0,4}
 
 num       ::= "-"? [0-9] [0-9]? [0-9]? ( "." [0-9] )?
 \end{lstlisting}
@@ -89,7 +89,15 @@ many digits a number has, not whether $91.0$ is a legal yaw. Range enforcement i
 Layer 2, and the one-decimal digit limit fixed here is also why the canonical comparator defined in
 Section~\ref{sec:definitions-of-record} rounds every numeric slot to one decimal before comparison --
 the metric is built to match what the decoder can actually produce, not a precision the schema never
-promised.
+promised. The \texttt{idlist} rule is bounded the same way, for a reason that is not merely
+stylistic: it restricts a drone identifier to $0$--$4$ and caps the list at five entries, matching
+the fixed swarm size of $N = 5$ (Layer~2's own identifier rule, $\mathtt{ids} \subseteq \{0 \dots
+N{-}1\}$, is the semantic half of the same constraint). An earlier, unbounded form of this rule --
+one digit repeated with no upper limit on how many times -- is what let a spike-era decoder loop on
+digits under greedy decoding until the output was truncated rather than completed, on a command as
+simple as ``swarm land''; fixing the repetition bound in the grammar itself is what makes that
+failure mode structurally unreachable rather than merely rare, the same argument the \texttt{num}
+rule makes for numeric overflow.
 
 The distinction this design rests on -- between a rate that a favourable test set and thorough
 fine-tuning can inflate, and a property that holds by construction on any input, in or out of
@@ -109,8 +117,8 @@ the synthetic corpus -- rather than the reverse order of writing sentences and l
 afterwards. The reverse order reintroduces the annotation cost this pipeline exists to remove, and
 it produces the label noise that comes with a human resolving ambiguous cases at scale; writing the
 label first makes the label the source of the data rather than a judgement made about it.
-Table~\ref{tab:dataset} lists every component this document's experiments and the companion
-runtime consume, with the role that motivates each one.
+Table~\ref{tab:dataset} lists every component this document's experiments and the \emph{M\'emoire
+d'Ing\'enieur}'s runtime consume, with the role that motivates each one.
 
 \begin{table}[htbp]
 \centering
@@ -162,8 +170,8 @@ and every slot combination the required-slot matrix admits, recorded once and ne
 The original protocol called for two further sessions on the same 60-utterance subset -- a
 different room with real background noise, and the same room again on a different day, to capture
 voice variation across time -- and both were cut under the build schedule this project executed
-against; the companion document states the consequence of that cut for its own runtime validation
-as a limitation. The signal-to-noise sweep Chapter~\ref{chap:results} reports over is
+against; the \emph{M\'emoire d'Ing\'enieur} states the consequence of that cut for its own runtime
+validation as a limitation. The signal-to-noise sweep Chapter~\ref{chap:results} reports over is
 unaffected by the cut: it is mixed \emph{digitally} from this single session's clean recording, so
 noise remains the only variable Exp-3 varies and no additional session was ever needed for that
 comparison. What the cut removes is a claim this document does not make in either case: holding the
@@ -187,8 +195,8 @@ two passes together, never apart, so a disagreement is evidence that the schema 
 regardless of the interval length, and the count is a lower bound rather than a claim of
 completeness. \TODO{disagreement count and items from annotation pass 2, \texttt{data/annotate.py --compare}}
 
-\paragraph{The wake corpus.} \texttt{wake\_pos} and \texttt{wake\_neg} are built for the companion
-document's Branch~A keyword spotter and are described here because they share this chapter's
+\paragraph{The wake corpus.} \texttt{wake\_pos} and \texttt{wake\_neg} are built for the \emph{M\'emoire
+d'Ing\'enieur}'s Branch~A keyword spotter and are described here because they share this chapter's
 construction pipeline, not because this document's own experiments consume them. Positive clips
 are synthesised with Piper and passed through openWakeWord's own training pipeline~\cite{oww},
 with the keyword placed at a random offset within the clip rather than centred, and forty
@@ -326,9 +334,13 @@ throttling on the specific device that ships -- so every timing figure either do
 measured on the target Raspberry~Pi~5 itself, never inferred from the workstation. The two
 categories consequently report a different sample size for the same configuration: because
 decoding is deterministic, $n_{\mathrm{accuracy}}$ is the number of test items in the split being
-scored, while $n_{\mathrm{latency}}$ is the number of timed repetitions, fixed project-wide at 200
-per configuration. Reporting one $n$ for both would misstate whichever of the two it was borrowed
-from.
+scored, while $n_{\mathrm{latency}}$ is the number of timed repetitions -- 200 per configuration by
+the original design (Table~15) before execution triaged it. Exp-1's Raspberry~Pi~5 runs were
+triaged to 60 repetitions per Q4\_K\_M configuration, with Q8\_0 left unmeasured on the Pi under
+that same triage; Exp-2 is triaged to 60 trials per branch on the same schedule. $n_{\mathrm{latency}}$
+is therefore reported per experiment as executed, not assumed uniform across the project from the
+original design figure. Reporting one $n$ for both accuracy and latency, or the design figure in
+place of the executed one, would misstate whichever number it was borrowed from.
 
 \paragraph{Canonical form and the single comparator.} A single function, $\mathrm{canon}(\cdot)$,
 is applied to both the model's prediction and the reference label before either is compared to
@@ -355,15 +367,18 @@ the parser rather than to the recogniser in front of it.
 
 Table~\ref{tab:metrics} fixes every metric either document reports; one absent from this table does
 not appear in either. This document's own results (Chapter~\ref{chap:results}) draw on exact
-match, the two F1 scores, schema validity, safe-failure rate, false-command rate, and throughput;
-the remaining rows -- pipeline latency, formation accuracy, and convergence -- are computed by and
-reported in the \emph{M\'emoire d'Ing\'enieur}, which cites the comparator and the canonical form
-defined here rather than re-deriving them.
+match, the two F1 scores, schema validity, safe-failure rate, false-command rate, throughput, and
+the SLM decode latency Exp-1 measures on the Raspberry~Pi~5 alongside it; the remaining rows --
+Branch~A/B pipeline latency, formation accuracy, and convergence -- are computed by and reported in
+the \emph{M\'emoire d'Ing\'enieur}, which cites the comparator and the canonical form defined here
+rather than re-deriving them.
 
 \begin{table}[htbp]
 \centering
 \caption{Metric definitions of record. Every accuracy number in either document is computed by
-the function named here, applied as described; a metric not listed here is not reported.}
+the function named here, applied as described; a metric not listed here is not reported. Schema
+validity, throughput, and Exp-1's decode latency are defined directly from the evaluation harness
+that computes them, since each is already reported on every configuration.}
 \label{tab:metrics}
 \begin{tabularx}{\textwidth}{@{}l X l@{}}
 \toprule
@@ -373,10 +388,12 @@ Exact match (EM) & Fraction of items where $\mathrm{canon}(\mathrm{pred})$ equal
 Command recognition rate (CRR) & The same comparison, with input being audio through the full pipeline & Exp-3, NFR-7, NFR-8 \\
 Intent macro-F1 & Unweighted mean of per-intent F1 over all ten intents present in the reference, so \texttt{unknown} cannot be inflated by frequency & Exp-1, NFR-5 \\
 Slot-F1 & Micro-averaged F1 over the multiset of (key, canonical value) pairs, across all items regardless of intent correctness & Exp-1 \\
+Schema validity & Fraction of items whose output parses as a schema-conformant command; under the grammar this is 1.0 by construction, and the grammar ablation is the one place it can move & Exp-1, NFR-6 \\
 Safe-failure rate & Among items where EM is 0, the fraction whose dispatched action is \texttt{unknown} or \texttt{HOVER}; denominator is failed items only & Exp-1, Exp-3, NFR-9 \\
 False-command rate & On the out-of-domain set, the fraction of items producing any intent other than \texttt{unknown} that also survives the validator & Exp-1, NFR-18 \\
+Throughput & Decode tokens summed over decode-seconds summed across the aggregation window, not the mean of per-trial ratios; measured on the three cores Table~7 pins to inference (\texttt{taskset -c 1-3 -t 3}) & Exp-1, RQ1 \\
 Word error rate (WER) & Word-level edit distance after the fixed normalisation committed in \texttt{eval/norm.py} & Exp-0, Exp-3 \\
-Latency & Branch~B: $T_0$ = end-of-speech, $T_1$ = bus-publish return. Branch~A: $T_0$ = keyword offset, same $T_1$; both branches also report an onset-anchored figure & Exp-2 \\
+Latency & SLM decode and prefill latency, per-trial wall-clock, reported as p50/p95 alongside throughput. Branch~B: $T_0$ = end-of-speech, $T_1$ = bus-publish return. Branch~A: $T_0$ = keyword offset, same $T_1$; both branches also report an onset-anchored figure & Exp-1, Exp-2 \\
 Percentiles & Nearest-rank on the sorted sample, no interpolation; sample size $n$ stated in every cell & Exp-1, Exp-2, Exp-3 \\
 Formation accuracy (FA) & Fraction of drones within $\tau = 0.5$~m of the assigned slot, averaged over the final 5~s of a 60~s trial & Exp-4, NFR-13 \\
 Convergence & Rate of trials reaching FA $\geq 0.85$ at all, plus median and IQR of convergence time over converged trials only & Exp-4 \\

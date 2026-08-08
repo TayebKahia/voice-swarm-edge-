@@ -1033,3 +1033,60 @@ First compile is the real test.
 **Open:** `speechcmd` is still cited by nothing -- expected, Master Ch 4-6 are unwritten.
 Neither thesis has a `main.tex`; the biblatex wiring for one is recorded in the
 thesis-writing skill.
+
+## Master Ch 3 corrections (Tue 22 Sep, Block B session)
+
+Task: analyse four fixes another agent proposed against `thesis/master/ch3_method.tex`, verify
+each against current repo state (a lot moved since the chapter was drafted Sun 20: Exp-1 ran,
+Gate 4 closed, McNemar/Figure 2 landed, the bibliography was audited and migrated to
+`references.bib`), and apply what survived verification. Nothing in `schema/`, `data/`, `train/`,
+`eval/`, `swarm/`, `runtime/` or `prd.md` touched -- Block B scope, thesis text only.
+
+1. **`idlist` grammar listing was stale, confirmed against `schema/cmd.gbnf` on disk.** The
+   chapter reproduced `idlist ::= [0-9] ( "," [0-9] )*` (transcribed from `prd.md` S5.1 at
+   drafting time); the live file reads `[0-4] ( "," [0-4] ){0,4}`, matching `N = 5` (prd.md
+   Table 1). This is not cosmetic: ch1_introduction.tex already narrates the unbounded form's
+   spike-era failure ("since fixed to a bounded form") without saying what the fix was --
+   ch3 was the one place that should have shown it, and as drafted it silently reproduced the
+   *pre-fix* grammar, contradicting ch1. Fixed against the real file, tied to N=5 and Layer 2's
+   `ids ⊆ {0...N-1}` rule, and cross-referenced to the ch1 anecdote.
+   **Flagging, not fixing:** `prd.md` S5.1's own printed grammar still shows the old unbounded
+   form -- `schema/cmd.gbnf`'s header comment says "if these two disagree, the PRD wins and this
+   file is the bug," but here the file is right and the PRD transcription is stale. A future
+   Block A / PRD-sync session should correct S5.1 to match the artefact that actually ships and
+   passed FR-1 (5,191 labels, 0 rejected) -- same shape of problem as the Gate-3-pending-vs-
+   Surface-B-results contradiction flagged at the original Ch3 drafting session, still open.
+2. **n_latency=200 was wrong for two of three latency experiments.** STATE.md's own Sat-19
+   triage (already read once, missed on the first pass) and the Exp-1 RESULT entry both show
+   Exp-1 executed at 60 reps/Q4_K_M-only, and Exp-2 is triaged to 60/branch. Corrected S3.5's
+   protocol paragraph to state the design target (200, prd.md Table 15) against what was
+   actually run/triaged per experiment, rather than one uniform figure.
+3. **Table~\ref{tab:metrics} (Table 10 reproduction) was missing three rows the harness
+   actually computes.** Verified against source rather than trusting the other agent's
+   wording: `eval/metrics.py::schema_validity` (NFR-6, 1.0 by construction under the grammar)
+   and `eval/bench.py`'s throughput aggregate (tokens summed over decode-seconds summed, not
+   mean-of-ratios, on the `taskset -c 1-3 -t 3` cores Table 7 pins to inference) were absent
+   entirely; the Latency row's "Used in: Exp-2" was also wrong -- Exp-1 reports its own SLM
+   decode/prefill p50/p95 (Table 17), which is this document's own material, not only the
+   Ingenieur's. Added Schema validity and Throughput rows, expanded Latency, updated the
+   lead-in sentence on which rows Ch4 draws on, and flagged in the table's own caption that
+   these three are grounded in the harness rather than in prd.md's printed Table 10, which
+   does not list them -- another prd.md-staleness instance, not silently smoothed over.
+4. **"The companion document" (2x) and "the companion runtime" (1x) → "the \emph{M\'emoire
+   d'Ing\'enieur}".** Direct violation of the thesis-writing skill's naming rule, caught
+   correctly by the other agent for two instances; found and fixed a third the diff missed.
+
+One thing NOT applied from the proposed diffs: nothing else in the other agent's four snippets
+was taken verbatim -- Fix 1's idlist rule matched the real file exactly so it was reused, but
+its added prose was rewritten to cite N=5/Layer 2/the ch1 cross-reference instead; Fix 3's
+metric definitions were re-derived from `eval/metrics.py`/`eval/bench.py` source rather than
+trusted as written, since a Method chapter defining a metric wrong is worse than not defining it.
+
+`python tools/check_tex.py thesis/master/ch3_method.tex`: citations now resolve against
+`references.bib` directly (STATE.md's bib-migration entry above notes this became possible for
+the first time) -- 11 cites, 0 unresolved. 4 remaining flags are the same cross-file `\ref`s as
+before (chap:related-work, chap:results, sec:constrained-decoding, sec:quantisation).
+
+Stopped here: the four corrections are applied and committed. Not started: nothing else in Ch3
+touched. Still outstanding from the original drafting session: the annotation pass-2 `\TODO{}`
+(unchanged), and Master Ch 4 itself.
