@@ -45,6 +45,13 @@ RULE_CMD = re.compile(
 )
 
 # Lines where a bare # or _ is legitimate (macro definitions use #1, #2, ...).
+# Arguments that are file paths or citation/label keys: an underscore there is
+# legal and needs no escaping, so blank them before the bare-character scan.
+PATHARG = re.compile(
+    r"\\(?:input|include|includegraphics|graphicspath|addbibresource"
+    r"|lstinputlisting|label|ref|autoref|pageref|cite[tp]?|bibitem|url|href)\b"
+    r"\s*(?:\[[^\]]*\])?\{[^}]*\}")
+
 DEFN = re.compile(
     r"\\(?:re)?newcommand|\\newcolumntype|\\newenvironment|\\def[^a-zA-Z]"
     r"|\\providecommand|\\lstdefinestyle|\\lstset|\\DeclareRobustCommand"
@@ -168,7 +175,8 @@ def bib_keys(doc: str, src: Path | None) -> set[str]:
     return keys
 
 
-def check(raw: str, src: Path | None = None) -> tuple[list[str], list[str], dict]:
+def check(raw: str, src: Path | None = None,
+          xelatex: bool = False) -> tuple[list[str], list[str], dict]:
     problems: list[str] = []
     notes: list[str] = []
 
@@ -230,8 +238,18 @@ def check(raw: str, src: Path | None = None) -> tuple[list[str], list[str], dict
             if n in flagged_lines:
                 continue
             flagged_lines.add(n)
-            problems.append(f"L{n}: non-ASCII U+{ord(ch):04X} -- pdflatex text mode "
-                            f"cannot render this: {raw_lines[n - 1].strip()[:70]}")
+            msg = (f"L{n}: non-ASCII U+{ord(ch):04X}: "
+                   f"{raw_lines[n - 1].strip()[:70]}")
+            if xelatex:
+                # thesis/ compiles with XeLaTeX (polyglossia + Arabic), where
+                # UTF-8 is native. Accented French and Arabic on the cover page
+                # are required content, not faults -- note them, do not fail on
+                # them. Chapter bodies should still stay ASCII; run without the
+                # flag to enforce that.
+                notes.append(msg + "  (fine under XeLaTeX)")
+            else:
+                problems.append(msg.replace(": ", " -- pdflatex text mode "
+                                            "cannot render this: ", 1))
 
     # -- 2. environment matching -------------------------------------------
     stack: list[tuple[str, int]] = []
@@ -385,12 +403,18 @@ def check(raw: str, src: Path | None = None) -> tuple[list[str], list[str], dict
     for n, line in enumerate(doc.split("\n"), 1):
         if DEFN.search(line):
             continue
-        s = re.sub(r"\\(?:[a-zA-Z]+\*?|.)", "", line)      # drop macros + escapes
+        s = PATHARG.sub("", line)                          # drop path/key args
+        s = re.sub(r"\\(?:[a-zA-Z]+\*?|.)", "", s)         # drop macros + escapes
         s = re.sub(r"\$[^$]*\$", "", s)                    # drop inline math
-        for ch, name in (("_", "underscore"), ("#", "hash")):
-            if ch in s:
-                problems.append(f"L{n}: bare {name} {ch!r} in text mode: "
-                                f"{line.strip()[:70]}")
+        if "_" in s:
+            problems.append(f"L{n}: bare underscore '_' in text mode: "
+                            f"{line.strip()[:70]}")
+        # '#1' and '##1' are macro parameters -- they appear in any definition
+        # body, including ones spanning several lines that DEFN cannot see.
+        # Only a '#' that is neither doubled nor followed by a digit is a fault.
+        if re.search(r"(?<!#)#(?![#\d])", s):
+            problems.append(f"L{n}: bare hash '#' in text mode: "
+                            f"{line.strip()[:70]}")
 
     stats = {"lines": raw.count("\n") + 1, "tables": tables, "labels": len(labels),
              "refs": len(refs), "bibitems": len(bibs), "cites": len(cites)}
@@ -516,13 +540,15 @@ def main(argv: list[str]) -> int:
     if "--selftest" in argv:
         return selftest()
 
+    xelatex = "--xelatex" in argv
+    argv = [a for a in argv if a != "--xelatex"]
     path = Path(argv[1]) if len(argv) > 1 else Path("docs") / "project" / "PRD.tex"
     if not path.exists():
         print(f"not found: {path}", file=sys.stderr)
         return 2
 
     raw = path.read_text(encoding="utf-8")
-    problems, notes, st = check(raw, path)
+    problems, notes, st = check(raw, path, xelatex=xelatex)
 
     print(f"checked {path}  ({st['lines']} lines, {st['tables']} tables)")
     print(f"  {st['labels']} labels, {st['refs']} refs, "
