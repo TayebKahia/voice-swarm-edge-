@@ -1,0 +1,189 @@
+% =============================================================================
+%  SHARED PREAMBLE -- \input by BOTH main_master.tex and main_ingenieur.tex.
+%  There is deliberately ONE of these. The ESI templates in thesis/thesis_ex/
+%  carry two forked copies of the same 120-line preamble, which is how they
+%  drifted apart; do not reintroduce that by copying this file per document.
+%
+%  \documentclass does NOT belong here -- it must be the first line of each main.
+% =============================================================================
+
+% -- Engine note --------------------------------------------------------------
+%  XeLaTeX or LuaLaTeX is REQUIRED (polyglossia + an Arabic font for the AR
+%  abstract). pdfLaTeX will not build this document.
+%  inputenc is deliberately absent: it is a pdfLaTeX package and conflicts with
+%  XeLaTeX's native UTF-8. The ESI templates load it; that is a bug, not a model.
+
+\usepackage{extsizes}
+\usepackage{indentfirst}
+\usepackage{csquotes}
+
+% -- Languages ----------------------------------------------------------------
+%  babel is deliberately NOT loaded: polyglossia replaces it, and loading both
+%  errors under XeLaTeX/LuaLaTeX. The ESI templates load both.
+\usepackage{polyglossia}
+\setdefaultlanguage{english}
+\setotherlanguage[numerals=maghrib]{arabic}   % Latin digits inside Arabic text
+
+%  Pick whichever Arabic font this machine actually has, rather than failing the
+%  whole build on a missing font. If neither is installed the document still
+%  compiles and the Arabic abstract renders in the default face (visibly wrong,
+%  which is the point -- it tells you to install one).
+\IfFontExistsTF{Amiri}{%
+  \newfontfamily\arabicfont[Script=Arabic]{Amiri}%
+}{%
+  \IfFontExistsTF{Noto Sans Arabic}{%
+    \newfontfamily\arabicfont[Script=Arabic]{Noto Sans Arabic}%
+  }{%
+    \GenericWarning{}{THESIS: no Arabic font found (tried Amiri, Noto Sans
+      Arabic). The Arabic abstract will NOT render correctly. Install one
+      before the final build: `sudo apt install fonts-hosny-amiri` or
+      `fonts-noto-core`.}%
+    %  Keep \arabicfont defined so the build still finishes: fall back to the
+    %  roman family rather than naming a system font that may also be absent.
+    \providecommand{\arabicfont}{\rmfamily}%
+  }%
+}
+
+% -- Maths and symbols --------------------------------------------------------
+\usepackage{lmodern}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+
+% -- Floats, figures, tables --------------------------------------------------
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{wrapfig}
+\usepackage{caption}
+\usepackage{subcaption}   % NOT subfigure: that package is obsolete and clashes
+                          % with caption. The ESI templates still load subfigure.
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{longtable}
+\usepackage{lscape}
+\usepackage{pdflscape}
+\usepackage{romannum}
+\usepackage[normalem]{ulem}
+\usepackage[bottom]{footmisc}
+
+% -- Geometry -----------------------------------------------------------------
+\usepackage[top=1.5cm, bottom=1.5cm, left=2.5cm, right=2.5cm, headheight=15pt]{geometry}
+
+% -- Where figures are looked up ----------------------------------------------
+\graphicspath{{shared/figures/}{master/figures/}{ingenieur/figures/}}
+
+% -- Colour -------------------------------------------------------------------
+\usepackage[table]{xcolor}
+\definecolor{primarycolor}{RGB}{0,84,166}
+\definecolor{accentcolor}{RGB}{220,100,0}
+\definecolor{commentcolor}{RGB}{60,130,60}
+
+% -- TikZ / plots -------------------------------------------------------------
+%  tikz is loaded BEFORE any \usetikzlibrary / \tikzset. The PFE template in
+%  thesis_ex/ comments out \usepackage{tikz} but still calls \usetikzlibrary
+%  below it, which is why it does not compile.
+\usepackage{tikz}
+\usetikzlibrary{matrix,chains,positioning,decorations.pathreplacing,arrows,
+                arrows.meta,fit,backgrounds,calc}
+\tikzset{>=latex}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+% -- Code listings ------------------------------------------------------------
+\usepackage{listings}
+\lstset{
+    basicstyle=\ttfamily\footnotesize,
+    backgroundcolor=\color{gray!10},
+    commentstyle=\color{commentcolor},
+    keywordstyle=\color{primarycolor}\bfseries,
+    stringstyle=\color{accentcolor},
+    numbers=left, numberstyle=\tiny\color{gray},
+    stepnumber=1, numbersep=8pt,
+    showstringspaces=false, breaklines=true,
+    frame=single, rulecolor=\color{gray!30},
+    captionpos=b, xleftmargin=15pt, xrightmargin=5pt
+}
+
+% -- Hyperlinks ---------------------------------------------------------------
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks = true, urlcolor = blue, linkcolor = blue, citecolor = blue
+}
+
+% -- Acronyms -----------------------------------------------------------------
+\usepackage[acronym, automake, nonumberlist]{glossaries}
+
+%  A two-column acronym table (Acronym | Definition) instead of the default
+%  description list. Requires longtable, loaded above. The mains ask for this
+%  by name: \printglossary[... style=acrolong].
+\newglossarystyle{acrolong}{%
+    \setglossarystyle{long}%
+    \renewenvironment{theglossary}{%
+        \begin{longtable}{p{3.5cm} p{11.5cm}}%
+    }{%
+        \end{longtable}%
+    }%
+    \renewcommand*{\glossaryheader}{%
+        \toprule \bfseries Acronym & \bfseries Definition \\
+        \midrule\endhead \bottomrule\endfoot
+    }%
+    \renewcommand{\glossentry}[2]{%
+        \glsentryitem{##1}\glstarget{##1}{\glossentryname{##1}} &
+        \glossentrydesc{##1} \\
+    }%
+}
+\makeglossaries
+%  Acronym DEFINITIONS are \input after \begin{document}, not here. The ESI
+%  templates \include them in the preamble; \include issues \clearpage, which
+%  is not legal before \begin{document}.
+
+% -- Section depth ------------------------------------------------------------
+%  \makeatletter is required: these names contain @, and this is a .tex file
+%  \input in the preamble, where @ is not a letter. The ESI templates omit it.
+\usepackage{titlesec}
+\makeatletter
+\def\toclevel@subsubsubsection{4}
+\def\l@subsubsubsection{\@dottedtocline{4}{7em}{4em}}
+\makeatother
+\setcounter{secnumdepth}{4}
+\setcounter{tocdepth}{4}
+
+% -- Chapter style ------------------------------------------------------------
+%  Options: Sonny, Lenny, Glenn, Conny, Rejne, Bjarne, Bjornstrup
+\usepackage[Glenn]{fncychap}
+
+% -- Bibliography -------------------------------------------------------------
+%  biblatex + biber over the ONE shared references.bib. sorting=none prints in
+%  citation order; numeric-comp compresses [3,4,5] to [3-5]. Only entries a
+%  given document actually cites are printed, which is why the two theses can
+%  share one file without either listing references it never mentions.
+\usepackage[backend=biber, sorting=none, style=numeric-comp]{biblatex}
+\addbibresource{references.bib}
+
+% =============================================================================
+%  AUTHORING MARKERS -- all three are visible in the PDF and greppable in the
+%  source. Nothing here should survive into the deposited document.
+% =============================================================================
+
+%  \TODO{...} -- a fact not yet available. Used by the chapters; see
+%  .agents/skills/thesis-writing/SKILL.md on never hand-typing a number.
+\newcommand{\TODO}[1]{{\bfseries\color{accentcolor}[TODO: #1]}}
+
+%  \CHECK{...} -- a claim that needs verifying against a source or a result.
+\newcommand{\CHECK}[1]{{\bfseries\color{accentcolor}[CHECK: #1]}}
+
+%  \figtodo{...} -- a figure placeholder that compiles with no image file.
+\newcommand{\figtodo}[1]{%
+  \fbox{\parbox[c][3.6cm][c]{0.85\textwidth}{\centering\itshape\color{accentcolor}
+  [FIGURE TO ADD]\\[4pt]\normalcolor\itshape #1}}}
+
+% =============================================================================
+%  NOTE ON \ifpfe
+%  sample_thesis/ defines a \newif\ifpfe so one shared source file can word a
+%  passage differently in each document. It is deliberately NOT defined here:
+%  prd.md 3.2 states that no paragraph appears in both documents, so there are
+%  no shared prose files for it to act on. Adding the toggle would invite
+%  exactly the shared-paragraph writing that Table 3 forbids.
+% =============================================================================

@@ -1,0 +1,82 @@
+% =============================================================================
+%  MEMOIRE D'INGENIEUR D'ETAT -- main file
+%  Design and Implementation of an Offline Voice-Controlled Drone Swarm System
+%  with a Dual-Path Safety Architecture on Raspberry Pi 5
+%
+%  COMPILE FROM thesis/ :
+%     xelatex main_ingenieur  ->  biber main_ingenieur
+%     ->  makeglossaries main_ingenieur
+%     ->  xelatex main_ingenieur  ->  xelatex main_ingenieur
+%
+%  XeLaTeX (or LuaLaTeX) is REQUIRED -- polyglossia + an Arabic font render the
+%  Arabic abstract. pdflatex will NOT build this.
+%
+%  Chapter structure is prd.md 3.1 verbatim (six chapters). Chapters not yet
+%  written are listed commented-out below with their prd.md titles, so the
+%  outline stays visible and the document still compiles.
+% =============================================================================
+\documentclass[openany,12pt,oneside]{extreport}
+
+\input{shared/preamble}
+
+\title{Design and Implementation of an Offline Voice-Controlled Drone Swarm
+       System with a Dual-Path Safety Architecture on Raspberry Pi 5}
+\author{Tayeb Kahia}
+
+\begin{document}
+
+% Discourage overfull lines in a draft; revisit before the final build.
+\tolerance=1
+\emergencystretch=\maxdimen
+\hyphenpenalty=10000
+\hbadness=10000
+
+% -- Title page ---------------------------------------------------------------
+\input{ingenieur/frontmatter/titlepage}
+
+% -- Front matter -------------------------------------------------------------
+%  Numbering follows the ESI templates and sample_thesis: arabic throughout,
+%  no roman front matter. Front matter is kept out of the TOC by dropping
+%  tocdepth to -1 around it.
+\pagenumbering{arabic}
+\addtocontents{toc}{\protect\setcounter{tocdepth}{-1}}
+
+\input{shared/frontmatter/dedication}
+\input{shared/frontmatter/acknowledgement}
+\input{ingenieur/frontmatter/abstract}
+\input{ingenieur/frontmatter/frabstract}
+\input{ingenieur/frontmatter/arabstract}
+
+% -- Contents -----------------------------------------------------------------
+\addtocontents{toc}{\protect\setcounter{tocdepth}{4}}
+\tableofcontents
+\listoffigures
+\listoftables
+
+% -- Acronyms -----------------------------------------------------------------
+\input{shared/acronyms}
+\printglossary[type=\acronymtype, title=List of Acronyms, style=acrolong]
+\clearpage
+
+% -- Chapters (prd.md 3.1) ----------------------------------------------------
+\input{ingenieur/ch1_introduction}
+\input{ingenieur/ch2_state_of_the_art}
+% \input{ingenieur/ch3_architecture}   % Architecture and design: dual-path
+%                                      % decomposition, Branch A membership rule,
+%                                      % three validation layers, latency budget,
+%                                      % resource allocation
+% \input{ingenieur/ch4_implementation} % Implementation: audio chain, runtime,
+%                                      % command bus, state machine, swarm
+%                                      % controller, both simulation backends
+% \input{ingenieur/ch5_validation}     % Validation: Exp-2, Exp-3, Exp-4 with the
+%                                      % statistical analysis
+% \input{ingenieur/ch6_conclusion}     % Demonstration, limitations, future work,
+%                                      % conclusion (ONE chapter -- do not split
+%                                      % it the way the Master's was)
+
+% -- Bibliography -------------------------------------------------------------
+\newpage
+\printbibliography
+\addcontentsline{toc}{chapter}{Bibliography}
+
+\end{document}

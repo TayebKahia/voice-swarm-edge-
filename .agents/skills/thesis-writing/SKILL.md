@@ -128,11 +128,16 @@ first, then the scaffold, then the prose — never the prose alone.
      verify against the primary source first, and record a `doi`, `eprint` or `url`. The closed-set
      rule exists because the original bibliography was inherited unverified and two entries turned
      out to be wrong — one with an author who had not written the paper (commit 72a02e1).
-   - **Bibliography is biblatex + biber** over `thesis/references.bib`. A `main.tex` wires it with
-     `\usepackage[backend=biber, sorting=none, style=numeric-comp]{biblatex}`,
-     `\addbibresource{references.bib}`, and `\printbibliography` where the list should appear.
-     Only cited entries are printed, so the two documents can share one file without either
-     listing references it never mentions.
+   - **Bibliography is biblatex + biber** over `thesis/references.bib`, already wired in
+     `thesis/shared/preamble.tex`; `\printbibliography` sits at the end of each `main_*.tex`.
+     Only cited entries are printed, so the two documents share one file without either listing
+     references it never mentions.
+   - **Document assembly:** `thesis/main_master.tex` and `thesis/main_ingenieur.tex` are the two
+     documents; both `\input{shared/preamble}` — there is deliberately ONE preamble, and forking
+     it per document is how the ESI templates in `thesis/thesis_ex/` drifted apart. Chapters are
+     `\input` by the main files; chapters not yet written are listed commented-out there with
+     their `prd.md` §3.1 titles. Build with **XeLaTeX**, not pdfLaTeX (polyglossia + Arabic); the
+     full recipe is in each main file's header comment.
    - **When referring to the companion document,** always say "the \emph{Mémoire d'Ingénieur}" (or
      "\emph{Mémoire de Master}") — never a paraphrase like "the companion report." Naming a
      specific chapter number across documents is fragile: the two are compiled separately with no
@@ -150,22 +155,23 @@ first, then the scaffold, then the prose — never the prose alone.
 
 ### Tooling & Automation
 
-4. **The `\TODO{}` macro:** neither thesis has a `main.tex`/preamble yet, so this macro is not
-   defined anywhere. Whoever creates `thesis/master/main.tex` (or `ingenieur/main.tex`) must add,
-   near the other preamble commands:
-   ```latex
-   \newcommand{\TODO}[1]{\textbf{\color{red}[TODO: #1]}}
-   ```
-   before any chapter using `\TODO{}` is `\input`. Until that preamble exists, a chapter that uses
-   `\TODO{}` will not compile stand-alone — note this rather than silently dropping the marker.
+4. **Authoring markers:** `\TODO{}`, `\CHECK{}` and `\figtodo{}` are defined in
+   `thesis/shared/preamble.tex` and all three render visibly in the PDF. Use `\TODO{}` for a fact
+   not yet available, `\CHECK{}` for a claim needing verification against a source or result, and
+   `\figtodo{}` for a figure placeholder that compiles with no image file. None of them should
+   survive into the deposited document; all three are greppable.
 5. **Validate before calling a chapter done:** run `python tools/check_tex.py <file>` — it catches
    dangling `\ref`/`\cite`, wrong table cell counts, over-wide columns, and non-ASCII characters
    without needing a TeX install. Citations are resolved against `thesis/references.bib`, which the
    checker finds by walking up from the file it is given, so a **standalone chapter check is
    conclusive about `\cite`** — a reported dangling citation is real, not an artefact of checking
-   one file. Labels are still file-local, so every cross-chapter `\ref` will false-positive until
-   it is run against an assembled `main.tex`, which does not exist yet for either thesis. `tools/build_pdf.py` compiles a document end to end once one does; today it only
-   targets `docs/project/PRD.tex`.
+   one file. Labels are still file-local, so a cross-chapter `\ref` will false-positive on a lone
+   chapter; to resolve those, concatenate the document's chapters and check the result.
+   **Pass `--xelatex` when checking anything under `thesis/`** — the cover page and the French and
+   Arabic abstracts are legitimately non-ASCII, and `thesis/` compiles with XeLaTeX, where UTF-8 is
+   native. The flag downgrades the non-ASCII rule to a note. Do **not** pass it when checking a
+   chapter body: those should stay ASCII. `tools/build_pdf.py` today targets only
+   `docs/project/PRD.tex`; the compile recipe for the theses is in each `main_*.tex` header.
 6. **Never hand-type a number that a script could produce.** `eval/tables.py` already renders
    Tables 17–18 straight from `results/surface_b.csv` and the Kaggle CSV with the explicit
    discipline "no number is typed by hand." When a results table or figure has a generating
@@ -190,9 +196,10 @@ Before finalizing any section or chapter, the agent must verify:
       `STATE.md`? If not, is it marked with a visible `\TODO{}` instead of a plausible figure?
 - [ ] Does this chapter's section list match `prd.md` §3.1 exactly — no chapters added, merged,
       or reordered without updating `prd.md` first?
-- [ ] Has `python tools/check_tex.py <file>` been run on it — and, if run against a lone chapter
-      rather than the assembled `main.tex`, are its cross-file `\ref`/`\cite` findings discounted
-      as expected false positives rather than "fixed" by deleting a valid reference?
+- [ ] Has `python tools/check_tex.py <file>` been run on it — and, if run against a lone chapter,
+      are its cross-chapter `\ref` findings discounted as expected false positives rather than
+      "fixed" by deleting a valid reference? (`\cite` findings are *not* false positives: they
+      resolve against `thesis/references.bib`.)
 - [ ] Was every table or figure generated by a script reading `results/*.csv` (e.g.
       `eval/tables.py`) rather than hand-typed from a CSV someone read once?
 - [ ] Is every reference to the other document phrased as "the \emph{Mémoire d'Ingénieur}" /
