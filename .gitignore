@@ -41,6 +41,22 @@ build/
 *.synctex.gz
 *.nav
 *.snm
+# biblatex/biber
+*.bcf
+*.run.xml
+# glossaries (thesis/ acronym list)
+*.acn
+*.acr
+*.alg
+*.glg
+*.glo
+*.gls
+*.glsdefs
+*.ist
+# Built theses -- reproducible from thesis/main_*.tex with the recipe in each
+# file's header. Same rule as pfe_prd.pdf below.
+thesis/main_master.pdf
+thesis/main_ingenieur.pdf
 
 # ---------------------------------------------------------------------
 # Model artefacts -- approx. 6 GB. Rebuilt from train/ checkpoints

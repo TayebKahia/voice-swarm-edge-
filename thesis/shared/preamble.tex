@@ -17,33 +17,6 @@
 \usepackage{indentfirst}
 \usepackage{csquotes}
 
-% -- Languages ----------------------------------------------------------------
-%  babel is deliberately NOT loaded: polyglossia replaces it, and loading both
-%  errors under XeLaTeX/LuaLaTeX. The ESI templates load both.
-\usepackage{polyglossia}
-\setdefaultlanguage{english}
-\setotherlanguage[numerals=maghrib]{arabic}   % Latin digits inside Arabic text
-
-%  Pick whichever Arabic font this machine actually has, rather than failing the
-%  whole build on a missing font. If neither is installed the document still
-%  compiles and the Arabic abstract renders in the default face (visibly wrong,
-%  which is the point -- it tells you to install one).
-\IfFontExistsTF{Amiri}{%
-  \newfontfamily\arabicfont[Script=Arabic]{Amiri}%
-}{%
-  \IfFontExistsTF{Noto Sans Arabic}{%
-    \newfontfamily\arabicfont[Script=Arabic]{Noto Sans Arabic}%
-  }{%
-    \GenericWarning{}{THESIS: no Arabic font found (tried Amiri, Noto Sans
-      Arabic). The Arabic abstract will NOT render correctly. Install one
-      before the final build: `sudo apt install fonts-hosny-amiri` or
-      `fonts-noto-core`.}%
-    %  Keep \arabicfont defined so the build still finishes: fall back to the
-    %  roman family rather than naming a system font that may also be absent.
-    \providecommand{\arabicfont}{\rmfamily}%
-  }%
-}
-
 % -- Maths and symbols --------------------------------------------------------
 \usepackage{lmodern}
 \usepackage{amsmath}
@@ -62,6 +35,8 @@
 \usepackage{booktabs}
 \usepackage{multirow}
 \usepackage{longtable}
+\usepackage{xltabular}    % longtable that still supports tabularx X columns:
+                          % needed for any table taller than one page.
 \usepackage{lscape}
 \usepackage{pdflscape}
 \usepackage{romannum}
@@ -147,12 +122,51 @@
 \def\toclevel@subsubsubsection{4}
 \def\l@subsubsubsection{\@dottedtocline{4}{7em}{4em}}
 \makeatother
-\setcounter{secnumdepth}{4}
-\setcounter{tocdepth}{4}
+%  secnumdepth 3, NOT 4. The chapters use \paragraph{...} as an unnumbered
+%  lead-in ("Checkpoint selection."), which is the standard idiom. At depth 4
+%  those get numbered, and because the chapters have no subsections in between
+%  the numbers come out as "3.3.0.0.3 Checkpoint selection." The ESI templates
+%  set 4; that is what produces those. tocdepth follows so the contents list
+%  stops at subsubsection instead of listing every lead-in paragraph.
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
 
 % -- Chapter style ------------------------------------------------------------
 %  Options: Sonny, Lenny, Glenn, Conny, Rejne, Bjarne, Bjornstrup
 \usepackage[Glenn]{fncychap}
+
+% -- Languages (LOADED LATE ON PURPOSE) --------------------------------------
+%  polyglossia pulls in `bidi` as soon as an RTL language is declared, and bidi
+%  REQUIRES that it be loaded after amsmath, amstext, caption, xcolor, colortbl
+%  and friends. Declaring Arabic near the top of the preamble -- which is where
+%  the ESI templates put it -- makes a cold build emit 17 "you have loaded
+%  package X after bidi" errors. Keep this block below every package above.
+%  babel is deliberately NOT loaded: polyglossia replaces it, and loading both
+%  errors under XeLaTeX/LuaLaTeX. The ESI templates load both.
+\usepackage{polyglossia}
+\setdefaultlanguage{english}
+\setotherlanguage[numerals=maghrib]{arabic}   % Latin digits inside Arabic text
+
+%  Pick whichever Arabic font this machine actually has, rather than failing the
+%  whole build on a missing font. If neither is installed the document still
+%  compiles and the Arabic abstract renders in the default face (visibly wrong,
+%  which is the point -- it tells you to install one).
+\IfFontExistsTF{Amiri}{%
+  \newfontfamily\arabicfont[Script=Arabic]{Amiri}%
+}{%
+  \IfFontExistsTF{Noto Sans Arabic}{%
+    \newfontfamily\arabicfont[Script=Arabic]{Noto Sans Arabic}%
+  }{%
+    \GenericWarning{}{THESIS: no Arabic font found (tried Amiri, Noto Sans
+      Arabic). The Arabic abstract will NOT render correctly. Install one
+      before the final build: `sudo apt install fonts-hosny-amiri` or
+      `fonts-noto-core`.}%
+    %  Keep \arabicfont defined so the build still finishes: fall back to the
+    %  roman family rather than naming a system font that may also be absent.
+    \providecommand{\arabicfont}{\rmfamily}%
+  }%
+}
+
 
 % -- Bibliography -------------------------------------------------------------
 %  biblatex + biber over the ONE shared references.bib. sorting=none prints in

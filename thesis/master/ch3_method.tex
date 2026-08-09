@@ -373,17 +373,24 @@ Branch~A/B pipeline latency, formation accuracy, and convergence -- are computed
 the \emph{M\'emoire d'Ing\'enieur}, which cites the comparator and the canonical form defined here
 rather than re-deriving them.
 
-\begin{table}[htbp]
-\centering
+% xltabular, not table+tabularx: this table is ~300pt taller than a text page,
+% and as a float it was silently dropped from the PDF entirely (LaTeX reported
+% only "Float too large for page"). xltabular breaks across pages and repeats
+% the header row.
+\begin{xltabular}{\textwidth}{@{}l X l@{}}
 \caption{Metric definitions of record. Every accuracy number in either document is computed by
 the function named here, applied as described; a metric not listed here is not reported. Schema
 validity, throughput, and Exp-1's decode latency are defined directly from the evaluation harness
 that computes them, since each is already reported on every configuration.}
-\label{tab:metrics}
-\begin{tabularx}{\textwidth}{@{}l X l@{}}
+\label{tab:metrics}\\
 \toprule
 Metric & Definition & Used in \\
 \midrule
+\endfirsthead
+\toprule
+Metric & Definition & Used in \\
+\midrule
+\endhead
 Exact match (EM) & Fraction of items where $\mathrm{canon}(\mathrm{pred})$ equals $\mathrm{canon}(\mathrm{gold})$; input is reference text & Exp-1, NFR-4 \\
 Command recognition rate (CRR) & The same comparison, with input being audio through the full pipeline & Exp-3, NFR-7, NFR-8 \\
 Intent macro-F1 & Unweighted mean of per-intent F1 over all ten intents present in the reference, so \texttt{unknown} cannot be inflated by frequency & Exp-1, NFR-5 \\
@@ -398,5 +405,4 @@ Percentiles & Nearest-rank on the sorted sample, no interpolation; sample size $
 Formation accuracy (FA) & Fraction of drones within $\tau = 0.5$~m of the assigned slot, averaged over the final 5~s of a 60~s trial & Exp-4, NFR-13 \\
 Convergence & Rate of trials reaching FA $\geq 0.85$ at all, plus median and IQR of convergence time over converged trials only & Exp-4 \\
 \bottomrule
-\end{tabularx}
-\end{table}
+\end{xltabular}
