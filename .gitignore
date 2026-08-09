@@ -53,10 +53,9 @@ build/
 *.gls
 *.glsdefs
 *.ist
-# Built theses -- reproducible from thesis/main_*.tex with the recipe in each
-# file's header. Same rule as pfe_prd.pdf below.
-thesis/main_master.pdf
-thesis/main_ingenieur.pdf
+# The theses build out-of-tree into thesis/build/ (see thesis/.latexmkrc), which
+# the build/ rule above already covers -- intermediates AND the two PDFs. They
+# are reproducible with `cd thesis && latexmk main_master.tex`.
 
 # ---------------------------------------------------------------------
 # Model artefacts -- approx. 6 GB. Rebuilt from train/ checkpoints
