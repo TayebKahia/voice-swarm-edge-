@@ -48,7 +48,9 @@
 \input{ingenieur/frontmatter/arabstract}
 
 % -- Contents -----------------------------------------------------------------
-\addtocontents{toc}{\protect\setcounter{tocdepth}{4}}
+% Back to the preamble's tocdepth (3). Restoring 4 here would override it and
+% list every \paragraph lead-in -- "Synthesis.", "Gap." -- in the contents.
+\addtocontents{toc}{\protect\setcounter{tocdepth}{3}}
 \tableofcontents
 \listoffigures
 \listoftables
