@@ -51,13 +51,34 @@ prompt_rendering_note: >
   per model at train time and recorded in training_history.json and
   parity_hf.json's `system_role_folded` key.
 
-  DECLARE THIS IN LIMITATIONS. It is a real asymmetry: the iso-parameter pair
-  (Qwen2.5-0.5B vs Danube3-500M) now differs in family AND in prompt rendering, so
-  a difference between them cannot be attributed to the pretraining recipe alone.
-  It does not invalidate the control -- the alternative was no control at all, and
-  no ~0.5B instruct model outside the Qwen family was found that both accepts a
-  system turn and is not already in the study -- but it must be stated, not
-  smoothed over.
+  DECLARE IT IN LIMITATIONS, but at the right strength -- an earlier draft of this
+  note overstated it as "weakening the control", and that is not quite right.
+
+  The project's prompt rule is ALREADY "the model's own
+  tokenizer.apply_chat_template, never hand-written". The three existing models are
+  therefore already prompted in three DIFFERENT formats -- ChatML for Qwen, the
+  Llama-3 format for Llama-3.2, SmolLM2's own for SmolLM2 -- differing in special
+  tokens, role markers and whitespace. Per-model template variation is the
+  protocol, not a departure from it, because it is how each model will actually be
+  deployed. Danube's native format has no system turn, so expressing the
+  instruction in Danube's native format MEANS folding. That is the same rule
+  applied consistently, one step further than the other three happen to require.
+
+  The precedent is not obscure. Google's Gemma family raises the identical error
+  from the identical construct --
+  `{% if messages[0]['role'] == 'system' %}{{ raise_exception('System role not
+  supported') }}{% endif %}` -- and Google's own guidance is exactly this fold:
+  put the system instruction in the first user message. A whole major model family
+  is used this way by design.
+
+  What survives as a genuine caveat, stated at its real size: the fold changes
+  where the instruction sits relative to the role markers, so Danube's prompt
+  differs from the other three by more than the usual template delta. For the
+  ZERO-SHOT rows that could matter, since nothing has taught the model to read that
+  layout. For the FINE-TUNED rows -- which is what Table 17 reports -- three epochs
+  of completion-only training on 1,940 examples in this exact rendering make the
+  scaffolding a learned fixed prefix, so the effect on the headline comparison is
+  small. Say that, rather than a blanket "the comparison is confounded".
 
 # Llama-2-derived architecture (16 layers, GQA, Mistral tokeniser), so all seven
 # Table 14 target modules exist under their usual names and the recipe applies
