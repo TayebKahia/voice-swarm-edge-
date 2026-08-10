@@ -271,6 +271,53 @@ print("gpu  ", torch.cuda.get_device_name(0) if torch.cuda.is_available() else "
 cap = torch.cuda.get_device_capability(0) if torch.cuda.is_available() else (0, 0)
 print(f"sm    {cap[0]}.{cap[1]}  -> bf16 {'available' if cap[0] >= 8 else 'NOT available, using fp16 (Table 14 deviation)'}")
 print("system prompt:", repr(SYSTEM_PROMPT))
+
+
+def _system_role_supported(tokenizer):
+    """Does THIS model's own chat template admit a system turn?
+
+    Probed, never hardcoded by model name. h2o-danube3's template raises
+    TemplateError("System role not supported"); Qwen2.5, SmolLM2 and Llama-3.2 all
+    render one. Probing rather than listing matters because the three
+    already-trained models MUST keep taking the system path byte-for-byte -- their
+    adapters, Surface B, Tables 17/18/19, McNemar and the abstention entry were all
+    produced under that rendering -- and a probe cannot drift from reality the way a
+    hand-maintained list can. Cached on the tokenizer: the answer is a property of
+    the template and cannot change mid-run.
+    """
+    cached = getattr(tokenizer, "_pfe_system_ok", None)
+    if cached is None:
+        try:
+            tokenizer.apply_chat_template(
+                [{"role": "system", "content": "probe"},
+                 {"role": "user", "content": "probe"}],
+                tokenize=False, add_generation_prompt=True)
+            cached = True
+        except Exception:
+            cached = False
+        tokenizer._pfe_system_ok = cached
+    return cached
+
+
+def build_messages(tokenizer, user_text):
+    """The ONE place a prompt's message list is built.
+
+    Training (CommandDataset), Surface-A eval (generate_batch) and the Gate 3
+    parity dump all call this. If those three ever construct prompts differently
+    the model is trained under one rendering and measured under another, which is
+    exactly the silent failure prd.md Sec. 10.1 names as this project's
+    highest-cost -- accuracy degrades with no error message. One function, three
+    callers, no second place to get it wrong.
+    """
+    if _system_role_supported(tokenizer):
+        return [{"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": user_text}]
+    # This model's template refuses a system turn, so fold the instruction into the
+    # user turn -- the conventional workaround, and the one that preserves what the
+    # model actually reads: the same two strings in the same order, differing only
+    # in the role scaffolding the template wraps them in. It is still a deviation
+    # from the other three and is declared as one, not smoothed over.
+    return [{"role": "user", "content": f"{SYSTEM_PROMPT}\n\n{user_text}"}]
 ''')
 
 md(r"""
@@ -323,8 +370,7 @@ class CommandDataset(Dataset):
     def __init__(self, rows, tokenizer):
         self.items, self.overflow = [], 0
         for row in rows:
-            messages = [{"role": "system", "content": SYSTEM_PROMPT},
-                        {"role": "user", "content": row["transcript"]}]
+            messages = build_messages(tokenizer, row["transcript"])
             prompt_text = tokenizer.apply_chat_template(
                 messages, tokenize=False, add_generation_prompt=True)
             prompt_ids = tokenizer(prompt_text, add_special_tokens=False)["input_ids"]
@@ -404,8 +450,7 @@ def generate_batch(model, tokenizer, rows, batch_size=32, max_new_tokens=64):
     for start in range(0, len(rows), batch_size):
         chunk = rows[start:start + batch_size]
         prompts = [tokenizer.apply_chat_template(
-            [{"role": "system", "content": SYSTEM_PROMPT},
-             {"role": "user", "content": r["transcript"]}],
+            build_messages(tokenizer, r["transcript"]),
             tokenize=False, add_generation_prompt=True) for r in chunk]
         enc = tokenizer(prompts, return_tensors="pt", padding=True,
                         add_special_tokens=False).to(model.device)
@@ -473,6 +518,18 @@ def train_one(config_path):
     if tokenizer.pad_token_id is None:
         tokenizer.pad_token = tokenizer.eos_token
 
+    # Say out loud which prompt rendering this model gets. A run left overnight
+    # must not silently fold the system prompt into the user turn without leaving
+    # a trace in the log -- that is a deviation from the other three and a reader
+    # of Table 17 is entitled to know which rows carry it.
+    system_ok = _system_role_supported(tokenizer)
+    if system_ok:
+        print("  prompt rendering : system turn + user turn (standard)")
+    else:
+        print("  prompt rendering : NO SYSTEM ROLE in this model's chat template --")
+        print("                     system prompt folded into the user turn.")
+        print("                     DEVIATION from the other three; declare it.")
+
     model = AutoModelForCausalLM.from_pretrained(
         hf_id, torch_dtype=torch.float16, token=token).cuda()
     # Zero-shot FIRST, before any adapter touches the weights: Table 17's "before"
@@ -523,6 +580,7 @@ def train_one(config_path):
     print(f"  final train loss {result.training_loss:.4f} | best val EM {callback.best:.4f}")
     (out_dir / "training_history.json").write_text(json.dumps({
         "model": name, "hf_id": hf_id, "precision": "fp16",
+        "system_role_supported": system_ok,
         "best_val_exact_match": callback.best, "history": callback.history,
         "final_train_loss": result.training_loss,
         "dropped_over_max_len": train_ds.overflow}, indent=2))
@@ -661,8 +719,7 @@ for entry in trained:
     records = []
     for prompt in AUDIT["prompts"]:
         text = tokenizer.apply_chat_template(
-            [{"role": "system", "content": SYSTEM_PROMPT},
-             {"role": "user", "content": prompt["user_text"]}],
+            build_messages(tokenizer, prompt["user_text"]),
             tokenize=False, add_generation_prompt=True)
         records.append({"id": prompt["id"], "name": prompt["name"],
                         "user_text": prompt["user_text"],
@@ -673,7 +730,10 @@ for entry in trained:
           f"{sum(len(r['token_ids']) for r in records)} tokens")
 
 (WORK / "parity_hf.json").write_text(json.dumps(
-    {"system_prompt": SYSTEM_PROMPT, "models": parity}, indent=2))
+    {"system_prompt": SYSTEM_PROMPT,
+     "system_role_folded": {e["name"]: not _system_role_supported(e["tokenizer"])
+                            for e in trained},
+     "models": parity}, indent=2))
 print("\nwrote parity_hf.json")
 ''')
 

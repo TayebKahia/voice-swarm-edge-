@@ -21,15 +21,43 @@ hf_id: h2oai/h2o-danube3-500m-chat
 gated: false
 chat_template: >
   H2O-Danube3 (the model's own tokenizer.apply_chat_template -- never hand-written).
-  NOTE: this template is NOT one of the common families. It renders as
-  `<|prompt|>{user}</s><|answer|>`, not ChatML and not Llama-3. On the HuggingFace
-  side nothing special is needed -- apply_chat_template reads it from
-  tokenizer_config.json like any other. On the llama.cpp side it is not one of the
-  hardcoded template detections, so `llama-server` may need `--jinja` to evaluate
-  the template embedded in the GGUF via Minja. If that flag turns out to be needed
-  it must be added for ALL FOUR models and eval/test_template_parity.py re-run
-  against the existing three, to prove none of their token IDs moved. Gate 3 is the
-  project's highest-cost silent failure and this is the one model that stresses it.
+  NOT one of the common families: it renders as `<|prompt|>{user}</s><|answer|>`,
+  not ChatML and not Llama-3. On the llama.cpp side it is not one of the hardcoded
+  template detections, so `llama-server` may need `--jinja` to evaluate the template
+  embedded in the GGUF via Minja. Only reachable if this model is ever promoted to
+  Surface B; if it is, the flag must be added for ALL FOUR models and
+  eval/test_template_parity.py re-run against the existing three to prove none of
+  their token IDs moved.
+
+supports_system_role: false
+prompt_rendering_note: >
+  MEASURED, not predicted: the first Kaggle attempt died at
+  `jinja2.exceptions.TemplateError: System role not supported`. This template has no
+  system role at all -- it raises rather than rendering one. The other three models
+  all take a system turn, and the frozen prompt puts the parser instruction there.
+
+  Resolved by folding the system prompt into the user turn for models whose template
+  refuses a system role: `SYSTEM_PROMPT + "\n\n" + transcript`, one user message.
+  The model reads the same two strings in the same order; only the role scaffolding
+  the template wraps them in differs. This is the conventional workaround for
+  system-less templates, not an invention.
+
+  The notebook PROBES for this rather than keying off a model name, so the three
+  already-trained models provably keep their byte-identical system-turn rendering --
+  their adapters and every published number depend on it. One helper
+  (`build_messages`) serves training, Surface-A eval and the Gate 3 parity dump, so
+  the three cannot drift apart; training under one rendering and measuring under
+  another is the silent failure prd.md Sec. 10.1 warns about. The flag is printed
+  per model at train time and recorded in training_history.json and
+  parity_hf.json's `system_role_folded` key.
+
+  DECLARE THIS IN LIMITATIONS. It is a real asymmetry: the iso-parameter pair
+  (Qwen2.5-0.5B vs Danube3-500M) now differs in family AND in prompt rendering, so
+  a difference between them cannot be attributed to the pretraining recipe alone.
+  It does not invalidate the control -- the alternative was no control at all, and
+  no ~0.5B instruct model outside the Qwen family was found that both accepts a
+  system turn and is not already in the study -- but it must be stated, not
+  smoothed over.
 
 # Llama-2-derived architecture (16 layers, GQA, Mistral tokeniser), so all seven
 # Table 14 target modules exist under their usual names and the recipe applies
