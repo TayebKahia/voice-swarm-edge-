@@ -136,8 +136,16 @@ first, then the scaffold, then the prose — never the prose alone.
      documents; both `\input{shared/preamble}` — there is deliberately ONE preamble, and forking
      it per document is how the ESI templates in `thesis/thesis_ex/` drifted apart. Chapters are
      `\input` by the main files; chapters not yet written are listed commented-out there with
-     their `prd.md` §3.1 titles. Build with **XeLaTeX**, not pdfLaTeX (polyglossia + Arabic); the
-     full recipe is in each main file's header comment.
+     their `prd.md` §3.1 titles. **Build with `cd thesis && latexmk main_master.tex`** — output
+     lands in `thesis/build/`, and `.latexmkrc` pins XeLaTeX (required: polyglossia + Arabic;
+     pdfLaTeX cannot build this) and adds the `makeglossaries` step. `latexmk -c` clears
+     intermediates, `-C` also removes the PDFs.
+   - **A new chapter needs the filename its `main_*.tex` already names,** then uncommenting that
+     line. They are `master/`: `ch4_results`, `ch5_discussion`, `ch6_conclusion`; `ingenieur/`:
+     `ch3_architecture`, `ch4_implementation`, `ch5_validation`, `ch6_conclusion`. Give each a
+     `\label{chap:...}` matching what other chapters already `\ref` — the outstanding ones are
+     `chap:results`, `chap:discussion`, `chap:conclusion`, `chap:architecture`,
+     `chap:implementation`, `chap:validation`, `chap:state-of-the-art`.
    - **When referring to the companion document,** always say "the \emph{Mémoire d'Ingénieur}" (or
      "\emph{Mémoire de Master}") — never a paraphrase like "the companion report." Naming a
      specific chapter number across documents is fragile: the two are compiled separately with no
@@ -148,10 +156,22 @@ first, then the scaffold, then the prose — never the prose alone.
    - **Vector Graphics Only:** Figures must be vector PDF, SVG, or native TikZ. Never use raster formats (PNG, JPG) for architectural diagrams or plots.
    - **Self-Contained Captions:** Captions must fully explain what the figure shows, including legends, axes, and key takeaways, so the figure can be understood independently of the text.
    - **In-Text Reference:** Every figure and table *must* be referenced and analyzed in the main body text (`As illustrated in Figure~\ref{fig:...}`).
+   - **A table taller than one page must be `xltabular`, never `table` + `tabularx`.** A float
+     that cannot fit is not shrunk or split — LaTeX **drops it from the PDF entirely** and reports
+     only `Float too large for page` among hundreds of lines of log. This already happened once to
+     Master Ch3's metric definitions table (commit 516b6d7); nothing static catches it, because
+     the table is perfectly well-formed. `xltabular` breaks across pages and keeps `tabularx` X
+     columns; repeat the header with `\endfirsthead` / `\endhead`. After adding any long table,
+     grep the built PDF for a phrase from its last row.
 3. **Typography & Math:**
    - Units: Use `~` for units: `20~tok/s`, `1{,}100~ms`, `0.5~B parameters`.
    - Math Mode: Distinguish between variables ($N$, $k$) and text abbreviations within math (`\text{tok/s}`).
    - Schema / Code listings: Use clean, formatted code environments (e.g., `listings` with appropriate font sizing).
+   - **`\paragraph{...}` is an unnumbered lead-in, and that is deliberate.** `secnumdepth` and
+     `tocdepth` are 3 in `shared/preamble.tex`. Do not raise either to "fix" the missing number:
+     at 4 the chapters' lead-ins render as `3.3.0.0.3 Checkpoint selection.` (two empty levels,
+     because there is no subsection in between) and the contents page fills with every
+     `Synthesis.` and `Gap.` The ESI templates set 4; that is where those came from.
 
 ### Tooling & Automation
 
@@ -160,7 +180,12 @@ first, then the scaffold, then the prose — never the prose alone.
    not yet available, `\CHECK{}` for a claim needing verification against a source or result, and
    `\figtodo{}` for a figure placeholder that compiles with no image file. None of them should
    survive into the deposited document; all three are greppable.
-5. **Validate before calling a chapter done:** run `python tools/check_tex.py <file>` — it catches
+5. **Use the acronyms, or the List of Acronyms prints empty.** `thesis/shared/acronyms.tex`
+   defines 26 (`\gls{slm}`, `\acrfull{gbnf}`, …), but `glossaries` lists only entries a document
+   actually uses, and **no chapter uses one yet** — so both documents currently render an empty
+   acronym page. Introduce a term with `\acrfull{key}` on first use and `\gls{key}` after. Add a
+   `\newacronym` only for a term that genuinely appears; do not pad the list.
+6. **Validate before calling a chapter done:** run `python tools/check_tex.py <file>` — it catches
    dangling `\ref`/`\cite`, wrong table cell counts, over-wide columns, and non-ASCII characters
    without needing a TeX install. Citations are resolved against `thesis/references.bib`, which the
    checker finds by walking up from the file it is given, so a **standalone chapter check is
@@ -172,7 +197,12 @@ first, then the scaffold, then the prose — never the prose alone.
    native. The flag downgrades the non-ASCII rule to a note. Do **not** pass it when checking a
    chapter body: those should stay ASCII. `tools/build_pdf.py` today targets only
    `docs/project/PRD.tex`; the compile recipe for the theses is in each `main_*.tex` header.
-6. **Never hand-type a number that a script could produce.** `eval/tables.py` already renders
+7. **Before believing a build, build from a clean tree.** `rm -rf thesis/build` first. A warm
+   build reuses `.aux`, `.toc` and `.bbl` from the previous run and can report zero errors on a
+   document that fails cold — this hid 17 package-ordering errors until a from-scratch rebuild
+   (commit 516b6d7). Check three things in the log, not just the exit status: `grep -c '^!'`
+   (errors), `Citation.*undefined`, and `Float too large`.
+8. **Never hand-type a number that a script could produce.** `eval/tables.py` already renders
    Tables 17–18 straight from `results/surface_b.csv` and the Kaggle CSV with the explicit
    discipline "no number is typed by hand." When a results table or figure has a generating
    script, regenerate from it; when it doesn't yet, that is a gap to flag, not license to
@@ -185,7 +215,9 @@ first, then the scaffold, then the prose — never the prose alone.
 Before finalizing any section or chapter, the agent must verify:
 - [ ] Are all claims backed by quantitative data, mathematical definitions, or literature citations?
 - [ ] Is the paragraph rhythm following *Assertion $\to$ Evidence $\to$ Impact*?
-- [ ] Are all acronyms defined on first use?
+- [ ] Is each acronym introduced with `\acrfull{key}` on first use and `\gls{key}` after,
+      using a key from `thesis/shared/acronyms.tex`? (Spelling it out by hand leaves the
+      List of Acronyms empty.)
 - [ ] Are all figures vector graphics with self-contained captions?
 - [ ] Does every figure and table have an explicit in-text reference and discussion?
 - [ ] Are all speculative or promotional adjectives removed?
@@ -202,6 +234,11 @@ Before finalizing any section or chapter, the agent must verify:
       resolve against `thesis/references.bib`.)
 - [ ] Was every table or figure generated by a script reading `results/*.csv` (e.g.
       `eval/tables.py`) rather than hand-typed from a CSV someone read once?
+- [ ] Does the chapter's document still build clean from scratch — `rm -rf thesis/build && cd
+      thesis && latexmk main_master.tex` — with zero `^!` errors and no `Float too large`?
+- [ ] If the chapter added a table longer than about half a page, is it an `xltabular`, and does
+      a phrase from its **last row** appear in the built PDF? An oversized float is dropped
+      silently.
 - [ ] Is every reference to the other document phrased as "the \emph{Mémoire d'Ingénieur}" /
       "\emph{Mémoire de Master}," with no hardcoded chapter number left unverified against the
       other document's current outline?
