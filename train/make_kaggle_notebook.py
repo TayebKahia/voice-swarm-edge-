@@ -768,7 +768,19 @@ It must contain, for each model that trained:
   parity_hf.json                               Gate 3's HF side
   preds_<model>_<split>.jsonl                  per-item predictions
 
-Unzip into the repo:  unzip -o pfe_outputs.zip -d train/kaggle_out/
+Bring it into the repo:
+
+  FULL run (every model trained in this session):
+      unzip -o pfe_outputs.zip -d train/kaggle_out/
+
+  PARTIAL run (ONLY was set -- which is the case here):
+      python train/merge_kaggle_out.py pfe_outputs.zip
+
+  Use the merge script for a partial run. `unzip -o` would overwrite
+  surface_a.csv and parity_hf.json with the versions from THIS session, which
+  describe only the model that just trained -- discarding every other model's
+  Surface-A numbers and Gate 3 HF side. The merge script unions them instead and
+  refuses outright if a merge would drop a model.
 """)
 ''')
 
