@@ -4,7 +4,7 @@
 Nothing persists between Kaggle sessions (§2.8a trap 2), so everything the
 notebook needs must arrive as a Dataset: the splits, the schema package the
 exact-match comparator lives in, the fixed audit prompts Gate 3 is defined
-against, and the three Table 14 configs.
+against, and the four Table 14 configs.
 
 `schema/` travels with the data deliberately. Exact match is `canon(pred) ==
 canon(gold)` (§2.7), and `canon` is the *one* comparator (`schema/canon.py`).
@@ -43,6 +43,7 @@ CONTENTS: dict[str, str] = {
     "configs/qwen2.5-0.5b.yaml": "train/configs/qwen2.5-0.5b.yaml",
     "configs/smollm2-360m.yaml": "train/configs/smollm2-360m.yaml",
     "configs/llama-3.2-1b.yaml": "train/configs/llama-3.2-1b.yaml",
+    "configs/h2o-danube3-500m.yaml": "train/configs/h2o-danube3-500m.yaml",
 }
 
 

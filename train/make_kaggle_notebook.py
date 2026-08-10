@@ -25,10 +25,24 @@ def code(s): cells.append({"cell_type":"code","metadata":{},"execution_count":No
 md(r"""
 # PFE --- LoRA fine-tuning, Surface-A eval, and the Gate 3 parity dump
 
-Three 0.5B-class models, one notebook, one Kaggle session. Everything the rest of the
+Four models spanning 0.36-1.2B, one notebook, one Kaggle session. Everything the rest of the
 project needs from a GPU happens here, because there is no usable local GPU
 (`IMPLEMENTATION_ROADMAP.md` 0.5) and `torch` is deliberately not installed on the
 workstation.
+
+> ## THIS SESSION TRAINS ONE MODEL, NOT FOUR
+>
+> `ONLY` in the config cell is set to `configs/h2o-danube3-500m.yaml`. Qwen2.5-0.5B,
+> SmolLM2-360M and Llama-3.2-1B are **already trained**, and every published result in
+> the project --- Surface B, Tables 17/18/19, the McNemar tests, the abstention entry ---
+> was measured on those exact adapters. **Do not clear `ONLY`.** Retraining them would
+> produce different weights (fp16 GPU training is not bit-reproducible) and the results
+> chapters would be describing artefacts that no longer exist.
+>
+> Expect roughly **40-60 minutes**, not the ~2 hours the three-model run took.
+>
+> `surface_a.csv` and `parity_hf.json` from this session cover **only** Danube3.
+> **Concatenate** them with the existing `train/kaggle_out/` files --- do not overwrite.
 
 ## Before you press Run All
 
@@ -36,17 +50,20 @@ workstation.
 2. **Internet: ON** (Settings -> Internet). Needs a phone-verified Kaggle account.
    Without it `from_pretrained` cannot reach Hugging Face and the session is wasted.
 3. **Dataset attached:** `pfe-swarm-data` (the zip from `train/make_kaggle_bundle.py`).
-4. **Llama-3.2-1B is gated.** Accept the Meta Community Licence at
+4. **No `HF_TOKEN` needed for this session.** Danube3 is Apache-2.0 and ungated, and
+   it is the only model in `ONLY`. The gated model is Llama-3.2-1B, which is not
+   being trained here.
+   *For a from-scratch run only:* accept the Meta Community Licence at
    huggingface.co/meta-llama/Llama-3.2-1B-Instruct, then Add-ons -> Secrets ->
-   `HF_TOKEN`. Qwen and SmolLM2 need no token. If the token is missing the notebook
-   trains the other two and says so rather than dying at the end.
+   `HF_TOKEN`. Qwen, SmolLM2 and Danube3 need no token. If the token is missing the
+   notebook trains the rest and says so rather than dying at the end.
 5. **Download before the session expires:** `/kaggle/working/pfe_outputs.zip`.
    Nothing outside `/kaggle/working` survives, and nothing at all survives the session.
 
 ## The one deviation from the frozen recipe
 
 Table 14 specifies **bf16**. Kaggle's free accelerators are T4 (SM 7.5) and P100
-(SM 6.0); hardware bf16 needs Ampere (SM 8.0+). All three runs therefore use **fp16**,
+(SM 6.0); hardware bf16 needs Ampere (SM 8.0+). All four runs therefore use **fp16**,
 applied identically. RQ1's design is *hold everything constant except the model*, so
 the ranking --- which is the claim --- is unaffected; the absolute EM may shift. This
 is recorded here, in `train/configs/*.yaml`, in the Table 17 caption, and in the
@@ -148,7 +165,7 @@ print("torchao dispatcher disabled in:", _patched or "(nothing to patch)")
 # a chain of dispatchers, and `dispatch_torchao` calls `is_torchao_available()` --
 # which RAISES on a torchao below 0.16 rather than returning False. Nothing here uses
 # torchao: it is a quantisation backend we never ask for, and the exception lands in
-# the middle of get_peft_model, so all three models die before a single training step.
+# the middle of get_peft_model, so all four models die before a single training step.
 #
 # Reporting it unavailable is the honest answer -- it genuinely is not usable -- and
 # lets the dispatcher fall through to the ordinary Linear -> lora.Linear path. This is
@@ -515,22 +532,37 @@ def train_one(config_path):
 
 code(r'''
 ALL_CONFIGS = ["configs/qwen2.5-0.5b.yaml", "configs/smollm2-360m.yaml",
-               "configs/llama-3.2-1b.yaml"]
+               "configs/llama-3.2-1b.yaml", "configs/h2o-danube3-500m.yaml"]
 
-# Train a subset by naming them here; empty list means all three.
+# Train a subset by naming them here; empty list means all four.
 #
 # Kaggle gives no persistence between sessions, so a rerun retrains everything from
-# scratch by default. That is the right default -- all three artefacts then come out
-# of one session under one image, which is what RQ1's "hold everything constant
-# except the model" asks for, and fp16 training on a GPU is not bit-reproducible, so
-# artefacts from two sessions are not quite the same experiment.
+# scratch by default. For a from-scratch reproduction that is the right default --
+# all artefacts then come out of one session under one image, which is what RQ1's
+# "hold everything constant except the model" asks for, and fp16 training on a GPU
+# is not bit-reproducible, so artefacts from two sessions are not quite the same
+# experiment.
 #
-# The escape hatch is for the case where one model was gated at the time and its
-# access grant arrived later: set ONLY = ["configs/llama-3.2-1b.yaml"] to add just
-# that one. Its adapter, GGUF and per-model prediction files stand alone, but
-# surface_a.csv and parity_hf.json will then describe ONLY that model and have to be
-# concatenated with the earlier download rather than replacing it.
-ONLY: list[str] = []
+# ####################################################################
+# ONLY IS DELIBERATELY NON-EMPTY. DO NOT CLEAR IT ON THIS PROJECT.
+#
+# The first three models are ALREADY TRAINED and every published result --
+# Surface B, Tables 17/18/19, the McNemar tests, the abstention entry -- was
+# measured on those exact adapters. Clearing ONLY retrains them, and fp16 GPU
+# training is not bit-reproducible, so the new adapters would NOT be the ones
+# those numbers came from. The whole results chapter would be describing
+# artefacts that no longer exist.
+#
+# Clear ONLY only when reproducing the entire project from a clean clone with
+# no downloaded adapters, and expect every downstream number to move.
+# ####################################################################
+#
+# h2o-danube3-500m is the iso-parameter control added after the other three (see
+# its config header). It is the escape hatch's intended case: one model added to
+# a finished set. Its adapter, GGUF and per-model prediction files stand alone,
+# but surface_a.csv and parity_hf.json will describe ONLY this model and have to
+# be CONCATENATED with the earlier download rather than replacing it.
+ONLY: list[str] = ["configs/h2o-danube3-500m.yaml"]
 
 CONFIGS = ONLY or ALL_CONFIGS
 if ONLY:
@@ -556,7 +588,7 @@ for relative in CONFIGS:
         continue
     if entry:
         trained.append(entry)
-        # Free the GPU between runs; three models do not fit at once.
+        # Free the GPU between runs; the models do not fit at once.
         entry["model"].cpu(); torch.cuda.empty_cache()
 
 print(f"\ntrained {len(trained)}/{len(CONFIGS)} in {(time.time() - started) / 60:.1f} min")
@@ -577,7 +609,7 @@ This is Session 05A item 1, done here because the weights are already resident a
 GPU is warm. It is the **FP16 column of Table 18**; the quantised column comes from
 `llama.cpp` on the workstation, and the difference between them is contribution C3.
 
-Doing it locally would mean CPU inference over three models times ~590 items.
+Doing it locally would mean CPU inference over four models times ~590 items.
 """)
 
 code(r'''

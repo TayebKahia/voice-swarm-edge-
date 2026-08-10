@@ -24,12 +24,12 @@ train:
   max_seq_length: 256
   packing: false                      # packing corrupts completion masking
   completion_only_loss: true          # prompt tokens contribute no gradient
-  seed: 42                            # identical across all three runs
+  seed: 42                            # identical across all four runs
 
 precision: fp16
 precision_note: >
   Table 14 specifies bf16. Kaggle's free accelerators are T4 (SM 7.5) and P100
-  (SM 6.0); neither has hardware bf16, which needs Ampere (SM 8.0+). All three
+  (SM 6.0); neither has hardware bf16, which needs Ampere (SM 8.0+). All four
   runs therefore use fp16 -- identically, so RQ1's "hold everything constant
   except the model" still holds and the ranking, which is the claim, is
   unaffected. Declared in the Table 17 caption and the Limitations table.
