@@ -18,10 +18,12 @@ something with the tokens it produces. Their outcome metric is throughput -- tok
 latency, memory footprint -- measured independently of any downstream task, so a configuration that
 clears a throughput floor and one that clears it while degenerating into ungrammatical or
 semantically wrong output are indistinguishable in their tables. This thesis narrows the scope to
-one task, one device, and three candidate models (Qwen2.5-0.5B~\cite{qwen25},
-SmolLM2-360M~\cite{smollm2}, and Llama-3.2-1B~\cite{llama32}), and in exchange measures what the survey
-literature does not: exact match, intent and slot F1, and schema validity, reported at the same
-quantisation levels and against the same throughput floor. The accuracy cost of meeting a
+one task, one device, and four candidate models (Qwen2.5-0.5B~\cite{qwen25},
+SmolLM2-360M~\cite{smollm2}, Llama-3.2-1B~\cite{llama32}, and H2O-Danube3-500M~\cite{danube3}), and
+in exchange measures what the survey literature does not: exact match, intent and slot F1, and
+schema validity. Three of those models are carried through to the quantised artefact and reported
+against the same throughput floor; the fourth is held at the reference precision as a
+parameter-matched control, for the reason Chapter~\ref{chap:method} sets out. The accuracy cost of meeting a
 throughput budget on a single-board computer is treated here as a number to be measured, not an
 assumption carried over from a benchmark that stops counting at tokens per second.
 

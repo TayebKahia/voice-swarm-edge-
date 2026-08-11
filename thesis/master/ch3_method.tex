@@ -217,15 +217,27 @@ speaker variation in general.
 
 \section{The LoRA recipe}
 \label{sec:lora}
-Three base models are fine-tuned under one recipe, held identical across all three so that any
+Four base models are fine-tuned under one recipe, held identical across all four so that any
 accuracy difference Chapter~\ref{chap:results} reports is attributable to the model rather than to
 an uncontrolled difference in how it was trained: Qwen2.5-0.5B-Instruct~\cite{qwen25},
 SmolLM2-360M-Instruct~\cite{smollm2}, and Llama-3.2-1B-Instruct~\cite{llama32}, spanning the
-0.36--1.2~B range RQ1 asks about. Table~\ref{tab:lora} fixes every setting.
+0.36--1.2~B range RQ1 asks about, together with
+H2O-Danube3-500M-Chat~\cite{danube3}. Table~\ref{tab:lora} fixes every
+setting.
+
+\paragraph{Why a fourth model.} The first three occupy three different parameter counts in three
+different model families, so no two of them share a family and every pairwise comparison varies
+scale and pretraining recipe at once: a difference between Qwen2.5-0.5B-Instruct and
+Llama-3.2-1B-Instruct is attributable to neither factor alone. H2O-Danube3-500M-Chat is introduced
+as a parameter-matched control against Qwen2.5-0.5B-Instruct -- 514~M parameters against 494~M, a
+difference of 4.0\% -- drawn from a fourth independent family and trained under the identical
+recipe of Table~\ref{tab:lora}. Holding scale fixed across that pair isolates the effect of model
+family, which leaves the 0.36--1.2~B span free to carry the effect of scale. The two effects are
+confounded in any three-model design of this shape and separable in this one.
 
 \begin{table}[htbp]
 \centering
-\caption{Fine-tuning recipe, identical across all three base models. Precision is fp16 rather
+\caption{Fine-tuning recipe, identical across all four base models. Precision is fp16 rather
 than the bf16 originally specified; see the deviation below.}
 \label{tab:lora}
 \begin{tabularx}{\textwidth}{@{}l X@{}}
@@ -240,7 +252,7 @@ Epochs, batch & 3 epochs; effective batch 16 (per-device 4, gradient accumulatio
 Sequence length & 256 tokens \\
 Loss & Completion-only masking -- prompt tokens contribute no gradient \\
 Precision & fp16 (deviation from the bf16 specification; see below) \\
-Seed & 42, identical for all three runs \\
+Seed & 42, identical for all four runs \\
 Checkpoint selection & Best validation exact match, not best validation loss \\
 \bottomrule
 \end{tabularx}
@@ -274,22 +286,32 @@ in place of the metric it does.
 
 \paragraph{The fp16-for-bf16 deviation.} Table~\ref{tab:lora} specifies fp16, not the bf16 this
 recipe originally called for, and the reason is fixed by the training hardware rather than by
-choice: all three models are fine-tuned on Kaggle's free-tier GPU accelerator, an NVIDIA~T4
+choice: all four models are fine-tuned on Kaggle's free-tier GPU accelerator, an NVIDIA~T4
 (compute capability~7.5, the Turing architecture). Hardware bf16 support was introduced with
 Ampere (compute capability~8.0), two generations later, so the T4 has no native bf16 path for the
 training run to use; every run is switched to fp16 instead, uniformly. The deviation is declared
 once, here, and not repeated in Chapter~\ref{chap:results}, because it applies identically to all
-three models: each is trained under the same substituted precision, on the same accelerator, with
-every other setting in Table~\ref{tab:lora} held fixed, so precision is not a variable that differs
-across the comparison RQ1 depends on. The ranking among the three models that
+four models: each is trained under the same substituted precision, on the same accelerator class,
+with every other setting in Table~\ref{tab:lora} held fixed, so precision is not a variable that
+differs across the comparison RQ1 depends on. The ranking among the four models that
 Chapter~\ref{chap:results} reports is a ranking obtained under one precision applied uniformly to
-all three, not an artefact of any one model receiving a training precision the others did not.
+all four, not an artefact of any one model receiving a training precision the others did not.
+
+\paragraph{One training session, or two.} The parameter-matched control was trained in a separate
+session from the first three, under the same accelerator class and the same fp16 substitution but
+not in the same session instance. Training in fp16 on a GPU is not bit-reproducible, so its adapter
+is not an output of the run that produced the other three. The alternative -- retraining all four
+together -- would have replaced the three adapters against which every quantised result in
+Chapter~\ref{chap:results} was measured, and one session against two is the smaller of the two
+costs. It is recorded here because it qualifies the uniformity the preceding paragraph claims, and
+Chapter~\ref{chap:discussion} carries it into the threats to validity.
 
 \section{Quantisation procedure}
 \label{sec:quantisation-procedure}
-Each of the three fine-tuned adapters is merged into its base weights, converted to GGUF at f16,
-and quantised with \texttt{llama-quantize}~\cite{llamacpp} to two levels -- Q8\_0 and Q4\_K\_M --
-producing six deployable artefacts from three fine-tuning runs. Merging and GGUF conversion run on
+Three of the four fine-tuned adapters are merged into their base weights, converted to GGUF at
+f16, and quantised with \texttt{llama-quantize}~\cite{llamacpp} to two levels -- Q8\_0 and
+Q4\_K\_M -- producing six deployable artefacts. The fourth is held at the reference precision, for
+a reason established below under chat-template parity rather than chosen in advance. Merging and GGUF conversion run on
 Kaggle, alongside the fine-tuning itself, because both steps need the \texttt{torch} and
 \texttt{peft} stacks that this project's environment gate keeps off the workstation entirely;
 \texttt{llama-quantize} is pure C\,++ with no such dependency, so quantisation itself runs locally,
@@ -315,6 +337,29 @@ pipeline to flag why. Because this failure is silent, it cannot be left as a ris
 \texttt{test\_template\_parity.py} compares tokenised output for ten fixed prompts across both
 stacks and is run as a mandatory gate after every GGUF conversion, not as a diagnostic invoked only
 when a result already looks wrong.
+
+Two differences between the stacks are conventions rather than divergences, and the gate
+re-aligns both before comparing. \texttt{llama.cpp} omits the leading beginning-of-sequence
+piece from the rendered prompt because it inserts that token at tokenisation time instead, and
+Llama-3.2's template calls the current date into its system turn, so it renders the date of the
+check rather than the date of training. Each is applied only if, together, the two renderings
+become identical; a re-alignment that merely narrows a mismatch is discarded and the raw strings
+are compared, so neither convention can absorb a real divergence. The distinction is not
+cosmetic: read without it, the gate rejects Llama-3.2-1B-Instruct --- a model whose prompt is
+otherwise identical to the one it was trained on --- over a single calendar date.
+
+\paragraph{The parity gate rejecting a conversion.} That policy is what kept the fourth model out
+of the quantised set. H2O-Danube3-500M-Chat renders identically under both stacks: the formatted
+prompt matches byte for byte on all ten audit prompts, so any comparison of rendered text would
+have passed it. The two tokenisers nonetheless segment that identical text differently. The word
+\texttt{drone}, which the prompt contains, is segmented as \texttt{dr}~+~\texttt{one} by the
+HuggingFace tokeniser and as \texttt{dro}~+~\texttt{ne} by \texttt{llama.cpp}, because
+SentencePiece merge ranking is not unique across implementations. The two sequences are the same
+length and detokenise to the same string, so nothing short of a token-level comparison separates
+them. A quantised artefact for this model would consequently be served under a segmentation it was
+never trained on -- the silent degradation this gate exists to detect -- and the model is therefore
+reported at the reference precision only. The other three models pass on all ten prompts, so the
+quantised results Chapter~\ref{chap:results} reports are unaffected.
 
 \section{Evaluation protocol and the definitions of record}
 \label{sec:definitions-of-record}
@@ -355,13 +400,13 @@ if and only if $\mathrm{round}(a,1) = \mathrm{round}(b,1)$.
 
 Exact match and command recognition rate are, by design, the same comparison applied at two
 different points in the pipeline: exact match takes reference text as input, so the model is the
-only variable under test and the three fine-tuned candidates can be separated from one another
+only variable under test and the fine-tuned candidates can be separated from one another
 cleanly; command recognition rate takes audio through the entire pipeline, automatic speech
 recognition included. Because the comparator itself never changes between the two, the gap between
 them on the same underlying items is attributable to a single cause -- the cost of the
 speech-recognition stage -- and Chapter~\ref{chap:results} reports that gap as a finding in its
 own right rather than folding it into one end-to-end number. Feeding audio to the reference-text
-experiment instead would impose a shared word-error-rate ceiling on all three models at once,
+experiment instead would impose a shared word-error-rate ceiling on every model at once,
 compressing whatever separates them and making any remaining difference impossible to attribute to
 the parser rather than to the recogniser in front of it.
 
