@@ -85,6 +85,13 @@ prompt_rendering_note: >
 # unchanged. This is why an iso-parameter control was picked from this family rather
 # than from a Mamba/SSM hybrid, where the module list would not apply and "identical
 # recipe across all models" would stop being literally true.
+# Reported in Table 33 (the Surface-A iso-parameter comparison). Metadata,
+# not a measurement of this project -- see param_source.
+params: 513_590_784
+family: H2O.ai (Danube3)
+param_source: >
+  MEASURED on Kaggle: the notebook printed 520,668,672 total after get_peft_model, minus the 7,077,888 LoRA parameters it also printed. Branded 500M; the report is arXiv 2407.09276.
+
 lora:
   r: 16
   alpha: 32

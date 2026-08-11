@@ -5,6 +5,13 @@ hf_id: Qwen/Qwen2.5-0.5B-Instruct
 gated: false
 chat_template: ChatML (the model's own tokenizer.apply_chat_template -- never hand-written)
 
+# Reported in Table 33 (the Surface-A iso-parameter comparison). Metadata,
+# not a measurement of this project -- see param_source.
+params: 494_000_000
+family: Alibaba (Qwen2.5)
+param_source: >
+  Qwen2.5 Technical Report; 0.49B total, 0.36B non-embedding.
+
 lora:
   r: 16
   alpha: 32

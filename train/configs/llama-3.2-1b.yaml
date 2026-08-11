@@ -5,6 +5,13 @@ hf_id: meta-llama/Llama-3.2-1B-Instruct
 gated: true   # Meta Community Licence: accept on HF and set a Kaggle HF_TOKEN secret
 chat_template: Llama 3.2 (the model's own tokenizer.apply_chat_template -- never hand-written)
 
+# Reported in Table 33 (the Surface-A iso-parameter comparison). Metadata,
+# not a measurement of this project -- see param_source.
+params: 1_236_000_000
+family: Meta (Llama-3.2)
+param_source: >
+  Llama-3.2 model card; branded 1B, 1.24B total.
+
 lora:
   r: 16
   alpha: 32

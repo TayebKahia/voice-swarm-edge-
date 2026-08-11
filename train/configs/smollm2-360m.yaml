@@ -5,6 +5,13 @@ hf_id: HuggingFaceTB/SmolLM2-360M-Instruct
 gated: false
 chat_template: SmolLM2 (the model's own tokenizer.apply_chat_template -- never hand-written)
 
+# Reported in Table 33 (the Surface-A iso-parameter comparison). Metadata,
+# not a measurement of this project -- see param_source.
+params: 362_000_000
+family: HuggingFace (SmolLM2)
+param_source: >
+  SmolLM2 paper; branded 360M.
+
 lora:
   r: 16
   alpha: 32

@@ -17,3 +17,9 @@ llama-3.2-1b-instruct,A_fp16_zeroshot,test_ood,150,0.0,
 llama-3.2-1b-instruct,A_fp16_finetuned,test_synth,240,0.958333,0.9
 llama-3.2-1b-instruct,A_fp16_finetuned,test_golden,200,0.925,0.9
 llama-3.2-1b-instruct,A_fp16_finetuned,test_ood,150,0.733333,0.9
+h2o-danube3-500m-chat,A_fp16_zeroshot,test_synth,240,0.0,
+h2o-danube3-500m-chat,A_fp16_zeroshot,test_golden,200,0.0,
+h2o-danube3-500m-chat,A_fp16_zeroshot,test_ood,150,0.0,
+h2o-danube3-500m-chat,A_fp16_finetuned,test_synth,240,0.8875,0.870833
+h2o-danube3-500m-chat,A_fp16_finetuned,test_golden,200,0.87,0.870833
+h2o-danube3-500m-chat,A_fp16_finetuned,test_ood,150,0.72,0.870833

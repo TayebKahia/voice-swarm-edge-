@@ -1090,3 +1090,107 @@ before (chap:related-work, chap:results, sec:constrained-decoding, sec:quantisat
 Stopped here: the four corrections are applied and committed. Not started: nothing else in Ch3
 touched. Still outstanding from the original drafting session: the annotation pass-2 `\TODO{}`
 (unchanged), and Master Ch 4 itself.
+
+## FOURTH MODEL -- h2o-danube3-500m, Surface A (Mon 22 Sep)
+
+Added as the **iso-parameter control** for RQ1, after the supervisor objected that
+comparing 1.2B / 0.5B / 360M models is not a fair comparison. The objection as stated
+cannot hold -- RQ1 asks for the trade-off *across* 0.36-1.2B, so size is the independent
+variable, and the measured data already refused the premise (qwen-0.5B beat llama-1.2B,
+and McNemar could not separate them). But its residue is real and was unanswerable with
+three models: they sit at three sizes in three *different families*, so size and family
+were perfectly aliased and every pairwise comparison changed two things at once.
+
+`h2oai/h2o-danube3-500m-chat` -- 514M measured against qwen2.5-0.5b's 494M, a fourth
+family (H2O.ai), Apache-2.0, technical report arXiv 2407.09276. Llama-2-derived, so all
+seven Table 14 target modules exist and the recipe applied unchanged (asserted: the
+lora/optim/train/precision/checkpoint_selection blocks are byte-identical across all four
+configs).
+
+### RESULT -- Surface A, FP16, fine-tuned (results/table33_iso_parameter.md)
+
+| model | params | family | test_synth | test_golden | test_ood |
+| :--- | ---: | :--- | ---: | ---: | ---: |
+| smollm2-360m  |   362 M | HuggingFace | 0.8250 | 0.7750 | 0.6200 |
+| qwen2.5-0.5b  |   494 M | Alibaba     | 0.9542 | 0.9350 | 0.7267 |
+| h2o-danube3   |   514 M | H2O.ai      | 0.8875 | 0.8700 | 0.7200 |
+| llama-3.2-1b  | 1,236 M | Meta        | 0.9583 | 0.9250 | 0.7333 |
+
+**The 1.24B model is bracketed by the two 0.5B models on test_golden**: 0.8700 (danube)
+< 0.9250 (llama) < 0.9350 (qwen). Parameter count does not order the table.
+  - Family, at matched size (494M vs 514M, 4.0% apart): **6.5 pp**.
+  - Size, across 3.4x (362M -> 1,236M): **+15.0 pp**.
+  - Within the 0.5-1.2B band size is worth **-1.0 pp** (qwen 0.9350 vs llama 0.9250).
+
+This is the point of the control: with only qwen at 0.5B you conclude "size does not
+help"; with only danube at 0.5B you conclude "size helps by 5.5 pp". Same 1B model,
+opposite conclusions, depending which 0.5B you happened to pick. That IS the aliasing,
+demonstrated rather than argued.
+
+**Caveat that must travel with the 6.5 pp.** The recipe is frozen at three epochs for
+every model. Per-epoch val EM: danube 0.7667 -> 0.8333 -> 0.8708 (+3.75 pp on the last
+epoch) and smollm2 0.650 -> 0.750 -> 0.775 (+2.5) are both STILL CLIMBING, while qwen
+(+0.83) and llama (0.00) have converged. The two still improving are exactly the two
+lowest scorers, so part of any gap is convergence under a fixed budget, not capability.
+The defensible claim is "under an identical three-epoch budget", never "in capability".
+
+**test_ood 0.7200 -> false-command rate 0.2800**, inside the existing 0.187-0.393 range.
+A fourth independent model from a fourth family missing NFR-18 the same way strengthens
+the abstention argument considerably: it is systemic, not a property of one model.
+
+### Two deviations, both declared
+
+1. **No system role.** Danube's chat template raises `TemplateError: System role not
+   supported` -- the same construct Gemma uses, whose vendor guidance is exactly this
+   fold. First Kaggle attempt died on it. Resolved by folding the system prompt into the
+   user turn for models whose template refuses one. PROBED, not keyed off a model name,
+   so the three already-trained models provably keep their byte-identical system-turn
+   rendering. One helper (`build_messages`) serves training, Surface-A eval and the Gate
+   3 parity dump so they cannot drift. Recorded per model in training_history.json
+   (`system_role_supported`) and parity_hf.json (`system_role_folded`).
+   State it at its real strength: per-model template variation is ALREADY the protocol
+   (ChatML vs Llama-3 vs SmolLM2), so this is that rule applied one step further, not a
+   new confound. It matters most for the zero-shot rows; three epochs of completion-only
+   training make the scaffolding a learned fixed prefix for the fine-tuned rows.
+2. **Separate Kaggle session.** Trained alone via the notebook's ONLY hatch. fp16 GPU
+   training is not bit-reproducible, so this artefact is not from the same session/image
+   as the other three. The alternative -- retraining all four -- would have produced new
+   adapters for the existing three and invalidated Surface B, Tables 17/18/19, McNemar
+   and the abstention entry. A declared session caveat is far the cheaper cost.
+
+### Scope: Surface A ONLY
+
+No Surface B, no Pi latency run, no grammar ablation for this model. The Pi is a serial
+resource and Exp-2/Exp-3 have never run; spending Pi time on a fourth model's latency
+while a whole research question (RQ2) has no data is the wrong trade. Consequences:
+  - Table 33 is separate from Table 17 by necessity -- Table 17 is Surface B, and a model
+    with no Surface B would be a row of blanks in the table that answers RQ1.
+  - **McNemar's Bonferroni alpha is UNCHANGED at 0.0167.** Table 33 is a separately
+    declared comparison, not an expansion of Family 1, so no existing verdict moves.
+  - `gguf/h2o-danube3-500m-chat-f16.gguf` (1.03 GB, sha256 19ae0dbc7a86...) is kept so
+    promotion to Surface B never needs another Kaggle session. If it is ever promoted,
+    `llama-server` will likely need `--jinja` for Danube's non-standard template, and
+    that flag must then be added for ALL FOUR with test_template_parity.py re-run against
+    the existing three to prove no token IDs moved.
+
+### Provenance and merge
+
+`surface_a.csv`'s three Danube rows re-derive exactly from
+`train/kaggle_out/preds_h2o-danube3-500m-chat_*.jsonl` through `schema/canon.py`
+(0.8875 / 0.8700 / 0.7200, zero malformed predictions even ungrammared at FP16 --
+independent support for Table 19's finding that the fine-tune teaches the format).
+
+`train/merge_kaggle_out.py` is new, because the notebook's own closing instruction
+(`unzip -o pfe_outputs.zip -d train/kaggle_out/`) is correct for a full run and
+DESTRUCTIVE for a partial one: surface_a.csv and parity_hf.json are per-session
+aggregates and `-o` would have replaced the versions describing the other three models.
+The script unions them, is idempotent, refuses if a merge would drop a model, and
+refuses if the system prompt ever differs between runs. The notebook now prints the
+correct command for each case.
+
+Test suite: 768 passed (was 761; +7 is eval/test_tables.py, new -- Table 33 is the one
+table nothing else cross-checks, since 17/18/19 are guarded by eval/mcnemar.py's
+provenance assertion against Surface B).
+
+**Named, not started:** Exp-2 and Exp-3 still have no runners and no data. That remains
+the largest hole in the project and is the next thing to do.
