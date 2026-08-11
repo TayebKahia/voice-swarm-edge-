@@ -1194,3 +1194,54 @@ provenance assertion against Surface B).
 
 **Named, not started:** Exp-2 and Exp-3 still have no runners and no data. That remains
 the largest hole in the project and is the next thing to do.
+
+### GATE 3 RESULT for h2o-danube3 -- FAIL, and the gate earned its keep (Mon 22 Sep)
+
+Run after the Surface-A merge, to test whether the Surface-A-only scope could be lifted.
+New: `eval/check_parity_gguf.py` (the llama.cpp half of Gate 3; `eval/test_template_parity.py`
+only ever checked the HuggingFace half, because the other half needs a running server).
+
+```
+$ python eval/check_parity_gguf.py qwen2.5-0.5b-instruct gguf/qwen2.5-0.5b-instruct-Q4_K_M.gguf
+formatted text : 10/10 identical
+token IDs      : 10/10 identical
+GATE 3 (llama.cpp side): PASS          <- control; the harness is sound
+
+$ python eval/check_parity_gguf.py h2o-danube3-500m-chat gguf/h2o-danube3-500m-chat-f16.gguf
+formatted text : 10/10 identical
+token IDs      :  0/10 identical
+GATE 3 (llama.cpp side): FAIL
+```
+
+**The predicted risk did not happen; a different one did.** The config warned that
+llama-server might need `--jinja` for Danube's non-standard template. It does not --
+llama.cpp renders `<|prompt|>...</s><|answer|>` correctly with no flag, and the formatted
+text matches HuggingFace byte for byte on all ten audit prompts.
+
+**The tokenisers segment that identical text differently.** Same length (32 tokens),
+same detokenised string, divergence at index 9:
+
+    HF (training)   1605, 538  ->  [' dr', 'one']
+    llama.cpp       3483, 485  ->  [' dro', 'ne']
+
+SentencePiece merge ranking is not unique and the two implementations resolve " drone"
+differently. It hits all ten prompts because "drone" is in the system prompt, which the
+fold puts into every one.
+
+**Consequence: Danube CANNOT have a Surface B.** The model was trained on one
+segmentation and would be served on another -- accuracy degrades with no error, which is
+exactly what prd.md Sec. 10.1 names as this project's highest-cost silent failure. Any
+Surface-B number for this model would be uninterpretable as "the same model as Surface A".
+The Surface-A-only scope is therefore now a *hard* constraint, not a time-triage choice.
+
+**This is a reportable methodology result, not just an obstacle.** Gate 3 is declared in
+prd.md Sec. 10.1 as a mandatory gate after every conversion rather than a diagnostic run
+when something looks wrong. Here it was run on a new model and caught a real
+train/serve tokenisation mismatch that no amount of reading the rendered prompt would
+have revealed -- the text was byte-identical. Master Ch3 Sec. 3.4 already describes the
+gate; Ch4 or Ch5 can now cite an instance of it firing. The existing three pass 10/10, so
+their Surface-B numbers are unaffected and this casts no doubt on Tables 17/18/19.
+
+Not attempted (would each need its own justification and none is cheap): rebuilding the
+GGUF with a different tokeniser conversion path, retraining under llama.cpp's
+segmentation, or declaring the mismatch and reporting Surface B anyway.
