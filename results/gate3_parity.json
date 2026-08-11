@@ -1,0 +1,76 @@
+{
+  "records": {
+    "h2o-danube3-500m-chat": {
+      "checked": "2026-09-22",
+      "first_divergence": {
+        "cpp_ids": [
+          3483,
+          485,
+          1719
+        ],
+        "cpp_len": 32,
+        "cpp_pieces": "' dro' + 'ne' + ' sw'",
+        "hf_ids": [
+          1605,
+          538,
+          1719
+        ],
+        "hf_len": 32,
+        "hf_pieces": "' dr' + 'one' + ' sw'",
+        "index": 9,
+        "prompt_id": 1
+      },
+      "gguf": "h2o-danube3-500m-chat-f16.gguf",
+      "gguf_sha256": "19ae0dbc7a86907ca8c1507f3d087f2f99500cdd83c7558db0b3c75d49642a53",
+      "ids_identical": 0,
+      "model": "h2o-danube3-500m-chat",
+      "n": 10,
+      "normalised": [],
+      "system_role_folded": true,
+      "text_identical": 10,
+      "verdict": "FAIL"
+    },
+    "llama-3.2-1b-instruct": {
+      "checked": "2026-09-22",
+      "first_divergence": null,
+      "gguf": "llama-3.2-1b-instruct-Q4_K_M.gguf",
+      "gguf_sha256": "046cf2de462c8685bcca22312344f6f5588e65b9f520b530dff122154ad281be",
+      "ids_identical": 10,
+      "model": "llama-3.2-1b-instruct",
+      "n": 10,
+      "normalised": [
+        "bos-prefix",
+        "today-date"
+      ],
+      "system_role_folded": false,
+      "text_identical": 10,
+      "verdict": "PASS"
+    },
+    "qwen2.5-0.5b-instruct": {
+      "checked": "2026-09-22",
+      "first_divergence": null,
+      "gguf": "qwen2.5-0.5b-instruct-Q4_K_M.gguf",
+      "gguf_sha256": "ee914fa8a49c121ea07250d0f16e71ac8de015290ba4519de679d1dc892ac8ad",
+      "ids_identical": 10,
+      "model": "qwen2.5-0.5b-instruct",
+      "n": 10,
+      "normalised": [],
+      "system_role_folded": false,
+      "text_identical": 10,
+      "verdict": "PASS"
+    },
+    "smollm2-360m-instruct": {
+      "checked": "2026-09-22",
+      "first_divergence": null,
+      "gguf": "smollm2-360m-instruct-Q4_K_M.gguf",
+      "gguf_sha256": "bcb3c988146f195633dfe4581b713ba430fd3395737de8dceb57a19a9dad0084",
+      "ids_identical": 10,
+      "model": "smollm2-360m-instruct",
+      "n": 10,
+      "normalised": [],
+      "system_role_folded": false,
+      "text_identical": 10,
+      "verdict": "PASS"
+    }
+  }
+}
