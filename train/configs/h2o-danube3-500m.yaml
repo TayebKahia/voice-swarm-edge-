@@ -132,12 +132,23 @@ session_note: >
   entry. A declared session caveat is the far cheaper of the two costs.
 
 scope_note: >
-  Scoped to Surface A (FP16 reference) only. Surface B, the Pi latency run and the
-  grammar ablation are NOT planned for this model: the Pi is a serial resource and
-  Exp-2/Exp-3 have priority over a fourth model's latency numbers. The GGUF is still
-  produced here because it is nearly free inside this notebook and it preserves the
-  option of promoting this model to Surface B later without a second Kaggle session.
-  Because this is a separately declared comparison rather than an expansion of Table
-  17's Family 1, the existing McNemar Bonferroni alpha of 0.0167 is unchanged.
+  Surface A (FP16 reference) ONLY, and this is now a constraint rather than a triage
+  choice. The GGUF produced by this notebook FAILS Gate 3 on the llama.cpp side: the
+  formatted prompt is byte-identical on all ten audit prompts, but the two tokenisers
+  segment that identical text differently -- ' dr'+'one' under HuggingFace against
+  ' dro'+'ne' under llama.cpp -- because SentencePiece merge ranking is not unique
+  across implementations. Same length, same detokenised string, no error anywhere.
+  See `results/gate3_parity.md`, regenerate with
+  `python eval/check_parity_gguf.py h2o-danube3-500m-chat gguf/h2o-danube3-500m-chat-f16.gguf --report`.
+  An earlier version of this note justified the scope by Pi scheduling instead. That
+  was wrong twice over: accuracy runs on the workstation, not the Pi (see the
+  `eval/surface_b.py` docstring), so Surface B would have cost no Pi time; and the
+  gate has since closed the option that note said it was preserving. A Surface-B
+  number for this model would be measured under a segmentation the adapter never saw
+  and would be misattributed to quantisation. Promoting it needs the tokeniser
+  disagreement resolved first, not a free slot on the hardware. The other three
+  models pass Gate 3 on all ten prompts, so Tables 17/18/19 are unaffected. Because
+  this is a separately declared comparison rather than an expansion of Table 17's
+  Family 1, the existing McNemar Bonferroni alpha of 0.0167 is unchanged.
 
 checkpoint_selection: best validation exact match   # NOT best validation loss
