@@ -4,6 +4,7 @@
 % Delete each NOTE as you fill the section. Prose is yours to write.
 
 \chapter{State of the Art}
+\label{chap:state-of-the-art}
 
 \section{Voice-controlled UAV systems}
 % NOTE: Table 3 gives this literature to THIS document exclusively. Do not repeat the constrained-
@@ -22,8 +23,32 @@
 \section{Offline speech components}
 % NOTE: \cite{whisper}, \cite{silero}, \cite{oww}, \cite{piper} -- the actual stack, with why each
 %       was chosen.
+% NOTE: There is NO citable literature for openWakeWord or Silero VAD. The comparative material
+%       that exists is vendor blog content, which fails the bibliography's sourcing bar -- do not
+%       go looking for it. Per the references.bib house rules, software gets url + urldate, and
+%       that is the correct and complete citation form for these two.
+% NOTE: "Why each was chosen" must therefore be an ENGINEERING argument from this project's own
+%       measured requirements -- latency budget, offline operation, memory envelope, licence --
+%       and not a literature comparison. That is the honest form of the justification in an
+%       Ingenieur document, and the stronger one: the requirements are yours and they are
+%       measured, where a survey would only be borrowed.
 
 \section{Gap}
-% NOTE: What no existing system does: fully offline, grammar-constrained, dual-path, on a single
-%       SBC.
+% NOTE: The gap is the CONJUNCTION, not any single property. Two of the four conjuncts are now
+%       individually covered by published systems and must be conceded here by name:
+%       - CommandSwarm (arXiv:2605.07764, May 2026) is speech-to-swarm with a LoRA-adapted LLM,
+%         4-bit quantisation, and deterministic parser validation against a whitelist of swarm
+%         primitives -- so "offline-capable" and "constrained" are both taken. What it lacks:
+%         any emergency-stop or preemption path, 6.7-14B models, no stated deployment hardware.
+%       - SkySim (arXiv:2602.01226, Feb 2026) decouples an LLM planner from an APF safety layer
+%         at 20 Hz for 3/10/30 drones -- so "planner separate from safety layer" is not novel
+%         either. It is NOT offline (it calls Gemini 3.5 Pro) and has no reflex path.
+% NOTE: The two conjuncts that SURVIVE are dual-path preemption and single-SBC operation at
+%       sub-billion scale. Claim those; concede the rest explicitly. A gap claimed against a
+%       surveyed field reads as rigour; the same claim with one citation reads as a literature
+%       search that stopped early.
+% NOTE: CommandSwarm sharpens rather than threatens the Master's C1: it validates a COMPLETED
+%       generation against a whitelist, where the grammar here acts inside the sampling loop.
+%       Cite it as the contrast case -- but settle the Table 3 question first, since voice-UAV
+%       literature belongs to THIS document and C1's argument belongs to the Master.
 

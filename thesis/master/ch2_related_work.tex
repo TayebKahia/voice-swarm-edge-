@@ -51,9 +51,17 @@ text says how much less confident the quantised model is about the next token in
 nothing about whether the intent it assigns to a spoken command, or the slot values it fills in,
 still match the ground truth once the weights that produced them have been rounded to four or
 eight bits. For a task where the model's output is executed by a flight controller rather than
-read by a person, that is the gap that matters, and it is routinely left as an assumption --
-quantisation is deployed because it is expected to be cheap, not because the specific cost on the
-specific task has been measured. Closing that gap for exact match, intent and slot F1, and schema
+read by a person, that is the gap that matters. The method papers that introduce post-training
+quantisation schemes state their cost in exactly these terms: one reports a relative loss of under
+one percent in perplexity, another claims negligible degradation without naming a task metric at
+all~\TODO{cite SpQR and GPTQ once verified}. Evaluation studies have since closed part of that
+distance --- downstream task accuracy under quantisation has been measured at scale, and for
+llama.cpp's own K-quant ladder specifically~\TODO{cite Kurtic et al. ACL 2025 and Kurt
+arXiv:2601.14277 once verified}. What those studies measure, however, is a different regime from
+this one: models of seven billion parameters and above, scored on generic reasoning and knowledge
+suites, with the decoder unconstrained. The cost at sub-billion scale does not follow from them,
+because quantisation does not degrade small models the way it degrades large ones~\TODO{cite
+SLMQuant once verified}. Closing that gap for exact match, intent and slot F1, and schema
 validity, at both Q8\_0 and Q4\_K\_M and for every fine-tuned candidate model, is Contribution C3;
 Chapter~\ref{chap:results} reports what it measured.
 
@@ -61,8 +69,12 @@ Chapter~\ref{chap:results} reports what it measured.
 \label{sec:constrained-decoding}
 Grammar-constrained generation restricts, at every decoding step, the set of tokens the model is
 allowed to sample to those consistent with a formal grammar, so that no output can leave the
-grammar's language regardless of what the model would otherwise have produced. GBNF (GGML BNF) is
-the grammar formalism llama.cpp implements this way: a context-free grammar compiled once and then
+grammar's language regardless of what the model would otherwise have produced. The technique is an
+established one in its own right, with formulations that compile a regular expression or a
+context-free grammar into an automaton over the vocabulary and mask the decoder against it, and
+with correctness results for the language classes such a construction covers~\TODO{cite Geng et
+al. EMNLP 2023, Willard and Louf, and Koo et al. COLM 2024 once verified}. GBNF (GGML BNF) is
+the grammar formalism llama.cpp implements it with: a context-free grammar compiled once and then
 used to mask the decoder's token distribution at each step, at a fixed per-token
 overhead~\cite{llamacpp}. This is a mechanically different guarantee from prompting a model to
 produce well-formed output and then checking the result -- the grammar acts inside the sampling
@@ -81,6 +93,19 @@ decoder enforces independently of both. Chapter~\ref{chap:results} reports a gra
 built to make that distinction measurable rather than asserted: the same fine-tuned model, decoded
 with and without the grammar, isolates what the grammar itself contributes once fine-tuning has
 already done most of the work of keeping output well-formed.
+
+That guarantee is not free, and the ablation is the right instrument precisely because it is not.
+Constraining the decoder alters the distribution the model samples from: outputs remain
+grammatical, but their relative likelihoods no longer track what the unconstrained model would
+have assigned, so a grammar can make a structurally valid command more likely without making the
+correct one more likely~\TODO{cite Park et al., Grammar-Aligned Decoding, NeurIPS 2024, once
+verified}. Format restriction has separately been observed to degrade accuracy on
+reasoning-sensitive tasks, by a margin that widens as the constraint tightens~\TODO{cite Tam et
+al., EMNLP 2024 Industry Track, once verified}. Whether either effect reaches a vocabulary as
+small and as shallow as this one does not follow from that literature, which studies
+general-purpose generation under far looser schemas. It follows from the ablation, which is why
+Chapter~\ref{chap:results} reports accuracy with and without the grammar rather than structural
+validity alone.
 
 This literature is not revisited in the companion \emph{M\'emoire d'Ing\'enieur}: constrained
 decoding and the GBNF grammar it is built on are the concern of this document alone, which owns
@@ -119,21 +144,26 @@ mature. Single-board-computer benchmarking has established that throughput is th
 constraint on this hardware class, that it bounds the servable model to roughly 1.5~billion
 parameters, and that the runtime chosen to serve that model moves the bound further than the board
 does~\cite{sbc2025}. Quantisation is the accepted technique for fitting a model to that
-constraint, with an accuracy cost that is conventionally reported in terms the runtime itself
-provides -- a perplexity delta on a generic corpus -- rather than in terms of any specific
-downstream task~\cite{llamacpp}. Grammar-constrained decoding offers a mechanism, independent of
+constraint~\TODO{cite GPTQ and AWQ once verified}, with an accuracy cost reported as a perplexity
+delta on a generic corpus by the papers introducing the schemes, and on general-purpose downstream
+benchmarks by the studies evaluating them at seven billion parameters and above~\TODO{cite Kurtic
+et al. and Kurt once verified}. Grammar-constrained decoding offers a mechanism, independent of
 either of the first two literatures, for making a model's output structurally reliable by
-construction rather than by the accuracy of the model that produced it~\cite{llamacpp}. Intent and
+construction rather than by the accuracy of the model that produced it~\TODO{cite Geng et al. and
+Koo et al. once verified}, at a cost to the sampled distribution that its own literature
+documents~\TODO{cite Park et al. once verified}. Intent and
 slot parsing, finally, is a settled task shape, demonstrated at scale on corpora built for
 exactly it~\cite{massive}. None of these four bodies of work is in tension with any other; they
 simply have not been evaluated together.
 
 \paragraph{Gap.} That absence of intersection is the gap. Single-board-computer surveys report
 throughput without reference to any task, so they cannot say what a throughput-passing
-configuration costs in task accuracy. Quantisation is reported against generic
-perplexity, not against exact match, intent and slot F1, or schema validity on a specific
-command-parsing task, so its cost on a task a flight controller depends on is an assumption
-carried by convention rather than a number anyone has measured. Grammar-constrained decoding is
+configuration costs in task accuracy. Quantisation is reported against generic perplexity by the
+papers introducing the schemes and against general-purpose benchmarks by the studies evaluating
+them, but in both cases on models an order of magnitude larger than those this hardware can serve;
+neither reports exact match, intent and slot F1, or schema validity on a command-parsing task at
+sub-billion scale, so its cost on a task a flight controller depends on remains unmeasured in the
+regime this thesis deploys in. Grammar-constrained decoding is
 presented as a mechanism for structural reliability, but nothing in the literature reviewed here
 separates what the grammar itself contributes from what a model already fine-tuned to produce
 that structure would have done regardless -- the two are conflated whenever a grammar is used only
@@ -151,8 +181,9 @@ and sealed for this vocabulary -- supplies the task-specific data that a general
 intent-and-slot corpus such as MASSIVE does not, and that this task-under-this-budget question
 requires. Contribution C3 -- the quantised-inference harness that reports exact match, intent and
 slot F1, schema validity, and false-command rate at each quantisation level, on the deployed
-Raspberry~Pi~5, for every fine-tuned candidate model -- turns the accuracy cost of quantisation
-from an assumption into a measured quantity, on the exact task and the exact hardware this thesis
-targets. Chapters~\ref{chap:method} and~\ref{chap:results} report how each was built and what it
+Raspberry~Pi~5, for every fine-tuned candidate model -- reports the accuracy cost of quantisation
+as a quantity measured at sub-billion scale, on the exact task and the exact hardware this thesis
+targets, rather than inherited from the larger models and generic benchmarks the evaluation
+literature covers. Chapters~\ref{chap:method} and~\ref{chap:results} report how each was built and what it
 measured.
 

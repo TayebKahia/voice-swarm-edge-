@@ -323,9 +323,10 @@ workstation: a reference point, useful for isolating what quantisation itself co
 configuration this project ever deploys. \textbf{Surface~B} is one of the six quantised GGUF
 artefacts run on the target Raspberry~Pi~5: what actually ships, and the surface every headline
 accuracy figure in Chapter~\ref{chap:results} reports from. The difference between the two,
-$A - B$, is Contribution~C3 -- the accuracy cost of quantisation, reported as a measured delta
-rather than assumed from the perplexity figures the quantisation literature conventionally
-reports (Section~\ref{sec:quantisation}) -- and it is what Table~18 in
+$A - B$, is Contribution~C3 -- the accuracy cost of quantisation, reported as a delta measured on
+this task at this scale rather than inherited from the perplexity figures the quantisation method
+papers report, or from downstream results obtained on much larger models
+(Section~\ref{sec:quantisation}) -- and it is what Table~18 in
 Chapter~\ref{chap:results} presents.
 
 \paragraph{Chat-template parity.} Fine-tuning happens through a HuggingFace tokeniser and its
