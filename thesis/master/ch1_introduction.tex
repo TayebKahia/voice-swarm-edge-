@@ -33,9 +33,7 @@ about the intent and the slot values but wrong about the syntax has produced not
 can use, so structural correctness has to be treated as a precondition, not as a component folded
 into an accuracy score. That an aggregate accuracy figure can conceal what a model actually does is
 a point the compression literature makes independently: two models scoring alike on a benchmark can
-differ substantially in which individual answers they get right~\TODO{cite Dutta, A., Krishnan, S.,
-Kwatra, N. and Ramjee, R., ``Accuracy is Not All You Need'', NeurIPS 2024, arXiv:2407.09141 --
-verified}.
+differ substantially in which individual answers they get right~\cite{dutta2024}.
 
 Spike S3 gave direct evidence of why this precondition cannot be left to the model's own judgement,
 or to a grammar alone. Prompted zero-shot, without fine-tuning, under the grammar drafted at the

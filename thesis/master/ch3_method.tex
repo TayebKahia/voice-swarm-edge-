@@ -193,7 +193,11 @@ recall as schema clarity, so a percentage would measure memory rather than ambig
 reported instead is the list of items the two passes label \emph{differently}: recall can only push
 two passes together, never apart, so a disagreement is evidence that the schema admits two readings
 regardless of the interval length, and the count is a lower bound rather than a claim of
-completeness. \TODO{disagreement count and items from annotation pass 2, \texttt{data/annotate.py --compare}}
+completeness. Across the 50 items, at an interval of 4.0~days, that count is zero. A null result of
+this shape establishes less than it appears to: it is consistent with a schema that admits no
+second reading, and equally consistent with an interval too short for recall to have decayed. It is
+reported here because the alternative --- running the exercise and omitting an unhelpful outcome ---
+would leave every disagreement count in this thesis unfalsifiable.
 
 \paragraph{The wake corpus.} \texttt{wake\_pos} and \texttt{wake\_neg} are built for the \emph{M\'emoire
 d'Ing\'enieur}'s Branch~A keyword spotter and are described here because they share this chapter's
@@ -260,10 +264,7 @@ Checkpoint selection & Best validation exact match, not best validation loss \\
 
 \paragraph{LoRA, not QLoRA.} Low-rank adaptation~\cite{lora} freezes the base weights and trains a
 pair of rank-$r$ update matrices per targeted projection, which is sufficient on its own to bring
-a 0.36--1.2~B model to convergence on a vocabulary this narrow. QLoRA~\TODO{cite Dettmers, T.,
-Pagnoni, A., Holtzman, A. and Zettlemoyer, L., ``QLoRA: Efficient Finetuning of Quantized LLMs'',
-arXiv:2305.14314 -- authors and method verified from the abstract; confirm the venue, the arXiv
-comments field says only ``Extended NeurIPS submission''} adds one further step --
+a 0.36--1.2~B model to convergence on a vocabulary this narrow. QLoRA~\cite{qlora} adds one further step --
 quantising the frozen base weights during training, to fit a larger model into a smaller training
 budget -- and every model here is already small enough to fine-tune in full precision on the
 training hardware available, so that step would add a training-time quantisation confound without

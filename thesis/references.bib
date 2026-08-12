@@ -227,3 +227,225 @@
   doi       = {10.1145/2733373.2806390},
   note      = {Source of the {ESC-50} dataset}
 }
+
+% -- Quantisation: methods and evaluation --------------------------------------
+@inproceedings{gptq,
+  title        = {{GPTQ}: Accurate Post-Training Quantization for Generative
+                  Pre-trained Transformers},
+  author       = {Frantar, Elias and Ashkboos, Saleh and Hoefler, Torsten and
+                  Alistarh, Dan},
+  booktitle    = {International Conference on Learning Representations (ICLR)},
+  year         = {2023},
+  eprint       = {2210.17323},
+  archivePrefix= {arXiv},
+  url          = {https://arxiv.org/abs/2210.17323}
+}
+@inproceedings{awq,
+  title     = {{AWQ}: Activation-aware Weight Quantization for On-Device {LLM}
+               Compression and Acceleration},
+  author    = {Lin, Ji and Tang, Jiaming and Tang, Haotian and Yang, Shang and
+               Chen, Wei-Ming and Wang, Wei-Chen and Xiao, Guangxuan and
+               Dang, Xingyu and Gan, Chuang and Han, Song},
+  booktitle = {Proceedings of Machine Learning and Systems},
+  volume    = {6},
+  year      = {2024},
+  url       = {https://proceedings.mlsys.org/paper_files/paper/2024/hash/42a452cbafa9dd64e9ba4aa95cc1ef21-Abstract-Conference.html}
+}
+% Venue deliberately unasserted: widely reported as ICLR 2024, but only the arXiv
+% abstract page was retrievable. Upgrade to @inproceedings once confirmed.
+@misc{spqr,
+  title        = {{SpQR}: A Sparse-Quantized Representation for Near-Lossless
+                  {LLM} Weight Compression},
+  author       = {Dettmers, Tim and Svirschevski, Ruslan and Egiazarian, Vage and
+                  Kuznedelev, Denis and Frantar, Elias and Ashkboos, Saleh and
+                  Borzunov, Alexander and Hoefler, Torsten and Alistarh, Dan},
+  year         = {2023},
+  eprint       = {2306.03078},
+  archivePrefix= {arXiv},
+  url          = {https://arxiv.org/abs/2306.03078}
+}
+% Venue deliberately unasserted: the arXiv comments field says only "Extended
+% NeurIPS submission". Upgrade once the proceedings entry is confirmed.
+@misc{qlora,
+  title        = {{QLoRA}: Efficient Finetuning of Quantized {LLM}s},
+  author       = {Dettmers, Tim and Pagnoni, Artidoro and Holtzman, Ari and
+                  Zettlemoyer, Luke},
+  year         = {2023},
+  eprint       = {2305.14314},
+  archivePrefix= {arXiv},
+  url          = {https://arxiv.org/abs/2305.14314}
+}
+% An ACM DOI (10.1145/3746262.3761973) is listed on the arXiv page, but the venue
+% behind it was not confirmed; recorded as a preprint until it is.
+@misc{slmquant,
+  title        = {{SLMQuant}: Benchmarking Small Language Model Quantization for
+                  Practical Deployment},
+  author       = {Wang, Jiacheng and Zeng, Yejun and Guo, Jinyang and Ma, Yuqing and
+                  Liu, Aishan and Liu, Xianglong},
+  year         = {2025},
+  eprint       = {2511.13023},
+  archivePrefix= {arXiv},
+  url          = {https://arxiv.org/abs/2511.13023}
+}
+@inproceedings{kurtic2025,
+  title     = {{``Give Me BF16 or Give Me Death''?} Accuracy-Performance Trade-Offs
+               in {LLM} Quantization},
+  author    = {Kurtic, Eldar and Marques, Alexandre Noll and Pandit, Shubhra and
+               Kurtz, Mark and Alistarh, Dan},
+  booktitle = {Proceedings of the 63rd Annual Meeting of the Association for
+               Computational Linguistics (Volume 1: Long Papers)},
+  pages     = {26872--26886},
+  year      = {2025},
+  publisher = {Association for Computational Linguistics},
+  doi       = {10.18653/v1/2025.acl-long.1304},
+  url       = {https://aclanthology.org/2025.acl-long.1304/}
+}
+@misc{kurt2026,
+  title        = {Which Quantization Should {I} Use? A Unified Evaluation of
+                  {llama.cpp} Quantization on {Llama-3.1-8B-Instruct}},
+  author       = {Kurt, Uygar},
+  year         = {2026},
+  eprint       = {2601.14277},
+  archivePrefix= {arXiv},
+  url          = {https://arxiv.org/abs/2601.14277}
+}
+@inproceedings{dutta2024,
+  title        = {Accuracy is Not All You Need},
+  author       = {Dutta, Abhinav and Krishnan, Sanjeev and Kwatra, Nipun and
+                  Ramjee, Ramachandran},
+  booktitle    = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year         = {2024},
+  eprint       = {2407.09141},
+  archivePrefix= {arXiv},
+  url          = {https://arxiv.org/abs/2407.09141}
+}
+
+% -- Constrained decoding ------------------------------------------------------
+@inproceedings{geng2023,
+  title     = {Grammar-Constrained Decoding for Structured {NLP} Tasks without
+               Finetuning},
+  author    = {Geng, Saibo and Josifoski, Martin and Peyrard, Maxime and
+               West, Robert},
+  booktitle = {Proceedings of the 2023 Conference on Empirical Methods in Natural
+               Language Processing (EMNLP)},
+  year      = {2023},
+  eprint    = {2305.13971},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2305.13971}
+}
+% No venue: arXiv preprint only, no journal-ref on the abstract page.
+@misc{willard2023,
+  title        = {Efficient Guided Generation for Large Language Models},
+  author       = {Willard, Brandon T. and Louf, R{\'e}mi},
+  year         = {2023},
+  eprint       = {2307.09702},
+  archivePrefix= {arXiv},
+  url          = {https://arxiv.org/abs/2307.09702}
+}
+@inproceedings{koo2024,
+  title        = {Automata-based constraints for language model decoding},
+  author       = {Koo, Terry and Liu, Frederick and He, Luheng},
+  booktitle    = {Conference on Language Modeling (COLM)},
+  year         = {2024},
+  eprint       = {2407.08103},
+  archivePrefix= {arXiv},
+  url          = {https://arxiv.org/abs/2407.08103}
+}
+@inproceedings{park2024,
+  title        = {Grammar-Aligned Decoding},
+  author       = {Park, Kanghee and Wang, Jiayu and Berg-Kirkpatrick, Taylor and
+                  Polikarpova, Nadia and D'Antoni, Loris},
+  booktitle    = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year         = {2024},
+  eprint       = {2405.21047},
+  archivePrefix= {arXiv},
+  url          = {https://arxiv.org/abs/2405.21047}
+}
+@inproceedings{tam2024,
+  title     = {Let Me Speak Freely? A Study On The Impact Of Format Restrictions
+               On Large Language Model Performance},
+  author    = {Tam, Zhi Rui and Wu, Cheng-Kuang and Tsai, Yi-Lin and
+               Lin, Chieh-Yen and Lee, Hung-yi and Chen, Yun-Nung},
+  booktitle = {Proceedings of the 2024 Conference on Empirical Methods in Natural
+               Language Processing: Industry Track},
+  pages     = {1218--1236},
+  year      = {2024},
+  publisher = {Association for Computational Linguistics},
+  doi       = {10.18653/v1/2024.emnlp-industry.91},
+  url       = {https://aclanthology.org/2024.emnlp-industry.91/}
+}
+
+% -- Safety-critical systems engineering ---------------------------------------
+@misc{stpa,
+  title        = {{STPA} Handbook},
+  author       = {Leveson, Nancy G. and Thomas, John P.},
+  year         = {2018},
+  month        = mar,
+  howpublished = {{MIT} Partnership for Systems Approaches to Safety and Security},
+  url          = {http://psas.scripts.mit.edu/home/get_file.php?name=STPA_handbook.pdf},
+  urldate      = {2026-09-22}
+}
+@article{avizienis2004,
+  title   = {Basic Concepts and Taxonomy of Dependable and Secure Computing},
+  author  = {Avizienis, Algirdas and Laprie, Jean-Claude and Randell, Brian and
+             Landwehr, Carl},
+  journal = {IEEE Transactions on Dependable and Secure Computing},
+  volume  = {1},
+  number  = {1},
+  pages   = {11--33},
+  year    = {2004},
+  doi     = {10.1109/TDSC.2004.2}
+}
+% Provenance note: IEEE Xplore returns an empty body to automated retrieval and
+% DBLP is behind a bot wall, so this record was confirmed via DOI resolution plus
+% the Semantic Scholar record (DBLP key conf/icra/KorenB91), NOT the publisher
+% page. Author order is Koren first -- the reverse of the Borenstein-and-Koren
+% VFF/VFH papers. CONFIRMED on IEEE Xplore 2026-09-23: author order correct, both at
+% Dept. of Mechanical Engineering and Applied Mechanics, University of Michigan.
+% IEEE lists initials only and the PDF is paywalled, so initials are recorded here
+% rather than expanded from memory.
+@inproceedings{koren1991,
+  title     = {Potential field methods and their inherent limitations for mobile
+               robot navigation},
+  author    = {Koren, Y. and Borenstein, J.},
+  booktitle = {Proceedings of the 1991 IEEE International Conference on Robotics
+               and Automation},
+  pages     = {1398--1404},
+  volume    = {2},
+  year      = {1991},
+  doi       = {10.1109/ROBOT.1991.131810}
+}
+
+% -- Dual-path and real-time interaction ---------------------------------------
+@misc{relays2s,
+  title        = {{RelayS2S}: A Dual-Path Speculative Generation for Real-Time
+                  Dialogue},
+  author       = {Mai, Long and Liang, Junli},
+  year         = {2026},
+  eprint       = {2603.23346},
+  archivePrefix= {arXiv},
+  url          = {https://arxiv.org/abs/2603.23346}
+}
+@misc{mira,
+  title        = {{MIRA}: Real-Time Full-Duplex Human-Robot Interaction for
+                  Embodied Companions},
+  author       = {Lin, Lijian and Zhu, Ye and Zhang, Fan and Liu, Yunfei and
+                  Li, Baofeng and Zeng, Xianwen and Wang, Jianan and Li, Yu},
+  year         = {2026},
+  eprint       = {2609.24547},
+  archivePrefix= {arXiv},
+  url          = {https://arxiv.org/abs/2609.24547}
+}
+
+% -- Spoken-language understanding ---------------------------------------------
+@inproceedings{qin2021,
+  title     = {A Survey on Spoken Language Understanding: Recent Advances and
+               New Frontiers},
+  author    = {Qin, Libo and Xie, Tianbao and Che, Wanxiang and Liu, Ting},
+  booktitle = {Proceedings of the Thirtieth International Joint Conference on
+               Artificial Intelligence (IJCAI)},
+  year      = {2021},
+  eprint    = {2103.03095},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2103.03095}
+}
