@@ -260,7 +260,10 @@ Checkpoint selection & Best validation exact match, not best validation loss \\
 
 \paragraph{LoRA, not QLoRA.} Low-rank adaptation~\cite{lora} freezes the base weights and trains a
 pair of rank-$r$ update matrices per targeted projection, which is sufficient on its own to bring
-a 0.36--1.2~B model to convergence on a vocabulary this narrow. QLoRA adds one further step --
+a 0.36--1.2~B model to convergence on a vocabulary this narrow. QLoRA~\TODO{cite Dettmers, T.,
+Pagnoni, A., Holtzman, A. and Zettlemoyer, L., ``QLoRA: Efficient Finetuning of Quantized LLMs'',
+arXiv:2305.14314 -- authors and method verified from the abstract; confirm the venue, the arXiv
+comments field says only ``Extended NeurIPS submission''} adds one further step --
 quantising the frozen base weights during training, to fit a larger model into a smaller training
 budget -- and every model here is already small enough to fine-tune in full precision on the
 training hardware available, so that step would add a training-time quantisation confound without

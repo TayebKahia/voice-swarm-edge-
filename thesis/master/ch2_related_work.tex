@@ -36,10 +36,16 @@ Section~\ref{sec:quantisation} takes up what those schemes cost in accuracy.
 \section{Quantisation}
 \label{sec:quantisation}
 Post-training quantisation is the standard route from a model trained in floating point to one
-that fits the memory budget of edge hardware, and llama.cpp's k-quant family is the specific
+that fits the memory budget of edge hardware~\TODO{cite GPTQ (arXiv:2210.17323, ICLR 2023),
+one-shot weight quantisation to 3--4 bits -- verified}, and llama.cpp's k-quant family is the specific
 scheme this thesis deploys under. Q8\_0 stores each weight block at eight bits with a per-block
 scale, and Q4\_K\_M packs the same blocks into four bits with a mixed-precision correction term
-that spends more bits on the blocks quantisation error is largest in~\cite{llamacpp}. Both cut a
+that spends more bits on the blocks quantisation error is largest in~\cite{llamacpp}. That
+correction instantiates a principle the research literature states directly: weights are not
+equally important, and protecting the small fraction carrying the largest error sharply reduces
+the damage~\TODO{cite AWQ (MLSys 6, 2024) -- verified. Note no peer-reviewed analysis of the
+k-quant scheme itself appears to exist, so \cite{llamacpp} stays load-bearing for the scheme
+description}. Both cut a
 model's weight footprint by roughly half or three-quarters against a Raspberry~Pi~5's memory
 budget, which is what makes a Q8\_0 or Q4\_K\_M artefact the object of interest here rather than
 the fp16 checkpoint training produces.
@@ -59,12 +65,12 @@ state cost exactly this way. Note SpQR's abstract also says low-bit quantisation
 ``moderate-to-high accuracy losses, especially for smaller models in the 1-10B parameter range'',
 which supports the scale argument below from a paper already cited here}. Evaluation studies have since closed part of that
 distance --- downstream task accuracy under quantisation has been measured at scale, and for
-llama.cpp's own K-quant ladder specifically~\TODO{cite Kurtic et al. ACL 2025 and Kurt
-arXiv:2601.14277 once verified}. What those studies measure, however, is a different regime from
+llama.cpp's own K-quant ladder specifically~\TODO{cite Kurtic et al. (doi:10.18653/v1/2025.acl-long.1304) and Kurt
+(arXiv:2601.14277) -- both verified}. What those studies measure, however, is a different regime from
 this one: models of seven billion parameters and above, scored on generic reasoning and knowledge
 suites, with the decoder unconstrained. The cost at sub-billion scale does not follow from them,
 because quantisation does not degrade small models the way it degrades large ones~\TODO{cite
-SLMQuant once verified}. Closing that gap for exact match, intent and slot F1, and schema
+SLMQuant (arXiv:2511.13023) -- verified}. Closing that gap for exact match, intent and slot F1, and schema
 validity, at both Q8\_0 and Q4\_K\_M and for every fine-tuned candidate model, is Contribution C3;
 Chapter~\ref{chap:results} reports what it measured.
 
@@ -76,7 +82,8 @@ grammar's language regardless of what the model would otherwise have produced. T
 established one in its own right, with formulations that compile a regular expression or a
 context-free grammar into an automaton over the vocabulary and mask the decoder against it, and
 with correctness results for the language classes such a construction covers~\TODO{cite Geng et
-al. EMNLP 2023, Willard and Louf, and Koo et al. COLM 2024 once verified}. GBNF (GGML BNF) is
+al. (arXiv:2305.13971, EMNLP 2023), Willard and Louf (arXiv:2307.09702, no venue -- @misc),
+and Koo et al. (arXiv:2407.08103, COLM 2024) -- all verified}. GBNF (GGML BNF) is
 the grammar formalism llama.cpp implements it with: a context-free grammar compiled once and then
 used to mask the decoder's token distribution at each step, at a fixed per-token
 overhead~\cite{llamacpp}. This is a mechanically different guarantee from prompting a model to
@@ -101,10 +108,11 @@ That guarantee is not free, and the ablation is the right instrument precisely b
 Constraining the decoder alters the distribution the model samples from: outputs remain
 grammatical, but their relative likelihoods no longer track what the unconstrained model would
 have assigned, so a grammar can make a structurally valid command more likely without making the
-correct one more likely~\TODO{cite Park et al., Grammar-Aligned Decoding, NeurIPS 2024, once
-verified}. Format restriction has separately been observed to degrade accuracy on
+correct one more likely~\TODO{cite Park et al., Grammar-Aligned Decoding, NeurIPS 2024
+(arXiv:2405.21047) -- verified}. Format restriction has separately been observed to degrade accuracy on
 reasoning-sensitive tasks, by a margin that widens as the constraint tightens~\TODO{cite Tam et
-al., EMNLP 2024 Industry Track, once verified}. Whether either effect reaches a vocabulary as
+al., EMNLP 2024 Industry Track, pp. 1218--1236 (doi:10.18653/v1/2024.emnlp-industry.91)
+-- verified}. Whether either effect reaches a vocabulary as
 small and as shallow as this one does not follow from that literature, which studies
 general-purpose generation under far looser schemas. It follows from the ablation, which is why
 Chapter~\ref{chap:results} reports accuracy with and without the grammar rather than structural
@@ -119,7 +127,11 @@ without re-deriving the argument made here.
 \section{Spoken-language understanding for robotics}
 \label{sec:slu-robotics}
 Parsing an utterance into an intent and a set of slot values is a long-settled task shape in
-spoken-language understanding, not one this thesis introduces. MASSIVE, a one-million-example
+spoken-language understanding, not one this thesis introduces~\TODO{this claim is about a research
+lineage but currently rests on MASSIVE alone, which is a dataset, not evidence of a lineage. Needs
+the intent-and-slot-filling work preceding it: the standard benchmark corpora and at least one
+joint intent-classification/slot-filling model. NOT YET GATHERED -- neither research pass covered
+SLU, so these must be found and verified before this sentence is safe}. MASSIVE, a one-million-example
 multilingual natural-language-understanding dataset spanning dozens of languages and dozens of
 intents, is built around exactly this shape and demonstrates that models trained at sufficient
 scale reach high intent and slot accuracy on it~\cite{massive}. Robot command parsing inherits that
@@ -147,14 +159,14 @@ mature. Single-board-computer benchmarking has established that throughput is th
 constraint on this hardware class, that it bounds the servable model to roughly 1.5~billion
 parameters, and that the runtime chosen to serve that model moves the bound further than the board
 does~\cite{sbc2025}. Quantisation is the accepted technique for fitting a model to that
-constraint~\TODO{cite GPTQ and AWQ once verified}, with an accuracy cost reported as a perplexity
+constraint~\TODO{cite GPTQ and AWQ -- both verified}, with an accuracy cost reported as a perplexity
 delta on a generic corpus by the papers introducing the schemes, and on general-purpose downstream
 benchmarks by the studies evaluating them at seven billion parameters and above~\TODO{cite Kurtic
-et al. and Kurt once verified}. Grammar-constrained decoding offers a mechanism, independent of
+et al. and Kurt -- both verified}. Grammar-constrained decoding offers a mechanism, independent of
 either of the first two literatures, for making a model's output structurally reliable by
 construction rather than by the accuracy of the model that produced it~\TODO{cite Geng et al. and
-Koo et al. once verified}, at a cost to the sampled distribution that its own literature
-documents~\TODO{cite Park et al. once verified}. Intent and
+Koo et al. -- both verified}, at a cost to the sampled distribution that its own literature
+documents~\TODO{cite Park et al. -- verified}. Intent and
 slot parsing, finally, is a settled task shape, demonstrated at scale on corpora built for
 exactly it~\cite{massive}. None of these four bodies of work is in tension with any other; they
 simply have not been evaluated together.
