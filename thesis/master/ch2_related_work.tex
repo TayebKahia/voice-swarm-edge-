@@ -54,7 +54,10 @@ eight bits. For a task where the model's output is executed by a flight controll
 read by a person, that is the gap that matters. The method papers that introduce post-training
 quantisation schemes state their cost in exactly these terms: one reports a relative loss of under
 one percent in perplexity, another claims negligible degradation without naming a task metric at
-all~\TODO{cite SpQR and GPTQ once verified}. Evaluation studies have since closed part of that
+all~\TODO{cite SpQR (arXiv:2306.03078) and GPTQ (arXiv:2210.17323); both abstracts verified to
+state cost exactly this way. Note SpQR's abstract also says low-bit quantisation causes
+``moderate-to-high accuracy losses, especially for smaller models in the 1-10B parameter range'',
+which supports the scale argument below from a paper already cited here}. Evaluation studies have since closed part of that
 distance --- downstream task accuracy under quantisation has been measured at scale, and for
 llama.cpp's own K-quant ladder specifically~\TODO{cite Kurtic et al. ACL 2025 and Kurt
 arXiv:2601.14277 once verified}. What those studies measure, however, is a different regime from

@@ -178,8 +178,11 @@ minimisation of the error rate, which is the \emph{M\'emoire de Master}'s concer
 over the \emph{direction} of the errors that remain. A misheard command must not become motion.
 Treating failure modes as unequal in consequence, and designing against the consequence rather
 than against the rate, is the standing practice of safety engineering rather than a departure from
-it~\TODO{cite the hazard-analysis and functional-safety sources: STPA Handbook, IEC 61508-1:2010,
-and the Avizienis et al. dependability taxonomy -- verify each before adding}. What this section
+it~\TODO{cite Leveson, N. G. and Thomas, J. P., \emph{STPA Handbook}, March 2018 (verified from
+the document's own title page; its unsafe-control-action taxonomy covers the ``provided in the
+wrong state'' case this paragraph describes), and Avizienis, A., Laprie, J.-C., Randell, B. and
+Landwehr, C., ``Basic concepts and taxonomy of dependable and secure computing'', IEEE Trans.
+Dependable and Secure Computing 1(1):11--33, 2004, doi:10.1109/TDSC.2004.2 (record verified)}. What this section
 derives is not that principle but its consequence for a speech-driven flight path, where the stage
 that produces the error is a language model and the stage that acts on it cannot detect one.
 
@@ -196,7 +199,10 @@ and grammar; the second and third belong to this document and are designed in
 Chapter~\ref{chap:architecture}. What makes them a safety mechanism rather than a filter is the
 exit they share: every rejection at every layer resolves to a hold with a log entry, never to a
 substituted or best-guess movement. Resolving every detected fault to a single safe state is the
-fail-safe discipline as it is ordinarily specified~\TODO{cite IEC 61508-1:2010 once verified};
+fail-safe discipline as it is ordinarily specified~\TODO{cite IEC 61508. Part 1 (2010, edition
+2.0) is verified to exist and to carry the general requirements, but IEC 61508-4 is the
+definitions and abbreviations part -- confirm which one actually defines ``safe state'' and cite
+that, not Part 1 by default};
 what is specific to this architecture is that the safe state is reachable from all three layers
 and is the same state in each, so that no rejection path anywhere in the stack can produce motion.
 The vocabulary of failure has one word in it.
@@ -331,9 +337,12 @@ One of the project's four claimed contributions belongs to this document.
 \end{itemize}
 
 The transferable part of C4 is the second clause. A fast path that bypasses validation is a
-familiar pattern --- arrangements that run a cheap always-on stage beside an expensive one recur
-across wake-word spotting and real-time dialogue~\TODO{cite the dual-path prior art: the
-dual-attention wake-word transducer, RelayS2S, and MIRA -- verify each before adding} --- and a
+familiar pattern --- arrangements that run a fast responsive path beside a slower, higher-quality
+one, with a gate or a cancellable commitment between them, recur in real-time spoken
+dialogue~\TODO{cite RelayS2S (arXiv:2603.23346) and MIRA (arXiv:2609.24547); both verified against
+the arXiv abstract page. NOT the dual-attention wake-word transducer (arXiv:2304.01905) -- checked,
+and it switches compute paths inside a single model rather than running two stages in parallel,
+so it does not support this sentence} --- and a
 system can readily be given one; what is easy to omit is a principled
 answer to which utterances may travel on it, with the result that the path grows by convenience
 until it carries the commands it was never safe to carry. The rule derived in
