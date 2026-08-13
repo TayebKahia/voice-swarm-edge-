@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import pytest
 
-from eval.tables import _model_meta, table17, table33
+from eval.tables import _model_meta, markdown_to_latex, table17, table33
 
 SPLITS = ("test_synth", "test_golden", "test_ood")
 
@@ -137,3 +137,70 @@ def test_slot_f1_is_reported_on_the_splits_that_have_slots():
         line = next(l for l in table17([_sb_row(split, slot="0.961")]).splitlines()
                     if l.startswith("|") and f"`{split}`" in l)
         assert [c.strip() for c in line.split("|")][5] == "96.1", line
+
+
+# --- LaTeX emission -------------------------------------------------------------
+
+_MD = """### Table X: a title
+
+Prose that becomes the caption, naming `results/surface_b.csv` and the *deployment
+pipeline* and a **bold** phrase.
+
+| Model | Quant | Split | EM |
+| :--- | :--- | :--- | ---: |
+| qwen2.5-0.5b-instruct | Q4_K_M | `test_ood` | -- |
+
+A trailing note that qualifies the numbers.
+"""
+
+
+def test_latex_escapes_the_characters_that_would_break_the_build():
+    """Artefact stems carry `_` (Q4_K_M, test_ood). Unescaped, each one opens math mode
+    and the chapter stops compiling -- so this is a build-breaking class of bug, not a
+    cosmetic one."""
+    tex = markdown_to_latex(_MD, "tab:x")
+    assert r"Q4\_K\_M" in tex
+    assert r"\texttt{test\_ood}" in tex
+    assert "Q4_K_M" not in tex.replace(r"Q4\_K\_M", "")
+
+
+def test_latex_carries_the_caption_the_note_and_the_emphasis():
+    tex = markdown_to_latex(_MD, "tab:x")
+    assert r"\label{tab:x}" in tex
+    assert r"\emph{deployment pipeline}" in tex
+    assert r"\textbf{bold}" in tex
+    assert "A trailing note that qualifies the numbers." in tex
+    assert tex.count(r"\caption{") == 1
+
+
+def test_latex_column_spec_follows_the_markdown_alignment():
+    """`---:` is a right-aligned numeric column; `:---` is a left-aligned label."""
+    assert r"\begin{tabular}{lllr}" in markdown_to_latex(_MD, "tab:x")
+
+
+def test_latex_abbreviation_touches_labels_and_never_numbers():
+    """Table 17 only fits the text block with `-instruct` dropped. The guard is that
+    abbreviation is a label rewrite: no digit may move."""
+    plain = markdown_to_latex(_MD, "tab:x")
+    short = markdown_to_latex(_MD, "tab:x", abbreviate=True)
+    assert "qwen2.5-0.5b-instruct" in plain and "qwen2.5-0.5b-instruct" not in short
+    assert "qwen2.5-0.5b" in short
+    assert [c for c in plain if c.isdigit()] == [c for c in short if c.isdigit()]
+
+
+def test_latex_refuses_a_ragged_table_rather_than_emitting_broken_tex():
+    """A cell-count mismatch is silent in markdown and fatal in LaTeX; fail at the
+    renderer, where the message names the row."""
+    ragged = _MD.replace("| `test_ood` | -- |", "| `test_ood` |")
+    with pytest.raises(ValueError, match="row 0 has 3 cells"):
+        markdown_to_latex(ragged, "tab:x")
+
+
+def test_the_slot_f1_rule_reaches_the_latex_unchanged():
+    """The point of rendering LaTeX from the markdown rather than from the CSV a second
+    time: a presentation rule added to `table17` cannot be forgotten in the PDF."""
+    tex = markdown_to_latex(table17([_sb_row("test_ood")]), "tab:model-comparison",
+                            abbreviate=True)
+    row = next(l for l in tex.splitlines()
+               if l.rstrip().endswith(chr(92) * 2) and r"\texttt{test\_ood}" in l)
+    assert " -- & " in row, row

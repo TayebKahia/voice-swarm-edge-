@@ -24,6 +24,7 @@ Usage:
 from __future__ import annotations
 
 import csv
+import re
 import sys
 from pathlib import Path
 
@@ -336,19 +337,167 @@ def table33(surface_a: list[dict]) -> str:
     return "\n".join(lines)
 
 
+# ---------------------------------------------------------------------------
+# LaTeX emission
+#
+# The thesis may not hand-copy a number out of a CSV into a `tabular` (the
+# thesis-writing skill's rule 8, "never hand-type a number that a script could
+# produce"). These renderers therefore convert the markdown each table function
+# already returns, rather than formatting the numbers a second time: one code
+# path decides what a cell says, so the `.md` under results/ and the `.tex` the
+# chapter inputs cannot drift apart. A rule added to a table above --
+# NO_SLOT_SPLITS, say -- reaches the PDF with no second edit.
+# ---------------------------------------------------------------------------
+
+#: Build products of the document, not measurements -- results/ holds what the
+#: harness measured, and nothing here is a new number.
+GENERATED = REPO / "thesis" / "generated"
+
+_TEX_ESCAPES = (("\\", r"\textbackslash{}"), ("&", r"\&"), ("%", r"\%"),
+                ("$", r"\$"), ("#", r"\#"), ("_", r"\_"), ("{", r"\{"),
+                ("}", r"\}"), ("~", r"\textasciitilde{}"),
+                ("^", r"\textasciicircum{}"))
+
+
+def _tex_escape(text: str) -> str:
+    for char, replacement in _TEX_ESCAPES:
+        text = text.replace(char, replacement)
+    return text
+
+
+#: Inline markdown emphasis, longest marker first so `**` is not eaten as two `*`.
+_EMPHASIS = ((re.compile(r"\*\*(.+?)\*\*"), r"\\textbf{\1}"),
+             (re.compile(r"(?<![*\w])\*(?!\s)(.+?)(?<!\s)\*(?![*\w])"), r"\\emph{\1}"))
+
+
+def _tex_cell(cell: str) -> str:
+    """One markdown cell or caption line -> LaTeX.
+
+    Backticks become \\texttt; `**x**` and `*x*` become \\textbf and \\emph. Emphasis is
+    resolved before escaping, on the escaped fragments, so a literal underscore inside an
+    emphasised run still reaches the PDF as an underscore.
+    """
+    out, parts = [], cell.strip().split("`")
+    for index, part in enumerate(parts):
+        if index % 2:
+            out.append(r"\texttt{" + _tex_escape(part) + "}")
+            continue
+        text = _tex_escape(part)
+        for pattern, replacement in _EMPHASIS:
+            text = pattern.sub(replacement, text)
+        out.append(text)
+    return "".join(out)
+
+
+def _align(spec: str) -> str:
+    spec = spec.strip()
+    if spec.startswith(":") and spec.endswith(":"):
+        return "c"
+    return "r" if spec.endswith(":") else "l"
+
+
+#: Applied to LaTeX cells only, and only to *labels* -- never to a number. Table 17 carries
+#: eleven columns and runs 52pt past the text block at full width; every model in this
+#: project is an instruction-tuned checkpoint, so the suffix distinguishes nothing and
+#: dropping it is what makes the table fit without shrinking the type further. The markdown
+#: under results/ keeps the full artefact stem, because that is the measurement record.
+_TEX_ABBREVIATIONS = (("-instruct", ""),)
+
+
+def markdown_to_latex(markdown: str, label: str, size: str = r"\footnotesize",
+                      colsep_pt: int = 4, abbreviate: bool = False) -> str:
+    """Render the single pipe-table in `markdown` as a LaTeX table float.
+
+    The prose above the table becomes the caption, because the skill asks captions to be
+    self-contained: a reader must be able to read the table without the body text. Prose
+    below the table (Table 33's three-epoch caveat, Table 19's pooled note) becomes a
+    note under the rule, where it stays attached to the numbers it qualifies.
+    """
+    lines = markdown.splitlines()
+    table = [l for l in lines if l.lstrip().startswith("|")]
+    if len(table) < 3:
+        raise ValueError(f"{label}: expected a header, a rule and at least one row")
+    first, last = lines.index(table[0]), lines.index(table[-1])
+
+    title = next((l.lstrip("# ").strip() for l in lines[:first] if l.startswith("#")), "")
+    caption_lines = [l for l in lines[:first] if l.strip() and not l.startswith("#")]
+    notes_lines = [l for l in lines[last + 1:] if l.strip()]
+
+    def cell(text: str) -> str:
+        if abbreviate:
+            for long, short in _TEX_ABBREVIATIONS:
+                text = text.replace(long, short)
+        return _tex_cell(text)
+
+    header = [cell(c) for c in table[0].strip().strip("|").split("|")]
+    column_spec = "".join(_align(c) for c in table[1].strip().strip("|").split("|"))
+    body = [[cell(c) for c in row.strip().strip("|").split("|")] for row in table[2:]]
+    for index, row in enumerate(body):
+        if len(row) != len(header):
+            raise ValueError(
+                f"{label}: row {index} has {len(row)} cells, header has {len(header)}")
+
+    # Joined *before* conversion, not after: the markdown wraps at 90 columns, so a
+    # `*run*` or a `` `path` `` in a caption routinely straddles a line break and a
+    # per-line conversion would leave the marker in the PDF as a literal asterisk.
+    caption = _tex_cell(" ".join(caption_lines)) or _tex_cell(title)
+    rule = " " + chr(92) * 2
+    out = [
+        "% Generated by eval/tables.py -- do not edit; edit the renderer and re-run.",
+        r"\begin{table}[htbp]",
+        r"  \centering",
+        "  " + size,
+        r"  \setlength{\tabcolsep}{" + str(colsep_pt) + "pt}",
+        r"  \caption{" + caption + "}",
+        r"  \label{" + label + "}",
+        r"  \begin{tabular}{" + column_spec + "}",
+        r"    \toprule",
+        "    " + " & ".join(header) + rule,
+        r"    \midrule",
+    ]
+    out += ["    " + " & ".join(row) + rule for row in body]
+    out += [r"    \bottomrule", r"  \end{tabular}"]
+    if notes_lines:
+        out += [r"  \par\medskip",
+                r"  \begin{minipage}{\textwidth}\footnotesize "
+                + _tex_cell(" ".join(notes_lines)) + r"\end{minipage}"]
+    out += [r"\end{table}", ""]
+    return "\n".join(out)
+
+
+
+#: stem -> (LaTeX label, font size, \tabcolsep, abbreviate labels). Table 17 carries eleven
+#: columns and needs both tighter settings; the rest are comfortable at footnotesize.
+_TABLES = (
+    ("table17_model_comparison", "tab:model-comparison", r"\scriptsize", 2, True),
+    ("table18_quantisation_delta", "tab:quantisation-delta", r"\footnotesize", 5, False),
+    ("nfr18_false_command", "tab:false-command", r"\footnotesize", 5, False),
+    ("table19_grammar_ablation", "tab:grammar-ablation", r"\scriptsize", 3, False),
+    ("table33_iso_parameter", "tab:iso-parameter", r"\footnotesize", 5, False),
+)
+
+
 def run() -> int:
     surface_a, surface_b = _rows(SURFACE_A), _rows(SURFACE_B)
+    rendered = {
+        "table17_model_comparison": table17(surface_b),
+        "table18_quantisation_delta": table18(surface_a, surface_b, DELTA_SPLIT),
+        "nfr18_false_command": nfr18(surface_b),
+        "table19_grammar_ablation": table19(surface_b, _rows(SURFACE_B_NOGRAMMAR)),
+        "table33_iso_parameter": table33(surface_a),
+    }
     written = []
-    for name, text in (
-        ("table17_model_comparison.md", table17(surface_b)),
-        ("table18_quantisation_delta.md", table18(surface_a, surface_b, DELTA_SPLIT)),
-        ("nfr18_false_command.md", nfr18(surface_b)),
-        ("table19_grammar_ablation.md", table19(surface_b, _rows(SURFACE_B_NOGRAMMAR))),
-        ("table33_iso_parameter.md", table33(surface_a)),
-    ):
-        (RESULTS / name).write_text(text, encoding="utf-8")
-        written.append(name)
-    print("wrote " + ", ".join(f"results/{n}" for n in written))
+    for stem, text in rendered.items():
+        (RESULTS / f"{stem}.md").write_text(text, encoding="utf-8")
+        written.append(f"results/{stem}.md")
+
+    GENERATED.mkdir(parents=True, exist_ok=True)
+    for stem, label, size, colsep, abbreviate in _TABLES:
+        tex = markdown_to_latex(rendered[stem], label, size=size, colsep_pt=colsep,
+                                abbreviate=abbreviate)
+        (GENERATED / f"{stem}.tex").write_text(tex, encoding="utf-8")
+        written.append(f"thesis/generated/{stem}.tex")
+    print("wrote " + ", ".join(written))
     return 0
 
 
