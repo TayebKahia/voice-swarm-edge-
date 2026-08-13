@@ -48,6 +48,18 @@ DELTA_SPLIT = "test_golden"
 #: Table 12, NFR-18.
 FALSE_COMMAND_BUDGET = 0.05
 
+#: Splits whose gold targets carry no slots at all, so slot-F1 has no dynamic range on them.
+#: `test_ood` is the abstention set: 150 out-of-domain utterances whose gold is
+#: `{"intent":"unknown"}` and nothing else -- 0 gold slot pairs across all 150 items. With
+#: zero gold slots, true positives and false negatives are pinned at 0, so precision is 0
+#: whenever the model emits any slot at all and `slot_micro_f1` can only ever return 0.0
+#: (it emitted something) or `nan` (it emitted nothing). It cannot tell one spurious slot
+#: apart from thirty-one, which is the only question worth asking on this split -- and
+#: `false_command_rate` already answers it, on a scale that means something. Printing the
+#: arithmetically-correct 0.0 next to 97.5 and 94.5 in the same column reads as a collapse
+#: in slot filling that never happened, so Table 17 prints `--` instead.
+NO_SLOT_SPLITS = ("test_ood",)
+
 
 def _rows(path: Path) -> list[dict]:
     if not path.is_file():
@@ -86,7 +98,10 @@ def table17(surface_b: list[dict]) -> str:
         "latency, throughput and memory columns are `results/exp1.csv`, measured on the Pi.",
         "p50/p95 is SLM prefill+decode combined (Table 6's two SLM rows summed). Exp-1 covers",
         "only Q4_K_M (STATE.md triage) -- a Q8_0 row keeps `--` because it was never measured",
-        "on the hardware, not because the join failed.",
+        "on the hardware, not because the join failed. Slot-F1 is `--` on `test_ood` because that",
+        "split carries no gold slots: its gold target is `{\"intent\":\"unknown\"}` on all 150 items,",
+        "so the metric has no dynamic range there. What the models do emit on those items is",
+        "reported properly by the false-command rate (NFR-18, `results/nfr18_false_command.md`).",
         "",
         "| Model | Quant | Split | Intent-F1 | Slot-F1 | EM | Safe-fail | Schema-valid | p50/p95 (ms) | tok/s | Peak RSS |",
         "| :--- | :--- | :--- | ---: | ---: | ---: | ---: | ---: | :--- | ---: | :--- |",
@@ -102,10 +117,12 @@ def table17(surface_b: list[dict]) -> str:
             rss_str = "--" if rss == "" else f"{rss / 1024:.2f} GB"
         else:
             latency, tok_s, rss_str = "--", "--", "--"
+        # `--`, not 0.0, where the split has no gold slots to score -- see NO_SLOT_SPLITS.
+        slot_f1 = None if row["split"] in NO_SLOT_SPLITS else _f(row["slot_micro_f1"])
         lines.append(
             f"| {row['model']} | {row['quant']} | `{row['split']}` "
             f"| {_pct(_f(row['intent_macro_f1']))} "
-            f"| {_pct(_f(row['slot_micro_f1']))} "
+            f"| {_pct(slot_f1)} "
             f"| {_pct(_f(row['exact_match']))} "
             f"| {_pct(_f(row['safe_failure_rate']))} "
             f"| {_pct(_f(row['schema_validity']))} | {latency} | {tok_s} | {rss_str} |"

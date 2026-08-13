@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import pytest
 
-from eval.tables import _model_meta, table33
+from eval.tables import _model_meta, table17, table33
 
 SPLITS = ("test_synth", "test_golden", "test_ood")
 
@@ -104,3 +104,36 @@ def test_the_rendered_table_matches_the_committed_csv():
     rendered = table33(list(csv.DictReader(SURFACE_A.open(encoding="utf-8"))))
     on_disk = (RESULTS / "table33_iso_parameter.md").read_text(encoding="utf-8")
     assert rendered == on_disk, "results/table33_iso_parameter.md is stale -- re-run eval/tables.py"
+
+
+def _sb_row(split, slot="0.0"):
+    """A Surface-B accuracy row as `results/surface_b.csv` carries it."""
+    return {"model": "qwen2.5-0.5b-instruct", "quant": "Q4_K_M", "grammar": "on",
+            "split": split, "n": "150", "exact_match": "0.7466666666666667",
+            "intent_macro_f1": "0.855", "slot_micro_f1": slot,
+            "safe_failure_rate": "0.158", "schema_validity": "1.0",
+            "false_command_rate": "0.2533333333333333"}
+
+
+def test_slot_f1_is_withheld_on_the_abstention_split():
+    """`test_ood`'s gold is `{"intent":"unknown"}` on all 150 items -- zero gold slot
+    pairs. So tp and fn are pinned at 0 and `slot_micro_f1` can only return 0.0 (the
+    model emitted a slot) or nan (it did not); it cannot tell one spurious slot from
+    thirty-one. Printing the arithmetically-correct 0.0 beside the 97.5 and 94.5 of
+    the other splits reads as a collapse in slot filling that never happened, so the
+    cell must be `--`. `false_command_rate` reports what actually happened there.
+    """
+    ood = next(l for l in table17([_sb_row("test_ood")]).splitlines()
+               if l.startswith("|") and "`test_ood`" in l)
+    cells = [c.strip() for c in ood.split("|")]
+    assert cells[5] == "--", ood
+    assert cells[6] == "74.7", f"EM must still be reported on this split: {ood}"
+
+
+def test_slot_f1_is_reported_on_the_splits_that_have_slots():
+    """The guard is scoped to splits with no gold slots. It must not swallow a real
+    measurement on `test_synth` or `test_golden`, where slot-F1 is the headline."""
+    for split in ("test_synth", "test_golden"):
+        line = next(l for l in table17([_sb_row(split, slot="0.961")]).splitlines()
+                    if l.startswith("|") and f"`{split}`" in l)
+        assert [c.strip() for c in line.split("|")][5] == "96.1", line
