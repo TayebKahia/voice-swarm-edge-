@@ -303,10 +303,23 @@ The table below is **generated** by `python data/annotate.py --compare`.
 |---|---|
 | Pass 1 | `annot/annot_pass1.jsonl` — sealed under SHA-256, authoritative |
 | Pass 2 | `annot/annot_pass2.jsonl` — reshuffled, blind to pass 1 |
-| Interval | TBD — pass 2 not recorded |
+| Interval | 4.0 days |
 | Items | 50 |
 | Agreement rate | **not reported** — see below |
-| Schema ambiguities found | TBD |
+| Schema ambiguities found | 0 |
+
+**No agreement rate is reported.** At this interval a matching pair of
+labels is as easily recall as schema clarity, so a percentage would measure
+memory; it is withheld rather than caveated.
+
+What the comparison does support is one-directional: **recall can only push
+the two passes toward agreement, never apart.** An item labelled two
+different ways is therefore evidence that the schema admits two readings, at
+any interval.
+
+**No disagreement appeared.** This is not evidence that the schema is
+unambiguous --- only that this interval was too short to find one. Stated
+explicitly so the null result cannot be read as a positive one.
 
 <!-- annotation:end -->
 
