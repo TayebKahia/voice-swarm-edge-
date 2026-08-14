@@ -55,6 +55,7 @@ dependencies:
       - narwhals==2.25.0
       - numba==0.65.0
       - numpy==1.26.4
+      - onnx==1.17.0
       - onnxruntime==1.29.0
       - openwakeword==0.6.0
       - pandas==3.0.5

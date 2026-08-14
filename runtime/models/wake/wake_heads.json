@@ -1,0 +1,31 @@
+{
+  "threshold": 0.999,
+  "classes": [
+    "swarm_hold",
+    "swarm_abort"
+  ],
+  "heads": {
+    "swarm_hold": {
+      "file": "swarm_hold.onnx",
+      "sha256": "95f805b7de899eff992fb24c8709a3b14975e52e23aeafa90a5bfee6583ee405"
+    },
+    "swarm_abort": {
+      "file": "swarm_abort.onnx",
+      "sha256": "8a2366e08321a0441f419d1eb02f4670b0be838b209d96961f25e04342434e94"
+    }
+  },
+  "feature_models": {
+    "melspectrogram": {
+      "file": "melspectrogram.onnx",
+      "sha256": "ba2b0e0f8b7b875369a2c89cb13360ff53bac436f2895cced9f479fa65eb176f",
+      "source": "https://github.com/dscripka/openWakeWord/releases/tag/v0.5.1"
+    },
+    "embedding": {
+      "file": "embedding_model.onnx",
+      "sha256": "70d164290c1d095d1d4ee149bc5e00543250a7316b59f31d056cff7bd3075c1f",
+      "source": "https://github.com/dscripka/openWakeWord/releases/tag/v0.5.1"
+    }
+  },
+  "corpus_manifest_sha256": "3b377be8334bdca413da0e0c76370588f72f322892392129d519cdfa59519ab1",
+  "report": "results/wake_training.md"
+}

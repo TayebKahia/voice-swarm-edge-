@@ -1,8 +1,8 @@
 """runtime/branch_a.py -- Table 5's membership rule (contribution C4).
 
-`BranchA` is exercised against a fake `WakeDetector`: no trained
-openWakeWord model exists yet (see `runtime/branch_a.py`'s module docstring),
-so these tests are the only guard on the membership rule until one does.
+The membership rule is exercised against a fake `WakeDetector`, so it holds
+whatever the model does. The trained heads from `train/train_wake.py` are
+tested at the end of the file, on held-out clips, marked `slow`.
 """
 
 from __future__ import annotations
@@ -78,3 +78,61 @@ def test_threshold_is_a_configurable_boundary() -> None:
 
     branch_a = BranchA(FakeDetector({"swarm_hold": 0.4999}), threshold=0.5)
     assert branch_a.poll(frame=None) is None
+
+
+# --- the trained heads (train/train_wake.py) ---------------------------------
+
+import json as _json
+from pathlib import Path as _Path
+
+import numpy as _np
+
+from runtime.branch_a import MODEL_DIR
+
+_REPO = _Path(__file__).resolve().parent.parent
+_HAVE_HEADS = all((MODEL_DIR / f"{n}.onnx").exists() for n in BRANCH_A_CLASSES)
+
+
+def _stream(branch_a: BranchA, wav: _Path) -> set[str]:
+    """Feed a padded clip in 80 ms frames; return the intents that fired."""
+    import soundfile as sf
+
+    audio, _ = sf.read(str(wav), dtype="int16")
+    pad = _np.zeros(16_000, dtype=_np.int16)
+    audio = _np.concatenate([pad, audio, pad])
+    fired = set()
+    for i in range(0, audio.size - 1280 + 1, 1280):
+        command = branch_a.poll(audio[i : i + 1280])
+        if command is not None:
+            fired.add(command.intent)
+    return fired
+
+
+def _first_test_clip(label: str) -> _Path:
+    manifest = _json.loads((_REPO / "data/wake/wake_manifest.json").read_text())
+    clip = next(c for c in manifest["clips"] if c["label"] == label and c["split"] == "test"
+                and c["rir"] is None and c["noise_key"] is None)
+    return _REPO / clip["path"]
+
+
+@pytest.mark.slow
+@pytest.mark.skipif(not _HAVE_HEADS, reason="run train/train_wake.py first")
+@pytest.mark.parametrize(("label", "intent"), [("pos_swarm_hold", "hover"), ("pos_swarm_abort", "abort")])
+def test_trained_heads_fire_on_a_held_out_keyword(label: str, intent: str) -> None:
+    from runtime.branch_a import load_trained
+
+    assert intent in _stream(load_trained(), _first_test_clip(label))
+
+
+@pytest.mark.slow
+@pytest.mark.skipif(not _HAVE_HEADS, reason="run train/train_wake.py first")
+def test_trained_heads_refuse_weights_that_do_not_match_the_record(tmp_path: _Path) -> None:
+    import shutil
+
+    from runtime.branch_a import load_trained
+
+    for f in MODEL_DIR.iterdir():
+        shutil.copy(f, tmp_path / f.name)
+    (tmp_path / "swarm_hold.onnx").write_bytes((tmp_path / "swarm_hold.onnx").read_bytes() + b"\0")
+    with pytest.raises(ValueError, match="does not match"):
+        load_trained(tmp_path)

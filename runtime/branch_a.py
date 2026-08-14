@@ -13,22 +13,26 @@ Both keyword names follow `data/wake_corpus.py`'s own directory convention
 classifier's class labels and this mapping's keys agree without a translation
 table to keep in sync.
 
-No trained keyword-spotter model exists yet: `data/wake_corpus.py` built the
-positive/negative corpus (3,000 + 5,040 clips, per STATE.md), but training the
-openWakeWord classifier on it is separate work and is not done here -- this
-task is the wiring, not the model. `WakeDetector` is the seam: `BranchA`
-depends on the interface, not on `openwakeword.Model` directly, so a trained
-model slots in later without touching this module, and tests exercise the
-membership rule and the smoothing/threshold logic today against a fake.
+The trained spotter is two openWakeWord heads built by `train/train_wake.py`
+from `data/wake_corpus.py`'s corpus, loaded by `load_trained()`. `WakeDetector`
+is the seam: `BranchA` depends on the interface, not on `openwakeword.Model`
+directly, so the membership rule and the threshold logic are tested against a
+fake, and the real model against real clips only in the `slow` tests.
 """
 
 from __future__ import annotations
 
+import hashlib
+import json
+from pathlib import Path
 from typing import Protocol
 
 from schema.schema import Abort, Command, Hover
 
-__all__ = ["BRANCH_A_CLASSES", "KEYWORD_TO_INTENT", "WakeDetector", "BranchA"]
+__all__ = ["BRANCH_A_CLASSES", "KEYWORD_TO_INTENT", "WakeDetector", "BranchA", "load_trained"]
+
+#: Written by `train/train_wake.py`: two ONNX heads plus `wake_heads.json`.
+MODEL_DIR = Path(__file__).resolve().parent / "models" / "wake"
 
 #: Table 5's result: exactly two of schema v1.0's ten intents qualify for
 #: Branch A. Order matches PRD Sec. 4.2's presentation (hold, then abort).
@@ -94,3 +98,26 @@ class BranchA:
         if best_class is None:
             return None
         return _build_command(KEYWORD_TO_INTENT[best_class])
+
+
+def load_trained(model_dir: Path = MODEL_DIR) -> BranchA:
+    """`BranchA` over the trained heads, at the operating point `train_wake.py` declared.
+
+    The heads are gitignored and regenerated, so a file that does not match the
+    hash in `wake_heads.json` is refused rather than run: the threshold in that
+    file was selected for those exact weights and means nothing for others.
+    `openwakeword.Model` expects 80 ms int16 frames (1,280 samples) per `poll`.
+    """
+    from openwakeword.model import Model
+
+    record = json.loads((model_dir / "wake_heads.json").read_text())
+    if tuple(record["classes"]) != BRANCH_A_CLASSES:
+        raise ValueError(f"wake_heads.json classes {record['classes']} != {BRANCH_A_CLASSES}")
+    paths = []
+    for name in BRANCH_A_CLASSES:
+        path = model_dir / record["heads"][name]["file"]
+        digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        if digest != record["heads"][name]["sha256"]:
+            raise ValueError(f"{path} does not match wake_heads.json; re-run train/train_wake.py")
+        paths.append(str(path))
+    return BranchA(Model(wakeword_models=paths, inference_framework="onnx"), threshold=record["threshold"])
