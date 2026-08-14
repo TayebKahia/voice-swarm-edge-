@@ -9,6 +9,14 @@
 \section{Voice-controlled UAV systems}
 % NOTE: Table 3 gives this literature to THIS document exclusively. Do not repeat the constrained-
 %       decoding survey from the Master Ch. 2.
+% NOTE: Verified keys (records and claims checked 23 Sep): typefly2024, simoes2024, henry2026,
+%       swarmchat2025, iannoli2026, silva2026, sikorski2025, torkamani2025, llm2swarm2024,
+%       chatwithuav2025, contreras2020, landau2017, codeaspolicies2023, saycan2022,
+%       chatgptrobotics2024, javaid2024, phadke2024. The claim each may carry -- several were
+%       corrected -- is under that candidate in .scratch/thesis-bibliography/ingenieur-candidates.md.
+%       Read it before citing: e.g. SwarmChat's intent recognition is rule-based, not an LLM;
+%       torkamani2025 targets IoT devices, not robots; ChatGPT-for-Robotics DOES gate execution,
+%       by a human reviewer.
 
 \section{Positioning against Lim et al.}
 % NOTE: \cite{lim2025} is the named baseline. Prepare here the 'not directly comparable' argument
@@ -36,17 +44,26 @@
 \section{Gap}
 % NOTE: The gap is the CONJUNCTION, not any single property. Two of the four conjuncts are now
 %       individually covered by published systems and must be conceded here by name:
-%       - CommandSwarm (arXiv:2605.07764, May 2026) is speech-to-swarm with a LoRA-adapted LLM,
-%         4-bit quantisation, and deterministic parser validation against a whitelist of swarm
-%         primitives -- so "offline-capable" and "constrained" are both taken. What it lacks:
-%         any emergency-stop or preemption path, 6.7-14B models, no stated deployment hardware.
-%       - SkySim (arXiv:2602.01226, Feb 2026) decouples an LLM planner from an APF safety layer
-%         at 20 Hz for 3/10/30 drones -- so "planner separate from safety layer" is not novel
-%         either. It is NOT offline (it calls Gemini 3.5 Pro) and has no reflex path.
+%       - CommandSwarm (\cite{commandswarm2026}) is speech-to-swarm with open 6.7-14B models,
+%         all 4-bit, and a deterministic parser gate against a whitelist of swarm primitives --
+%         so "constrained output" is taken, by validation after generation (its "constrained
+%         prompting" is a prompt listing allowed actions, NOT constrained decoding). It never
+%         claims offline operation and names no hardware. Speech front end: SeamlessM4T at
+%         ~4.0 s (Whisper-medium translation, ~5.2 s, was rejected). Trees are scored by text
+%         metrics and parser acceptance, not executed. No emergency stop: the paper says a real
+%         deployment "should require" one. Its safety classifier is "not independently evaluated".
+%       - SkySim (\cite{skysim2026}) separates a cloud LLM planner (Gemini 3.5 Pro) from an APF
+%         layer at 20 Hz for 3/10/30 drones -- so "planner separate from safety layer" is not
+%         novel. The APF does collision avoidance only; geo-fencing is the planner rejecting
+%         out-of-bounds waypoints. Typed text, NO speech; planning takes 34-50 s. It holds
+%         position on malformed LLM output -- close to this system's hold-on-rejection; say so.
 % NOTE: The two conjuncts that SURVIVE are dual-path preemption and single-SBC operation at
 %       sub-billion scale. Claim those; concede the rest explicitly. A gap claimed against a
 %       surveyed field reads as rigour; the same claim with one citation reads as a literature
 %       search that stopped early.
+% NOTE: Dual-path prior art is cited, not discovered: \cite{relays2s}, \cite{dualattn2023} (the
+%       wake-word frames switch to the CHEAPER branch inside one ASR model -- not a second,
+%       heavier path), \cite{mira}.
 % NOTE: A third system found while verifying the dual-path citations, and it presses closer than
 %       either of the two above on C4's own ground: MIRA (arXiv:2609.24547, Sep 2026) runs a
 %       "dual-timescale interaction policy" for low-latency streaming beside deliberative turn

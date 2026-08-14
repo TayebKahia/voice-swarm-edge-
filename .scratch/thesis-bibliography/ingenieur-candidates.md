@@ -27,6 +27,7 @@ for the gap claim in Ch. 2 §"Gap".
   gates; generation quality alone is not sufficient", is independent support for the three-layer
   validation argument in Ch. 1 §safety-problem. **Read the "Notes for the author" section below
   before writing the gap paragraph.**
+- **Verified 2026-09-23:** key `commandswarm2026` — record OK (arXiv abs v1; NB the PDF byline and e-mail spell the first author *Majeed*, the abs metadata *Majid*; the bib uses the byline) / claim CORRECTED: 6.7B–14B, all 4-bit, whitelist + deterministic XML parser gate, constrained prompting (a prompt that lists the allowed primitives — not constrained decoding), and the quoted conclusion are all confirmed verbatim. But (a) the ~5.2 s Whisper-medium figure is *speech-translation* latency (to English), not plain ASR, and it is the rejected option: the chosen front end is SeamlessM4T v2-large at ~4.0 s; (b) evaluation is BLEU/ROUGE-L/parser acceptance on generated XML — generated trees are *not* executed and scored in the simulator (simulator-in-the-loop is listed as future work); (c) the Llama-Guard-style safety classifier is "not independently evaluated"; (d) no emergency stop, preemption or hold path exists — the paper lists "emergency stop mechanisms" among safeguards real deployment "should require"; (e) no deployment hardware is named; the paper never claims offline operation (audio comes "from a web microphone"); (f) simulation = Violet, a PyGame-based swarm simulator; real-robot transfer (Crazyflie/e-puck, to measure latency) is future work.
 
 ### SkySim: A ROS2-based Simulation Environment for Natural Language Control of Drone Swarms using Large Language Models
 - Authors (as shown on page): Aditya Shibu, Marah Saleh, Mohamed Al-Musleh, Nidhal Abdulaziz
@@ -38,6 +39,7 @@ for the gap claim in Ch. 2 §"Gap".
   low-level safety enforcement layer running an artificial potential field at 20 Hz for collision
   avoidance and geo-fencing — the closest published analogue to the APF-plus-clamp arrangement of
   Ch. 1 §safety-problem, and a cloud-LLM counterexample to the offline requirement.
+- **Verified 2026-09-23:** key `skysim2026` — record OK (arXiv abs v1; PDF header places it at DAUS 2026, Salzburg, not on the abs page) / claim CORRECTED: the LLM is **Gemini 3.5 Pro** ("Gemini 3.5 Pro Preview" in the results) via the google.generativeai cloud API; APF control loop at 20 Hz confirmed; swarm sizes 3, 10, 30 confirmed (the latency figure also has N=4); simulation-only (Gazebo Harmonic + ROS2 Jazzy, simulated Crazyflie 2.1 Brushless, noiseless ground-truth odometry). Geo-fencing is **not** done by the APF: the LLM Planner Node rejects out-of-bounds waypoints and falls back to position hold; the APF handles inter-agent repulsion, and velocity is saturated at 0.5 m/s. A malformed output or API timeout also holds the previous command. Input is **typed text — there is no speech at all**. Mean planning latency 34–50 s, outliers >100 s; the authors call it "unsuitable for time-critical missions".
 
 ### TypeFly: Flying Drones with Large Language Model
 - Authors (as shown on page): Guojun Chen, Xiaojing Yu, Neiwen Ling, Lin Zhong
@@ -49,6 +51,7 @@ for the gap claim in Ch. 2 §"Gap".
   imposes a latency that is the binding constraint for drone control, and that the response is to
   change the output representation — which is exactly the pressure that Ch. 1 §safety-problem
   answers architecturally instead, by removing the stopping command from the LLM path altogether.
+- **Verified 2026-09-23:** key `typefly2024` — record OK / claim OK, with precision: the paper says sequential token generation "introduces substantial latency" proportional to plan length, and answers with MiniSpec (a token-efficient plan language) plus stream interpretation — up to 62% response-time reduction, <1.5 s response on its 11-task benchmark. LLM is remote (GPT-4, cloud); input is an English text task description, not speech.
 
 ### Evaluating Voice Command Pipelines for Drone Control: From STT and LLM to Direct Classification and Siamese Networks
 - Authors (as shown on page): Lucca Emmanuel Pineli Simões, Lucas Brandão Rodrigues, Rafaela Mota Silva, Gustavo Rodrigues da Silva
@@ -60,6 +63,7 @@ for the gap claim in Ch. 2 §"Gap".
   classification on inference time and accuracy for one drone — i.e. the literature has already
   measured the two halves of the dual path separately, which is the premise the architecture
   builds on and lets Ch. 2 claim the *combination*, not the components, as the contribution.
+- **Verified 2026-09-23:** key `simoes2024` — record OK / claim OK: one Tello drone, Portuguese commands (wav2vec2-XLSR-53-Portuguese); STT+LLM 0.81 acc at 1.233 s, direct classifier 0.99 at 0.021 s, Siamese 0.74 at 0.006 s (Table 5).
 
 ### End-to-End Voice Intent Recognition for Spontaneous Human-Drone Interaction with Naive Users
 - Authors (as shown on page): Allan Henry (GIPSA-COPERNIC, GETALP, LPNC), Solange Rossato (GETALP), Christian Graff (LPNC), Sylvain Huet (GIPSA-COPERNIC), Jose-Ernesto Gomez-Balderas (GIPSA-COPERNIC)
@@ -71,6 +75,7 @@ for the gap claim in Ch. 2 §"Gap".
   cascade at 79% / 202 ms on the same corpus — peer-reviewed, quantitative evidence that the
   reflex/parse latency asymmetry of NFR-1 vs NFR-2 is a property of the pipeline shape and not an
   artefact of this project's hardware.
+- **Verified 2026-09-23:** key `henry2026` — record OK (arXiv; RO-MAN 2026 acceptance per comments, no DOI yet) / claim OK, with caveats: 93%/7 ms vs cascade (Whisper + CamemBERT-Large) 79%/202 ms is on the *explicit simple-command* subset; on the full spontaneous test set it is 82% vs 59%. The 7 ms is on an RTX 2000 Ada GPU (106 ms on CPU). French speech. The paper attributes the 14-point gap to "the cascade architecture itself rather than" ASR quality.
 
 ### SwarmChat: An LLM-Based, Context-Aware Multimodal Interaction System for Robotic Swarms
 - Authors (as shown on page): Ettilla Mohiuddin Eumi, Hussein Abbass, Nadine Marcus
@@ -81,6 +86,7 @@ for the gap claim in Ch. 2 §"Gap".
 - Supports the claim: A voice/text/teleoperation multimodal LLM interface to a robotic swarm,
   with intent recognition and task planning as separate LLM modules — the mainstream
   "everything through the LLM" design that the dual-path argument is positioned against.
+- **Verified 2026-09-23:** key `swarmchat2025` — record OK (Springer LNCS, ICSI 2025, pp. 181–192, doi:10.1007/978-981-95-0982-9_15) / claim CORRECTED: the abstract says "four LLM-based modules", but in the body **Intent Recognition is rule-based keyword matching** ("patrol" → patrol mode) and the authors list it as a limitation; the LLM is never named; evaluation is preliminary (keyword combinations, no user study yet). Citable only as an LLM-mediated text/voice/teleop swarm interface over ROS2, not as an example of intent recognition by LLM.
 
 ### Say the Mission, Execute the Swarm: Agent-Enhanced LLM Reasoning in the Web-of-Drones
 - Authors (as shown on page): Andrea Iannoli, Lorenzo Gigli, Luca Sciullo, Angelo Trotta, Marco Di Felice
@@ -93,6 +99,7 @@ for the gap claim in Ch. 2 §"Gap".
   operating without explicit grounding and execution support", and that runtime safeguards
   materially improve reliability. This is external, peer-reviewed justification for putting
   validation layers downstream of the model rather than trusting the model.
+- **Verified 2026-09-23:** key `iannoli2026` — record OK (IEEE WoWMoM 2026, pp. 139–148, doi:10.1109/WoWMoM69805.2026.00027) / claim OK: quote confirmed in the abstract; "task-specific planning tools and runtime guardrails substantially improve robustness". Natural-language text, no speech; ArduPilot SITL simulation; MCP + W3C WoT abstraction, no code generation.
 
 ### An LLM-Agnostic, MAVLink-Based Drone Command and Control Interface and Agentic Harness Using the Model Context Protocol
 - Authors (as shown on page): Javier Noé Ramos Silva, Peter J. Burke
@@ -104,6 +111,7 @@ for the gap claim in Ch. 2 §"Gap".
   (>1,000 simulated flights plus real hardware, with safety-validation mechanisms and geofence
   trials) — useful both as scale context and as a second, stronger baseline than Lim et al. alone
   for the non-comparability argument.
+- **Verified 2026-09-23:** key `silva2026` — record OK (arXiv v3, 11 Sep 2026) / claim CORRECTED: the paper does not say "largest"; it says "to our knowledge the broadest evaluation of an LLM–drone command interface reported to date" *on the axes it measures*. Confirmed: >1,000 simulated flights, 110 geofence-violation trials with no aircraft leaving the zone, three real quadcopters; LLM treated as an "untrusted commander" with server-side validation. Models are mostly cloud providers'.
 
 ### Deployment of Large Language Models to Control Mobile Robots at the Edge
 - Authors (as shown on page): Pascal Sikorski, Leendert Schrader, Kaleb Yu, Lucy Billadeau, Jinka Meenakshi, Naveena Mutharasan, Flavio Esposito, Hadi AliAkbarpour, Madi Babaiasl
@@ -115,6 +123,7 @@ for the gap claim in Ch. 2 §"Gap".
   commands at the edge and finds the offline model markedly less consistent — the honest prior
   statement of the cost that offline operation imposes, which is the cost this project's
   architecture is designed to absorb rather than deny.
+- **Verified 2026-09-23:** key `sikorski2025` — record OK (published: IEEE ICMCR 2025, pp. 19–24, doi:10.1109/ICMCR64890.2025.10963303; bib uses the venue record) / claim OK: GPT-4-Turbo (cloud) vs LLaMA 2-7B Q5_K_M (offline), the latter showing "significant limitations in consistency and reliability". Speech via offline VOSK; a wheeled mobile robot, with the LLM on a control computer (Pico W is only the radio link).
 
 ### Adaptive Edge-Cloud Inference for Speech-to-Action Systems Using ASR and Large Language Models
 - Authors (as shown on page): Mohammad Jalili Torkamani, Israt Zarin
@@ -125,6 +134,7 @@ for the gap claim in Ch. 2 §"Gap".
 - Supports the claim: Routes spoken commands between edge and cloud on runtime metrics (CPU load,
   temperature, network latency) — the design this project explicitly forecloses, and therefore a
   clean citation for why NFR-14 makes offline a requirement rather than a routing policy.
+- **Verified 2026-09-23:** key `torkamani2025` — record OK / claim OK with a scope correction: ASTA routes between edge and cloud on CPU load, device temperature and network latency, as claimed — but the targets are **IoT devices (smart lights, appliances), not robots or drones**. NVIDIA Jetson platform, 80 spoken commands, ASR accuracy 62.5%.
 
 ### LLM2Swarm: Robot Swarms that Responsively Reason, Plan, and Collaborate through LLMs
 - Authors (as shown on page): Volker Strobel, Marco Dorigo, Mario Fritz
@@ -136,6 +146,7 @@ for the gap claim in Ch. 2 §"Gap".
   direct integration (an LLM instance runs on each robot at operation time) — a useful taxonomy
   for stating precisely where this project's single-operator, single-LLM, formation-level design
   sits.
+- **Verified 2026-09-23:** key `llm2swarm2024` — record OK / claim OK, one nuance: indirect integration synthesises and validates controllers "before or during deployment" (not only offline); direct integration runs a separate LLM instance on each robot. The authors call the contribution "mainly conceptual".
 
 ### Chat with UAV — Human-UAV Interaction Based on Large Language Models
 - Authors (as shown on page): Haoran Wang, Zhuohang Chen, Guang Li, Bo Ma, Chuanghuang Li
@@ -147,6 +158,7 @@ for the gap claim in Ch. 2 §"Gap".
   execution across two LLMs — worth citing precisely because it is a *dual* architecture that is
   not a dual *path*: both branches are LLM-latency branches, which sharpens what Ch. 1's
   16-fold budget separation actually buys.
+- **Verified 2026-09-23:** key `chatwithuav2025` — record OK / claim OK: two independent LLM agents (task planning, execution), framework named UAV-GPT; simulation and real experiments.
 
 ### Unmanned Aerial Vehicle Control Through Domain-based Automatic Speech Recognition
 - Authors (as shown on page): Ruben Contreras, Angel Ayala, Francisco Cruz
@@ -157,6 +169,7 @@ for the gap claim in Ch. 2 §"Gap".
 - Supports the claim: Pre-LLM speech-driven drone control evaluated under injected noise at
   several levels — the earlier generation of the field, and a precedent for the SNR-sweep
   methodology of RQ3 / Exp-3.
+- **Verified 2026-09-23:** key `contreras2020` — record OK: bib uses the journal version *Computers* 9(3):75, 2020, doi:10.3390/computers9030075 (the DOI the arXiv abs page itself links; metadata via Crossref) / claim OK: voice commands with several levels of distortion applied; note the base recogniser is **cloud-based**, improved by domain phoneme matching (EN 74.81% → 93.33%, ES 97.04% → 100%), in a simulated V-REP domestic scene.
 
 ### A System Architecture for Hands-Free UAV Drone Control Using Intuitive Voice Commands
 - Authors (as shown on page): Megan Landau, Sebastian van Delden
@@ -168,6 +181,7 @@ for the gap claim in Ch. 2 §"Gap".
   the control language defined by regular expressions on a single DJI airframe. It shows that
   *constraining the command language* is an old idea in this field, while *offline* and *swarm*
   are the parts that were not solved there.
+- **Verified 2026-09-23:** key `landau2017` — record OK (via Crossref; ACM DL is behind a bot wall) / claim CORRECTED (abstract only; the paper is paywalled): Nuance speech recognition platform, DJI Mobile SDK (iOS/Swift), control language defined by regular expressions, tested on a DJI Phantom 4. The abstract does **not** say the Nuance service is cloud-hosted — do not call it "cloud" unless you read the paper.
 
 ### Code as Policies: Language Model Programs for Embodied Control
 - Authors (as shown on page): Jacky Liang, Wenlong Huang, Fei Xia, Peng Xu, Karol Hausman, Brian Ichter, Pete Florence, Andy Zeng
@@ -179,6 +193,7 @@ for the gap claim in Ch. 2 §"Gap".
   a language model, and therefore the origin of the design this document departs from: free-form
   generated code is unbounded in what it can command, which is what the three validation layers
   exist to prevent.
+- **Verified 2026-09-23:** key `codeaspolicies2023` — record OK (ICRA 2023, pp. 9493–9500, doi:10.1109/ICRA48891.2023.10160591) / claim CORRECTED: "unbounded in what it can command" is not the paper's claim — it re-composes given perception and control-primitive APIs (third-party libraries allowed) and says its scope is restricted by "which control primitives are available". What it does say, and what to cite: "Our approach also assumes all given instructions are feasible, and we cannot tell if a response will be correct a priori."
 
 ### Do As I Can, Not As I Say: Grounding Language in Robotic Affordances
 - Authors (as shown on page): Michael Ahn, Anthony Brohan, Noah Brown, Yevgen Chebotar, Omar Cortes, Byron David, Chelsea Finn, Chuyuan Fu, Keerthana Gopalakrishnan, Karol Hausman, Alex Herzog, Daniel Ho, Jasmine Hsu, Julian Ibarz, Brian Ichter, Alex Irpan, Eric Jang, Rosario Jauregui Ruano, Kyle Jeffrey, Sally Jesmonth, Nikhil J Joshi, Ryan Julian, Dmitry Kalashnikov, Yuheng Kuang, Kuang-Huei Lee, Sergey Levine, Yao Lu, Linda Luu, Carolina Parada, Peter Pastor, Jornell Quiambao, Kanishka Rao, Jarek Rettinghouse, Diego Reyes, Pierre Sermanet, Nicolas Sievers, Clayton Tan, Alexander Toshev, Vincent Vanhoucke, Fei Xia, Ted Xiao, Peng Xu, Sichun Xu, Mengyuan Yan, Andy Zeng
@@ -191,6 +206,7 @@ for the gap claim in Ch. 2 §"Gap".
   constrains by learned affordance scores, this system constrains by an explicit grammar plus a
   semantic validator plus a state machine, which is auditable and does not degrade silently.
   (Note the 44-author list — check the house style for `et al.` truncation.)
+- **Verified 2026-09-23:** key `saycan2022` — record OK: bib uses the CoRL 2022 record (PMLR vol. 205, pp. 287–318, published 2023); **PMLR author order starts with Brian Ichter, not Michael Ahn** — biblatex will print "Ichter et al." / claim OK: pretrained skills with value functions "constrain the model to propose natural language actions that are both feasible and contextually appropriate".
 
 ### ChatGPT for Robotics: Design Principles and Model Abilities
 - Authors (as shown on page): Sai Vemprala, Rogerio Bonatti, Arthur Bucker, Ashish Kapoor
@@ -201,6 +217,7 @@ for the gap claim in Ch. 2 §"Gap".
 - Supports the claim: Covers aerial navigation among its task domains and is the most-cited
   statement of the prompt-engineering-plus-function-library approach — the design whose absence
   of any verification gate the safety argument of Ch. 1 is a response to.
+- **Verified 2026-09-23:** key `chatgptrobotics2024` — record OK: published in IEEE Access 12:55682–55696, 2024 (doi:10.1109/ACCESS.2024.3387941); bib uses it / claim CORRECTED: the paper does have a gate — a **human "on the loop"** who evaluates output quality and safety before execution (Fig. 2), and it says these tools "should not be given full control of the robotics pipeline". Correct framing: no *automated, deterministic* gate; safety rests on human supervision. Aerial navigation (AirSim, and a real drone) confirmed.
 
 ### Large Language Models for UAVs: Current State and Pathways to the Future
 - Authors (as shown on page): Shumaila Javaid, Nasir Saeed, Bin He
@@ -211,6 +228,7 @@ for the gap claim in Ch. 2 §"Gap".
 - Supports the claim: A survey to anchor the opening sentence of the section, so that the review
   is framed as a field rather than as a list of systems. Lower priority — use it for framing
   only; the specific claims should rest on the primary systems above.
+- **Verified 2026-09-23:** key `javaid2024` — record OK: published in IEEE Open Journal of Vehicular Technology 5:1166–1192, 2024 (doi:10.1109/OJVT.2024.3446799); **journal author list is Javaid, Fahim, He, Saeed** (four authors; arXiv has three) / claim OK for framing.
 
 ### Integrating Large Language Models for UAV Control in Simulated Environments: A Modular Interaction Approach
 - Authors (as shown on page): Abhishek Phadke, Alihan Hadimlioglu, Tianxing Chu, Chandra N Sekharan
@@ -221,6 +239,7 @@ for the gap claim in Ch. 2 §"Gap".
 - Supports the claim: Lower priority. A proof-of-concept modular framework coupling existing LLMs
   to robotic simulators; useful only if the survey needs a second example of simulator-coupled
   LLM UAV control alongside Lim et al.
+- **Verified 2026-09-23:** key `phadke2024` — record OK / claim OK: review plus a template framework and proof-of-concept LLM–simulator integration.
 
 ---
 
@@ -361,6 +380,7 @@ specifically — see the notes.
 - Supports the claim: Wake-word detection used to select which compute branch runs per audio
   frame — prior art that a keyword spotter can gate a second, heavier path. Cite it where Ch. 1
   concedes the dual path is a familiar pattern, so the concession is evidenced.
+- **Verified 2026-09-23:** key `dualattn2023` — record OK (ICASSP 2023, doi:10.1109/ICASSP49357.2023.10096075) / claim CORRECTED: wake-word spotting selects which branch *of its attention networks* to execute per audio frame, inside one ASR model — and the wake-word frames get the **cheaper** branch (−90% FLOPs on those frames). So it is prior art for per-frame keyword-driven switching of compute paths, not for a keyword spotter gating a separate, heavier second path; its purpose is compute saving, not safety.
 
 ### RelayS2S: A Dual-Path Speculative Generation for Real-Time Dialogue
 - Authors (as shown on page): Long Mai, Junli Liang
@@ -372,6 +392,7 @@ specifically — see the notes.
   whether to commit the fast path's output — the same shape as Branch A / Branch B but with the
   fast path serving *quality of experience*, not safety. A clean contrast for showing that what is
   novel here is the membership rule, not the topology.
+- **Verified 2026-09-23:** key `relays2s` (already in bib) — record OK (v2, 9 Sep 2026; primaryClass cs.AI added; EMNLP 2026 Findings per comments, kept as preprint) / claim OK: fast path = duplex speech-to-speech model drafting a prefix, slow path = cascaded ASR→LLM (GPT-4.1), a lightweight learned verifier gates the handoff; P90 first-chunk latency 81 ms vs 1,006 ms.
 
 ### MIRA: Real-Time Full-Duplex Human-Robot Interaction for Embodied Companions
 - Authors (as shown on page): Lijian Lin, Ye Zhu, Fan Zhang, Yunfei Liu, Baofeng Li, Xianwen Zeng, Jianan Wang, Yu Li
@@ -449,6 +470,14 @@ conjuncts are individually well covered by 2026 work. Take the threats in order.
    the overlap on the other two conjuncts — the gap statement is stronger, not weaker, for saying
    "a 2026 system already does the offline-and-constrained half; what none does is bound the
    stopping command independently of the parse path, on a device this size."
+   *Correction (verified 2026-09-23):* the 5.2 s figure is Whisper-medium **speech translation**
+   (into English), and it is the option the paper rejects — its chosen front end is SeamlessM4T
+   v2-large at ~4.0 s, still an order of magnitude outside NFR-2. "Offline-capable" is our
+   inference from open 4-bit models; the paper never claims offline operation and names no
+   hardware. Its evaluation scores generated XML (BLEU/ROUGE-L/parser acceptance) — trees are not
+   executed and scored in the simulator — and its safety classifier is "not independently
+   evaluated". It lists "emergency stop mechanisms" only among safeguards real deployment
+   "should require". Say "constrained prompting", not "constrained decoding".
 
 2. **SkySim (arXiv:2602.01226)** independently arrives at the same two-tier idea as your
    architecture — LLM planning above, an artificial-potential-field safety layer at 20 Hz below,
@@ -457,6 +486,12 @@ conjuncts are individually well covered by 2026 work. Take the threats in order.
    Pi. But it does weaken any phrasing that presents "separate the planner from a low-level safety
    enforcement layer" as itself novel. Ch. 1's C4 already avoids that trap by claiming the
    *membership rule* rather than the separation; keep that discipline in Ch. 2 §"Gap".
+   *Correction (verified 2026-09-23):* the model is **Gemini 3.5 Pro** (cloud API). Geo-fencing is
+   done by the planner node rejecting out-of-bounds waypoints (fallback: position hold), not by
+   the APF; the APF does inter-agent repulsion, with a 0.5 m/s velocity clamp. Input is **typed
+   text — SkySim has no speech path**. Planning latency is 34–50 s on average (outliers >100 s).
+   Note that it also holds on malformed LLM output, which is close to this work's hold-on-rejection
+   rule — concede that too.
 
 3. **The dual-path topology is prior art and should be cited as such, not discovered.**
    RelayS2S (arXiv:2603.23346) runs an explicit fast-path/slow-path speech architecture with a
@@ -466,6 +501,10 @@ conjuncts are individually well covered by 2026 work. Take the threats in order.
    concedes "a fast path that bypasses validation is a familiar pattern" — good. Ch. 2 should
    discharge that concession with these three citations rather than leaving it as a bare admission,
    because an examiner who knows this literature will otherwise supply the citations themselves.
+   *Correction (verified 2026-09-23):* the ICASSP 2023 paper switches between two branches *of its
+   attention networks inside one ASR model*, per frame, and the wake-word frames get the cheaper
+   branch (for compute saving). Cite it as per-frame keyword-driven switching of compute paths, not
+   as a keyword spotter gating a separate heavier path.
 
 4. **A wording risk, not a novelty risk.** The phrase "fully offline" is safe. "Grammar-constrained"
    is safe as long as Ch. 2 does not survey constrained decoding (Table 3 forbids it) — cite the
@@ -476,6 +515,12 @@ conjuncts are individually well covered by 2026 work. Take the threats in order.
    hobbyist projects doing offline Vosk-or-Whisper voice control of a single drone on a Pi are
    abundant; they are not citable and not swarm systems, but be ready to say so out loud at the
    defence rather than be surprised by the question.
+   *Correction (verified 2026-09-23):* the Landau & van Delden abstract names the Nuance platform
+   but does not say it is cloud-hosted — do not write "cloud" for it unless the paper itself is
+   read. For "systems without any verification gate", do not cite ChatGPT for Robotics: it has a
+   human-on-the-loop gate; what it lacks is an *automated* one. Code as Policies does not claim
+   its code is unbounded; cite its own admission that it "assumes all given instructions are
+   feasible".
 
 **On GAP 2.** The three principles in Ch. 1 §safety-problem map cleanly onto owners: STPA /
 Leveson & Thomas for the wrong-state command and for hazard analysis generally, IEC 61508 for the
