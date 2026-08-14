@@ -1306,3 +1306,33 @@ the tokeniser disagreement resolved (a different GGUF conversion path, or retrai
 llama.cpp's segmentation). It is not blocked on hardware time. `train/configs/
 h2o-danube3-500m.yaml`'s `scope_note` said it was; that note has been corrected, since
 accuracy runs on the workstation and Surface B would never have cost Pi time at all.
+
+## BRANCH A KEYWORD SPOTTER -- trained (Wed 23 Sep, 01:00-01:30)
+
+Calendar correction: depot is **Thu 24 Sep 23:59**, not the morning.
+
+Annotation pass 2 committed (f716c57): 50 items, 4.04-day interval, 0 disagreements, seal intact.
+
+`python train/train_wake.py` -> `runtime/models/wake/{swarm_hold,swarm_abort}.onnx` (gitignored,
+hashes in `wake_heads.json`), report `results/wake_training.{md,json}`. Loaded by
+`runtime.branch_a.load_trained()`. Two openWakeWord heads (sklearn MLP -> hand-built ONNX) over
+the frozen v0.5.1 front end. Operating point 0.999, selected on val.
+
+| held-out | result | requirement |
+| :--- | :--- | :--- |
+| FRR test, hold / abort | 0.027 / 0.007 (n=300 each, Piper voices only) | NFR-16 <= 0.10 |
+| ambient speech FA | 1 in 0.429 h = 2.33/h, CI [0.06, 12.98] | NFR-15 <= 1/h -- NOT demonstrated |
+| golden set (author) FA | 0 in 0.304 h | -- |
+| authored near-miss FA | 34 in 0.100 h (31 hold head) | stress figure only |
+| algorithmic delay p95 from keyword offset | hold 188 ms, abort 131 ms (workstation) | NFR-1 is Exp-2 on the Pi |
+
+Caveats that must travel: all positives synthetic (3 Piper voices); test seen twice (round 1
+rejected on val diagnostics); threshold saturated at grid top; ambient stream too short for
+NFR-15. **Cheapest improvement: the author records ~20 real "swarm hold" + ~20 "swarm abort"**
+(5 min) -> real-voice FRR.
+
+Still open for Exp-2: BranchA has no debounce (fires every frame above threshold);
+`runtime/audio.py` and `runtime/vad.py` still not built; Exp-2/Exp-3 runners not written.
+
+START_SESSION.md BLOCK B rule 8 corrected (references.bib, count with grep). Ingenieur Ch2
+voice-UAV candidates under verification (background agent) -- Ch2 waits on it; Ch3 does not.
