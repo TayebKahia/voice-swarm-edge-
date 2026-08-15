@@ -564,6 +564,7 @@ def run(argv: Sequence[str] | None = None) -> int:
     fm = feature_model_paths()
     heads = {
         "threshold": chosen,
+        "debounce_s": DEBOUNCE_S,
         "classes": list(CLASSES),
         "heads": {name: {"file": f"{name}.onnx", "sha256": _sha256(OUT_DIR / f"{name}.onnx")} for name in CLASSES},
         "feature_models": {k: {"file": p.name, "sha256": _sha256(p),

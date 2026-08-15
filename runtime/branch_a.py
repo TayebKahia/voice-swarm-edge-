@@ -74,17 +74,40 @@ def _build_command(intent: str) -> Command:
 
 
 class BranchA:
-    """Two-class detection, threshold, publish-on-trigger (Table 4's `branch_a.py`).
+    """Two-class detection, threshold, debounce, publish-on-trigger (Table 4's `branch_a.py`).
 
     Table 5's two off-diagonal confusions -- hearing `abort` for `hold` and the
     reverse -- are both fail-safe (Sec. 4.2: "confusion within a fail-safe set
     is a benign error class"), so ties are broken by score alone; no class gets
     priority over the other.
+
+    **One keyword, one trigger.** The spotter scores every 80 ms frame, and a
+    spoken phrase stays above threshold for several consecutive frames. Without
+    a debounce one `swarm abort` publishes a burst of aborts, each re-cancelling
+    the Branch B decode, and every count Exp-2 reports -- false accepts per hour,
+    the 2x2 cross-trigger matrix -- counts frames instead of keywords. A class
+    fires on a frame above threshold only if its previous above-threshold frame
+    is more than `debounce_s` back, which is exactly how `train/train_wake.py`
+    counts events, so the runtime and the reported rates cannot disagree.
+
+    The refractory period is **per class**. A `swarm abort` spoken straight after
+    a `swarm hold` must still get through: it is the more conservative command,
+    and a shared refractory would silence it.
     """
 
-    def __init__(self, detector: WakeDetector, *, threshold: float = 0.5) -> None:
+    def __init__(
+        self,
+        detector: WakeDetector,
+        *,
+        threshold: float = 0.5,
+        debounce_s: float = 1.0,
+        frame_s: float = 0.08,
+    ) -> None:
         self._detector = detector
         self._threshold = threshold
+        self._refractory_frames = int(round(debounce_s / frame_s))
+        self._frame = 0
+        self._last_above: dict[str, int | None] = {c: None for c in BRANCH_A_CLASSES}
 
     def poll(self, frame: object) -> Command | None:
         """Run one frame through the spotter; return the triggered command, if any."""
@@ -93,8 +116,15 @@ class BranchA:
         best_score = self._threshold
         for keyword_class in BRANCH_A_CLASSES:
             score = scores.get(keyword_class, 0.0)
+            if score < self._threshold:
+                continue
+            last = self._last_above[keyword_class]
+            self._last_above[keyword_class] = self._frame
+            if last is not None and self._frame - last <= self._refractory_frames:
+                continue  # the same utterance, still above threshold
             if score >= best_score:
                 best_class, best_score = keyword_class, score
+        self._frame += 1
         if best_class is None:
             return None
         return _build_command(KEYWORD_TO_INTENT[best_class])
@@ -120,4 +150,8 @@ def load_trained(model_dir: Path = MODEL_DIR) -> BranchA:
         if digest != record["heads"][name]["sha256"]:
             raise ValueError(f"{path} does not match wake_heads.json; re-run train/train_wake.py")
         paths.append(str(path))
-    return BranchA(Model(wakeword_models=paths, inference_framework="onnx"), threshold=record["threshold"])
+    return BranchA(
+        Model(wakeword_models=paths, inference_framework="onnx"),
+        threshold=record["threshold"],
+        debounce_s=record.get("debounce_s", 1.0),
+    )

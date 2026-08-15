@@ -136,3 +136,63 @@ def test_trained_heads_refuse_weights_that_do_not_match_the_record(tmp_path: _Pa
     (tmp_path / "swarm_hold.onnx").write_bytes((tmp_path / "swarm_hold.onnx").read_bytes() + b"\0")
     with pytest.raises(ValueError, match="does not match"):
         load_trained(tmp_path)
+
+
+# --- debounce: one keyword, one trigger ---------------------------------------
+
+
+@dataclass
+class ScriptedDetector:
+    """Returns the next score dict on each predict() call."""
+
+    script: list[dict[str, float]]
+    calls: int = 0
+
+    def predict(self, frame: object) -> dict[str, float]:
+        scores = self.script[self.calls] if self.calls < len(self.script) else {}
+        self.calls += 1
+        return scores
+
+
+def _run(script: list[dict[str, float]], **kwargs: float) -> list[str | None]:
+    branch_a = BranchA(ScriptedDetector(script), threshold=0.5, **kwargs)
+    out = []
+    for _ in script:
+        command = branch_a.poll(frame=None)
+        out.append(None if command is None else command.intent)
+    return out
+
+
+def test_a_sustained_keyword_fires_once() -> None:
+    """Eight consecutive above-threshold frames are one spoken phrase, one command."""
+    fired = _run([{"swarm_abort": 0.99}] * 8)
+    assert fired == ["abort"] + [None] * 7
+
+
+def test_a_second_keyword_after_the_refractory_fires_again() -> None:
+    # 1.0 s / 80 ms = 12.5 -> 12 frames. A gap of 13 frames is a new event.
+    script = [{"swarm_hold": 0.9}] + [{}] * 12 + [{"swarm_hold": 0.9}]
+    assert _run(script).count("hover") == 2
+
+
+def test_a_second_keyword_inside_the_refractory_is_the_same_event() -> None:
+    script = [{"swarm_hold": 0.9}] + [{}] * 11 + [{"swarm_hold": 0.9}]
+    assert _run(script).count("hover") == 1
+
+
+def test_abort_is_not_silenced_by_a_hold_refractory() -> None:
+    """The more conservative command must always get through (per-class refractory)."""
+    script = [{"swarm_hold": 0.9}] * 3 + [{"swarm_abort": 0.9}] * 3
+    assert _run(script) == ["hover", None, None, "abort", None, None]
+
+
+def test_debounce_matches_the_training_evaluator() -> None:
+    """runtime and results/wake_training.md must count the same events."""
+    import numpy as np
+
+    from train.train_wake import count_events
+
+    rng = np.random.default_rng(0)
+    trace = (rng.random(400) > 0.93).astype(float)  # sparse bursts of above-threshold frames
+    fired = _run([{"swarm_hold": v} for v in trace])
+    assert fired.count("hover") == count_events(trace, 0.5)

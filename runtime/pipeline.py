@@ -13,16 +13,11 @@ What is new here is the wiring between them: which stage's output feeds the
 next, and PRD Sec. 4.3's correctness rule for the one place both branches
 meet -- the bus.
 
-Audio capture and VAD (Table 4's `runtime/audio.py`, `runtime/vad.py`) are
-NOT built here. This task's scope, as given, is exactly the five stages
-above; Branch B's entry point below is therefore a already-segmented
-utterance (a WAV path), not a live audio stream. Building the capture and
-endpointing stages is separate work.
-
-Similarly, no trained openWakeWord model exists yet (see
-`runtime/branch_a.py`'s docstring) -- `on_wake_frame` below is exercised in
-tests against a fake `WakeDetector`, and will run unchanged once a trained
-model is injected.
+Endpointing now exists (`runtime/vad.py`: stream in, `Utterance` with its T0
+out, and `Utterance.to_wav` for this module's WAV entry point), and so does the
+trained spotter (`runtime.branch_a.load_trained`). Microphone capture
+(Table 4's `runtime/audio.py`) and the loop that drives both branches from one
+stream are not built yet; until they are, `on_utterance` still takes a WAV path.
 """
 
 from __future__ import annotations
