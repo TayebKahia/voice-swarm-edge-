@@ -1336,3 +1336,16 @@ Still open for Exp-2: BranchA has no debounce (fires every frame above threshold
 
 START_SESSION.md BLOCK B rule 8 corrected (references.bib, count with grep). Ingenieur Ch2
 voice-UAV candidates under verification (background agent) -- Ch2 waits on it; Ch3 does not.
+
+## Debounce + VAD built (Wed 23 Sep, ~02:00)
+
+- `runtime/branch_a.py`: per-class 1.0 s debounce, same rule as `train_wake.py:count_events`
+  (asserted by test). One keyword -> one command.
+- `runtime/vad.py`: Silero ONNX on onnxruntime (no torch), `Endpointer.feed()` -> `Utterance`
+  with T0. Default min_silence 450 ms, derived from Table 6's 500 ms, not tuned.
+- **DECISION FOR THE AUTHOR:** at Table 6's 500 ms, 10.5% of golden utterances split into >1
+  segment (17.5% @400, 2.5% @700, 0% @1000). Keep 450 ms and report the split rate, or raise
+  the VAD budget line. Affects Exp-2 E2E latency and Branch B accuracy on disfluent speech.
+- `data/wake_real_transcripts.txt`: 40 prompts for the author's real-voice Branch A takes.
+- Still not built: `runtime/audio.py` (live mic) and the stream loop driving both branches;
+  Exp-2 / Exp-3 runners.
