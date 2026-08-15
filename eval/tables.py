@@ -10,7 +10,9 @@ are joins of two files that were produced on two different machines:
 Table 17's latency columns (p50/p95, tok/s, peak RSS) come from a third file, produced on a
 third machine:
 
-  results/exp1.csv                -- per-trial timing/RSS/thermal rows from the Pi (eval/exp1.py)
+  results/exp1_cooled.csv         -- per-trial timing/RSS/thermal rows from the Pi (eval/exp1.py),
+                                     the cooled run of record; results/exp1.csv is its uncooled
+                                     predecessor, reported in results/thermal_headroom.md
 
 Exp-1 covers only the **Q4_K_M** configurations (STATE.md triage: 60 timed runs, not the PRD's
 200, Q8_0 dropped from the hardware sweep). A Q8_0 row therefore keeps `--` in those columns
@@ -37,7 +39,17 @@ REPO = Path(__file__).resolve().parent.parent
 SURFACE_A = REPO / "train" / "kaggle_out" / "surface_a.csv"
 SURFACE_B = REPO / "results" / "surface_b.csv"
 SURFACE_B_NOGRAMMAR = REPO / "results" / "surface_b_nogrammar.csv"
-EXP1 = REPO / "results" / "exp1.csv"
+#: Exp-1 of record. The PRD declares the target as a Raspberry Pi 5 with an **active
+#: cooler** (PRD.tex:199) and names one as the mitigation for risk R-8, "thermal
+#: throttling corrupts latency figures" (PRD.tex:1841). The first Exp-1 ran before the
+#: cooler was fitted and throttled on 180/180 scored trials, so it measured a
+#: configuration this project never declared. The cooled run is the protocol-compliant
+#: measurement and the one these tables report.
+EXP1 = REPO / "results" / "exp1_cooled.csv"
+#: Kept, not discarded. NFR-10 must "always be reported" (prd.md:538), and the delta
+#: between the two runs is itself a result: what sustained throttling costs a
+#: sub-billion model on a passively-cooled Pi 5. Rendered by `thermal_headroom()`.
+EXP1_THROTTLED = REPO / "results" / "exp1.csv"
 RESULTS = REPO / "results"
 
 SPLITS = ("test_synth", "test_golden", "test_ood")
@@ -77,15 +89,17 @@ def _pct(value: float | None, places: int = 1) -> str:
     return "--" if value is None else f"{100 * value:.{places}f}"
 
 
-def _exp1_summaries() -> dict[str, dict]:
+def _exp1_summaries(path: Path = EXP1) -> dict[str, dict]:
     """Exp-1 config (== a Q4_K_M gguf stem, e.g. `qwen2.5-0.5b-instruct-Q4_K_M`) -> summary.
 
     Warm-up rows are excluded by name (`<stem>-warmup`), never by discarding CSV rows --
-    every request the Pi answered is still in `results/exp1.csv` for inspection.
+    every request the Pi answered is still in the CSV for inspection. The path is a
+    parameter so the same aggregation renders both the cooled run of record and the
+    throttled one, with no second code path to keep in step.
     """
-    if not EXP1.is_file():
+    if not path.is_file():
         return {}
-    rows = [r for r in read_trials(EXP1) if not r["config"].endswith("-warmup")]
+    rows = [r for r in read_trials(path) if not r["config"].endswith("-warmup")]
     return {s["config"]: s for s in aggregate(rows)}
 
 
@@ -96,7 +110,10 @@ def table17(surface_b: list[dict]) -> str:
         "",
         "Surface B --- the quantised artefact under `llama.cpp` with the GBNF grammar, which is",
         "what the aircraft actually runs. Accuracy columns are from `results/surface_b.csv`;",
-        "latency, throughput and memory columns are `results/exp1.csv`, measured on the Pi.",
+        f"latency, throughput and memory columns are `results/{EXP1.name}`, measured on",
+        "the Pi with the active cooler the PRD declares: 0 of 180 scored trials throttled,",
+        "67.5--74.1 C. The earlier uncooled run throttled on 180/180 and is reported separately",
+        "in `results/thermal_headroom.md`.",
         "p50/p95 is SLM prefill+decode combined (Table 6's two SLM rows summed). Exp-1 covers",
         "only Q4_K_M (STATE.md triage) -- a Q8_0 row keeps `--` because it was never measured",
         "on the hardware, not because the join failed. Slot-F1 is `--` on `test_ood` because that",
@@ -204,7 +221,7 @@ def table19(constrained: list[dict], ablated: list[dict]) -> str:
         "### Table 19: Grammar ablation",
         "",
         "Same six artefacts, same 590 items, same greedy decode; the only change is whether",
-        "`llama.cpp` is given `schema/cmd.gbnf`. Decode p95 is `results/exp1.csv`, the Pi ---",
+        f"`llama.cpp` is given `schema/cmd.gbnf`. Decode p95 is `results/{EXP1.name}`, the Pi ---",
         "the workstation's decode time is not the deployed latency. It is pooled over the",
         "**three Q4_K_M configs only** (Exp-1 did not run Q8_0 on hardware); the grammar-off",
         "row has no Pi measurement at all -- the ablation itself only ran on the workstation.",
@@ -335,6 +352,85 @@ def table33(surface_a: list[dict]) -> str:
         "",
     ]
     return "\n".join(lines)
+
+
+def thermal_headroom(cooled: dict[str, dict], throttled: dict[str, dict]) -> str:
+    """The cost of running the declared hardware without its declared cooler.
+
+    Reports NFR-10 for both runs, which prd.md:538 requires be "always reported", and
+    the per-configuration delta. The two runs are otherwise identical -- same board,
+    same 60 scored trials per config after the same ten-minute warm-up, same pinned
+    cores, same governor, same artefacts -- so the difference isolates cooling.
+    """
+    lines = [
+        "### Thermal headroom --- the cooled run of record against the uncooled one",
+        "",
+        "`results/exp1_cooled.csv` (of record) against `results/exp1.csv`. Identical protocol:",
+        "same board, same three Q4_K_M artefacts, 60 scored trials per configuration after a",
+        "ten-minute warm-up, cores pinned to 1--3, `performance` governor, swap disabled. The",
+        "only difference is the active cooler the PRD declares (PRD.tex:199) and names as the",
+        "mitigation for risk R-8 (PRD.tex:1841), which was not fitted for the first run. The",
+        "delta therefore isolates cooling. Accuracy is unaffected and is not repeated here:",
+        "Surface B is decoded greedily under a fixed grammar on the workstation, so it does",
+        "not vary with the board's clock.",
+        "",
+        "| Config | Run | Throttled trials | Temp max | Decode p95 (ms) | SLM total p95 (ms) | tok/s |",
+        "| :--- | :--- | :--- | ---: | ---: | ---: | ---: |",
+    ]
+    for config in sorted(cooled):
+        for run, summaries in (("cooled", cooled), ("uncooled", throttled)):
+            summary = summaries.get(config)
+            if not summary:
+                continue
+            share = _f(summary.get("throttled_fraction"))
+            lines.append(
+                f"| {config} | {run} | {'--' if share is None else f'{100 * share:.0f}%'} "
+                f"| {_f(summary.get('max_temperature_c')) or float('nan'):.1f} "
+                f"| {_f(summary.get('slm_decode_p95')) or float('nan'):.1f} "
+                f"| {_f(summary.get('total_p95')) or float('nan'):.1f} "
+                f"| {_f(summary.get('tokens_per_second')) or float('nan'):.2f} |")
+
+    lines += ["", "**NFR-10 (proportion of trials with a non-zero throttle flag, budget 5%).**"]
+    for run, summaries, path in (("Cooled", cooled, "results/exp1_cooled.csv"),
+                                 ("Uncooled", throttled, "results/exp1.csv")):
+        shares = [_f(s.get("throttled_fraction")) for s in summaries.values()]
+        shares = [v for v in shares if v is not None]
+        if not shares:
+            continue
+        worst = max(shares)
+        verdict = "MEETS" if worst <= 0.05 else "MISSES"
+        lines.append(f"- {run} (`{path}`): worst configuration {100 * worst:.0f}% --- "
+                     f"**{verdict}**.")
+
+    deltas = []
+    for config in sorted(cooled):
+        hot, cold = throttled.get(config), cooled.get(config)
+        if not (hot and cold):
+            continue
+        hot_p95, cold_p95 = _f(hot.get("slm_decode_p95")), _f(cold.get("slm_decode_p95"))
+        hot_tps, cold_tps = _f(hot.get("tokens_per_second")), _f(cold.get("tokens_per_second"))
+        if None in (hot_p95, cold_p95, hot_tps, cold_tps) or not (hot_p95 and hot_tps):
+            continue
+        deltas.append((config, 100 * (cold_p95 - hot_p95) / hot_p95,
+                       100 * (cold_tps - hot_tps) / hot_tps))
+    if deltas:
+        lines += [
+            "",
+            "**What the cooler bought.** Decode p95 and throughput, cooled against uncooled:",
+            "",
+        ]
+        lines += [f"- `{c}`: decode p95 {dp:+.1f}%, throughput {dt:+.1f}%."
+                  for c, dp, dt in deltas]
+        lines += [
+            "",
+            "The effect is largest on the smallest model. Decode on a sub-billion model at",
+            "Q4_K_M is compute-bound on this board, so it scales with the core clock, and the",
+            "uncooled run held 1.5 GHz against the 2.4 GHz the `performance` governor pins ---",
+            "a 1.6x clock ratio. The measured gains do not reach that ratio, so the throttle",
+            "is not the only term, but it is the dominant one.",
+            "",
+        ]
+    return "\n".join(lines) + "\n"
 
 
 # ---------------------------------------------------------------------------
@@ -474,6 +570,7 @@ _TABLES = (
     ("nfr18_false_command", "tab:false-command", r"\footnotesize", 5, False),
     ("table19_grammar_ablation", "tab:grammar-ablation", r"\scriptsize", 3, False),
     ("table33_iso_parameter", "tab:iso-parameter", r"\footnotesize", 5, False),
+    ("thermal_headroom", "tab:thermal-headroom", r"\scriptsize", 3, True),
 )
 
 
@@ -485,6 +582,8 @@ def run() -> int:
         "nfr18_false_command": nfr18(surface_b),
         "table19_grammar_ablation": table19(surface_b, _rows(SURFACE_B_NOGRAMMAR)),
         "table33_iso_parameter": table33(surface_a),
+        "thermal_headroom": thermal_headroom(_exp1_summaries(),
+                                             _exp1_summaries(EXP1_THROTTLED)),
     }
     written = []
     for stem, text in rendered.items():

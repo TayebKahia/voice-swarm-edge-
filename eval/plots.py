@@ -23,12 +23,13 @@ a reader may not reach:
    rule itself out. Exp-2 measures the real thing. The directly comparable budget,
    drawn as a second line, is Table 6's own SLM allowance of 250 + 1,100 ms.
 
-3. **Every trial was thermally throttled.** All 180 scored Exp-1 trials ran at a
-   1.5 GHz cap against a 2.4 GHz pinned target, no active cooler fitted (STATE.md,
-   NFR-10 missed 100% against a 5% budget). The latency axis describes an uncooled
-   Pi 5. This is stated on the figure because a Pareto plot invites the reader to
-   treat the x-axis as a property of the model, and here it is partly a property of
-   the enclosure.
+3. **No trial was thermally throttled, and the figure says so.** All 180 scored
+   trials of the cooled run held the 2.4 GHz pinned clock at 67.5-74.1 C, so NFR-10
+   passes at 0% against a 5% budget. The predecessor run throttled on 180/180 at a
+   1.5 GHz cap and cost 25-41% of decode p95 (`results/thermal_headroom.md`). The
+   thermal state stays on the figure for the same reason it did when it was bad: a
+   Pareto plot invites the reader to treat the x-axis as a property of the model,
+   and here it is partly a property of the enclosure.
 
 Usage:
     python eval/plots.py
@@ -53,7 +54,12 @@ from eval.bench import aggregate, read_trials
 REPO = Path(__file__).resolve().parent.parent
 RESULTS = REPO / "results"
 SURFACE_B = RESULTS / "surface_b.csv"
-EXP1 = RESULTS / "exp1.csv"
+#: The cooled run of record -- the PRD declares a Pi 5 with an active cooler
+#: (PRD.tex:199) and names one as the mitigation for risk R-8 (PRD.tex:1841). The first
+#: Exp-1 predated the cooler and throttled on 180/180 trials; it is kept and reported in
+#: `results/thermal_headroom.md`, not plotted, because a Pareto frontier drawn from it
+#: describes hardware this project never declared.
+EXP1 = RESULTS / "exp1_cooled.csv"
 FIGURE2 = RESULTS / "figure2_pareto"
 
 #: The split Figure 2 plots. `test_golden` is real recorded speech; `test_synth`
@@ -211,9 +217,12 @@ def figure2() -> list[Path]:
                             edgecolor="0.75", linewidth=0.7))
 
     throttled = {p["throttled"] for p in plottable}
-    thermal = ("every trial thermally throttled (1.5 GHz cap, no active cooler)"
-               if throttled == {1.0}
-               else f"throttled fraction {min(throttled):.2f}–{max(throttled):.2f}")
+    if throttled == {0.0}:
+        thermal = "no trial thermally throttled (2.4 GHz held, active cooler fitted)"
+    elif throttled == {1.0}:
+        thermal = "every trial thermally throttled (1.5 GHz cap, no active cooler)"
+    else:
+        thermal = f"throttled fraction {min(throttled):.2f}–{max(throttled):.2f}"
     n_latency = {p["n_latency"] for p in plottable}
 
     axes.set_xlabel("SLM prefill + decode, p95 (ms) — Raspberry Pi 5, "
