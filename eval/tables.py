@@ -573,6 +573,14 @@ _TABLES = (
     ("thermal_headroom", "tab:thermal-headroom", r"\scriptsize", 3, True),
 )
 
+#: Rendered to LaTeX here but computed elsewhere: `eval/exp0.py` owns Table 16 and writes
+#: its markdown. Converting it here rather than duplicating the emitter in exp0.py keeps
+#: one markdown-to-LaTeX path for the whole document, at the cost of this module reading a
+#: file it does not produce -- which is why the read is tolerant of the file's absence.
+_FOREIGN_TABLES = (
+    ("table16_asr_speaker_sensitivity", "tab:asr-sensitivity", r"\scriptsize", 3, False),
+)
+
 
 def run() -> int:
     surface_a, surface_b = _rows(SURFACE_A), _rows(SURFACE_B)
@@ -594,6 +602,17 @@ def run() -> int:
     for stem, label, size, colsep, abbreviate in _TABLES:
         tex = markdown_to_latex(rendered[stem], label, size=size, colsep_pt=colsep,
                                 abbreviate=abbreviate)
+        (GENERATED / f"{stem}.tex").write_text(tex, encoding="utf-8")
+        written.append(f"thesis/generated/{stem}.tex")
+
+    for stem, label, size, colsep, abbreviate in _FOREIGN_TABLES:
+        source = RESULTS / f"{stem}.md"
+        if not source.is_file():
+            print(f"  skipped {stem}: results/{stem}.md not written yet "
+                  f"(run the experiment that owns it)")
+            continue
+        tex = markdown_to_latex(source.read_text(encoding="utf-8"), label, size=size,
+                                colsep_pt=colsep, abbreviate=abbreviate)
         (GENERATED / f"{stem}.tex").write_text(tex, encoding="utf-8")
         written.append(f"thesis/generated/{stem}.tex")
     print("wrote " + ", ".join(written))
