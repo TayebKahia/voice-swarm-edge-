@@ -3,9 +3,8 @@
 `results/exp1_cooled.csv` (of record) against `results/exp1.csv`. Identical protocol:
 same board, same three Q4_K_M artefacts, 60 scored trials per configuration after a
 ten-minute warm-up, cores pinned to 1--3, `performance` governor, swap disabled. The
-only difference is the active cooler the PRD declares (PRD.tex:199) and names as the
-mitigation for risk R-8 (PRD.tex:1841), which was not fitted for the first run. The
-delta therefore isolates cooling. Accuracy is unaffected and is not repeated here:
+only difference is the active cooler the hardware specification declares, which was
+not fitted for the first run. The delta therefore isolates cooling. Accuracy is unaffected and is not repeated here:
 Surface B is decoded greedily under a fixed grammar on the workstation, so it does
 not vary with the board's clock.
 
@@ -28,9 +27,6 @@ not vary with the board's clock.
 - `qwen2.5-0.5b-instruct-Q4_K_M`: decode p95 -32.0%, throughput +54.1%.
 - `smollm2-360m-instruct-Q4_K_M`: decode p95 -41.3%, throughput +68.5%.
 
-The effect is largest on the smallest model. Decode on a sub-billion model at
-Q4_K_M is compute-bound on this board, so it scales with the core clock, and the
-uncooled run held 1.5 GHz against the 2.4 GHz the `performance` governor pins ---
-a 1.6x clock ratio. The measured gains do not reach that ratio, so the throttle
-is not the only term, but it is the dominant one.
+The effect is largest on `smollm2-360m-instruct-Q4_K_M`. The uncooled run held 1.5 GHz against the
+2.4 GHz the `performance` governor pins, a 1.6x clock ratio. The throughput gain of `smollm2-360m-instruct-Q4_K_M` exceeds that ratio, so the core clock alone does not account for the difference; this run does not identify the remaining term.
 

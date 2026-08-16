@@ -103,6 +103,10 @@ def _exp1_summaries(path: Path = EXP1) -> dict[str, dict]:
     return {s["config"]: s for s in aggregate(rows)}
 
 
+#: 2.4 GHz pinned by the `performance` governor / 1.5 GHz held under throttle (STATE.md, Exp-1).
+CLOCK_RATIO = 2.4 / 1.5
+
+
 def table17(surface_b: list[dict]) -> str:
     exp1 = _exp1_summaries()
     lines = [
@@ -111,15 +115,14 @@ def table17(surface_b: list[dict]) -> str:
         "Surface B --- the quantised artefact under `llama.cpp` with the GBNF grammar, which is",
         "what the aircraft actually runs. Accuracy columns are from `results/surface_b.csv`;",
         f"latency, throughput and memory columns are `results/{EXP1.name}`, measured on",
-        "the Pi with the active cooler the PRD declares: 0 of 180 scored trials throttled,",
-        "67.5--74.1 C. The earlier uncooled run throttled on 180/180 and is reported separately",
-        "in `results/thermal_headroom.md`.",
-        "p50/p95 is SLM prefill+decode combined (Table 6's two SLM rows summed). Exp-1 covers",
-        "only Q4_K_M (STATE.md triage) -- a Q8_0 row keeps `--` because it was never measured",
+        "the Pi with an active cooler fitted: 0 of 180 scored trials throttled, 67.5--74.1 C.",
+        "The earlier uncooled run throttled on 180/180 and is reported separately, in the",
+        "thermal-headroom table. p50/p95 is the SLM prefill and decode stages combined. Exp-1",
+        "on the hardware covers only Q4_K_M -- a Q8_0 row keeps `--` because it was never measured",
         "on the hardware, not because the join failed. Slot-F1 is `--` on `test_ood` because that",
         "split carries no gold slots: its gold target is `{\"intent\":\"unknown\"}` on all 150 items,",
         "so the metric has no dynamic range there. What the models do emit on those items is",
-        "reported properly by the false-command rate (NFR-18, `results/nfr18_false_command.md`).",
+        "reported properly by the false-command rate (NFR-18).",
         "",
         "| Model | Quant | Split | Intent-F1 | Slot-F1 | EM | Safe-fail | Schema-valid | p50/p95 (ms) | tok/s | Peak RSS |",
         "| :--- | :--- | :--- | ---: | ---: | ---: | ---: | ---: | :--- | ---: | :--- |",
@@ -368,9 +371,8 @@ def thermal_headroom(cooled: dict[str, dict], throttled: dict[str, dict]) -> str
         "`results/exp1_cooled.csv` (of record) against `results/exp1.csv`. Identical protocol:",
         "same board, same three Q4_K_M artefacts, 60 scored trials per configuration after a",
         "ten-minute warm-up, cores pinned to 1--3, `performance` governor, swap disabled. The",
-        "only difference is the active cooler the PRD declares (PRD.tex:199) and names as the",
-        "mitigation for risk R-8 (PRD.tex:1841), which was not fitted for the first run. The",
-        "delta therefore isolates cooling. Accuracy is unaffected and is not repeated here:",
+        "only difference is the active cooler the hardware specification declares, which was",
+        "not fitted for the first run. The delta therefore isolates cooling. Accuracy is unaffected and is not repeated here:",
         "Surface B is decoded greedily under a fixed grammar on the workstation, so it does",
         "not vary with the board's clock.",
         "",
@@ -421,13 +423,20 @@ def thermal_headroom(cooled: dict[str, dict], throttled: dict[str, dict]) -> str
         ]
         lines += [f"- `{c}`: decode p95 {dp:+.1f}%, throughput {dt:+.1f}%."
                   for c, dp, dt in deltas]
+        # Stated from the data, not asserted: an earlier version claimed the 1.6x clock
+        # ratio bounded every gain, and smollm2's 1.685x throughput gain falsified it.
+        largest = max(deltas, key=lambda d: d[2])[0]
+        above = [c for c, _, dt in deltas if 1 + dt / 100 > CLOCK_RATIO]
         lines += [
             "",
-            "The effect is largest on the smallest model. Decode on a sub-billion model at",
-            "Q4_K_M is compute-bound on this board, so it scales with the core clock, and the",
-            "uncooled run held 1.5 GHz against the 2.4 GHz the `performance` governor pins ---",
-            "a 1.6x clock ratio. The measured gains do not reach that ratio, so the throttle",
-            "is not the only term, but it is the dominant one.",
+            f"The effect is largest on `{largest}`. The uncooled run held 1.5 GHz against the",
+            f"2.4 GHz the `performance` governor pins, a {CLOCK_RATIO:.1f}x clock ratio. "
+            + (f"The throughput gain of {', '.join(f'`{c}`' for c in above)} exceeds that ratio, so "
+               "the core clock alone does not account for the difference; this run does not "
+               "identify the remaining term."
+               if above else
+               "No throughput gain reaches that ratio, so the clock is the dominant term but not "
+               "the only one."),
             "",
         ]
     return "\n".join(lines) + "\n"

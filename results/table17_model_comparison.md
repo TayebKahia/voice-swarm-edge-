@@ -3,15 +3,14 @@
 Surface B --- the quantised artefact under `llama.cpp` with the GBNF grammar, which is
 what the aircraft actually runs. Accuracy columns are from `results/surface_b.csv`;
 latency, throughput and memory columns are `results/exp1_cooled.csv`, measured on
-the Pi with the active cooler the PRD declares: 0 of 180 scored trials throttled,
-67.5--74.1 C. The earlier uncooled run throttled on 180/180 and is reported separately
-in `results/thermal_headroom.md`.
-p50/p95 is SLM prefill+decode combined (Table 6's two SLM rows summed). Exp-1 covers
-only Q4_K_M (STATE.md triage) -- a Q8_0 row keeps `--` because it was never measured
+the Pi with an active cooler fitted: 0 of 180 scored trials throttled, 67.5--74.1 C.
+The earlier uncooled run throttled on 180/180 and is reported separately, in the
+thermal-headroom table. p50/p95 is the SLM prefill and decode stages combined. Exp-1
+on the hardware covers only Q4_K_M -- a Q8_0 row keeps `--` because it was never measured
 on the hardware, not because the join failed. Slot-F1 is `--` on `test_ood` because that
 split carries no gold slots: its gold target is `{"intent":"unknown"}` on all 150 items,
 so the metric has no dynamic range there. What the models do emit on those items is
-reported properly by the false-command rate (NFR-18, `results/nfr18_false_command.md`).
+reported properly by the false-command rate (NFR-18).
 
 | Model | Quant | Split | Intent-F1 | Slot-F1 | EM | Safe-fail | Schema-valid | p50/p95 (ms) | tok/s | Peak RSS |
 | :--- | :--- | :--- | ---: | ---: | ---: | ---: | ---: | :--- | ---: | :--- |
