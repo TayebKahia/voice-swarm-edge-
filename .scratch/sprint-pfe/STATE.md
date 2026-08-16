@@ -1349,3 +1349,19 @@ voice-UAV candidates under verification (background agent) -- Ch2 waits on it; C
 - `data/wake_real_transcripts.txt`: 40 prompts for the author's real-voice Branch A takes.
 - Still not built: `runtime/audio.py` (live mic) and the stream loop driving both branches;
   Exp-2 / Exp-3 runners.
+
+## Exp-1 OF RECORD is the COOLED run (Wed 23 Sep, recorded here late)
+
+365d2f5 made `results/exp1_cooled.csv` Exp-1 of record; `results/exp1.csv` (uncooled, 100%
+throttled at 1.5 GHz) is kept as the thermal-headroom result. Cooled, 0/180 throttled,
+67.5-74.1 C. Decode p95 vs the 1,100 ms allowance: **smollm2 785 MEETS, qwen 1,033 MEETS,
+llama 1,842 MISSES.** SLM combined p95 vs 1,350: qwen 1,072 (278 spare), smollm2 894, llama 2,282.
+Selection rule applied in Master Ch4: **Qwen2.5-0.5B Q4_K_M.** Earlier sections of this file
+saying "all three Q4_K_M configs miss the decode budget" describe the uncooled run only.
+
+Master Ch4 drafted (d70c4e7) and audited: 6 numeric errors and 3 structural gaps fixed (see the
+commit before this one). Ch3 now carries Tables 3.4 (requirements of record) and 3.5 (latency
+budget as deployment constraint) -- Ch4 and later chapters \ref them instead of PRD numbers.
+Master Ch5 inherits from Ch4: the grammar-ablation / abstention reading (fine-tune made the
+grammar nearly redundant AND removed abstention -- a hypothesis, not a measurement), and the
+clock-ratio overshoot (SmolLM2 1.69x > 1.6x: remaining term unidentified).
