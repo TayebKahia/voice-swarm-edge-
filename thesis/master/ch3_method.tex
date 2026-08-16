@@ -321,17 +321,28 @@ Kaggle, alongside the fine-tuning itself, because both steps need the \texttt{to
 \texttt{llama-quantize} is pure C\,++ with no such dependency, so quantisation itself runs locally,
 against the f16 GGUF that Kaggle produces.
 
-\paragraph{Two measurement surfaces, never conflated.} Quantisation is measured, not assumed, by
-holding two surfaces strictly apart. \textbf{Surface~A} is the fp16 merged model run on the
-workstation: a reference point, useful for isolating what quantisation itself costs, but not a
-configuration this project ever deploys. \textbf{Surface~B} is one of the six quantised GGUF
-artefacts run on the target Raspberry~Pi~5: what actually ships, and the surface every headline
-accuracy figure in Chapter~\ref{chap:results} reports from. The difference between the two,
-$A - B$, is Contribution~C3 -- the accuracy cost of quantisation, reported as a delta measured on
-this task at this scale rather than inherited from the perplexity figures the quantisation method
-papers report, or from downstream results obtained on much larger models
-(Section~\ref{sec:quantisation}) -- and it is what Table~18 in
-Chapter~\ref{chap:results} presents.
+\paragraph{Two measurement surfaces, never conflated.} The cost of deployment is measured, not
+assumed, by holding two surfaces strictly apart. \textbf{Surface~A} is the fp16 merged model run on
+the workstation under \texttt{transformers}, decoded without a grammar: a reference point, but not
+a configuration this project ever deploys. \textbf{Surface~B} is one of the six quantised GGUF
+artefacts run on the target Raspberry~Pi~5 under \texttt{llama.cpp} and the GBNF constraint: what
+actually ships, and the surface every headline accuracy figure in Chapter~\ref{chap:results}
+reports from. The difference between the two, $A - B$, is Contribution~C3, and it is what
+Table~18 in Chapter~\ref{chap:results} presents.
+
+What that difference does \emph{not} isolate is weight precision. Three things change between the
+surfaces at once --- the numeric format, the inference runtime, and the presence of the decoding
+grammar --- so $A - B$ is the cost of the deployment pipeline as a whole. Reporting it as the cost
+of quantisation would attribute to rounding whatever the runtime change and the grammar contribute,
+and this document does not do that anywhere. One of the three terms is separable with the data
+collected here: decoding Surface~B a second time with the grammar disabled holds precision and
+runtime fixed and isolates the grammar, and Chapter~\ref{chap:results} reports that decomposition
+rather than asserting the confound is small. The remaining two terms, precision and runtime, stay
+confounded, and separating them would require a fourth surface this project did not run. The
+quantity $A - B$ measures is nonetheless the one a deployment decision needs, since no operator
+ships an fp16 checkpoint under \texttt{transformers} to a Raspberry~Pi~5; it is simply a different
+quantity from the perplexity delta the quantisation method papers report
+(Section~\ref{sec:quantisation}).
 
 \paragraph{Chat-template parity.} Fine-tuning happens through a HuggingFace tokeniser and its
 chat template; inference happens in \texttt{llama.cpp}, a separate implementation of the same
