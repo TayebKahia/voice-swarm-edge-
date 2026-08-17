@@ -3,7 +3,7 @@
   \centering
   \scriptsize
   \setlength{\tabcolsep}{3pt}
-  \caption{Same six artefacts, same 590 items, same greedy decode; the only change is whether \texttt{llama.cpp} is given \texttt{schema/cmd.gbnf}. Decode p95 is \texttt{results/exp1\_cooled.csv}, the Pi --- the workstation's decode time is not the deployed latency. It is pooled over the \textbf{three Q4\_K\_M configs only} (Exp-1 did not run Q8\_0 on hardware); the grammar-off row has no Pi measurement at all -- the ablation itself only ran on the workstation.}
+  \caption[Grammar ablation]{Same six artefacts, same 590 items, same greedy decode; the only change is whether \texttt{llama.cpp} is given \texttt{schema/cmd.gbnf}. Decode p95 is \texttt{results/exp1\_cooled.csv}, the Pi --- the workstation's decode time is not the deployed latency. It is pooled over the \textbf{three Q4\_K\_M configs only} (Exp-1 did not run Q8\_0 on hardware); the grammar-off row has no Pi measurement at all -- the ablation itself only ran on the workstation.}
   \label{tab:grammar-ablation}
   \begin{tabular}{lrrrrl}
     \toprule
@@ -14,5 +14,5 @@
     \bottomrule
   \end{tabular}
   \par\medskip
-  \begin{minipage}{\textwidth}\footnotesize Pooled over every model, quantisation and split. Exact match is pooled by item, not averaged over the eighteen rows, so the larger splits carry their real weight.\end{minipage}
+  \begin{minipage}{\textwidth}\footnotesize\raggedright Pooled over every model, quantisation and split. Exact match is pooled by item, not averaged over the eighteen rows, so the larger splits carry their real weight.\end{minipage}
 \end{table}

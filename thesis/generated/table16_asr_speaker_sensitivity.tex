@@ -3,7 +3,7 @@
   \centering
   \scriptsize
   \setlength{\tabcolsep}{3pt}
-  \caption{Table 16: ASR speaker sensitivity (Exp-0) --- matched condition, no domain prompt}
+  \caption[ASR speaker sensitivity (Exp-0) --- matched condition, no domain prompt]{ASR speaker sensitivity (Exp-0) --- matched condition, no domain prompt}
   \label{tab:asr-sensitivity}
   \begin{tabular}{lrrrll}
     \toprule
@@ -28,5 +28,5 @@
     \bottomrule
   \end{tabular}
   \par\medskip
-  \begin{minipage}{\textwidth}\footnotesize The author's WER is lower than 7 of the 15 accent buckets (53rd percentile of the bucket distribution). The comparison is indicative, not matched: the author read drone commands and the Common Voice speakers read general English, so the two figures are over different text. No pass/fail is claimed --- NFR-11 asks for a position. Domain prompt on Common Voice: 22.4 \% -> 22.9 \% (+0.5 pp). Domain prompt on the author's commands: 23.1 \% -> 23.0 \% (-0.1 pp). The deployed configuration keeps the prompt; Table 16 positions the author without it, because only the unprompted pass puts both speakers under the same condition.\end{minipage}
+  \begin{minipage}{\textwidth}\footnotesize\raggedright The author's WER is lower than 7 of the 15 accent buckets (53rd percentile of the bucket distribution). The comparison is indicative, not matched: the author read drone commands and the Common Voice speakers read general English, so the two figures are over different text. No pass/fail is claimed --- NFR-11 asks for a position. Domain prompt on Common Voice: 22.4 \% -> 22.9 \% (+0.5 pp). Domain prompt on the author's commands: 23.1 \% -> 23.0 \% (-0.1 pp). The deployed configuration keeps the prompt; Table 16 positions the author without it, because only the unprompted pass puts both speakers under the same condition.\end{minipage}
 \end{table}

@@ -170,7 +170,7 @@ def test_latex_carries_the_caption_the_note_and_the_emphasis():
     assert r"\emph{deployment pipeline}" in tex
     assert r"\textbf{bold}" in tex
     assert "A trailing note that qualifies the numbers." in tex
-    assert tex.count(r"\caption{") == 1
+    assert tex.count(r"\caption[") == 1
 
 
 def test_latex_column_spec_follows_the_markdown_alignment():
@@ -204,3 +204,11 @@ def test_the_slot_f1_rule_reaches_the_latex_unchanged():
     row = next(l for l in tex.splitlines()
                if l.rstrip().endswith(chr(92) * 2) and r"\texttt{test\_ood}" in l)
     assert " -- & " in row, row
+
+
+def test_list_of_tables_gets_the_heading_and_the_number_is_not_doubled():
+    """The LoT entry is the markdown heading minus its "Table N:" (LaTeX numbers the
+    float itself); a heading-only table must not print as "Table 4.1: Table 16: ..."."""
+    tex = markdown_to_latex("### Table 16: Short title\n\n| a | b |\n| :--- | ---: |\n| x | 1 |\n", "tab:x")
+    assert r"\caption[Short title]{Short title}" in tex
+    assert "Table 16" not in tex

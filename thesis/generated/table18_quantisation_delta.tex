@@ -3,7 +3,7 @@
   \centering
   \footnotesize
   \setlength{\tabcolsep}{5pt}
-  \caption{Surface A is FP16 under \texttt{transformers} with no grammar. Surface B is the same adapter merged, converted and quantised, decoded by \texttt{llama.cpp} under the GBNF constraint. The delta therefore measures the \emph{deployment pipeline}, not weight precision alone --- the grammar is part of what changes, and on out-of-domain input it is the dominant term.}
+  \caption[Quantisation delta --- exact match on \texttt{test\_golden}]{Surface A is FP16 under \texttt{transformers} with no grammar. Surface B is the same adapter merged, converted and quantised, decoded by \texttt{llama.cpp} under the GBNF constraint. The delta therefore measures the \emph{deployment pipeline}, not weight precision alone --- the grammar is part of what changes, and on out-of-domain input it is the dominant term.}
   \label{tab:quantisation-delta}
   \begin{tabular}{llrrr}
     \toprule
