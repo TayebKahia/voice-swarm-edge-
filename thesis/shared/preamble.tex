@@ -161,19 +161,30 @@
       \advance\keepsec@pe by -\keepsec@ps \advance\keepsec@pe by \m@ne
       \advance\keepsec@len by \keepsec@pe\textheight
     \fi}}}
+%  Manual override for ONE section: put \noautobreak just before its \section to
+%  let it flow even where the rule would move it (e.g. a one-line overshoot that
+%  \enlargethispage fixes better). A \clearpage before a \section forces a break.
+\newif\ifkeepsec@skip
+\newcommand{\noautobreak}{\global\keepsec@skiptrue}
 \newcommand{\sectionbreak}{%
   \keepsec@close
   \stepcounter{keepsec}%
-  \ifnum\value{section}>0
+  \ifkeepsec@skip\global\keepsec@skipfalse\else\ifnum\value{section}>0
     \keepsec@measure{\the\c@keepsec}%
     \ifdim\pagegoal<\maxdimen
       \ifdim\keepsec@len>\z@\ifdim\keepsec@len<\textheight
         \ifdim\keepsec@len>\dimexpr\pagegoal-\pagetotal\relax\clearpage\fi
       \fi\fi
     \fi
-  \fi
+  \fi\fi
   \zsavepos{ks-s-\the\c@keepsec}\global\keepsec@opentrue}
 \AtBeginDocument{\pretocmd{\chapter}{\keepsec@close}{}{}}
+%  Manual layout tools (see the thesis-writing skill, "Fixing a page by hand"):
+%  \needspace{8\baselineskip} -- break here unless 8 lines are left on the page.
+%  \FloatBarrier               -- no float from above may drift past this point,
+%                                 so a table stays inside its own section.
+\usepackage{needspace}
+\usepackage{placeins}
 \AtEndDocument{\keepsec@close}
 \makeatother
 \makeatletter

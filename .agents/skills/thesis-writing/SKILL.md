@@ -197,6 +197,15 @@ first, then the scaffold, then the prose — never the prose alone.
    native. The flag downgrades the non-ASCII rule to a note. Do **not** pass it when checking a
    chapter body: those should stay ASCII. `tools/build_pdf.py` today targets only
    `docs/project/PRD.tex`; the compile recipe for the theses is in each `main_*.tex` header.
+7a. **Page layout is automatic; fix a page by hand only in B13.** The shared preamble keeps
+   a section that fits on one page on one page (measured, see its comment). Any manual fix
+   below is valid only for the text as it stands, so apply them LAST, after the prose is
+   final -- one edited paragraph moves every break after it. Tools, in order of preference:
+   `\enlargethispage{\baselineskip}` (squeeze one overshooting line onto the page);
+   `\FloatBarrier` at the end of a section (a table stays inside its section);
+   `\noautobreak` just before a `\section` (let that one section flow);
+   `\needspace{8\baselineskip}` (break unless 8 lines remain); `\clearpage` (force a
+   break). Never `\vspace` hacks or `\newpage` inside a paragraph.
 7. **Before believing a build, build from a clean tree.** `rm -rf thesis/build` first. A warm
    build reuses `.aux`, `.toc` and `.bbl` from the previous run and can report zero errors on a
    document that fails cold — this hid 17 package-ordering errors until a from-scratch rebuild
