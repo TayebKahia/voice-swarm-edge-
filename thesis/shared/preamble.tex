@@ -37,6 +37,11 @@
 \usepackage{longtable}
 \usepackage{xltabular}    % longtable that still supports tabularx X columns:
                           % needed for any table taller than one page.
+%  X cells ragged-right: a justified 4 cm cell has too few spaces to stretch and
+%  prints a gap between every word. Captions ragged-right too, so an unbreakable
+%  \texttt{path} wraps instead of running into the margin.
+\renewcommand{\tabularxcolumn}[1]{>{\raggedright\arraybackslash}p{#1}}
+\captionsetup{justification=raggedright,singlelinecheck=true}
 \usepackage{lscape}
 \usepackage{pdflscape}
 \usepackage{romannum}
@@ -145,6 +150,15 @@
 %  errors under XeLaTeX/LuaLaTeX. The ESI templates load both.
 \usepackage{polyglossia}
 \setdefaultlanguage{english}
+
+%  Line breaking. The ESI templates set \hyphenpenalty=10000 with \tolerance=1 and
+%  \emergencystretch=\maxdimen: hyphenation off, and TeX told to stretch spaces
+%  without limit instead -- which silences every warning and prints rivers of
+%  white space in justified text. Hyphenate normally, allow a bounded stretch as a
+%  last resort, and let microtype hang punctuation into the margin (XeLaTeX
+%  supports protrusion only, not font expansion).
+\usepackage[protrusion=true,expansion=false]{microtype}
+\setlength{\emergencystretch}{1.5em}
 \setotherlanguage[numerals=maghrib]{arabic}   % Latin digits inside Arabic text
 
 %  Pick whichever Arabic font this machine actually has, rather than failing the
