@@ -243,6 +243,29 @@ for the gap claim in Ch. 2 §"Gap".
 
 ---
 
+## The named baseline — Lim et al. (`lim2025`)
+
+### Taking Flight with Dialogue: Enabling Natural Language Control for PX4-based Drone Agent
+- Identifier: arXiv:2506.07509 (already in references.bib as `lim2025`)
+- Page fetched: https://arxiv.org/html/2506.07509
+- Serves: Ingénieur ch2 "Positioning against Lim et al."; Table 21 in ch5.
+- **Verified 2026-09-23** against the paper, for the four non-comparability axes in the ch2 scaffold:
+  - **Zero-shot, prompted** — Gemma3, Qwen2.5, Llama-3.2, DeepSeek-LLM via Ollama, system-level
+    prompting, no fine-tuning. CONFIRMED.
+  - **One drone** — a single quadcopter flown to a goal. CONFIRMED.
+  - **Desktop GPU** — an RTX 3080 Ti workstation hosting Ollama as a remote server on the local
+    network. CONFIRMED. Careful: it is local, NOT cloud — do not call it cloud-dependent.
+  - **Temperature, not grammar** — temperature 0.2 plus a prompt fixing "Turn"/"Move" formats; no
+    constrained decoding. Invalid outputs were extraneous text, symbols, markdown. CONFIRMED.
+  - **Not in the scaffold, add it:** NO speech input — the mission starts from a ROS 2 string
+    message. So Lim et al. is a text-to-drone baseline, not a voice baseline.
+  - Safety: a human operator switches to POSITION mode (hover) as the fallback. No automated
+    emergency stop.
+- Numbers for Table 21: valid flight commands 100% (Gemma3, Qwen2.5, Llama-3.2), 38% (DeepSeek-LLM);
+  highest task success 40% (Gemma3 + VLM); VLM detection 97-100%; latency NOT reported.
+
+---
+
 ## GAP 2 — Safety-critical design principles
 
 For Ch. 1 §"The safety problem" (currently uncited) and Ch. 2. Ordered by how directly each owns
