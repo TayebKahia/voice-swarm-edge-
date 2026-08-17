@@ -123,6 +123,59 @@
 %  \makeatletter is required: these names contain @, and this is a .tex file
 %  \input in the preamble, where @ is not a letter. The ESI templates omit it.
 \usepackage{titlesec}
+%  Keep a section on one page when it can fit on one (author's choice, 23 Sep).
+%  Rule, at each \section: if the section is no taller than a text page but
+%  taller than the space left on the current page, start it on a new page;
+%  otherwise let it flow. Sections longer than a page flow as usual. The first
+%  section of a chapter is exempt, or the chapter heading could stand alone.
+%
+%  TeX cannot know a section's height before typesetting it, so it is measured:
+%  zref-savepos records where each section starts and ends, and the NEXT run
+%  reads that height back. latexmk's reruns make this converge on their own.
+%  Height excludes the break itself, so the decision does not feed back into
+%  the measurement. A float that drifts out of its section is not counted.
+\usepackage{zref-savepos,zref-abspage}
+\makeatletter
+\zref@addprop{savepos}{abspage}
+\newcounter{keepsec}
+\newif\ifkeepsec@open
+\newdimen\keepsec@len \newdimen\keepsec@top \newdimen\keepsec@bot
+\newcount\keepsec@ps \newcount\keepsec@pe
+\def\keepsec@close{\ifkeepsec@open\par\zsavepos{ks-e-\the\c@keepsec}\global\keepsec@openfalse\fi}
+%  Height of section #1 from the previous run; 0pt if not yet measured.
+\def\keepsec@measure#1{%
+  \keepsec@len=\z@
+  \zref@ifrefundefined{ks-s-#1}{}{\zref@ifrefundefined{ks-e-#1}{}{%
+    \keepsec@top=\paperheight
+    \advance\keepsec@top by -1in \advance\keepsec@top by -\voffset
+    \advance\keepsec@top by -\topmargin \advance\keepsec@top by -\headheight
+    \advance\keepsec@top by -\headsep
+    \keepsec@bot=\keepsec@top \advance\keepsec@bot by -\textheight
+    \keepsec@ps=\zref@extractdefault{ks-s-#1}{abspage}{0}\relax
+    \keepsec@pe=\zref@extractdefault{ks-e-#1}{abspage}{0}\relax
+    \ifnum\keepsec@ps=\keepsec@pe
+      \keepsec@len=\zposy{ks-s-#1}sp \advance\keepsec@len by -\zposy{ks-e-#1}sp
+    \else
+      \keepsec@len=\zposy{ks-s-#1}sp \advance\keepsec@len by -\keepsec@bot
+      \advance\keepsec@len by \keepsec@top \advance\keepsec@len by -\zposy{ks-e-#1}sp
+      \advance\keepsec@pe by -\keepsec@ps \advance\keepsec@pe by \m@ne
+      \advance\keepsec@len by \keepsec@pe\textheight
+    \fi}}}
+\newcommand{\sectionbreak}{%
+  \keepsec@close
+  \stepcounter{keepsec}%
+  \ifnum\value{section}>0
+    \keepsec@measure{\the\c@keepsec}%
+    \ifdim\pagegoal<\maxdimen
+      \ifdim\keepsec@len>\z@\ifdim\keepsec@len<\textheight
+        \ifdim\keepsec@len>\dimexpr\pagegoal-\pagetotal\relax\clearpage\fi
+      \fi\fi
+    \fi
+  \fi
+  \zsavepos{ks-s-\the\c@keepsec}\global\keepsec@opentrue}
+\AtBeginDocument{\pretocmd{\chapter}{\keepsec@close}{}{}}
+\AtEndDocument{\keepsec@close}
+\makeatother
 \makeatletter
 \def\toclevel@subsubsubsection{4}
 \def\l@subsubsubsection{\@dottedtocline{4}{7em}{4em}}
