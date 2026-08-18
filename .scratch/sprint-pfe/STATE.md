@@ -1365,3 +1365,65 @@ budget as deployment constraint) -- Ch4 and later chapters \ref them instead of 
 Master Ch5 inherits from Ch4: the grammar-ablation / abstention reading (fine-tune made the
 grammar nearly redundant AND removed abstention -- a hypothesis, not a measurement), and the
 clock-ratio overshoot (SmolLM2 1.69x > 1.6x: remaining term unidentified).
+
+## Exp-3 RESULT -- accuracy half, workstation (A7a, Wed 23 Sep, 03:50-04:25)
+
+`python data/mix_noise.py --input data/audio/s1_16k --output data/audio/mixed --sources dregon
+--partition eval` -> 800 files. Realised SNR was checked on every file (worst 19.997 dB at 20),
+and none needed attenuation. Session 1 only, as declared. Then `python eval/exp3.py` (new, e7844c3)
+followed by `python eval/tables.py`. Raw: `results/exp3_preds/{text,clean,20,15,10,5}.jsonl`
+(per segment: transcript, raw, canonical, dispatched, host timings). Summary: `results/exp3.csv`.
+Tests and envelope: `results/exp3_analysis.md`. Table: `results/table20_end_to_end.md`,
+`thesis/generated/table20_end_to_end.tex`.
+
+| SNR | CRR [95% CI] | WER % | EM | EM - CRR [95% CI] | safe-failure |
+| :--- | :--- | ---: | ---: | :--- | :--- |
+| clean | 0.690 [0.625, 0.750] | 23.4 | 0.935 | +0.245 [0.185, 0.310] | 2/62 |
+| 20 dB | 0.675 [0.610, 0.740] | 24.3 | 0.935 | +0.260 | 1/65 |
+| 15 dB | 0.650 [0.585, 0.715] | 26.1 | 0.935 | +0.285 | 1/70 |
+| 10 dB | 0.590 [0.520, 0.660] | 28.8 | 0.935 | +0.345 [0.280, 0.410] | 4/82 |
+| 5 dB  | 0.495 [0.425, 0.565] | 36.2 | 0.935 | +0.440 | 4/101 |
+
+**NFR-7 MISSED (0.690 vs 0.80). NFR-8 MISSED (0.590 vs 0.65). NFR-9 MISSED at every level
+(0.014-0.049 vs 0.70).** Reported as measured. Not reconciled.
+
+- **Provenance:** the `text` condition (reference text through the runtime parser) equals
+  Surface B's raw output on 200/200 items. EM here IS Table 17's EM, and EM - CRR is the
+  ASR-stage cost on identical items (prd.md 6.1).
+- **The VAD split is a measured CRR cost, not only a latency trade-off.** 23 of the 200 clean
+  items split under the 450 ms endpoint (11.5%), and **all 23 failed**. That is 23 of the
+  62 clean failures. The canonical example is golden 0003: the fragment "proceed." dispatched
+  a `takeoff` before the real move arrived. This feeds the open DECISION FOR THE AUTHOR
+  (keep 450 ms or raise the VAD budget line) with a number it did not have before. Do NOT
+  project "CRR without splits": that configuration was not run.
+- **Scoring rule of record:** a split item is correct only if every dispatched command is
+  correct. The last-segment-only CRR is 0.730 clean, and it misses NFR-7 too. So the miss
+  does not depend on this rule.
+- **Pre-registered test run as specified:** arcsine + one-way ANOVA F(4,995)=5.47, p=2.3e-4.
+  Tukey separates only 5 dB from clean/20/15. Its weaknesses are stated in the analysis: on
+  0/1 outcomes the arcsine is a rescaling, and the same items appear at every SNR, so the
+  groups are not independent. Reported beside it: Cochran's Q=56.65, p=1.5e-11, and exact/cc
+  McNemar (Bonferroni over 10 pairs). Those separate clean from 10 dB and 5 dB, and 20 and
+  15 dB from 5 dB.
+- **Operational envelope:** CRR >= 0.65 holds down to 15 dB on the point estimate, and at no
+  level on the 95% lower bound. CRR >= 0.80 holds at no level.
+- **Safe failure is ~0, so the NFR-9 limitation now rests on Exp-3 too.** This closes the
+  caveat in the A5 entry above: the Exp-1-only baseline of 0.053 was not an artefact of text
+  input. With real ASR error it drops further, to 1.4-4.9%. `results/limitation_abstention.md`
+  is NOT regenerated here (different subsystem, rule 10), and it should now cite Exp-3.
+- Cross-check: clean WER 23.4% vs Exp-0's prompted 23.0%. Segmenting before whisper did not
+  move the ASR error rate. The CRR loss is parser-visible ASR error plus splits.
+
+Tests: `eval/test_exp3.py` 9 passed; `python -m pytest -q` -> 803 passed.
+
+**Named, not started (rule 10):**
+  - A7b: the same runner on the Pi (`--preds results/exp3_pi_preds` writes `exp3_pi.csv`, so it
+    cannot overwrite this run). It must fill Table 20's E2E p50/p95 from real-time replay and
+    diff the Pi's raw outputs against `results/exp3_preds/`. The workstation's per-segment
+    `stt_ms/prefill_ms/decode_ms` are NOT of record. The E2E columns in exp3.csv are empty by
+    design. The runner needs a real-time replay mode (it currently feeds as fast as it can);
+    that is A7b's to add.
+  - `results/limitation_abstention.md` / ADR-0006: add the Exp-3 evidence (above).
+  - The rationale for the author's 450 ms decision now has a CRR figure to cite (all splits fail).
+
+Stopped here: A7a done, accuracy columns final, Table 20 rendered with E2E pending.
