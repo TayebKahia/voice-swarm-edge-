@@ -1,0 +1,107 @@
+\chapter{Discussion and limitations}
+\label{chap:discussion}
+
+% Scaffold from prd.md 3.1: the accuracy--efficiency trade-off characterised as a Pareto
+% frontier; failure-mode analysis; threats to internal and external validity.
+% Register: hedged and exploratory. Chapter 4 reported; this chapter interprets. The verdict
+% on RQ1 belongs to Chapter 6 and is not pre-empted here.
+
+\TODO{Chapter lead-in, written last: what this chapter interprets, and what it leaves to
+Chapter~\ref{chap:conclusion}.}
+
+\section{The accuracy--efficiency trade-off}
+\label{sec:tradeoff}
+
+RQ1 was posed as a trade-off: across the 0.36--1.2~B range, how much task accuracy does a smaller
+model give up in exchange for latency and memory? Figure~\ref{fig:pareto} gives the measured
+answer for this task and this board. The answer turns out to have less of the shape of a
+trade-off than the question anticipated.
+
+\paragraph{A frontier of two points.} Only three configurations have both an accuracy and a
+latency coordinate, and one of them, Llama-3.2-1B at Q4\_K\_M, is dominated. The frontier is
+therefore the pair \{SmolLM2-360M, Qwen2.5-0.5B\}, and a pair defines a direction, not a curve.
+Moving along it from Qwen2.5-0.5B to SmolLM2-360M saves 178~ms of combined \acrshort{slm} p95
+(1{,}072~ms to 894~ms) and 0.13~GB of peak resident memory, and costs 17.5~pp of exact match on the
+golden split. That accuracy cost is the one difference in this study that the paired tests
+establish decisively (Section~\ref{sec:statistics}). Moving the other way, from Qwen2.5-0.5B to
+Llama-3.2-1B, adds 1{,}210~ms and 0.95~GB, and the accuracy difference it buys is not
+distinguishable from zero on this evidence. Read together, the two directions suggest that for
+this schema the useful part of the range ends at or below half a billion parameters. Below that
+point accuracy falls steeply. Above it, parameters appear to purchase latency and memory and
+little else. With three points on the latency axis this is a reading of the figure's shape, not a
+measured property of the size range, and it should be held at that strength.
+
+\paragraph{The knee belongs to a model, not to a size.} It would be tempting to restate the
+previous paragraph as ``0.5~B parameters suffice''. The iso-parameter control of
+Section~\ref{sec:iso-parameter} argues against that restatement. H2O-Danube3-500M, within 4.0\% of
+Qwen2.5-0.5B's parameter count, scores 6.5~pp lower on the golden split at FP16. It has no latency
+coordinate, because it has no quantised artefact, so it cannot be placed on
+Figure~\ref{fig:pareto}. What it does show is that at a fixed size the vertical position of a point
+can move by more than a third of the distance separating the two frontier models. The frontier's knee
+therefore sits at Qwen2.5-0.5B specifically, and whether another family at the same size would sit
+on it, above it or below it is not something these data decide. A practitioner reusing this result
+should read it as a statement about a model that was measured, not about a parameter class.
+
+\paragraph{The selection rule faced a feasibility cut, not a trade.} The rule in
+Section~\ref{sec:selection} ranks the configurations by exact match after the constraints have
+been applied. In principle a Pareto frontier forces a choice of operating point along it. Here the
+choice was never exercised. The only configuration faster than the selected one scores 0.760,
+which is under NFR-4's floor of 0.85 by 9~pp, so NFR-4 rules it out even though the selection rule
+itself does not rank on NFR-4. Of the three measured configurations, then, one is dominated, one
+is too inaccurate to deploy, and one remains. RQ1's trade-off exists on the figure, but it does
+not reach the deployment decision. The obvious caution applies: this is a consequence of which
+three models were measured. A model faster than SmolLM2-360M that cleared the 0.85 floor would
+reopen the choice, and nothing measured here rules such a model out.
+
+\paragraph{How much of the horizontal axis belongs to the enclosure.} The latency coordinates in
+Figure~\ref{fig:pareto} are measured on a cooled board, and Table~\ref{tab:thermal-headroom} shows
+how far they move without the cooler. Uncooled, the selected configuration's combined
+\acrshort{slm} p95 is 1{,}771.5~ms. That is over the 1{,}350~ms stage allowance of
+Table~\ref{tab:latency-budget}, and so is SmolLM2-360M's 1{,}610.2~ms. On the uncooled run no
+configuration meets the stage allowance, and the feasible set that the selection draws from is
+empty. The selected configuration is therefore feasible only because the board is cooled, and its
+margin on the cooled board is modest. The combined stage is 278~ms inside its allowance, but
+decode alone is 1{,}033~ms against 1{,}100~ms, a margin of 67~ms or 6\%. A frontier drawn on
+this class of hardware is conditional on its thermal state. The figure is best read as the
+frontier of a cooled Raspberry~Pi~5, and not as a frontier of the three models in the abstract.
+
+\paragraph{What would move the frontier.} Two gaps in the figure are known, and each limits what
+the frontier can be taken to mean. The first is quantisation. The Q8\_0 artefacts have no
+latency coordinate, and the paired tests found no accuracy difference between quantisations
+within any model. A Q8\_0 point could join the frontier only by matching or beating its
+Q4\_K\_M counterpart on latency. That was not measured, so the frontier is strictly a Q4\_K\_M
+frontier. The second is the horizontal axis itself, which covers the \acrshort{slm} stages only.
+The remaining stages of the pipeline run the same software whichever model is loaded, so adding
+them may shift all three points to the right by comparable amounts. If so, the ordering along the
+frontier would survive and the absolute margins would not. That is a plausible expectation rather
+than a measured one. The stages share one board's processor, and a larger model could slow them
+through contention, so whether the selected configuration remains feasible against the end-to-end
+budget is a question this document leaves open.
+
+\section{Failure-mode analysis}
+\label{sec:failure-modes}
+
+% Inherits results/limitation_abstention.md (NFR-9 / NFR-18) -- cited, not re-derived.
+% The grammar guarantees structure, not abstention. The grammar-ablation reading cut from
+% Ch4 (fine-tune left the grammar 0.17 pp; same training removed abstention) is a HYPOTHESIS.
+% Yaw sign flip as the largest in-domain family, invisible to every validation layer.
+\TODO{Section 5.2.}
+
+\section{Threats to validity}
+\label{sec:threats}
+
+\subsection{Internal validity}
+\label{sec:threats-internal}
+
+% The three Danube deviations (system-role fold, separate session, Surface A only after the
+% Gate 3 tokeniser failure). The zero-shot baseline: no causal claim, predictions not
+% retained. SmolLM2's cooled gain (1.69x) exceeding the 1.6x clock ratio, term unidentified.
+% Fixed three-epoch budget; n = 200 golden items; single recording session.
+\TODO{Section 5.3.1.}
+
+\subsection{External validity}
+\label{sec:threats-external}
+
+% Exp-3 referenced EXACTLY ONCE, here, as external validity for the deployed model, naming
+% the Memoire d'Ingenieur (prd.md Table 3). Single speaker; one board; small schema.
+\TODO{Section 5.3.2.}
