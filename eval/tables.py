@@ -51,6 +51,9 @@ EXP1 = REPO / "results" / "exp1_cooled.csv"
 #: sub-billion model on a passively-cooled Pi 5. Rendered by `thermal_headroom()`.
 EXP1_THROTTLED = REPO / "results" / "exp1.csv"
 RESULTS = REPO / "results"
+#: Exp-3's per-SNR summary, written by `eval/exp3.py` from its per-item files. Accuracy
+#: is the workstation's (A7a); the E2E columns stay empty until the Pi run (A7b) fills them.
+EXP3 = REPO / "results" / "exp3.csv"
 
 SPLITS = ("test_synth", "test_golden", "test_ood")
 #: The headline split for Table 18. The golden set is real recorded speech through the real
@@ -238,6 +241,69 @@ def table19(constrained: list[dict], ablated: list[dict]) -> str:
         "",
         "Pooled over every model, quantisation and split. Exact match is pooled by item, not",
         "averaged over the eighteen rows, so the larger splits carry their real weight.",
+    ]
+    return "\n".join(lines) + "\n"
+
+
+#: Table 12 budgets Exp-3 owns.
+NFR7_CLEAN_CRR, NFR8_10DB_CRR, NFR9_SAFE_FAILURE = 0.80, 0.65, 0.70
+
+
+def table20(exp3: list[dict]) -> str:
+    """Table 20, end to end on the golden set's audio (Exp-3). EM - CRR is the ASR cost."""
+
+    def ci(row: dict, key: str, scale: float = 1.0, places: int = 3) -> str:
+        lo, hi = _f(row[f"{key}_lo"]), _f(row[f"{key}_hi"])
+        return "--" if lo is None else f"[{lo * scale:.{places}f}, {hi * scale:.{places}f}]"
+
+    def label(row: dict) -> str:
+        return "clean" if row["condition"] == "clean" else f"{row['snr_db']} dB"
+
+    def e2e(row: dict) -> str:
+        if not row.get("e2e_p50_ms"):
+            return "pending (A7b, Pi)"
+        return f"{float(row['e2e_p50_ms']):.0f} / {float(row['e2e_p95_ms']):.0f} (n={row['e2e_n']})"
+
+    lines = [
+        "### Table 20: End-to-end on the golden set (Exp-3)",
+        "",
+        "Golden-set audio through Silero endpointing (450 ms), whisper `tiny.en` and",
+        "`qwen2.5-0.5b-instruct-Q4_K_M` under the grammar; rotor noise (DREGON, evaluation",
+        "partition) mixed digitally on active-speech level. EM is the same items as reference",
+        "text through the same parser, so EM - CRR is the cost of the speech stage. Intervals",
+        "are 95% bootstrap over utterances; safe-failure is over failed items only.",
+        "",
+        "| SNR | n | CRR | 95% CI | WER % | 95% CI | EM | EM - CRR | 95% CI | Safe-failure | E2E p50 / p95 (ms) |",
+        "| :--- | ---: | ---: | :--- | ---: | :--- | ---: | ---: | :--- | :--- | :--- |",
+    ]
+    for row in exp3:
+        safe = _f(row["safe_failure_rate"])
+        lines.append(
+            f"| {label(row)} | {row['n']} | {float(row['crr']):.3f} | {ci(row, 'crr')} "
+            f"| {_pct(_f(row['wer']))} | {ci(row, 'wer', 100, 1)} | {float(row['em']):.3f} "
+            f"| {float(row['em_minus_crr']):+.3f} | {ci(row, 'em_minus_crr')} "
+            f"| {'--' if safe is None else f'{safe:.3f}'} ({row['n_safe']}/{row['n_failed']}) "
+            f"| {e2e(row)} |")
+
+    by = {r["condition"]: r for r in exp3}
+
+    def verdict(name: str, value: float | None, budget: float, where: str) -> str:
+        if value is None:
+            return f"{name} ({where}): not measured."
+        return (f"{name} ({where}, >= {budget:.2f}): {value:.3f} -- "
+                f"**{'MEETS' if value >= budget else 'MISSES'}**.")
+
+    safe_rates = [(label(r), _f(r["safe_failure_rate"])) for r in exp3]
+    worst = min((v for _, v in safe_rates if v is not None), default=None)
+    lines += [
+        "",
+        verdict("NFR-7 CRR", _f(by["clean"]["crr"]) if "clean" in by else None,
+                NFR7_CLEAN_CRR, "clean"),
+        verdict("NFR-8 CRR", _f(by["10"]["crr"]) if "10" in by else None,
+                NFR8_10DB_CRR, "10 dB"),
+        verdict("NFR-9 safe-failure", worst, NFR9_SAFE_FAILURE, "lowest across SNR"),
+        "Tests across SNR, the operational envelope and the segmentation breakdown:",
+        "`results/exp3_analysis.md`.",
     ]
     return "\n".join(lines) + "\n"
 
@@ -586,6 +652,7 @@ _TABLES = (
     ("table19_grammar_ablation", "tab:grammar-ablation", r"\scriptsize", 3, False),
     ("table33_iso_parameter", "tab:iso-parameter", r"\footnotesize", 5, False),
     ("thermal_headroom", "tab:thermal-headroom", r"\scriptsize", 3, True),
+    ("table20_end_to_end", "tab:end-to-end", r"\scriptsize", 3, False),
 )
 
 #: Rendered to LaTeX here but computed elsewhere: `eval/exp0.py` owns Table 16 and writes
@@ -608,6 +675,10 @@ def run() -> int:
         "thermal_headroom": thermal_headroom(_exp1_summaries(),
                                              _exp1_summaries(EXP1_THROTTLED)),
     }
+    if EXP3.is_file():
+        rendered["table20_end_to_end"] = table20(_rows(EXP3))
+    else:
+        print("  skipped table20_end_to_end: results/exp3.csv not written yet (eval/exp3.py)")
     written = []
     for stem, text in rendered.items():
         (RESULTS / f"{stem}.md").write_text(text, encoding="utf-8")
@@ -615,6 +686,8 @@ def run() -> int:
 
     GENERATED.mkdir(parents=True, exist_ok=True)
     for stem, label, size, colsep, abbreviate in _TABLES:
+        if stem not in rendered:
+            continue
         tex = markdown_to_latex(rendered[stem], label, size=size, colsep_pt=colsep,
                                 abbreviate=abbreviate)
         (GENERATED / f"{stem}.tex").write_text(tex, encoding="utf-8")
