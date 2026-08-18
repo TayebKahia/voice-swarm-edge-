@@ -1427,3 +1427,18 @@ Tests: `eval/test_exp3.py` 9 passed; `python -m pytest -q` -> 803 passed.
   - The rationale for the author's 450 ms decision now has a CRR figure to cite (all splits fail).
 
 Stopped here: A7a done, accuracy columns final, Table 20 rendered with E2E pending.
+
+## Writing progress -- Master Ch 5 (Wed 23 Sep, Block B session, B4)
+thesis/master/ch5_discussion.tex created (\label{chap:discussion}), \input uncommented in
+main_master.tex. Scaffold: 5.1 trade-off / 5.2 failure modes / 5.3 threats (internal, external).
+  5.1 DRAFTED (sec:tradeoff) -- interprets fig:pareto, does not redraw it. Four readings, all
+      hedged: the frontier is two points, so a direction not a curve (Qwen->SmolLM2 saves 178 ms
+      SLM p95 for 17.5 pp EM; Qwen->Llama costs 1,210 ms / 0.95 GB for a non-significant gap);
+      the knee is Qwen2.5-0.5B, not "0.5B" (Danube -6.5 pp at matched size); the selection
+      rule met a feasibility cut, not a trade (NFR-4 removes the only faster point); the
+      frontier is conditional on the cooler (uncooled, no config meets the 1,350 ms stage
+      allowance; cooled decode margin is 67 ms / 6%). Q8_0 and end-to-end left open, unprojected.
+  5.2, 5.3.1, 5.3.2, chapter lead-in: \TODO{}, not started. Exp-3 is not yet mentioned anywhere
+      in the chapter -- its one reference belongs in 5.3.2.
+Build: clean from scratch, 0 errors; only chap:conclusion undefined (Ch 6 unwritten).
+Stopped after 5.1, awaiting author review.
