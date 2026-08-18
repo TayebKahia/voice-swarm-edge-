@@ -120,7 +120,9 @@ first, then the scaffold, then the prose — never the prose alone.
 1. **Citations:**
    - Always use `\cite{key}` for references. Never write author names without a citation key.
    - Use non-breaking spaces before citations and cross-references: `Figure~\ref{fig:arch}`, `Table~\ref{tab:results}`, `Model~\cite{sbc2025}`.
-   - **Closed set only:** cite exclusively from the 19 keys already in `thesis/references.bib`.
+   - **Closed set only:** cite exclusively from the keys already in `thesis/references.bib`
+     (count them with `grep -c '^@' thesis/references.bib`; do not trust a number written here --
+     the set grew from 19 to 59 and this line went stale).
      If a claim needs a source that is not there, say so in prose (or mark a `\TODO{}`) instead of
      inventing an entry. Do not name-drop a tool, model, or method this project never actually
      used just because it is common in the field.
@@ -141,11 +143,13 @@ first, then the scaffold, then the prose — never the prose alone.
      pdfLaTeX cannot build this) and adds the `makeglossaries` step. `latexmk -c` clears
      intermediates, `-C` also removes the PDFs.
    - **A new chapter needs the filename its `main_*.tex` already names,** then uncommenting that
-     line. They are `master/`: `ch4_results`, `ch5_discussion`, `ch6_conclusion`; `ingenieur/`:
-     `ch3_architecture`, `ch4_implementation`, `ch5_validation`, `ch6_conclusion`. Give each a
-     `\label{chap:...}` matching what other chapters already `\ref` — the outstanding ones are
-     `chap:results`, `chap:discussion`, `chap:conclusion`, `chap:architecture`,
-     `chap:implementation`, `chap:validation`, `chap:state-of-the-art`.
+     line. Still to write: `master/ch6_conclusion`; `ingenieur/`: `ch3_architecture`,
+     `ch4_implementation`, `ch5_validation`, `ch6_conclusion`. Give each a `\label{chap:...}`
+     matching what other chapters already `\ref`. Outstanding labels: Master `chap:conclusion`;
+     Ingénieur `chap:architecture`, `chap:implementation`, `chap:validation`, and
+     `chap:demonstration` -- the Ingénieur's combined Ch6 is `\ref`'d as `chap:demonstration`
+     (three times in its Ch1), not `chap:conclusion`. To refresh this list, diff
+     `grep -ho '\\ref{chap:[^}]*}'` against `grep -ho '\\label{chap:[^}]*}'` per document.
    - **When referring to the companion document,** always say "the \emph{Mémoire d'Ingénieur}" (or
      "\emph{Mémoire de Master}") — never a paraphrase like "the companion report." Naming a
      specific chapter number across documents is fragile: the two are compiled separately with no
@@ -182,9 +186,12 @@ first, then the scaffold, then the prose — never the prose alone.
    survive into the deposited document; all three are greppable.
 5. **Use the acronyms, or the List of Acronyms prints empty.** `thesis/shared/acronyms.tex`
    defines 26 (`\gls{slm}`, `\acrfull{gbnf}`, …), but `glossaries` lists only entries a document
-   actually uses, and **no chapter uses one yet** — so both documents currently render an empty
-   acronym page. Introduce a term with `\acrfull{key}` on first use and `\gls{key}` after. Add a
-   `\newacronym` only for a term that genuinely appears; do not pad the list.
+   actually uses. As of Master Ch5, only Master Ch4 uses them: Master Ch1–3 and Ch5 spell
+   terms out by hand, and no Ingénieur chapter uses one, so the Ingénieur's acronym page is
+   empty and the Master's first `\acrfull` lands in Ch4 instead of Ch1. "First use" means first
+   in document order: when Ch1–3 are converted, the `\acrfull` moves to the earliest chapter and
+   Ch4's becomes `\gls`. Add a `\newacronym` only for a term that genuinely appears; do not pad
+   the list.
 6. **Validate before calling a chapter done:** run `python tools/check_tex.py <file>` — it catches
    dangling `\ref`/`\cite`, wrong table cell counts, over-wide columns, and non-ASCII characters
    without needing a TeX install. Citations are resolved against `thesis/references.bib`, which the
@@ -220,6 +227,9 @@ first, then the scaffold, then the prose — never the prose alone.
 ---
 
 ## 5. Pre-Flight Quality Checklist
+
+For a full review of a written chapter (or a whole document), use the prompt templates in
+`docs/agents/thesis-chapter-review.md`; this checklist is the author's self-check while drafting.
 
 Before finalizing any section or chapter, the agent must verify:
 - [ ] Are all claims backed by quantitative data, mathematical definitions, or literature citations?
