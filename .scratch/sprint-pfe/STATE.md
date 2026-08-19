@@ -1442,3 +1442,32 @@ main_master.tex. Scaffold: 5.1 trade-off / 5.2 failure modes / 5.3 threats (inte
       in the chapter -- its one reference belongs in 5.3.2.
 Build: clean from scratch, 0 errors; only chap:conclusion undefined (Ch 6 unwritten).
 Stopped after 5.1, awaiting author review.
+
+## Branch A real voice + Exp-3 error analysis (Wed 23 Sep, afternoon)
+
+**Branch A on the author's voice (129fb28).** The 40 takes (`data/audio/wake_real/`, now committed
+as irreplaceable recordings) were resampled by `data/resample.py --glob "w*.wav"` and scored by
+`python eval/wake_real.py` -> `results/wake_real_voice.{md,json}`, using train_wake.py's own
+scoring and the unchanged 0.999 threshold. hold 1/20 missed (FRR 0.050, exact CI [0.001, 0.249]);
+abort 0/20 (FRR 0.000, CI [0.000, 0.168]); **0 cross-triggers in 40**. The synthetic-voice caveat
+is closed. **NFR-16 is NOT proven:** at n=20 even zero misses leaves the upper bound at 0.168 > 0.10.
+The one miss (w03) peaked at 0.9977 against 0.999, which is the saturated threshold already named.
+Delay p50/p95 is 230/550 ms (hold) and 160/430 ms (abort) against TTS's 188/131 ms p95. It is
+**indicative only**, measured from the capture tool's energy-based end of speech rather than a
+forced alignment. Exp-2's NFR-1 measurement should use these real takes as its keyword audio and
+watch whether the gap is real.
+
+**Exp-3 error analysis of record.** `eval/exp3.py:failure_cause` gives one cause per failed item,
+in a fixed order, in `results/exp3_analysis.md`. Clean, 62 failures: ASR right intent / wrong slot
+23, endpointer split 22, parser wrong on text 12, ASR wrong intent 5, perfect transcript + parser
+wrong 0. At 5 dB the slot errors grow to 52 (of 101). exp3.csv is unchanged.
+
+**Decided with the author:** there is no legitimate way to raise CRR before depot. Every candidate
+fix (700 ms VAD, base.en, a new prompt) would be chosen on the golden set, which is the test set,
+because s2/s3 were cut. base.en also breaks STT latency (spike S6: ~3.8 s on the Pi vs 1.2 s).
+They go to Limitations / future work, not into the results. The 700 ms run is dropped.
+
+Test suite: 807 passed.
+
+Stopped here. Next: **A6, Exp-2 on the Pi** (runtime/stream.py first, tests first). That is the
+only remaining gap that leaves an RQ (RQ2) unanswered. A7b only if Pi time remains.
