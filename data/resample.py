@@ -136,11 +136,16 @@ def run(argv: Sequence[str] | None = None) -> int:
         help="skip the session gain; the output is then a pure rate conversion",
     )
     parser.add_argument("--peak-dbfs", type=float, default=PEAK_CEILING_DBFS)
+    parser.add_argument(
+        "--glob",
+        default="[0-9]*.wav",
+        help="master filenames (default: numbered golden takes; the wake session is w*.wav)",
+    )
     args = parser.parse_args(argv)
 
     source = args.input or (AUDIO_DIR / args.session)
     destination = args.output or (AUDIO_DIR / f"{args.session}_16k")
-    masters = sorted(source.glob("[0-9]*.wav"))
+    masters = sorted(source.glob(args.glob))
     if not masters:
         raise SystemExit(f"no masters in {source} -- record the session first")
     destination.mkdir(parents=True, exist_ok=True)

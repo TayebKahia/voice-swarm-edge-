@@ -1,0 +1,199 @@
+{
+  "threshold": 0.999,
+  "rows": [
+    {
+      "class": "swarm_hold",
+      "n": 20,
+      "missed": 1,
+      "frr": 0.05,
+      "frr_ci95": [
+        0.0012650894979498047,
+        0.24873276277202777
+      ],
+      "fired_hold": 19,
+      "fired_abort": 0,
+      "delay_p50_ms": 229.99999999999997,
+      "delay_p95_ms": 550.0,
+      "missed_takes": [
+        "w03"
+      ]
+    },
+    {
+      "class": "swarm_abort",
+      "n": 20,
+      "missed": 0,
+      "frr": 0.0,
+      "frr_ci95": [
+        0.0,
+        0.1684334709830853
+      ],
+      "fired_hold": 0,
+      "fired_abort": 20,
+      "delay_p50_ms": 160.00000000000014,
+      "delay_p95_ms": 429.9999999999997,
+      "missed_takes": []
+    }
+  ],
+  "peaks": {
+    "w01": {
+      "swarm_hold": 1.0,
+      "swarm_abort": 0.0002
+    },
+    "w02": {
+      "swarm_hold": 0.0001,
+      "swarm_abort": 1.0
+    },
+    "w03": {
+      "swarm_hold": 0.9977,
+      "swarm_abort": 0.0024
+    },
+    "w04": {
+      "swarm_hold": 0.0,
+      "swarm_abort": 1.0
+    },
+    "w05": {
+      "swarm_hold": 1.0,
+      "swarm_abort": 0.0002
+    },
+    "w06": {
+      "swarm_hold": 0.0,
+      "swarm_abort": 1.0
+    },
+    "w07": {
+      "swarm_hold": 1.0,
+      "swarm_abort": 0.019
+    },
+    "w08": {
+      "swarm_hold": 0.0,
+      "swarm_abort": 1.0
+    },
+    "w09": {
+      "swarm_hold": 1.0,
+      "swarm_abort": 0.0027
+    },
+    "w10": {
+      "swarm_hold": 0.0,
+      "swarm_abort": 1.0
+    },
+    "w11": {
+      "swarm_hold": 1.0,
+      "swarm_abort": 0.0002
+    },
+    "w12": {
+      "swarm_hold": 0.0,
+      "swarm_abort": 1.0
+    },
+    "w13": {
+      "swarm_hold": 1.0,
+      "swarm_abort": 0.0059
+    },
+    "w14": {
+      "swarm_hold": 0.0,
+      "swarm_abort": 1.0
+    },
+    "w15": {
+      "swarm_hold": 1.0,
+      "swarm_abort": 0.0002
+    },
+    "w16": {
+      "swarm_hold": 0.0,
+      "swarm_abort": 1.0
+    },
+    "w17": {
+      "swarm_hold": 1.0,
+      "swarm_abort": 0.0002
+    },
+    "w18": {
+      "swarm_hold": 0.0,
+      "swarm_abort": 1.0
+    },
+    "w19": {
+      "swarm_hold": 1.0,
+      "swarm_abort": 0.8249
+    },
+    "w20": {
+      "swarm_hold": 0.0027,
+      "swarm_abort": 1.0
+    },
+    "w21": {
+      "swarm_hold": 1.0,
+      "swarm_abort": 0.003
+    },
+    "w22": {
+      "swarm_hold": 0.0,
+      "swarm_abort": 1.0
+    },
+    "w23": {
+      "swarm_hold": 1.0,
+      "swarm_abort": 0.0002
+    },
+    "w24": {
+      "swarm_hold": 0.0007,
+      "swarm_abort": 1.0
+    },
+    "w25": {
+      "swarm_hold": 1.0,
+      "swarm_abort": 0.0002
+    },
+    "w26": {
+      "swarm_hold": 0.0003,
+      "swarm_abort": 1.0
+    },
+    "w27": {
+      "swarm_hold": 1.0,
+      "swarm_abort": 0.1344
+    },
+    "w28": {
+      "swarm_hold": 0.0,
+      "swarm_abort": 1.0
+    },
+    "w29": {
+      "swarm_hold": 1.0,
+      "swarm_abort": 0.0002
+    },
+    "w30": {
+      "swarm_hold": 0.0001,
+      "swarm_abort": 1.0
+    },
+    "w31": {
+      "swarm_hold": 1.0,
+      "swarm_abort": 0.9693
+    },
+    "w32": {
+      "swarm_hold": 0.0,
+      "swarm_abort": 1.0
+    },
+    "w33": {
+      "swarm_hold": 0.9995,
+      "swarm_abort": 0.2369
+    },
+    "w34": {
+      "swarm_hold": 0.0,
+      "swarm_abort": 1.0
+    },
+    "w35": {
+      "swarm_hold": 1.0,
+      "swarm_abort": 0.0002
+    },
+    "w36": {
+      "swarm_hold": 0.0001,
+      "swarm_abort": 1.0
+    },
+    "w37": {
+      "swarm_hold": 1.0,
+      "swarm_abort": 0.0002
+    },
+    "w38": {
+      "swarm_hold": 0.0,
+      "swarm_abort": 1.0
+    },
+    "w39": {
+      "swarm_hold": 1.0,
+      "swarm_abort": 0.0002
+    },
+    "w40": {
+      "swarm_hold": 0.0,
+      "swarm_abort": 1.0
+    }
+  }
+}

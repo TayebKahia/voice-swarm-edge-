@@ -1,0 +1,413 @@
+{
+  "session": "s1",
+  "source_rate": 48000,
+  "target_rate": 16000,
+  "resampler": "soxr 1.1.0 quality=VHQ",
+  "dc_removed": true,
+  "normalised": true,
+  "peak_ceiling_dbfs": -14.0,
+  "session_gain_db": -9.8605,
+  "session_peak_before_dbfs": -4.14,
+  "files": [
+    {
+      "id": "w01",
+      "master": "data/audio/wake_real/w01.wav",
+      "master_sha256": "56449b09382e71aa32322ec3bc05fc27ea954f36114f520df289557064bbc2f3",
+      "output": "data/audio/wake_real_16k/w01.wav",
+      "seconds": 1.2,
+      "dc_offset_removed": 0.007257,
+      "peak_dbfs": -24.34,
+      "active_speech_dbfs": -38.49
+    },
+    {
+      "id": "w02",
+      "master": "data/audio/wake_real/w02.wav",
+      "master_sha256": "d26c6d75d12de1014ffe76672ce11cfdc0b34141371e0c0d09394735e327d1f6",
+      "output": "data/audio/wake_real_16k/w02.wav",
+      "seconds": 1.35,
+      "dc_offset_removed": 0.007722,
+      "peak_dbfs": -20.06,
+      "active_speech_dbfs": -31.05
+    },
+    {
+      "id": "w03",
+      "master": "data/audio/wake_real/w03.wav",
+      "master_sha256": "4e66a857956b49f79530812f3745d1ce6b3bd7540b6e14e0114fde48b051ed3b",
+      "output": "data/audio/wake_real_16k/w03.wav",
+      "seconds": 1.15,
+      "dc_offset_removed": 0.007977,
+      "peak_dbfs": -18.71,
+      "active_speech_dbfs": -29.64
+    },
+    {
+      "id": "w04",
+      "master": "data/audio/wake_real/w04.wav",
+      "master_sha256": "9ce6f739050be47f1703674c35c7498762f99cd058adcb6eb4447ff6df8ae774",
+      "output": "data/audio/wake_real_16k/w04.wav",
+      "seconds": 1.65,
+      "dc_offset_removed": 0.007731,
+      "peak_dbfs": -30.92,
+      "active_speech_dbfs": -48.79
+    },
+    {
+      "id": "w05",
+      "master": "data/audio/wake_real/w05.wav",
+      "master_sha256": "e72e96fea56d7e6bb4b4ca3ff803d0fd3ac7788c61df0fe4027df3acd957b04e",
+      "output": "data/audio/wake_real_16k/w05.wav",
+      "seconds": 1.15,
+      "dc_offset_removed": 0.007625,
+      "peak_dbfs": -28.31,
+      "active_speech_dbfs": -41.74
+    },
+    {
+      "id": "w06",
+      "master": "data/audio/wake_real/w06.wav",
+      "master_sha256": "c84e4b3b1b75c5e7f4f6acc8242529d73827fda8b9e199f40e4744450ce67294",
+      "output": "data/audio/wake_real_16k/w06.wav",
+      "seconds": 1.3,
+      "dc_offset_removed": 0.007731,
+      "peak_dbfs": -23.82,
+      "active_speech_dbfs": -36.95
+    },
+    {
+      "id": "w07",
+      "master": "data/audio/wake_real/w07.wav",
+      "master_sha256": "1fc151bf207a3bd9ca5b30bd913449b9b8f1efd4b1d9da73d95ef51f7ab015df",
+      "output": "data/audio/wake_real_16k/w07.wav",
+      "seconds": 1.35,
+      "dc_offset_removed": 0.007852,
+      "peak_dbfs": -19.83,
+      "active_speech_dbfs": -31.4
+    },
+    {
+      "id": "w08",
+      "master": "data/audio/wake_real/w08.wav",
+      "master_sha256": "c44ad1ac97c49a85e6e141e14e0e658e5f01cefa7494a60258cd41d31f48bf7c",
+      "output": "data/audio/wake_real_16k/w08.wav",
+      "seconds": 1.5,
+      "dc_offset_removed": 0.007857,
+      "peak_dbfs": -22.74,
+      "active_speech_dbfs": -36.85
+    },
+    {
+      "id": "w09",
+      "master": "data/audio/wake_real/w09.wav",
+      "master_sha256": "6769e5512e66e3bc9bc69f26707a4d9bfc473539d56b2e90b1283c6dd38df14d",
+      "output": "data/audio/wake_real_16k/w09.wav",
+      "seconds": 1.1,
+      "dc_offset_removed": 0.007687,
+      "peak_dbfs": -21.36,
+      "active_speech_dbfs": -32.42
+    },
+    {
+      "id": "w10",
+      "master": "data/audio/wake_real/w10.wav",
+      "master_sha256": "3a67abf7d4a1a945173acf5394374f8cea9accdabf059d5452de2ba0b90a15c8",
+      "output": "data/audio/wake_real_16k/w10.wav",
+      "seconds": 1.4,
+      "dc_offset_removed": 0.007843,
+      "peak_dbfs": -19.05,
+      "active_speech_dbfs": -30.57
+    },
+    {
+      "id": "w11",
+      "master": "data/audio/wake_real/w11.wav",
+      "master_sha256": "f71be5c50454c9b472941213170c29770d59bc2297680f3f27e1e2b880f423ad",
+      "output": "data/audio/wake_real_16k/w11.wav",
+      "seconds": 1.35,
+      "dc_offset_removed": 0.007767,
+      "peak_dbfs": -31.82,
+      "active_speech_dbfs": -45.59
+    },
+    {
+      "id": "w12",
+      "master": "data/audio/wake_real/w12.wav",
+      "master_sha256": "84b8007cab9c307a630d9eaff52cac9ffebe822b5e78b0a92c9948f0a1780688",
+      "output": "data/audio/wake_real_16k/w12.wav",
+      "seconds": 1.2,
+      "dc_offset_removed": 0.00769,
+      "peak_dbfs": -27.58,
+      "active_speech_dbfs": -40.33
+    },
+    {
+      "id": "w13",
+      "master": "data/audio/wake_real/w13.wav",
+      "master_sha256": "59d795527d0277b6b81054530b4c2b5a1058159a8f4eaf0962f26d4410e43488",
+      "output": "data/audio/wake_real_16k/w13.wav",
+      "seconds": 1.25,
+      "dc_offset_removed": 0.007692,
+      "peak_dbfs": -24.29,
+      "active_speech_dbfs": -39.04
+    },
+    {
+      "id": "w14",
+      "master": "data/audio/wake_real/w14.wav",
+      "master_sha256": "317b473d9edb0b2a4806de2346ad89e1360b753572ec024196d3eb961a854ac1",
+      "output": "data/audio/wake_real_16k/w14.wav",
+      "seconds": 0.95,
+      "dc_offset_removed": 0.007835,
+      "peak_dbfs": -24.79,
+      "active_speech_dbfs": -38.66
+    },
+    {
+      "id": "w15",
+      "master": "data/audio/wake_real/w15.wav",
+      "master_sha256": "a40af9e8d5c18fe354d809fe1716de5b4995f3729dbb6b00e9ab47b0985d445c",
+      "output": "data/audio/wake_real_16k/w15.wav",
+      "seconds": 1.3,
+      "dc_offset_removed": 0.007641,
+      "peak_dbfs": -26.58,
+      "active_speech_dbfs": -41.15
+    },
+    {
+      "id": "w16",
+      "master": "data/audio/wake_real/w16.wav",
+      "master_sha256": "3a9dc8c79d3245fe9b5d0c589811a53fae1e100691591c78567052e9eb1e29f8",
+      "output": "data/audio/wake_real_16k/w16.wav",
+      "seconds": 1.0,
+      "dc_offset_removed": 0.007795,
+      "peak_dbfs": -25.0,
+      "active_speech_dbfs": -37.11
+    },
+    {
+      "id": "w17",
+      "master": "data/audio/wake_real/w17.wav",
+      "master_sha256": "0a67538d38adc8302501a41e26156b2b963253a9b9b46b00919a20c7bd1edd88",
+      "output": "data/audio/wake_real_16k/w17.wav",
+      "seconds": 1.15,
+      "dc_offset_removed": 0.007606,
+      "peak_dbfs": -27.47,
+      "active_speech_dbfs": -39.97
+    },
+    {
+      "id": "w18",
+      "master": "data/audio/wake_real/w18.wav",
+      "master_sha256": "616824ab2ba84d96e0195f18cb243f94a0a7091bd5a19c139c5eac897d66797b",
+      "output": "data/audio/wake_real_16k/w18.wav",
+      "seconds": 1.4,
+      "dc_offset_removed": 0.007789,
+      "peak_dbfs": -18.22,
+      "active_speech_dbfs": -29.96
+    },
+    {
+      "id": "w19",
+      "master": "data/audio/wake_real/w19.wav",
+      "master_sha256": "3fabb553181da69a394e6f8d017ddbfa160a970ca2cc7c78769d1417d28923ed",
+      "output": "data/audio/wake_real_16k/w19.wav",
+      "seconds": 1.2,
+      "dc_offset_removed": 0.007745,
+      "peak_dbfs": -18.43,
+      "active_speech_dbfs": -31.13
+    },
+    {
+      "id": "w20",
+      "master": "data/audio/wake_real/w20.wav",
+      "master_sha256": "79882b8b00db21bf833f3b6f5e476a623fbdb9b267874248ad61856ba3fbcb3c",
+      "output": "data/audio/wake_real_16k/w20.wav",
+      "seconds": 1.6,
+      "dc_offset_removed": 0.007708,
+      "peak_dbfs": -15.73,
+      "active_speech_dbfs": -27.41
+    },
+    {
+      "id": "w21",
+      "master": "data/audio/wake_real/w21.wav",
+      "master_sha256": "3b4c5cf034687df2b6c3c690ea300ff785cd7d2d9546a89df31f4c0019436c28",
+      "output": "data/audio/wake_real_16k/w21.wav",
+      "seconds": 1.0,
+      "dc_offset_removed": 0.007813,
+      "peak_dbfs": -14.0,
+      "active_speech_dbfs": -26.9
+    },
+    {
+      "id": "w22",
+      "master": "data/audio/wake_real/w22.wav",
+      "master_sha256": "23440f5346fd392b1e796b03d3f1a9d94c9205f8f1e1136ebc1651b04d1b8f3b",
+      "output": "data/audio/wake_real_16k/w22.wav",
+      "seconds": 1.15,
+      "dc_offset_removed": 0.007836,
+      "peak_dbfs": -15.63,
+      "active_speech_dbfs": -26.79
+    },
+    {
+      "id": "w23",
+      "master": "data/audio/wake_real/w23.wav",
+      "master_sha256": "ca3b049596756cd0b2463439194e7d729fbff30e4e4ce6d63ade49facfd4cc1f",
+      "output": "data/audio/wake_real_16k/w23.wav",
+      "seconds": 1.2,
+      "dc_offset_removed": 0.007728,
+      "peak_dbfs": -22.01,
+      "active_speech_dbfs": -34.94
+    },
+    {
+      "id": "w24",
+      "master": "data/audio/wake_real/w24.wav",
+      "master_sha256": "e6ea73f2f81d68f0e1005ec6f012128bb6841e46b7deb216352014b1754b86b8",
+      "output": "data/audio/wake_real_16k/w24.wav",
+      "seconds": 1.35,
+      "dc_offset_removed": 0.007873,
+      "peak_dbfs": -21.85,
+      "active_speech_dbfs": -34.26
+    },
+    {
+      "id": "w25",
+      "master": "data/audio/wake_real/w25.wav",
+      "master_sha256": "436994d7bc04bff33011b20026061c9a23067058833942c82697119e9d596241",
+      "output": "data/audio/wake_real_16k/w25.wav",
+      "seconds": 1.7,
+      "dc_offset_removed": 0.007702,
+      "peak_dbfs": -24.35,
+      "active_speech_dbfs": -38.27
+    },
+    {
+      "id": "w26",
+      "master": "data/audio/wake_real/w26.wav",
+      "master_sha256": "68b030b8c6146e75dba039b5c3ddebf2744c0c6b98f64d74be1a5e3c698c193e",
+      "output": "data/audio/wake_real_16k/w26.wav",
+      "seconds": 1.45,
+      "dc_offset_removed": 0.007662,
+      "peak_dbfs": -21.62,
+      "active_speech_dbfs": -35.16
+    },
+    {
+      "id": "w27",
+      "master": "data/audio/wake_real/w27.wav",
+      "master_sha256": "4434effd2b5d7f1339c049fa83fe5384525119d1a25d30e2c5b145aa60f299cf",
+      "output": "data/audio/wake_real_16k/w27.wav",
+      "seconds": 1.3,
+      "dc_offset_removed": 0.007649,
+      "peak_dbfs": -23.04,
+      "active_speech_dbfs": -35.94
+    },
+    {
+      "id": "w28",
+      "master": "data/audio/wake_real/w28.wav",
+      "master_sha256": "efa196166fca5e3e66b0df2d7ab496d0c64d769d1385a7555948799f0909feea",
+      "output": "data/audio/wake_real_16k/w28.wav",
+      "seconds": 1.3,
+      "dc_offset_removed": 0.007852,
+      "peak_dbfs": -22.07,
+      "active_speech_dbfs": -36.49
+    },
+    {
+      "id": "w29",
+      "master": "data/audio/wake_real/w29.wav",
+      "master_sha256": "13be6359de080ade391d70d852f24820a2f58f10f8b66e0f0c3e5c895eef046b",
+      "output": "data/audio/wake_real_16k/w29.wav",
+      "seconds": 1.25,
+      "dc_offset_removed": 0.007825,
+      "peak_dbfs": -20.73,
+      "active_speech_dbfs": -35.53
+    },
+    {
+      "id": "w30",
+      "master": "data/audio/wake_real/w30.wav",
+      "master_sha256": "9b09d4c424abd6eff4fb654a5c9882fe6ae21f164b1970477a63586addcb0b19",
+      "output": "data/audio/wake_real_16k/w30.wav",
+      "seconds": 1.5,
+      "dc_offset_removed": 0.007714,
+      "peak_dbfs": -19.84,
+      "active_speech_dbfs": -33.89
+    },
+    {
+      "id": "w31",
+      "master": "data/audio/wake_real/w31.wav",
+      "master_sha256": "94719fb7e7d3e21ff21d26d3b94786f004afb3ec2f2a9dc1d221e5a00ceb252c",
+      "output": "data/audio/wake_real_16k/w31.wav",
+      "seconds": 1.1,
+      "dc_offset_removed": 0.007771,
+      "peak_dbfs": -20.95,
+      "active_speech_dbfs": -31.87
+    },
+    {
+      "id": "w32",
+      "master": "data/audio/wake_real/w32.wav",
+      "master_sha256": "b76905bc09d3a3576813fbb77499543c2c0507b4d76df163b5b85e34dadf9b6d",
+      "output": "data/audio/wake_real_16k/w32.wav",
+      "seconds": 1.1,
+      "dc_offset_removed": 0.007768,
+      "peak_dbfs": -16.9,
+      "active_speech_dbfs": -28.73
+    },
+    {
+      "id": "w33",
+      "master": "data/audio/wake_real/w33.wav",
+      "master_sha256": "aa4c7eed4898ce15965c065674c69742b3be94d9d63e741c38673d22a1823c69",
+      "output": "data/audio/wake_real_16k/w33.wav",
+      "seconds": 0.95,
+      "dc_offset_removed": 0.007789,
+      "peak_dbfs": -18.11,
+      "active_speech_dbfs": -29.56
+    },
+    {
+      "id": "w34",
+      "master": "data/audio/wake_real/w34.wav",
+      "master_sha256": "8151d49ca6abcf7f9a7f803c831eb3ccfd237a65b0c5aebedf305bebb13c1f60",
+      "output": "data/audio/wake_real_16k/w34.wav",
+      "seconds": 0.95,
+      "dc_offset_removed": 0.007803,
+      "peak_dbfs": -16.54,
+      "active_speech_dbfs": -28.6
+    },
+    {
+      "id": "w35",
+      "master": "data/audio/wake_real/w35.wav",
+      "master_sha256": "36745fbbf3d48368ed6713937df849b8295c50b70aaeb543bb62c89772cd91c6",
+      "output": "data/audio/wake_real_16k/w35.wav",
+      "seconds": 1.5,
+      "dc_offset_removed": 0.00772,
+      "peak_dbfs": -21.35,
+      "active_speech_dbfs": -35.14
+    },
+    {
+      "id": "w36",
+      "master": "data/audio/wake_real/w36.wav",
+      "master_sha256": "307b582f373386d02c0cddc886a74ffd51a5a5072cbe297ff78105c86a3418f8",
+      "output": "data/audio/wake_real_16k/w36.wav",
+      "seconds": 1.2,
+      "dc_offset_removed": 0.00767,
+      "peak_dbfs": -22.74,
+      "active_speech_dbfs": -35.28
+    },
+    {
+      "id": "w37",
+      "master": "data/audio/wake_real/w37.wav",
+      "master_sha256": "44e3db6dd36051c8685460ea5b4360ced1d3e6226d97b863656f5f72491b602e",
+      "output": "data/audio/wake_real_16k/w37.wav",
+      "seconds": 1.45,
+      "dc_offset_removed": 0.007651,
+      "peak_dbfs": -21.62,
+      "active_speech_dbfs": -33.67
+    },
+    {
+      "id": "w38",
+      "master": "data/audio/wake_real/w38.wav",
+      "master_sha256": "01b46038dd697c2073471c103db7bbc89179a4f2ccb88dca10cea28c63ea3ffb",
+      "output": "data/audio/wake_real_16k/w38.wav",
+      "seconds": 1.2,
+      "dc_offset_removed": 0.007667,
+      "peak_dbfs": -22.85,
+      "active_speech_dbfs": -35.61
+    },
+    {
+      "id": "w39",
+      "master": "data/audio/wake_real/w39.wav",
+      "master_sha256": "b3a264ba28b904e006492d1a0afd3aa31d09d3fa756e269d7e8ae41453bf7614",
+      "output": "data/audio/wake_real_16k/w39.wav",
+      "seconds": 1.1,
+      "dc_offset_removed": 0.007735,
+      "peak_dbfs": -22.26,
+      "active_speech_dbfs": -35.29
+    },
+    {
+      "id": "w40",
+      "master": "data/audio/wake_real/w40.wav",
+      "master_sha256": "9b3eb69720f82ca0a38dda52708aa6d6dc8212efea67b40bd62e5012ee9cec14",
+      "output": "data/audio/wake_real_16k/w40.wav",
+      "seconds": 1.3,
+      "dc_offset_removed": 0.007656,
+      "peak_dbfs": -21.71,
+      "active_speech_dbfs": -34.32
+    }
+  ]
+}
