@@ -196,3 +196,27 @@ def test_debounce_matches_the_training_evaluator() -> None:
     trace = (rng.random(400) > 0.93).astype(float)  # sparse bursts of above-threshold frames
     fired = _run([{"swarm_hold": v} for v in trace])
     assert fired.count("hover") == count_events(trace, 0.5)
+
+
+def test_reset_starts_a_new_trial_with_no_refractory_and_a_clean_detector() -> None:
+    """Exp-2 streams one take per trial through one loaded model; a trial must not
+    inherit the previous take's debounce window or the spotter's feature buffer."""
+
+    @dataclass
+    class ResettableDetector(ScriptedDetector):
+        resets: int = 0
+
+        def reset(self) -> None:
+            self.resets += 1
+
+    detector = ResettableDetector([{"swarm_hold": 0.9}] * 4)
+    branch_a = BranchA(detector, threshold=0.5)
+    assert branch_a.poll(None) is not None
+    assert branch_a.poll(None) is None          # same phrase, inside the refractory
+    branch_a.reset()
+    assert detector.resets == 1
+    assert branch_a.poll(None) is not None      # a new trial fires at once
+
+
+def test_reset_tolerates_a_detector_without_one() -> None:
+    BranchA(FakeDetector({})).reset()

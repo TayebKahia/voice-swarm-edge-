@@ -205,3 +205,41 @@ def test_on_utterance_publishes_nothing_when_the_decode_is_aborted(bus: CommandB
 
     assert runtime.on_utterance(Path("unused.wav")) is None
     assert bus.recv(timeout=0.05) is None
+
+
+# --------------------------------------------------------------------------
+# PipelineRuntime.process -- the stage timings Exp-2 reports (NFR-3)
+
+
+def test_process_times_every_stage_and_publishes(bus: CommandBus, monkeypatch: pytest.MonkeyPatch) -> None:
+    seen = {}
+
+    def fake_transcribe(path: Path, **kwargs: object) -> str:
+        seen.update(kwargs)
+        return "hold position"
+
+    monkeypatch.setattr("runtime.pipeline.transcribe_utterance", fake_transcribe)
+    parser = FakeParser(result=ParseResult(raw='{"intent":"hover"}', prefill_ms=12.0, decode_ms=34.0))
+    runtime = PipelineRuntime(bus=bus, branch_a=BranchA(FakeWakeDetector({})), parser=parser)
+
+    trace = runtime.process(Path("unused.wav"))
+
+    assert seen == {"threads": 3}                  # Table 7: -t 3 on cores 1-3
+    assert trace.transcript == "hold position"
+    assert trace.raw == '{"intent":"hover"}'
+    assert (trace.prefill_ms, trace.decode_ms) == (12.0, 34.0)
+    assert not trace.aborted
+    assert trace.message is not None and trace.message.seq == trace.seq
+    assert trace.t_start <= trace.t_transcribed <= trace.t_parsed <= trace.t_published
+    assert trace.stt_ms >= 0 and trace.parse_wall_ms >= 0 and trace.validate_ms >= 0
+
+
+def test_process_records_an_aborted_decode(bus: CommandBus, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr("runtime.pipeline.transcribe_utterance", lambda path, **_: "irrelevant")
+    runtime = PipelineRuntime(bus=bus, branch_a=BranchA(FakeWakeDetector({})), parser=FakeParser(result=None))
+
+    trace = runtime.process(Path("unused.wav"))
+
+    assert trace.aborted and trace.message is None and trace.raw is None
+    assert trace.t_published is None
+    assert bus.recv(timeout=0.05) is None

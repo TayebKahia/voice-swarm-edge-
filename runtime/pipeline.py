@@ -15,13 +15,16 @@ meet -- the bus.
 
 Endpointing now exists (`runtime/vad.py`: stream in, `Utterance` with its T0
 out, and `Utterance.to_wav` for this module's WAV entry point), and so does the
-trained spotter (`runtime.branch_a.load_trained`). Microphone capture
-(Table 4's `runtime/audio.py`) and the loop that drives both branches from one
-stream are not built yet; until they are, `on_utterance` still takes a WAV path.
+trained spotter (`runtime.branch_a.load_trained`), and so does the loop that
+drives both branches from one frame stream (`runtime/stream.py`), which hands
+each endpointed utterance to `process()` as a WAV. Microphone capture (Table 4's
+`runtime/audio.py`) is not built yet; it plugs into that loop as a frame source.
 """
 
 from __future__ import annotations
 
+import time
+from dataclasses import dataclass
 from pathlib import Path
 
 from schema.logger import get_structured_logger
@@ -34,7 +37,7 @@ from runtime.bus import BusMessage, CommandBus
 from runtime.parser import CommandParser, ParseAborted
 from runtime.stt import transcribe_utterance
 
-__all__ = ["Dispatcher", "PipelineRuntime"]
+__all__ = ["BranchBTrace", "Dispatcher", "PipelineRuntime"]
 
 logger = get_structured_logger("runtime.pipeline")
 
@@ -100,6 +103,46 @@ class Dispatcher:
         return applied
 
 
+@dataclass(frozen=True)
+class BranchBTrace:
+    """One utterance through Branch B, with the stage timings NFR-3 reports.
+
+    Timestamps are `time.monotonic()`, the clock `CommandBus.publish` stamps
+    `t_publish` with, so Exp-2 can difference them against the bus and against
+    the stream's T0. `prefill_ms`/`decode_ms` are llama-server's own timings;
+    `parse_wall_ms` is the whole request as this process saw it, so the
+    difference is the HTTP template/tokenize overhead Table 6 has no row for.
+    """
+
+    seq: int
+    transcript: str
+    raw: str | None
+    message: BusMessage | None
+    t_start: float
+    t_transcribed: float
+    t_parsed: float
+    t_published: float | None
+    prefill_ms: float = 0.0
+    decode_ms: float = 0.0
+
+    @property
+    def aborted(self) -> bool:
+        return self.raw is None
+
+    @property
+    def stt_ms(self) -> float:
+        return (self.t_transcribed - self.t_start) * 1000
+
+    @property
+    def parse_wall_ms(self) -> float:
+        return (self.t_parsed - self.t_transcribed) * 1000
+
+    @property
+    def validate_ms(self) -> float:
+        """Validate plus bus publish -- Table 6's last row, less the FSM check."""
+        return 0.0 if self.t_published is None else (self.t_published - self.t_parsed) * 1000
+
+
 class PipelineRuntime:
     """The two publishing paths, wired against one bus and one parser.
 
@@ -112,12 +155,19 @@ class PipelineRuntime:
     does not require it to -- the correctness guarantee is the sequence
     number on whatever Branch A already published, not the absence of a
     Branch B message.
+
+    `stt_threads` defaults to Table 7's three: STT and the SLM share cores 1-3
+    and are never concurrent. (`data/asr.py` defaults to four for the offline
+    corpus on the workstation; thread count changes wall-clock, not output.)
     """
 
-    def __init__(self, *, bus: CommandBus, branch_a: BranchA, parser: CommandParser) -> None:
+    def __init__(
+        self, *, bus: CommandBus, branch_a: BranchA, parser: CommandParser, stt_threads: int = 3
+    ) -> None:
         self.bus = bus
         self.branch_a = branch_a
         self.parser = parser
+        self.stt_threads = stt_threads
 
     def on_wake_frame(self, frame: object) -> BusMessage | None:
         command = self.branch_a.poll(frame)
@@ -127,11 +177,17 @@ class PipelineRuntime:
         return self.bus.publish("A", command)
 
     def on_utterance(self, audio_path: Path) -> BusMessage | None:
+        return self.process(audio_path).message
+
+    def process(self, audio_path: Path) -> BranchBTrace:
+        """`on_utterance`, keeping the per-stage timings (NFR-3, Table 6)."""
         # Reserved *before* transcription/decode starts, not at publish time
         # (see `CommandBus.next_seq`) -- Sec. 4.3's ordering rule depends on a
         # slow, later-preempted decode still carrying the older number.
+        t_start = time.monotonic()
         seq = self.bus.next_seq()
-        transcript = transcribe_utterance(audio_path)
+        transcript = transcribe_utterance(audio_path, threads=self.stt_threads)
+        t_transcribed = time.monotonic()
         try:
             result = self.parser.parse(transcript)
         except ParseAborted:
@@ -139,6 +195,11 @@ class PipelineRuntime:
                 "Branch B utterance produced no command",
                 extra={"event": "branch_b_no_command", "audio_path": str(audio_path)},
             )
-            return None
+            return BranchBTrace(seq, transcript, None, None, t_start, t_transcribed, time.monotonic(), None)
+        t_parsed = time.monotonic()
         command = validate(result.raw)
-        return self.bus.publish("B", command, seq=seq)
+        message = self.bus.publish("B", command, seq=seq)
+        return BranchBTrace(
+            seq, transcript, result.raw, message, t_start, t_transcribed, t_parsed, time.monotonic(),
+            prefill_ms=result.prefill_ms, decode_ms=result.decode_ms,
+        )

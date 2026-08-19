@@ -129,6 +129,21 @@ class BranchA:
             return None
         return _build_command(KEYWORD_TO_INTENT[best_class])
 
+    def reset(self) -> None:
+        """Forget every refractory window and clear the spotter's own state.
+
+        For a harness that runs independent trials through one loaded model
+        (Exp-2): without it a trial inherits the previous take's debounce and
+        feature buffer. `openwakeword.Model.reset()` primes that buffer with
+        unseeded `np.random` noise, so a caller that wants the scores
+        `train_wake.py` reports seeds numpy first, as `stream_scores` does.
+        """
+        self._frame = 0
+        self._last_above = {c: None for c in BRANCH_A_CLASSES}
+        reset = getattr(self._detector, "reset", None)
+        if reset is not None:
+            reset()
+
 
 def load_trained(model_dir: Path = MODEL_DIR) -> BranchA:
     """`BranchA` over the trained heads, at the operating point `train_wake.py` declared.
