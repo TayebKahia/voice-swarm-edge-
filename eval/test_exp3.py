@@ -95,3 +95,23 @@ def test_endpoint_feeds_80_ms_chunks_and_closes_with_silence() -> None:
     assert endpoint(audio, fake) == ["segment"]
     assert {c.size for c in fake.fed[:-1]} == {1280}
     assert sum(c.size for c in fake.fed) == 16_000 + 24_000  # + TAIL_S of zeros
+
+
+def _row(segments: list[dict], reference: str = "hover now", gold: str = '{"intent":"hover"}') -> dict:
+    return {"reference": reference, "gold": gold, "segments": segments}
+
+
+def test_failure_causes_are_claimed_in_order() -> None:
+    from eval.exp3 import CAUSES, failure_cause
+
+    split = [{"transcript": "hover", "canonical": '{"intent":"hover"}'}] * 2
+    # The parser's own error is claimed first, even for a split item.
+    assert failure_cause(_row(split), text_correct=False) == CAUSES[0]
+    assert failure_cause(_row([]), text_correct=True) == CAUSES[1]
+    assert failure_cause(_row(split), text_correct=True) == CAUSES[2]
+    perfect = [{"transcript": "Hover, now.", "canonical": '{"intent":"land"}'}]
+    assert failure_cause(_row(perfect), text_correct=True) == CAUSES[3]
+    misheard = [{"transcript": "hover cow", "canonical": '{"intent":"land"}'}]
+    assert failure_cause(_row(misheard), text_correct=True) == CAUSES[4]
+    slot = [{"transcript": "hover cow", "canonical": '{"intent":"hover","ids":[1]}'}]
+    assert failure_cause(_row(slot), text_correct=True) == CAUSES[5]

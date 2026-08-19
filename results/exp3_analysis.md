@@ -71,4 +71,16 @@ Where the failures come from. A failed single-segment item is an ASR or parser e
 | 10 dB | 82 | 61 | 21 | 21/21 |
 | 5 dB | 101 | 84 | 17 | 17/17 |
 
+### Error analysis: one cause per failed item
+
+Causes are assigned in the order of the columns (`eval/exp3.py:CAUSES`), so every failure is counted once. 'ASR error' means the transcript differs from the reference after `eval/norm.py` normalisation.
+
+| Condition | failed | parser wrong on reference text | no segment | split by endpointer | perfect transcript, parser wrong | ASR error, wrong intent | ASR error, right intent, wrong slot |
+| :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| clean | 62 | 12 | 0 | 22 | 0 | 5 | 23 |
+| 20 dB | 65 | 12 | 0 | 22 | 1 | 4 | 26 |
+| 15 dB | 70 | 12 | 0 | 21 | 1 | 7 | 29 |
+| 10 dB | 82 | 12 | 0 | 20 | 1 | 19 | 30 |
+| 5 dB | 101 | 12 | 0 | 16 | 0 | 21 | 52 |
+
 CRR of record is 'every segment': a split utterance is recognised only if every command it dispatched was correct. Items with no segment dispatched nothing and are counted as safe failures.

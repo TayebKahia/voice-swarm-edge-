@@ -119,6 +119,38 @@ def outcome(segments: Sequence[dict]) -> Outcome:
     )
 
 
+#: Each failed item gets exactly one cause, tried in this order. The order is the
+#: argument: an item the parser already gets wrong from the reference text is not
+#: evidence against the speech stage, and a split item cannot be blamed on whisper
+#: alone, so both are claimed before any ASR cause is considered.
+CAUSES: tuple[str, ...] = (
+    "parser wrong on reference text",
+    "no segment",
+    "split by endpointer",
+    "perfect transcript, parser wrong",
+    "ASR error, wrong intent",
+    "ASR error, right intent, wrong slot",
+)
+
+
+def failure_cause(row: dict, text_correct: bool) -> str:
+    """Why one failed item failed. `row` is an audio-condition row; the caller has
+    already established it is not correct under the rule of record."""
+    segments = row["segments"]
+    if not text_correct:
+        return CAUSES[0]
+    if not segments:
+        return CAUSES[1]
+    if len(segments) > 1:
+        return CAUSES[2]
+    if edits(row["reference"], segments[0]["transcript"]).total == 0:
+        return CAUSES[3]
+    predicted = json.loads(segments[0]["canonical"])["intent"] if segments[0]["canonical"] else None
+    if predicted != json.loads(row["gold"])["intent"]:
+        return CAUSES[4]
+    return CAUSES[5]
+
+
 def score_segment(raw: str, gold: str) -> dict:
     """The single comparator (eval/metrics.py -> schema/canon.py), one segment."""
     (prediction,) = score_predictions([raw], [gold])
@@ -340,7 +372,7 @@ def _label(condition: str) -> str:
 
 
 def analysis_markdown(summaries: Sequence[dict], by_condition: dict[str, list[dict]],
-                      mismatches: list[str]) -> str:
+                      mismatches: list[str], em_correct: dict[str, bool]) -> str:
     conditions = [s["condition"] for s in summaries]
     ids = [r["id"] for r in by_condition[conditions[0]]]
     matrix = np.array([[outcome(next(r for r in by_condition[c] if r["id"] == i)["segments"]).correct
@@ -437,6 +469,21 @@ def analysis_markdown(summaries: Sequence[dict], by_condition: dict[str, list[di
         n_split = sum(o.n_segments > 1 for o in scored)
         lines.append(f"| {_label(c)} | {len(failed)} | {len(failed) - split_failed} "
                      f"| {split_failed} | {split_failed}/{n_split} |")
+    lines += ["", "### Error analysis: one cause per failed item", "",
+              "Causes are assigned in the order of the columns (`eval/exp3.py:CAUSES`), so "
+              "every failure is counted once. 'ASR error' means the transcript differs from "
+              "the reference after `eval/norm.py` normalisation.", "",
+              "| Condition | failed | " + " | ".join(CAUSES) + " |",
+              "| :--- | ---: | " + " | ".join("---:" for _ in CAUSES) + " |"]
+    for c in conditions:
+        counts = dict.fromkeys(CAUSES, 0)
+        failed = 0
+        for r in by_condition[c]:
+            if outcome(r["segments"]).correct:
+                continue
+            failed += 1
+            counts[failure_cause(r, em_correct[r["id"]])] += 1
+        lines.append(f"| {_label(c)} | {failed} | " + " | ".join(str(counts[k]) for k in CAUSES) + " |")
     lines += ["", "CRR of record is 'every segment': a split utterance is recognised only if "
               "every command it dispatched was correct. Items with no segment dispatched "
               "nothing and are counted as safe failures.", ""]
@@ -482,7 +529,8 @@ def analyse(preds: Path) -> int:
         writer.writeheader()
         for s in summaries:
             writer.writerow({k: _csv_value(v) for k, v in s.items()})
-    analysis_out.write_text(analysis_markdown(summaries, by_condition, mismatches), encoding="utf-8")
+    analysis_out.write_text(analysis_markdown(summaries, by_condition, mismatches, em_correct),
+                            encoding="utf-8")
 
     print(f"wrote {csv_out} and {analysis_out}")
     print(f"provenance: {'text condition == Surface B on every item' if not mismatches else f'{len(mismatches)} MISMATCH(ES) vs Surface B'}")
