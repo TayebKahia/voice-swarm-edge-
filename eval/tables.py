@@ -54,6 +54,7 @@ RESULTS = REPO / "results"
 #: Exp-3's per-SNR summary, written by `eval/exp3.py` from its per-item files. Accuracy
 #: is the workstation's (A7a); the E2E columns stay empty until the Pi run (A7b) fills them.
 EXP3 = REPO / "results" / "exp3.csv"
+EXP2 = REPO / "results" / "exp2.csv"
 
 SPLITS = ("test_synth", "test_golden", "test_ood")
 #: The headline split for Table 18. The golden set is real recorded speech through the real
@@ -304,6 +305,64 @@ def table20(exp3: list[dict]) -> str:
         verdict("NFR-9 safe-failure", worst, NFR9_SAFE_FAILURE, "lowest across SNR"),
         "Tests across SNR, the operational envelope and the segmentation breakdown:",
         "`results/exp3_analysis.md`.",
+    ]
+    return "\n".join(lines) + "\n"
+
+
+#: Which Table 6 line each Exp-2 measure is judged against, in Table 6's order.
+_BUDGET_LINES = (
+    ("vad_wait", "branch_b", "VAD endpointing wait"),
+    ("stt", "branch_b", "STT (whisper tiny.en, -t 3)"),
+    ("prefill", "branch_b", "SLM prefill"),
+    ("decode", "branch_b", "SLM decode"),
+    ("validate_fsm", "branch_b", "Validate, FSM check, dispatch"),
+    ("e2e_t0", "branch_b", "**E2E from end of speech (T0; NFR-2)**"),
+    ("e2e_speech_end", "branch_b", "E2E incl. the VAD wait"),
+    ("e2e_speech_start", "branch_b", "E2E from start of speech"),
+    ("a_offset", "idle", "**Branch A from keyword offset, idle (NFR-1)**"),
+    ("a_algorithmic", "idle", "of which spotter delay + frame quantisation"),
+    ("a_system", "idle", "of which Pi compute + publish"),
+    ("a_offset", "loaded", "**Branch A from keyword offset, loaded (NFR-1)**"),
+    ("a_algorithmic", "loaded", "of which spotter delay + frame quantisation"),
+    ("a_system", "loaded", "of which Pi compute + publish"),
+    ("a_onset", "idle", "Branch A from keyword onset, idle"),
+    ("a_onset", "loaded", "Branch A from keyword onset, loaded"),
+    ("recovery", "loaded", "Pre-emption recovery (NFR-17)"),
+)
+
+
+def latency_budget(exp2: list[dict]) -> str:
+    """Table 6 against Exp-2's measured p95s on the Pi (NFR-1, NFR-2, NFR-3, NFR-17)."""
+    by = {(r["measure"], r["condition"]): r for r in exp2}
+
+    def ms(value: str) -> str:
+        return "--" if value in ("", None) else f"{float(value):,.0f}"
+
+    lines = [
+        "### Latency budget versus measured (Exp-2)",
+        "",
+        "Raspberry Pi 5, cooled, governor `performance`, Table 7 pinning (frame loop core 0;",
+        "STT and SLM cores 1-3). Real-time WAV replay: Branch B on the 200 golden utterances",
+        "(clean), one sample per endpointed segment; Branch A on the author's 40 real takes,",
+        "twice, idle and during a Branch B decode. Nearest-rank percentiles; the verdict is on",
+        "the p95. The bus is loopback on the Pi (the Wi-Fi hop is outside the budget, prd 4.7).",
+        "",
+        "| Stage | n | p50 | p95 | p99 | Target p95 | Verdict |",
+        "| :--- | ---: | ---: | ---: | ---: | ---: | :--- |",
+    ]
+    for measure, condition, label in _BUDGET_LINES:
+        row = by.get((measure, condition))
+        if row is None:
+            continue
+        target = row["budget_p95_ms"]
+        lines.append(f"| {label} | {row['n']} | {ms(row['p50'])} | {ms(row['p95'])} | {ms(row['p99'])} "
+                     f"| {ms(target) if target else '--'} | {row['verdict'] or '--'} |")
+    lines += [
+        "",
+        "Prefill is the deployed parser's, with the prompt cache off (Surface B parity); Table 6's",
+        "line assumes a cached prefix. Start-of-speech has no verdict: its 5,500 ms target is for a",
+        "3 s utterance. Split rate, cross-trigger matrix, pre-emption outcomes and the core-0 frame",
+        "budget: `results/exp2_analysis.md`.",
     ]
     return "\n".join(lines) + "\n"
 
@@ -653,6 +712,7 @@ _TABLES = (
     ("table33_iso_parameter", "tab:iso-parameter", r"\footnotesize", 5, False),
     ("thermal_headroom", "tab:thermal-headroom", r"\scriptsize", 3, True),
     ("table20_end_to_end", "tab:end-to-end", r"\scriptsize", 3, False),
+    ("exp2_latency_budget", "tab:latency-budget", r"\footnotesize", 4, False),
 )
 
 #: Rendered to LaTeX here but computed elsewhere: `eval/exp0.py` owns Table 16 and writes
@@ -679,6 +739,10 @@ def run() -> int:
         rendered["table20_end_to_end"] = table20(_rows(EXP3))
     else:
         print("  skipped table20_end_to_end: results/exp3.csv not written yet (eval/exp3.py)")
+    if EXP2.is_file():
+        rendered["exp2_latency_budget"] = latency_budget(_rows(EXP2))
+    else:
+        print("  skipped exp2_latency_budget: results/exp2.csv not written yet (eval/exp2.py, Pi)")
     written = []
     for stem, text in rendered.items():
         (RESULTS / f"{stem}.md").write_text(text, encoding="utf-8")

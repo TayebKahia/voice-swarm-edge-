@@ -1,0 +1,44 @@
+{
+  "host": "drone-pi",
+  "governor": "performance",
+  "started": "2026-09-23T15:34:29+0100",
+  "llama_server_affinity": [
+    "1-3"
+  ],
+  "passes": 2,
+  "limit": null,
+  "warmup_s": 300.0,
+  "main_affinity": [
+    0
+  ],
+  "soc_after_warmup": {
+    "temp": 73.0,
+    "throttled": "0x0",
+    "freq_khz": "2400000"
+  },
+  "loader_requests": 530,
+  "loader_affinity": [
+    1,
+    2,
+    3
+  ],
+  "loaded_seconds": 632.8,
+  "loaded_soc_end": {
+    "temp": 74.1,
+    "throttled": "0x0",
+    "freq_khz": "2400000"
+  },
+  "branch_b_seconds": 1633.8,
+  "branch_b_soc_end": {
+    "temp": 57.6,
+    "throttled": "0x0",
+    "freq_khz": "2400000"
+  },
+  "idle_seconds": 318.3,
+  "idle_soc_end": {
+    "temp": 52.1,
+    "throttled": "0x0",
+    "freq_khz": "2400000"
+  },
+  "ended": "2026-09-23T16:17:35+0100"
+}

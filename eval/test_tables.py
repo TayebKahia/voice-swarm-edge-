@@ -212,3 +212,24 @@ def test_list_of_tables_gets_the_heading_and_the_number_is_not_doubled():
     tex = markdown_to_latex("### Table 16: Short title\n\n| a | b |\n| :--- | ---: |\n| x | 1 |\n", "tab:x")
     assert r"\caption[Short title]{Short title}" in tex
     assert "Table 16" not in tex
+
+
+def test_latency_budget_judges_each_measure_against_its_table_6_line():
+    from eval.tables import latency_budget, markdown_to_latex
+
+    rows = [
+        {"measure": "e2e_t0", "condition": "branch_b", "n": "300", "p50": "2100.4", "p95": "3121.5",
+         "p99": "3500", "budget_p95_ms": "2500", "verdict": "MISSES"},
+        {"measure": "a_offset", "condition": "loaded", "n": "78", "p50": "140", "p95": "149.9",
+         "p99": "200", "budget_p95_ms": "150", "verdict": "MEETS"},
+        {"measure": "e2e_speech_start", "condition": "branch_b", "n": "300", "p50": "4000",
+         "p95": "9000", "p99": "10000", "budget_p95_ms": "", "verdict": ""},
+        {"measure": "queue", "condition": "branch_b", "n": "300", "p50": "1", "p95": "2",
+         "p99": "3", "budget_p95_ms": "", "verdict": ""},
+    ]
+    text = latency_budget(rows)
+    assert "| **E2E from end of speech (T0; NFR-2)** | 300 | 2,100 | 3,122 | 3,500 | 2,500 | MISSES |" in text
+    assert "| **Branch A from keyword offset, loaded (NFR-1)** | 78 | 140 | 150 | 200 | 150 | MEETS |" in text
+    assert "| E2E from start of speech | 300 | 4,000 | 9,000 | 10,000 | -- | -- |" in text
+    assert "queue" not in text.split("| Stage")[1]      # diagnostic rows stay in the analysis
+    assert r"\label{tab:latency-budget}" in markdown_to_latex(text, "tab:latency-budget")
