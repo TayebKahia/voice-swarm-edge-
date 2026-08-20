@@ -1471,3 +1471,43 @@ Test suite: 807 passed.
 
 Stopped here. Next: **A6, Exp-2 on the Pi** (runtime/stream.py first, tests first). That is the
 only remaining gap that leaves an RQ (RQ2) unanswered. A7b only if Pi time remains.
+
+## Exp-2 RESULT -- dual-path latency on the Pi (Wed 23 Sep, A6)
+
+302d6a8 `runtime/stream.py` (one 80 ms frame loop, Branch A + endpointer on core 0,
+Branch B worker on cores 1-3, swappable frame source for A11). 19119f0 `eval/exp2.py` + the
+run of record: `results/exp2.csv`, `results/exp2_analysis.md`, `results/exp2_raw/`,
+Table `thesis/generated/exp2_latency_budget.tex` (`tab:latency-budget`). Pi cooled,
+governor performance, 0/360 trials throttled, 50-78 C, affinity verified per thread.
+Pi setup: whisper.cpp rebuilt at the workstation's commit 52a939a in `~/whisper.cpp-52a939a`
+(run with `WHISPER_CPP_DIR`), same ggml-tiny.en.bin (sha256 921e4cf8...); venv `~/pfe_venv`
+pinned to the workstation's versions.
+
+| requirement | measured p95 | target | verdict |
+| :--- | ---: | ---: | :--- |
+| NFR-2 E2E from T0 (n=226 segments) | 3,122 ms | 2,500 | **MISSES** |
+| -- STT / prefill / decode / VAD wait / validate+FSM | 1,449 / 751 / 915 / 480 / <1 | 1,200 / 250 / 1,100 / 500 / 50 | miss / miss / meet / meet / meet |
+| NFR-1 Branch A from offset, idle / loaded (n=78) | 545 / 547 ms | 150 | **MISSES** |
+| -- of which spotter + quantisation / Pi compute | 540 / 6 (idle), 18 (loaded) | -- | -- |
+| NFR-17 recovery (n=78) | 1,195 ms | 300 | **MISSES** |
+
+- **Where the misses are.** NFR-1: the spotter's own delay (hardware-independent), not the Pi;
+  load adds ~12 ms, so Table 7's isolation works. NFR-2: STT and uncached prefill. NFR-17:
+  llama-server only notices a closed connection once per second (HTTP_POLLING_SECONDS=1).
+- **Selection rule (prd line 633): Qwen2.5-0.5B Q4_K_M does NOT satisfy NFR-2 end to end.**
+  It was the only configuration measured end to end; smollm2's SLM stages are ~180 ms
+  faster (Exp-1), not enough to close a 622 ms gap, but that is inference, not measurement.
+  The prd's own clause applies: the rule "fails loudly" and NFR-2 is re-baselined against
+  the measured figure, with the re-baselining reported. **DECISION FOR THE AUTHOR (and
+  supervisor): accept the re-baseline to the measured 3.1 s, stated as such.**
+- FR-6: 78/78 triggers hit an in-flight decode, 78 aborted, 0 late results.
+- Cross-trigger 0/160. Hold misses 2/80 (w03 twice). One Branch A false accept on the
+  golden set (0158, "hover", fail-safe).
+- VAD split rate on the Pi: 23/200 = 11.5% (the workstation diagnostic said 10.5%).
+- **For A7b:** Pi clean CRR 138/200 = 0.690, the same as A7a, but 4 transcripts and 5 raw
+  outputs differ (`results/exp2_preds/clean.jsonl` vs `results/exp3_preds/clean.jsonl`).
+  Accuracy is therefore not bit-identical across hardware; A7b owns that finding.
+- Not measured: Wi-Fi hop (prd 4.7), live capture latency (A11). Prefill ran with the
+  prompt cache off, as deployed; Table 6's line assumes it on.
+
+Stopped here. Next: A7b (Exp-3 on the Pi), if Pi time remains before Thu 12:00; else B10.
