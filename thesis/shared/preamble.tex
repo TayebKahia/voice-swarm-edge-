@@ -169,7 +169,7 @@
 \newcommand{\sectionbreak}{%
   \keepsec@close
   \stepcounter{keepsec}%
-  \ifkeepsec@skip\global\keepsec@skipfalse\else\ifnum\value{section}>0
+  \ifkeepsec@skip\global\keepsec@skipfalse\else\ifnum\value{section}>1
     \keepsec@measure{\the\c@keepsec}%
     \ifdim\pagegoal<\maxdimen
       \ifdim\keepsec@len>\z@\ifdim\keepsec@len<\textheight

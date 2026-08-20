@@ -3,42 +3,45 @@
 %  \input AFTER \begin{document} (see shared/preamble.tex for why \include in
 %  the preamble is wrong). \makeglossaries is already called in the preamble.
 %
-%  Use \gls{key} for "SLM" after first use, \acrfull{key} for the long form.
+%  Use \gls{key} everywhere, first use included: the first \gls prints "long (SHORT)"
+%  and marks the entry used, later ones print "SHORT". Do NOT use \acrfull for a
+%  first use -- it prints the long form without marking the entry, so the next
+%  \gls expands it a second time.
 %  Every acronym below is one that actually appears in a written chapter --
 %  do not pad this list with terms the documents never use.
 % =============================================================================
 
 % -- Models and inference -----------------------------------------------------
-\newacronym{slm}{SLM}{Small Language Model}
-\newacronym{llm}{LLM}{Large Language Model}
-\newacronym{lora}{LoRA}{Low-Rank Adaptation}
+\newacronym{slm}{SLM}{small language model}
+\newacronym{llm}{LLM}{large language model}
+\newacronym{lora}{LoRA}{low-rank adaptation}
 \newacronym{ggml}{GGML}{Georgi Gerganov Machine Learning (tensor library)}
-\newacronym{gguf}{GGUF}{GGML Universal File (quantised weight format)}
-\newacronym{bnf}{BNF}{Backus--Naur Form}
-\newacronym{gbnf}{GBNF}{GGML Backus--Naur Form (grammar format)}
+\newacronym{gguf}{GGUF}{GGML Universal File}
+\newacronym{bnf}{BNF}{Backus--Naur form}
+\newacronym{gbnf}{GBNF}{GGML Backus--Naur form}
 
 % -- Speech and audio ---------------------------------------------------------
-\newacronym{stt}{STT}{Speech To Text}
-\newacronym{tts}{TTS}{Text To Speech}
-\newacronym{vad}{VAD}{Voice Activity Detection}
-\newacronym{wer}{WER}{Word Error Rate}
-\newacronym{snr}{SNR}{Signal-to-Noise Ratio}
-\newacronym{rms}{RMS}{Root Mean Square}
+\newacronym{stt}{STT}{speech-to-text}
+\newacronym{tts}{TTS}{text-to-speech}
+\newacronym{vad}{VAD}{voice activity detection}
+\newacronym{wer}{WER}{word error rate}
+\newacronym{snr}{SNR}{signal-to-noise ratio}
+\newacronym{rms}{RMS}{root mean square}
 
 % -- Hardware -----------------------------------------------------------------
-\newacronym{sbc}{SBC}{Single-Board Computer}
-\newacronym{cpu}{CPU}{Central Processing Unit}
-\newacronym{gpu}{GPU}{Graphics Processing Unit}
-\newacronym{uav}{UAV}{Unmanned Aerial Vehicle}
-\newacronym{pid}{PID}{Proportional-Integral-Derivative (controller)}
+\newacronym{sbc}{SBC}{single-board computer}
+\newacronym{cpu}{CPU}{central processing unit}
+\newacronym{gpu}{GPU}{graphics processing unit}
+\newacronym{uav}{UAV}{unmanned aerial vehicle}
+\newacronym{pid}{PID}{proportional-integral-derivative (controller)}
 
 % -- Requirements and evaluation ----------------------------------------------
-\newacronym{fr}{FR}{Functional Requirement}
-\newacronym{nfr}{NFR}{Non-Functional Requirement}
-\newacronym{em}{EM}{Exact Match}
-\newacronym{crr}{CRR}{Command Recognition Rate}
-\newacronym{fa}{FA}{False Acceptance}
-\newacronym{roc}{ROC}{Receiver Operating Characteristic}
+\newacronym{fr}{FR}{functional requirement}
+\newacronym{nfr}{NFR}{non-functional requirement}
+\newacronym{em}{EM}{exact match}
+\newacronym{crr}{CRR}{command recognition rate}
+\newacronym{fa}{FA}{false acceptance}
+\newacronym{roc}{ROC}{receiver operating characteristic}
 
 % -- Formats ------------------------------------------------------------------
 \newacronym{json}{JSON}{JavaScript Object Notation}

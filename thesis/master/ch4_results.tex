@@ -23,7 +23,7 @@ prose are taken from those tables and CSVs, and each was checked back against it
 \label{sec:exp0}
 
 The acoustic front end is a source of error that Exp-1 cannot see, and Exp-0 measures how large it
-is before any language model is involved. Table~\ref{tab:asr-sensitivity} reports \acrfull{wer} for
+is before any language model is involved. Table~\ref{tab:asr-sensitivity} reports \gls{wer} for
 \texttt{whisper.cpp tiny.en}~\cite{whispercpp} on 300 validated Common Voice English
 clips~\cite{commonvoice}, bucketed by the accent metadata the corpus carries, alongside the
 author's 200 recorded drone commands.
@@ -58,14 +58,14 @@ benefit.
 receive in flight, and Exp-1 does not receive it. The exact-match figures that follow are therefore
 ceilings. Quantifying the drop from ceiling to floor requires running the full pipeline on audio at
 graded signal-to-noise ratios, which is Exp-3; the difference between exact match here and
-\acrfull{crr} there is defined in Chapter~\ref{chap:method} precisely so that the \acrshort{stt}
+\gls{crr} there is defined in Chapter~\ref{chap:method} precisely so that the \acrshort{stt}
 cost can be read off as a single subtraction once that experiment exists.
 
 \section{The multi-model benchmark}
 \label{sec:exp1}
 
 Table~\ref{tab:model-comparison} is the central measurement of this document: three fine-tuned
-\acrfullpl{slm} at Q4\_K\_M and Q8\_0, decoded under the \acrfull{gbnf} constraint by
+\glspl{slm} at Q4\_K\_M and Q8\_0, decoded under the \gls{gbnf} constraint by
 \texttt{llama.cpp}~\cite{llamacpp}, scored on three splits, with the Pi-side timing joined on.
 
 \input{generated/table17_model_comparison}
@@ -108,7 +108,7 @@ cooler was 25.1\% to 41.3\% of decode p95 and 35.2\% to 68.5\% of throughput, la
 smallest model. The throttled run held 1.5~GHz against 2.4~GHz, a 1.6$\times$ clock ratio, and
 SmolLM2-360M's throughput gain of 1.69$\times$ exceeds it: the core clock alone does not account
 for the difference, and this pair of runs does not identify the remaining term. For a
-\acrfull{sbc} deployment the operational reading is direct: on this class of hardware the
+\gls{sbc} deployment the operational reading is direct: on this class of hardware the
 enclosure is a term in the latency budget, and a throughput figure quoted without its thermal
 state is not reproducible.
 
@@ -196,7 +196,7 @@ prompted.
 \label{sec:quantisation-delta}
 
 Table~\ref{tab:quantisation-delta} reports contribution C3: the accuracy difference between the
-FP16 model on the workstation and the quantised \acrfull{gguf} artefact decoded under the grammar,
+FP16 model on the workstation and the quantised \gls{gguf} artefact decoded under the grammar,
 on the golden split.
 
 \input{generated/table18_quantisation_delta}

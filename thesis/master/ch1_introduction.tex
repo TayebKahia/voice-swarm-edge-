@@ -1,62 +1,90 @@
 \chapter{Introduction}
+\label{chap:introduction}
+
+This chapter states the problem this document addresses, the research question it answers, and
+the three contributions it makes, and closes with the structure of the chapters that follow.
 
 \section{The edge-inference problem}
 A drone that answers to spoken commands is only as autonomous as its network connection allows it
 to be, unless the language model that turns speech into a command lives on the aircraft itself.
-This work fixes that constraint at the outset: every stage of command parsing, from the transcript
-to the validated structured command, runs on a Raspberry Pi 5, with no network access at any point
-in the pipeline. Removing the network removes cloud latency and removes a channel by which data
-could leave the aircraft, but it also removes the option of falling back on a large model when a
-small one struggles. The inference budget has to be closed entirely on CPU-only edge hardware,
-against language models whose usual home is a data-centre accelerator.
+This work imposes that constraint at the outset: every stage of command parsing, from the
+transcript to the validated structured command, runs on a Raspberry Pi 5, with no network access
+at any point in the pipeline. Removing the network removes cloud latency and removes a channel by
+which data could leave the aircraft, but it also removes the option of falling back on a large
+model when a small one struggles. The inference budget has to be closed entirely on the
+\gls{cpu} of an edge board, against language models whose usual home is a data-centre
+accelerator.
 
-That difficulty is not unique to this hardware or this task: a recent survey of language-model
-throughput across single-board computers finds a parameter ceiling above which no board in its
-sample serves a model reliably~\cite{sbc2025}, and Chapter~\ref{chap:related-work} takes up that
-literature in full. Here the same constraint is stated for one target device and three candidate
-models, and it is not a matter of degree that can be waved at; it is a margin narrow enough to
-measure. A structured command in this system is short: a 22-token decode is budgeted to complete
-within 1{,}100~ms, which sets a throughput floor of at least 20~tokens per second.
-Measured on that target, restricted to the three threads the production configuration reserves for
-the rest of the pipeline, Qwen2.5-0.5B-Instruct at Q4\_K\_M clears the floor at 27.93~tok/s and
-Llama-3.2-1B-Instruct does not, at 14.53~tok/s (Chapter~\ref{chap:results}). The margin is real but
-it is not a property of the model alone. The same Qwen configuration, on the same board and the
-same three threads, decodes at 18.13~tok/s when the board is left to throttle -- below the floor it
-clears by 40\% once an active cooler holds the clock. A throughput figure on a single-board
-computer is a statement about an enclosure as much as about a model, which is why every timing
-figure in this document is reported with the thermal state it was measured under.
+That difficulty is not unique to this hardware or this task. A recent benchmark of twenty-five
+quantised language models on three \glspl{sbc} finds that such boards reliably support models
+of up to about 1.5~billion parameters, with larger models dropping to a few tokens per
+second~\cite{sbc2025}; Chapter~\ref{chap:related-work} takes up that literature in full. Here the
+same constraint is stated for one target device and three deployment candidates,
+Qwen2.5-0.5B-Instruct, SmolLM2-360M-Instruct and Llama-3.2-1B-Instruct, with a fourth,
+parameter-matched model fine-tuned as a control (Chapter~\ref{chap:method}). On this device the
+constraint takes the form of a measurable throughput margin. A structured command in this system
+is short: a 22-token decode is budgeted to complete within 1{,}100~ms, which sets a throughput
+floor of at least 20~tokens per second.
+Measured on that target, restricted to the three cores the deployed configuration reserves for
+speech recognition and language-model inference, Qwen2.5-0.5B-Instruct at Q4\_K\_M clears the
+floor at 27.93~tok/s and Llama-3.2-1B-Instruct does not, at 14.53~tok/s
+(Chapter~\ref{chap:results}). The margin is real, but it is not a property of the model alone.
+The same Qwen configuration, on the same board and the same three cores, decodes at 18.13~tok/s
+when the board is left to throttle -- below the floor it clears by 40\% once an active cooler
+holds the clock. A throughput figure on an \gls{sbc} is a statement about an enclosure as much as
+about a model, which is why every timing figure in this document is reported with the thermal
+state it was measured under.
 
-That is the edge-inference problem this thesis works inside of: not whether a small language model
-can be made accurate enough for the task, but whether an accurate-enough one can also be made to
-fit, on hardware whose available compute depends on how hot it has been allowed to get.
+This is the edge-inference problem this thesis addresses. The question is not whether a
+\gls{slm} can be made accurate enough for the task, but whether an accurate-enough one can
+also be made to fit on hardware whose available compute depends on its thermal state.
 
 \section{Why structured output matters for robot control}
 Accuracy is not the only property this system needs from its language model, and on its own it is
-not even the useful one. A flight controller downstream does not read prose; it reads a fixed JSON
-schema, and it cannot act on ninety-five percent of a well-formed command. A model that is right
+not even the useful one. A flight controller downstream does not read prose; it reads a fixed
+\gls{json} schema, and it cannot act on a partially well-formed command. A model that is right
 about the intent and the slot values but wrong about the syntax has produced nothing a controller
 can use, so structural correctness has to be treated as a precondition, not as a component folded
 into an accuracy score. That an aggregate accuracy figure can conceal what a model actually does is
-a point the compression literature makes independently: two models scoring alike on a benchmark can
-differ substantially in which individual answers they get right~\cite{dutta2024}.
+a point the compression literature makes independently: a model and its compressed counterpart can
+score alike on a benchmark yet differ substantially in which individual answers they get
+right~\cite{dutta2024}.
 
-Spike S3 gave direct evidence of why this precondition cannot be left to the model's own judgement,
-or to a grammar alone. Prompted zero-shot, without fine-tuning, under the grammar drafted at the
-time, the same Qwen2.5-0.5B-Instruct model reproduced the intent of an emergency abort command
-exactly, but elsewhere degenerated under greedy decoding while every output stayed grammar-valid:
-a collective command such as ``swarm takeoff'' came back addressed to a single drone instead of
-the whole formation -- a semantic error no grammar can reject, since ``which drones'' is a meaning
-question, not a structural one -- and an unbounded repetition rule in that grammar's own
-drone-identifier list, since fixed to a bounded form, let the decoder loop on digits until the
-output was truncated, on commands including ``swarm land''. These are not occasional slips to be tolerated at
-some acceptable rate; a mis-addressed collective command or a truncated identifier list reaching a
-swarm controller unfiltered is a safety failure, not a scoring error. The lesson this motivates is
-a schema-as-contract design: constrain what the model can emit by construction, with a bounded
-grammar and a semantic validator, so that structural validity stops being a property to be
-measured after the fact and becomes a property of the decoder itself. That design is Contribution
-C1, below.
+A preliminary zero-shot run on the target board illustrates why this precondition can be left
+neither to the model alone nor to an under-specified grammar. Qwen2.5-0.5B-Instruct at Q4\_K\_M,
+without fine-tuning, was decoded greedily with a 48-token cap under an early draft of the grammar,
+on five commands. It reproduced the emergency-abort command exactly. It addressed the collective
+command ``swarm takeoff'' to a single drone: a well-formed output with the wrong meaning, since
+which drones a command addresses is a question no grammar can settle. On two commands, including
+``swarm land'', it looped on drone identifiers until the token cap cut the output off, because the
+draft grammar placed no upper bound on the length of the identifier list. The truncated outputs
+failed to parse and resolved to a hover, so the landing was not executed.
+
+Neither failure is an occasional slip to be tolerated at some acceptable rate: a mis-addressed
+collective command moves the wrong aircraft, and a lost landing command leaves the swarm hovering
+when it was told to land. The two failures call for different remedies. The loop is a structural
+defect, and it motivates a schema-as-contract design: a bounded grammar constrains what the model
+can emit by construction, so that structural validity stops being a property measured after the
+fact and becomes a property of the decoder itself. The grammar of Section~\ref{sec:schema} bounds
+the identifier list at five entries, which removes the loop. The mis-addressed command lies beyond
+the reach of any grammar; it is the task of fine-tuning, and it is what the accuracy evaluation
+measures. The first remedy is the first contribution of this document, stated below.
 
 \section{Objectives}
+The system this work belongs to converts spoken English commands into validated structured
+commands for a swarm of five drones, entirely on the Raspberry Pi 5. An operator says, for example,
+``form a circle with radius five metres'': a \gls{stt} model transcribes the utterance, a fine-tuned
+\gls{slm} parses the transcript into a \gls{json} command under the grammar, a validator checks it,
+and the swarm controller executes it. Ten intents cover the vocabulary, from take-off and landing
+to formations and parameter changes. Two safety phrases, ``swarm hold'' and ``swarm abort'', are
+also recognised by a keyword spotter that runs no language model at all. The speech is real,
+recorded through the deployed microphone, but the aircraft are simulated: the controller drives a
+software-in-the-loop simulation of five vehicles, and no physical flight is claimed.
+Reinforcement learning, vision input and languages other than English are outside the scope.
+The work is divided between two theses: this one is the research half, which selects and
+evaluates the language model, and the companion \emph{M\'emoire d'Ing\'enieur} is the
+engineering half, which builds the runtime around it.
+
 This document pursues one research question, stated in full because everything in the chapters
 that follow answers to it:
 
@@ -66,31 +94,34 @@ of 0.36--1.2~B parameters, fine-tuned for drone-swarm command parsing and quanti
 CPU-only execution on a Raspberry Pi 5?
 \end{quote}
 
-The two remaining research questions of the wider project, on pipeline latency and on acoustic
-robustness, are pursued by the companion \emph{M\'emoire d'Ing\'enieur}, which also carries the
-engineering architecture, the runtime implementation, and the live demonstration built on top of
-the model this document selects.
+The two remaining research questions, on pipeline latency and on acoustic robustness and control
+quality, are pursued by the \emph{M\'emoire d'Ing\'enieur}, together with the engineering
+architecture, the runtime implementation, and the live demonstration built on the model this
+document selects.
 
 \section{Contributions}
 Three contributions belong to this document.
 
 \begin{itemize}
-    \item \textbf{C1.} A frozen command schema paired with a matched GBNF (GGML BNF)
-    grammar~\cite{llamacpp} and a two-layer
-    semantic validator, built so that structural validity is a property of the decoder rather than
-    a rate measured against a test set.
+    \item \textbf{C1.} A frozen command schema paired with a matched, bounded \gls{gbnf}
+    grammar~\cite{llamacpp}, built so that structural validity is a property of the decoder
+    rather than a rate measured against a test set. The grammar is the first layer of a
+    three-layer validation stack; the remaining two, a semantic validator and a state machine,
+    are specified in the \emph{M\'emoire d'Ing\'enieur}.
     \item \textbf{C2.} A label-first dataset pipeline, built and run end to end from natural-language
     transcripts to swarm-control primitives, with splits enforced at the template-family level,
-    round-trip audio augmentation, and a dataset card documenting the result. The dataset this
-    pipeline produced is frozen and sealed.
-    \item \textbf{C3.} A quantised-inference harness that measures exact match, intent and slot F1,
-    schema validity, and false-command rate for each fine-tuned model at each quantisation level on
-    the deployed edge hardware, built to make the accuracy cost of quantisation a number measured
-    on this task at this scale rather than one inherited from results obtained on larger models
-    and generic benchmarks. Chapter~\ref{chap:results} presents what it measured.
+    round-trip audio augmentation, and a dataset card documenting the result. The dataset is
+    frozen under a version tag, and its gold labels are sealed under a SHA-256 checksum, so that
+    any later edit is detected rather than trusted not to happen.
+    \item \textbf{C3.} A quantised-inference harness that measures \gls{em}, intent and slot
+    F1, schema validity, and false-command rate for three of the four fine-tuned models at two
+    quantisation levels, with accuracy scored under the deployed runtime and grammar, and
+    throughput timed on the Raspberry Pi 5. It is built to make the accuracy cost of quantisation
+    a number measured on this task at this scale, rather than one inherited from results obtained
+    on larger models and generic benchmarks. Chapter~\ref{chap:results} presents what it measured.
 \end{itemize}
 
-The fourth contribution of the wider project, the dual-path runtime that lets a keyword spotter
+The fourth contribution of the joint work, the dual-path runtime that lets a keyword spotter
 preempt language-model inference for safety-critical commands, belongs to the \emph{M\'emoire
 d'Ing\'enieur}.
 
@@ -99,14 +130,14 @@ The rest of this document has five chapters. Chapter~\ref{chap:related-work} sur
 literature this work builds on and positions it against edge language-model inference, quantisation,
 constrained decoding, and spoken-language understanding for robotics. Chapter~\ref{chap:method}
 sets out the command schema and grammar, the dataset construction, the fine-tuning recipe, the
-quantisation procedure, and the evaluation protocol. Chapter~\ref{chap:results} reports Exp-0,
-Exp-1, the quantisation delta, and the grammar ablation, with the statistical analysis and the
-selection rule applied to them. Chapter~\ref{chap:discussion} discusses the accuracy--efficiency
-trade-off this comparison exposes, the failure modes observed along the way, and the threats to
-the validity of the comparison itself. Chapter~\ref{chap:conclusion} closes with a direct answer
-to RQ1 and the work this comparison leaves for later.
+quantisation procedure, and the evaluation protocol. Chapter~\ref{chap:results} reports the
+speaker-sensitivity experiment, the multi-model benchmark, a parameter-matched control that
+separates model family from model size, the quantisation delta, and the grammar ablation, with
+the statistical analysis and the selection rule applied to them. Chapter~\ref{chap:discussion}
+discusses the accuracy--efficiency trade-off this comparison exposes, the failure modes observed
+along the way, and the threats to the validity of the comparison itself.
+Chapter~\ref{chap:conclusion} closes with a direct answer to RQ1 and the work this comparison
+leaves for later.
 
-The problem, in short, is to close a throughput margin measured in single digits without loosening
-the schema a flight controller has to be able to trust; the chapters that follow report how far
-that margin closes, and what it costs in accuracy to close it.
-
+The chapters that follow measure, for each deployment candidate, the throughput it sustains
+against the 20~tok/s floor under the fixed schema, and the accuracy it retains after quantisation.
