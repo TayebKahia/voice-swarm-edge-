@@ -58,6 +58,47 @@ Every technical paragraph must follow this 3-step rhythm:
   This exact phrasing is locked project-wide for NFR-12 and generalises to every safety or
   correctness claim in either document.
 
+### A Self-Contained Document
+The reader holds only the thesis. They have never seen `prd.md`, `STATE.md`, the sprint plan or
+the spike reports, so the prose may not lean on any of them.
+- **No project-internal references.** Never write *prd*, *the project specification*, *the
+  hardware specification*, *spike S3*, *spike-era*, *Gate 3*, *D14*, *the escalation rule*. Say
+  what the thing is: "the requirements of Table~\ref{tab:requirements}", "a preliminary
+  experiment (Section~\ref{...})", "the target hardware (Section~\ref{...})".
+- **No project-management vocabulary.** *Triaged*, *cut under the build schedule*, *this project
+  executed against*, *sprint*, *session 04* describe how the work was run, not what it found.
+  ❌ *"Exp-1 was triaged to 60 repetitions."* ✔️ *"Each configuration was timed over 60
+  repetitions, reduced from the 200 originally planned (Section~\ref{...})."*
+- **Every code is defined once, before its first use, in this document.** A code (RQ1, C2,
+  NFR-9, Surface~A) is acceptable only if the reader has been given it: a table row, a bold term
+  with its meaning, or a parenthesis at first use. Otherwise use the descriptive name. The
+  experiment codes (Exp-0 ... Exp-4) are the main offender: prefer names ("the multi-model
+  benchmark", "the speaker-sensitivity experiment"), and if codes are kept, one table in the
+  Method chapter defines all of them. Material owned by the other document is named, not coded:
+  "the end-to-end latency experiment of the \emph{Mémoire d'Ingénieur}", not "Exp-2".
+  `tools/review/lib.py` FAILs on an undefined code and on project-internal words.
+
+### Headings
+- **A heading is a noun phrase, not a sentence or a claim.** ❌ *"NFR-2 has not been measured,
+  and cannot be decided here."* ✔️ *"End-to-end latency constraint"*. ❌ *"The knee belongs to a
+  model, not to a size."* ✔️ *"Model-specific position of the knee"*. The finding goes in the
+  paragraph's first sentence (Assertion), not in the heading.
+- **No codes, results or numbers in headings.** ❌ *"Schema validity is 1.0000 everywhere"*.
+- **Short:** a `\paragraph` lead-in of at most about five words; a section title of at most
+  about eight.
+- **One capitalisation convention per document.** Chapter titles are currently mixed
+  ("Related Work", "Discussion and limitations"): choose title case or sentence case for
+  chapters and sections, and apply it everywhere.
+
+### Register
+- **Formal and impersonal.** No rhetorical flourishes or aphorisms (*"The vocabulary of
+  failure has one word in it"*, *"FR-6 is worth reading twice"*, *"a margin ... that can be waved
+  at"*), no conversational asides, no questions addressed to the reader. The claim stated plainly
+  is stronger than the claim stated memorably.
+- **Describe the work, not the working.** Results are reported as findings, not as events in
+  the project's history (*"the first execution predates the active cooler"* → *"an initial run
+  without active cooling"*).
+
 ---
 
 ## 3. Chapter-by-Chapter Blueprint
@@ -185,12 +226,15 @@ first, then the scaffold, then the prose — never the prose alone.
    `\figtodo{}` for a figure placeholder that compiles with no image file. None of them should
    survive into the deposited document; all three are greppable.
 5. **Use the acronyms, or the List of Acronyms prints empty.** `thesis/shared/acronyms.tex`
-   defines 26 (`\gls{slm}`, `\acrfull{gbnf}`, …), but `glossaries` lists only entries a document
+   defines 26 (`\gls{slm}`, `\gls{gbnf}`, …), but `glossaries` lists only entries a document
    actually uses. As of Master Ch5, only Master Ch4 uses them: Master Ch1–3 and Ch5 spell
    terms out by hand, and no Ingénieur chapter uses one, so the Ingénieur's acronym page is
-   empty and the Master's first `\acrfull` lands in Ch4 instead of Ch1. "First use" means first
-   in document order: when Ch1–3 are converted, the `\acrfull` moves to the earliest chapter and
-   Ch4's becomes `\gls`. Add a `\newacronym` only for a term that genuinely appears; do not pad
+   empty. Write `\gls{key}` for every use, the first included: the first `\gls` in document
+   order prints "long form (SHORT)" and marks the entry used; every later one prints "SHORT".
+   **Do not write `\acrfull` for a first use**: it prints the long form but leaves the entry
+   unmarked, so the next `\gls` expands it again (this double expansion was in Master Ch4).
+   Long forms in `acronyms.tex` are lower case unless a proper noun, since they print
+   mid-sentence. Add a `\newacronym` only for a term that genuinely appears; do not pad
    the list.
 6. **Validate before calling a chapter done:** run `python tools/check_tex.py <file>` — it catches
    dangling `\ref`/`\cite`, wrong table cell counts, over-wide columns, and non-ASCII characters
@@ -234,7 +278,7 @@ For a full review of a written chapter (or a whole document), use the prompt tem
 Before finalizing any section or chapter, the agent must verify:
 - [ ] Are all claims backed by quantitative data, mathematical definitions, or literature citations?
 - [ ] Is the paragraph rhythm following *Assertion $\to$ Evidence $\to$ Impact*?
-- [ ] Is each acronym introduced with `\acrfull{key}` on first use and `\gls{key}` after,
+- [ ] Is each acronym written `\gls{key}` at every use, first included (never `\acrfull`),
       using a key from `thesis/shared/acronyms.tex`? (Spelling it out by hand leaves the
       List of Acronyms empty.)
 - [ ] Are all figures vector graphics with self-contained captions?

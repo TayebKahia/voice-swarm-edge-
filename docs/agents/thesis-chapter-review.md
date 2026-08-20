@@ -17,7 +17,14 @@ FOCUS:      {{optional -- e.g. "Section 4.3 only", or "none"}}
 
 ## 0. Load context before reading the chapter
 
-Read, in this order, and do not skip any:
+First run the chapter's pre-review script and read its report in full:
+    ~/miniconda3/envs/pfe_swarm/bin/python tools/review/{{master|ingenieur}}_chN.py
+    -> .scratch/thesis-review/reports/{{master|ingenieur}}_chN.md
+Every number the report marks PASS under "claim" has been recomputed from its source: do not
+redo that arithmetic. Work from its MANUAL sheets instead (citation sheet, UNTRACED numbers,
+requirement wording). Its FAIL/WARN rows are leads, not findings -- verify each like any other.
+
+Then read, in this order, and do not skip any:
 1. .agents/skills/thesis-writing/SKILL.md          -- the standard you are reviewing against
 2. prd.md §2 (RQs and contributions), §3.1 (frozen chapter outline for this document),
    Table 3 (ownership of shared material / write-once rule), Table 31 (RQ -> requirement ->
@@ -29,7 +36,7 @@ Read, in this order, and do not skip any:
 6. The sources of truth for numbers: results/*.csv and results/*.md, thesis/generated/*.tex,
    spikes/reports/*.md, .scratch/sprint-pfe/STATE.md, docs/adr/*.md.
 
-## 1. Review dimensions -- check every one, in order
+## 1. Review dimensions -- check every one, in order (D10 last)
 
 D1  Structure. Section list matches prd.md §3.1 for this chapter exactly (no added, merged,
     missing or reordered sections). The chapter opens by stating what it does and closes by
@@ -113,7 +120,8 @@ D8  Language and style.
     c. Tense consistency (method/results in past, established facts and the document's own
        structure in present).
     d. One spelling convention (British: quantisation, behaviour) throughout.
-    e. Acronyms: \acrfull{} on first use, \gls{} after, key from shared/acronyms.tex; acronyms
+    e. Acronyms: \gls{} at every use, first included (\acrfull does not mark the entry used, so
+       the next \gls expands again); key from shared/acronyms.tex; acronyms
        spelled out by hand are a finding.
     f. Non-ASCII characters in the chapter body.
     g. Grammar, run-on sentences, sentences over ~40 words that should be split.
@@ -126,6 +134,22 @@ D9  LaTeX and build hygiene.
     d. `~` before \cite, \ref and units.
     e. Clean build: `rm -rf thesis/build && cd thesis && latexmk main_{{document}}.tex`, then
        grep the log for `^!`, `Citation.*undefined`, `Float too large`.
+
+D11 Self-containment (SKILL §2 "A Self-Contained Document"). The reader holds only the thesis.
+    a. Project-internal references (prd, project/hardware specification, spike, gate, D-numbers,
+       escalation rule) -- the script FAILs on these; propose the thesis-facing wording for each.
+    b. Project-management vocabulary (triaged, build schedule, sprint, "this project executed").
+    c. Every code (Exp-N, NFR-N, FR-N, RQN, CN, Surface A/B, Branch A/B) defined once before first
+       use in THIS document; the report's "Codes used" table lists them. For each, recommend keep
+       (and where to define it) or replace with a descriptive name.
+    d. Material owned by the other document named in words, never by its internal code.
+
+D12 Headings and register (SKILL §2 "Headings", "Register").
+    a. Every heading is a short noun phrase: no sentence, claim, code, number or result. For each
+       WARN heading in the report, propose a replacement title.
+    b. One capitalisation convention for chapter and section titles across the document.
+    c. Formal, impersonal register: list rhetorical flourishes, aphorisms, conversational asides
+       and history-of-the-project narration, each with a plain rewording.
 
 D10 Examiner view.
     a. Reproducibility: could an outside researcher rerun the work from this chapter alone
@@ -155,7 +179,7 @@ Severity:
 ## 3. Output format
 
 1. Verdict (2-3 sentences): is the chapter ready, ready after fixes, or needs rework -- and why.
-2. Scorecard: one line per D1-D10 -- PASS / ISSUES (count) / FAIL.
+2. Scorecard: one line per D1-D12 -- PASS / ISSUES (count) / FAIL.
 3. Findings table, sorted BLOCKER -> NIT:
    | # | Sev | Dim | file:line | Quoted text | Problem | Evidence | Proposed fix |
 4. Number trace table (D3): | Value as written | file:line | Source path:row | Source value | OK? |
@@ -191,7 +215,10 @@ Check only what a single-chapter review cannot see:
 8. Front/back matter: List of Acronyms is non-empty and complete; list of figures/tables
    titles are short forms; every bibliography entry printed is cited in this document; title
    page fields.
-9. Clean build from scratch with zero errors, no undefined citations, no dropped floats, and no
+9. Scope: from Ch1 alone, can a reader state the system end to end (with one example
+   command), what is real and what is simulated, the language and command vocabulary, what is
+   out of scope, and how the work divides between the two documents? Each "no" is a finding.
+10. Clean build from scratch with zero errors, no undefined citations, no dropped floats, and no
    \TODO / \CHECK / \figtodo left in the PDF.
 
 Output: verdict, the RQ traceability table, the headline-number occurrence table, then findings

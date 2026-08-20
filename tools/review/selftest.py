@@ -1,0 +1,84 @@
+#!/usr/bin/env python3
+"""Mutation test for the pre-review scripts: does each one catch an error planted in its chapter?
+
+A checker that passes every chapter proves nothing until it has been seen to fail. For each script
+this plants one realistic error in an in-memory copy of the chapter (a mistyped result, a wrong
+count, a citation in the wrong document) and requires the script to exit 1 with a FAIL of the
+expected kind. The real chapter and the real report are never touched.
+
+    ~/miniconda3/envs/pfe_swarm/bin/python tools/review/selftest.py
+"""
+
+import io
+import runpy
+import sys
+import tempfile
+from contextlib import redirect_stdout
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE))
+import lib  # noqa: E402
+
+#: script -> (chapter file, text to replace, replacement, FAIL check that must fire)
+MUTATIONS = {
+    "master_ch1": ("master/ch1_introduction.tex", "floor at 27.93~tok/s", "floor at 27.39~tok/s", "claim"),
+    "master_ch2": ("master/ch2_related_work.tex", "constraint~\\cite{gptq,awq}", "constraint~\\cite{gptq,awq,lora}", "positioning"),
+    "master_ch3": ("master/ch3_method.tex", "difference of 4.0\\%", "difference of 4.5\\%", "claim"),
+    "master_ch4": ("master/ch4_results.tex", "SmolLM2-360M (785~ms)", "SmolLM2-360M (795~ms)", "claim"),
+    "master_ch5": ("master/ch5_discussion.tex", "a margin of 67~ms", "a margin of 76~ms", "claim"),
+    "ingenieur_ch1": ("ingenieur/ch1_introduction.tex", "& p95 $\\leq$ 150~ms &", "& p95 $\\leq$ 200~ms &", "requirements"),
+    "ingenieur_ch2": ("ingenieur/ch2_state_of_the_art.tex", "\\section{Swarm control}",
+                      "\\section{Swarm control}\nGrammars constrain decoding~\\cite{geng2023}.", "table3"),
+}
+#: Common checks, planted once each: a project-internal reference, an undefined code, an \\acrfull.
+EXTRA = [
+    ("master_ch2", "master/ch2_related_work.tex", "is Contribution C3;", "is Contribution C3, as prd.md fixes;", "internal"),
+    ("master_ch5", "master/ch5_discussion.tex", "Only three configurations", "Under Exp-7, only three configurations", "code"),
+    ("master_ch1", "master/ch1_introduction.tex", "\\gls{json}", "\\acrfull{json}", "acronym"),
+]
+
+
+def run(script: str, mutate: tuple[str, str, str] | None) -> tuple[int, str]:
+    original = lib.Chapter.load.__func__
+
+    def load(cls, doc, rel):
+        ch = original(cls, doc, rel)
+        if mutate and rel == mutate[0]:
+            assert mutate[1] in ch.raw, f"{script}: mutation target not in chapter -- update selftest.py"
+            raw = ch.raw.replace(mutate[1], mutate[2], 1)
+            ch = cls(doc, ch.path, raw, [lib.strip_comment(line) for line in raw.splitlines()])
+        return ch
+
+    lib.Chapter.load = classmethod(load)
+    lib._INDEX = None
+    out = io.StringIO()
+    try:
+        with redirect_stdout(out):
+            runpy.run_path(str(HERE / f"{script}.py"), run_name="__main__")
+        code = 0
+    except SystemExit as e:
+        code = int(e.code or 0)
+    finally:
+        lib.Chapter.load = classmethod(original)
+    return code, out.getvalue()
+
+
+def main() -> int:
+    lib.REPORTS = Path(tempfile.mkdtemp())  # never overwrite the real reports
+    bad = 0
+    for script, rel, old, new, check in [(k, *v) for k, v in MUTATIONS.items()] + EXTRA:
+        # The baseline may already FAIL on a real finding; the planted error must add a NEW failure.
+        base, base_out = run(script, None)
+        code, out = run(script, (rel, old, new))
+        fails = lambda text: {l.strip() for l in text.splitlines() if l.strip().startswith(f"FAIL {check}")}  # noqa: E731
+        caught = code == 1 and bool(fails(out) - fails(base_out))
+        print(f"  {'ok  ' if caught else 'FAIL'} {script:<14} baseline exit {base}; "
+              f"planted `{new[:40]!r}` -> exit {code}, {'caught by ' + check if caught else 'NOT caught'}")
+        bad += not caught
+    print("\nSELF-TEST " + ("PASSED" if not bad else f"FAILED ({bad})"))
+    return 1 if bad else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
