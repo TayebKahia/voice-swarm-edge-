@@ -1511,3 +1511,32 @@ pinned to the workstation's versions.
   prompt cache off, as deployed; Table 6's line assumes it on.
 
 Stopped here. Next: A7b (Exp-3 on the Pi), if Pi time remains before Thu 12:00; else B10.
+
+## Exp-3 on the Pi (A7b, Wed 23 Sep, 17:05-17:50) -- parity not exact; the Pi is of record
+
+`eval/exp3.py` ran unchanged on drone-pi (same code md5, GGUF sha256 ee914fa8..., whisper.cpp
+52a939a, governor performance) into `results/exp3_pi_preds/`; analysed on the workstation
+against A7a's per-item files. Commit e4cdd7a.
+
+- **Parity** (`results/exp3_pi_parity.csv`, items; transcript / raw / outcome flips):
+  text 0/0/0 -- the parser is bit-identical across x86 and ARM. clean 4/5/0, 20 dB 2/2/0,
+  15 dB 5/5/0, 10 dB 6/9/2 (+1/-1), 5 dB 6/6/2 (0/-2). The differences enter at whisper
+  and carry through. **The Pi is the result of record**; Table 20 now reads `exp3_pi.csv`.
+- **CRR of record (Pi):** clean 0.690, 20 dB 0.675, 15 dB 0.650, 10 dB 0.590, 5 dB **0.485**
+  (A7a: 0.495). The rest are the same as A7a. NFR-7, NFR-8 and NFR-9 still MISS. The
+  significant pairs are the same (Tukey and Bonferroni McNemar: 5 dB against clean, 20 and
+  15 dB). **Write with care:** 10 dB vs 5 dB McNemar is p = 0.0051 against alpha = 0.0050,
+  not significant by a hair.
+- **Latency per SNR (Table 20's last column, renamed "Stage sum"):** STT + prefill + decode
+  + validate per segment, nearest rank, p50/p95 in ms: clean 2156/2869 (n=226), 20 dB
+  2132/2871, 15 dB 2167/2867, 10 dB 2181/2906, 5 dB 2198/2977 (n=218). Noise barely moves
+  latency: +108 ms at p95 from clean to 5 dB. This is NOT the NFR-2 figure. The replay isn't
+  real time, so there's no queue; HTTP and the FSM aren't timed; and STT runs -t 4
+  unpinned. NFR-2 stays Exp-2's 3,122 ms.
+- **Thermal:** peak 80.1 C; the sticky soft-limit bit (0x80000) is set from ~17:44, during
+  5 dB only. No measurable effect: 5 dB per-segment medians track 10 dB, which ran with the
+  flag clear, by item position. Accuracy can't be affected. Record it as a caveat and state
+  that it was checked. Log: `results/exp3_pi_preds/soc.log`.
+
+Stopped here. Block A experiments are done except the declared cuts (A11 live capture, H2,
+A9). Next: writing sessions (B-blocks); A8 freeze at Thu 12:00.
