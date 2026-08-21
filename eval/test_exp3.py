@@ -115,3 +115,37 @@ def test_failure_causes_are_claimed_in_order() -> None:
     assert failure_cause(_row(misheard), text_correct=True) == CAUSES[4]
     slot = [{"transcript": "hover cow", "canonical": '{"intent":"hover","ids":[1]}'}]
     assert failure_cause(_row(slot), text_correct=True) == CAUSES[5]
+
+
+def _hosted(host: str, *segments: dict) -> dict:
+    return {"id": "x", "host": host, "segments": list(segments)}
+
+
+def _timed(stt: float) -> dict:
+    return {"stt_ms": stt, "prefill_ms": 100.0, "decode_ms": 200.0, "validate_ms": 0.5,
+            "transcript": "t", "raw": "{}", "dispatched": "hover", "correct": True}
+
+
+def test_e2e_is_filled_on_the_target_only_and_counted_per_segment() -> None:
+    from eval.exp3 import TARGET_HOST, e2e_summary
+
+    assert e2e_summary([_hosted("workstation", _timed(900.0))])["e2e_p50_ms"] == ""
+    pi = e2e_summary([_hosted(TARGET_HOST, _timed(900.0), _timed(1000.0)), _hosted(TARGET_HOST)])
+    assert pi["e2e_n"] == 2
+    assert pi["e2e_p50_ms"] == pytest.approx(1200.5)      # nearest rank: the lower of two
+    assert pi["e2e_p95_ms"] == pytest.approx(1300.5)
+
+
+def test_parity_separates_text_differences_from_scored_flips() -> None:
+    from eval.exp3 import parity
+
+    same = {"id": "a", "segments": [_timed(1.0)]}
+    reworded = {"id": "b", "segments": [{**_timed(1.0), "transcript": "u"}]}
+    wrong = {"id": "c", "segments": [{**_timed(1.0), "raw": "{ }", "correct": False}]}
+    reference = {"clean": [same, {**reworded, "segments": [_timed(1.0)]}, {**wrong, "segments": [_timed(1.0)]}]}
+    candidate = {"clean": [same, reworded, wrong]}
+
+    row, = parity(reference, candidate)
+    assert (row["n"], row["transcript_differs"], row["raw_differs"]) == (3, 1, 1)
+    assert (row["outcome_flips"], row["flips_to_correct"], row["flips_to_wrong"]) == (1, 0, 1)
+    assert row["crr_reference"] == 1.0 and row["crr_candidate"] == pytest.approx(2 / 3)

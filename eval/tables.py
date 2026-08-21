@@ -51,9 +51,12 @@ EXP1 = REPO / "results" / "exp1_cooled.csv"
 #: sub-billion model on a passively-cooled Pi 5. Rendered by `thermal_headroom()`.
 EXP1_THROTTLED = REPO / "results" / "exp1.csv"
 RESULTS = REPO / "results"
-#: Exp-3's per-SNR summary, written by `eval/exp3.py` from its per-item files. Accuracy
-#: is the workstation's (A7a); the E2E columns stay empty until the Pi run (A7b) fills them.
-EXP3 = REPO / "results" / "exp3.csv"
+#: Exp-3's per-SNR summary, written by `eval/exp3.py` from its per-item files. The Pi's
+#: run (A7b) is of record once it exists: it carries the latency column, and where its
+#: predictions differ from the workstation's (A7a) the target's are the result (the
+#: comparison is `results/exp3_pi_parity.csv`). Before A7b, the workstation's is used.
+EXP3_PI = REPO / "results" / "exp3_pi.csv"
+EXP3 = EXP3_PI if EXP3_PI.is_file() else REPO / "results" / "exp3.csv"
 EXP2 = REPO / "results" / "exp2.csv"
 
 SPLITS = ("test_synth", "test_golden", "test_ood")
@@ -273,8 +276,11 @@ def table20(exp3: list[dict]) -> str:
         "partition) mixed digitally on active-speech level. EM is the same items as reference",
         "text through the same parser, so EM - CRR is the cost of the speech stage. Intervals",
         "are 95% bootstrap over utterances; safe-failure is over failed items only.",
+        f"Host: `{exp3[0].get('host', '')}`. The last column is per segment, nearest rank:",
+        "STT + prefill + decode + validate, replayed faster than real time (no queue, no",
+        "HTTP), so it shows how latency moves with noise; NFR-2 is judged on Exp-2.",
         "",
-        "| SNR | n | CRR | 95% CI | WER % | 95% CI | EM | EM - CRR | 95% CI | Safe-failure | E2E p50 / p95 (ms) |",
+        "| SNR | n | CRR | 95% CI | WER % | 95% CI | EM | EM - CRR | 95% CI | Safe-failure | Stage sum p50 / p95 (ms) |",
         "| :--- | ---: | ---: | :--- | ---: | :--- | ---: | ---: | :--- | :--- | :--- |",
     ]
     for row in exp3:
@@ -304,7 +310,7 @@ def table20(exp3: list[dict]) -> str:
                 NFR8_10DB_CRR, "10 dB"),
         verdict("NFR-9 safe-failure", worst, NFR9_SAFE_FAILURE, "lowest across SNR"),
         "Tests across SNR, the operational envelope and the segmentation breakdown:",
-        "`results/exp3_analysis.md`.",
+        f"`results/{EXP3.stem}_analysis.md`.",
     ]
     return "\n".join(lines) + "\n"
 
