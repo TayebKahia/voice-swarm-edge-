@@ -5,6 +5,7 @@ This chapter states the problem this document addresses, the research question i
 the three contributions it makes, and closes with the structure of the chapters that follow.
 
 \section{The edge-inference problem}
+\enlargethispage{\baselineskip}
 A drone that answers to spoken commands is only as autonomous as its network connection allows it
 to be, unless the language model that turns speech into a command lives on the aircraft itself.
 This work imposes that constraint at the outset: every stage of command parsing, from the
@@ -71,7 +72,7 @@ the reach of any grammar; it is the task of fine-tuning, and it is what the accu
 measures. The first remedy is the first contribution of this document, stated below.
 
 \section{Objectives}
-The system this work belongs to converts spoken English commands into validated structured
+This work is part of a system that converts spoken English commands into validated structured
 commands for a swarm of five drones, entirely on the Raspberry Pi 5. An operator says, for example,
 ``form a circle with radius five metres'': a \gls{stt} model transcribes the utterance, a fine-tuned
 \gls{slm} parses the transcript into a \gls{json} command under the grammar, a validator checks it,
@@ -116,9 +117,11 @@ Three contributions belong to this document.
     \item \textbf{C3.} A quantised-inference harness that measures \gls{em}, intent and slot
     F1, schema validity, and false-command rate for three of the four fine-tuned models at two
     quantisation levels, with accuracy scored under the deployed runtime and grammar, and
-    throughput timed on the Raspberry Pi 5. It is built to make the accuracy cost of quantisation
-    a number measured on this task at this scale, rather than one inherited from results obtained
-    on larger models and generic benchmarks. Chapter~\ref{chap:results} presents what it measured.
+    throughput timed on the Raspberry Pi 5. It measures the accuracy cost of the deployed pipeline
+    on this task at this scale, rather than inheriting it from results obtained on larger models
+    and generic benchmarks. Because weight precision, runtime and grammar change together between
+    the reference and the deployed configuration, that cost belongs to the pipeline as a whole, not
+    to quantisation alone. Chapter~\ref{chap:results} presents what it measured.
 \end{itemize}
 
 The fourth contribution of the joint work, the dual-path runtime that lets a keyword spotter
