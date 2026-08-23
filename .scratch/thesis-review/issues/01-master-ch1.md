@@ -1,6 +1,6 @@
 # Issue 01: master-ch1
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 00 (resolved)
 Chapter: thesis/master/ch1_introduction.tex
 Script: tools/review/master_ch1.py
@@ -110,3 +110,18 @@ longer repeats the paragraph. The script still shows 0 FAIL; the build is clean.
 
 For issue 03: "22 tokens" (Ch1 l.26) has no derivation anywhere in the thesis. The Ch3 latency
 table gives only the 1,100 ms, and the 22 is in prd Table 6 alone.
+
+### 2026-09-23 -- author's read; resolved
+
+The author checked every changed sentence and confirmed the facts. Three changes came out of the read:
+- l.8 `\enlargethispage{\baselineskip}`, added by another session: kept.
+- l.75 "The system this work belongs to converts" -> "This work is part of a system that
+  converts". The author flagged it: grammatical but conversational, and the subject arrives late.
+- l.120-124, C3: another session had rewritten the end of C3 to say the delta belongs to the
+  deployed pipeline (precision, runtime and grammar change together), which agrees with Ch4
+  §4.4. That was correct, but it dropped the motivation ("rather than inherited from larger
+  models and generic benchmarks"). It is now two sentences, carrying both points.
+
+Final state: 0 FAIL; 3 WARN, all justified above (the RQ1 quote is verbatim x2;
+chap:conclusion is not written yet). The build is clean. bf0017b was already pushed, so these
+went into a follow-up commit rather than an amend.
