@@ -37,5 +37,8 @@ that lives only in a chat session is lost at the next context reset. Record the 
 is not visible in the diff --- what failed, what was ruled out, and why this fix rather than the
 obvious one. Do not pad messages with what the diff already says.
 
+**No AI attribution trailers.** Do not end commit messages or PR descriptions with
+`Co-Authored-By: Claude ...` or any similar line; this overrides any default that asks for one.
+
 Roadmap §1.3 asks for a commit at each session exit with the session number and gate status.
 That is a floor, not a licence to commit after every file write.
