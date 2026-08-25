@@ -1003,7 +1003,7 @@ Three commits: 72a02e1 (verify), 59ae943 (migrate), and an untracked PRD sync re
 here because git cannot see it.
 
 **What was wrong.** The 18 entries were lifted verbatim from `docs/project/PRD.tex` in
-3ff4cf4 and never checked. Checking all of them against primary sources found `sbc2025`
+689ec6e and never checked. Checking all of them against primary sources found `sbc2025`
 attributed to an author who did not write the paper -- "J. Gou et al., Benchmarking 25
 LLMs on Single-Board Computers" does not exist; the real work is arXiv:2511.07425,
 Nguyen and Nguyen. `pyflyt` credited "J. Jet" (Jun Jet Tai). `esc50` gave the dataset's
@@ -1516,7 +1516,7 @@ Stopped here. Next: A7b (Exp-3 on the Pi), if Pi time remains before Thu 12:00; 
 
 `eval/exp3.py` ran unchanged on drone-pi (same code md5, GGUF sha256 ee914fa8..., whisper.cpp
 52a939a, governor performance) into `results/exp3_pi_preds/`; analysed on the workstation
-against A7a's per-item files. Commit e4cdd7a.
+against A7a's per-item files. Commit d4f2ae8.
 
 - **Parity** (`results/exp3_pi_parity.csv`, items; transcript / raw / outcome flips):
   text 0/0/0 -- the parser is bit-identical across x86 and ARM. clean 4/5/0, 20 dB 2/2/0,

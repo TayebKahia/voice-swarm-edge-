@@ -123,5 +123,5 @@ The author checked every changed sentence and confirmed the facts. Three changes
   models and generic benchmarks"). It is now two sentences, carrying both points.
 
 Final state: 0 FAIL; 3 WARN, all justified above (the RQ1 quote is verbatim x2;
-chap:conclusion is not written yet). The build is clean. bf0017b was already pushed, so these
+chap:conclusion is not written yet). The build is clean. c4183f4 was already pushed, so these
 went into a follow-up commit rather than an amend.
