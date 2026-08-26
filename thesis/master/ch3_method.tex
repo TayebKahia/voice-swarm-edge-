@@ -1,21 +1,28 @@
 \chapter{Method}
 \label{chap:method}
 
+This chapter specifies how the three contributions were built and how they are measured: the
+command schema and its grammar (C1), the label-first dataset (C2), the fine-tuning recipe and
+quantisation procedure that produce the candidates RQ1 compares, and the evaluation protocol and
+definitions of record that the harness of C3 applies. Chapter~\ref{chap:results} reports what that
+protocol measured.
+
 \section{Command schema and grammar design}
 \label{sec:schema}
-The schema is the contract Section~\ref{sec:constrained-decoding} in Chapter~\ref{chap:related-work}
-argued for: a fixed vocabulary of structured commands that a flight controller can act on directly,
-with every property a controller depends on enforced before a command is dispatched rather than
-checked afterwards. It was frozen before any data generation began, on the project's first
-development day, so that no later convenience -- an intent that turned out to be hard to elicit
-paraphrases for, a slot that turned out to be hard to fine-tune -- could reshape the target the
-whole pipeline is built against. Ten intents cover the vocabulary: \texttt{formation},
-\texttt{move}, \texttt{altitude}, \texttt{takeoff}, \texttt{land}, \texttt{hover}, \texttt{abort},
-\texttt{rotate}, \texttt{set\_param}, and \texttt{unknown}, the last of which is the schema's only
-provision for an utterance that does not map onto a command at all.
+The schema is the contract Section~\ref{sec:constrained-decoding} argued for: a fixed vocabulary of
+structured commands that a flight controller can act on directly, with every structural property a
+controller depends on enforced before a command is dispatched rather than checked afterwards. It
+was fixed before the synthetic corpus was generated, so that no later convenience -- an intent that
+turned out to be hard to elicit paraphrases for, a slot that turned out to be hard to fine-tune --
+could reshape the target the pipeline is built against. It was amended once before generation
+completed, to bound the identifier list (below), and every label was checked against the amended
+grammar. Ten intents cover the vocabulary: \texttt{formation}, \texttt{move}, \texttt{altitude},
+\texttt{takeoff}, \texttt{land}, \texttt{hover}, \texttt{abort}, \texttt{rotate},
+\texttt{set\_param}, and \texttt{unknown}, the last of which is the schema's only provision for an
+utterance that does not map onto a command at all.
 
-The wire format is single-line JSON with a key order fixed by the schema declaration and null or
-absent slots omitted rather than emitted explicitly:
+The wire format is single-line \gls{json} with a key order fixed by the schema declaration and null
+or absent slots omitted rather than emitted explicitly:
 
 \begin{lstlisting}[basicstyle=\ttfamily\small, breaklines=true]
 {"intent":"formation","shape":"circle","radius":5.0}
@@ -29,24 +36,25 @@ absent slots omitted rather than emitted explicitly:
 {"intent":"unknown"}
 \end{lstlisting}
 
-Omitting null fields is not a stylistic choice; it is a latency decision. A representative command
-written with every field present, nulls included, runs to roughly 40 tokens; the same command in
-this wire format runs to about 18. At the Raspberry~Pi~5 decode rates this document works against --
-a margin of single-digit tokens per second above the 20~tok/s floor -- the difference
-between 40 and 18 tokens is close to a full second of decode time per command, recovered without
-touching the model. It is the second-largest latency saving in the system, after keeping the schema
-itself out of the prompt.
+Null fields are omitted to shorten the output the decoder must produce. Over the 200 golden labels,
+a command in this wire format averages 16.0 tokens under the Qwen2.5 tokeniser. It would average
+19.6 tokens if each intent's absent slots were emitted as nulls, and 53.3 if every slot of the
+schema were, as a single flat object for all ten intents would require. At the 27.93~tok/s that the
+selected configuration sustains on the Raspberry~Pi~5 (Chapter~\ref{chap:results}), those savings
+are 0.13~s and 1.33~s of decode time per command, recovered without touching the model.
 
-Three layers guarantee, in sequence, that a command reaching the flight controller is
-well-formed, physically sensible, and legal for the aircraft's current state. This chapter owns
-only the first of them; the second and third are validator and state-machine layers that consume
+Three layers stand between the decoder and the flight controller, checking in sequence that a
+command is well-formed, within the physical envelope, and legal in the current flight state. This
+chapter owns only the first. The second and third, a semantic validator and a state machine, consume
 the schema and grammar defined here but belong to the \emph{M\'emoire d'Ing\'enieur}'s architecture
-chapter, which is where their design and their contribution to the safety argument are discussed
-in full.
+chapter, which discusses their design and their contribution to the safety argument.
 
-\paragraph{Layer 1 --- GBNF grammar.} A context-free grammar in the GBNF (GGML BNF) formalism,
-compiled once and used by llama.cpp to mask the decoder's token distribution at every decoding
-step~\cite{llamacpp}, is generated directly from the schema so the two cannot drift apart:
+\paragraph{The decoding grammar.} The first layer is a context-free grammar in the \gls{gbnf}
+formalism, which \texttt{llama.cpp} parses once per request and applies at every decoding step by
+masking the decoder's token distribution~\cite{llamacpp}. It is written from the schema and held to
+it in two ways: a test suite of valid and adversarial commands, and the conformance check of
+Section~\ref{sec:dataset}, which parses this grammar file itself rather than a copy of it. No label
+the grammar rejects can therefore enter the dataset:
 
 \begin{lstlisting}[basicstyle=\ttfamily\footnotesize, breaklines=true]
 root      ::= cmd
@@ -80,446 +88,512 @@ idlist    ::= [0-4] ( "," [0-4] ){0,4}
 num       ::= "-"? [0-9] [0-9]? [0-9]? ( "." [0-9] )?
 \end{lstlisting}
 
-The \texttt{num} rule bounds every numeric field to three integer digits and one decimal place,
-which is what makes \texttt{1e999}, a twenty-digit integer, or a bare trailing decimal point
-structurally unreachable rather than merely unlikely -- no value of that shape is in the grammar's
-language, so the decoder cannot sample toward one regardless of what the model's own distribution
-would otherwise favour. GBNF has no way to express a numeric \emph{range}: a grammar can bound how
-many digits a number has, not whether $91.0$ is a legal yaw. Range enforcement is therefore left to
-Layer 2, and the one-decimal digit limit fixed here is also why the canonical comparator defined in
-Section~\ref{sec:definitions-of-record} rounds every numeric slot to one decimal before comparison --
-the metric is built to match what the decoder can actually produce, not a precision the schema never
-promised. The \texttt{idlist} rule is bounded the same way, for a reason that is not merely
-stylistic: it restricts a drone identifier to $0$--$4$ and caps the list at five entries, matching
-the fixed swarm size of $N = 5$ (Layer~2's own identifier rule, $\mathtt{ids} \subseteq \{0 \dots
-N{-}1\}$, is the semantic half of the same constraint). An earlier, unbounded form of this rule --
-one digit repeated with no upper limit on how many times -- is what let a spike-era decoder loop on
-digits under greedy decoding until the output was truncated rather than completed, on a command as
-simple as ``swarm land''; fixing the repetition bound in the grammar itself is what makes that
-failure mode structurally unreachable rather than merely rare, the same argument the \texttt{num}
-rule makes for numeric overflow.
+The \texttt{num} rule bounds every numeric field to three integer digits and one decimal place.
+This makes \texttt{1e999}, a twenty-digit integer, or a bare trailing decimal point structurally
+unreachable rather than unlikely. No value of that shape is in the grammar's language, so the
+decoder cannot sample toward one, whatever the model's own distribution favours. \gls{gbnf} has no
+way to express a numeric \emph{range}: a grammar can bound how many digits a number has, not
+whether $16.0$ is a legal altitude. Range enforcement is therefore left to the semantic validator.
+The one-decimal limit fixed here is also why the canonical comparator of
+Section~\ref{sec:definitions-of-record} rounds every numeric slot to one decimal before comparison:
+the metric matches what the decoder can produce, not a precision the schema never promised.
+
+The \texttt{idlist} rule is bounded in the same way. It restricts a drone identifier to $0$--$4$
+and caps the list at five entries, matching the fixed swarm size of $N = 5$; the validator's own
+identifier rule, $\mathtt{ids} \subseteq \{0 \dots N{-}1\}$, is the semantic half of the same
+constraint. In a preliminary test, an earlier form of this rule, one digit repeated with no bound on
+the repetitions, let the decoder loop on digits under greedy decoding until the output was
+truncated, even for a command as simple as ``swarm land''. Bounding the repetition count in the
+grammar makes that failure structurally unreachable rather than rare, the argument the \texttt{num}
+rule makes for numeric overflow. Because every rule is bounded, the grammar's language is finite,
+and its longest string is 90 characters: a formation command carrying every optional slot at its
+widest value and five identifiers. No token is shorter than one character, so the 96-token cap
+applied to every grammar-constrained decode exceeds it, and no output under the grammar can be
+truncated before it closes.
 
 The distinction this design rests on -- between a rate that a favourable test set and thorough
-fine-tuning can inflate, and a property that holds by construction on any input, in or out of
-distribution -- is the argument Section~\ref{sec:constrained-decoding} already made in the
-abstract. Chapter~\ref{chap:results} makes it concrete: Table~19 reports the same fine-tuned model
-decoded with and without this grammar, isolating what the grammar contributes once fine-tuning has
-already done most of the work of keeping output well-formed.
+fine-tuning can inflate, and a property that holds by construction on any input, under that cap --
+is the argument Section~\ref{sec:constrained-decoding} made in the abstract.
+Table~\ref{tab:grammar-ablation} in Chapter~\ref{chap:results} makes it concrete: it decodes the
+same fine-tuned models with and without this grammar, and so measures how often they leave the
+format when nothing prevents them.
 
 \section{Label-first dataset construction}
 \label{sec:dataset}
-No corpus existed for this vocabulary before this project, so the dataset that trains and
-evaluates every model in Chapter~\ref{chap:results} had to be built rather than assembled from an
-existing resource, which is the labour Contribution~C2 names. It is built and sealed under a
-single governing decision: generation runs \textbf{label first}. The target JSON is written before
-any sentence exists, and natural-language phrasings are then elicited for it -- eight per label for
-the synthetic corpus -- rather than the reverse order of writing sentences and labelling them
-afterwards. The reverse order reintroduces the annotation cost this pipeline exists to remove, and
-it produces the label noise that comes with a human resolving ambiguous cases at scale; writing the
+No corpus existed for this vocabulary, so the dataset that trains and evaluates every model in
+Chapter~\ref{chap:results} was built rather than assembled from an existing resource, which is the
+labour Contribution~C2 names. It was built and sealed under a single governing decision: generation
+runs \textbf{label first}. The target \gls{json} is written before any sentence exists, and
+natural-language phrasings are then produced for it -- up to eight per label for the synthetic
+corpus -- by deterministic expansion of a committed frame bank and lexicon
+(\texttt{data/surface\_forms.py}) under a fixed seed. The reverse order, writing sentences and
+labelling them afterwards, reintroduces the annotation cost this pipeline exists to remove, and it
+produces the label noise that comes with a human resolving ambiguous cases at scale. Writing the
 label first makes the label the source of the data rather than a judgement made about it.
-Table~\ref{tab:dataset} lists every component this document's experiments and the \emph{M\'emoire
-d'Ing\'enieur}'s runtime consume, with the role that motivates each one.
+Table~\ref{tab:dataset} lists every component that this document's experiments and the
+\emph{M\'emoire d'Ing\'enieur}'s runtime consume, with the role that motivates each one.
 
 \begin{table}[htbp]
 \centering
-\caption{Dataset components. \texttt{wake\_pos} and \texttt{wake\_neg} train and evaluate the
-keyword spotter that the \emph{M\'emoire d'Ing\'enieur} builds its Branch~A preemption on; every
-other row feeds an experiment reported in this document. Sizes marked $\approx$ are the frozen
-generation targets; \texttt{test\_golden} is reported as recorded, after the recording-session
-triage discussed below.}
+\footnotesize
+\caption[Dataset components]{Dataset components, at their sizes as generated. \texttt{wake\_pos} and
+\texttt{wake\_neg} train and evaluate the keyword spotter on which the \emph{M\'emoire
+d'Ing\'enieur} builds its reflex path; every other row feeds an experiment of this document.
+\texttt{test\_golden} is a single recording session (see below). Roles marked * are reported in the
+\emph{M\'emoire d'Ing\'enieur}.}
 \label{tab:dataset}
-\begin{tabularx}{\textwidth}{@{}l l X X@{}}
+\begin{tabularx}{\textwidth}{@{}l >{\raggedright\arraybackslash}p{2.6cm} X X@{}}
 \toprule
 Split & Size & Source & Role \\
 \midrule
-\texttt{train\_synth} & $\approx$1{,}900 pairs & Label-first generation, round-trip augmented & LoRA fine-tuning \\
-\texttt{val\_synth} & $\approx$250 pairs & Held-out template families & Checkpoint selection on exact match \\
-\texttt{test\_synth} & $\approx$250 pairs & Held-out template families & Statistical power for Exp-1; the McNemar sample \\
-\texttt{test\_golden} & 200 audio files, 200 transcripts & Author, one recording session & Exp-0 and Exp-3 accuracy of record \\
-\texttt{test\_ood} & $\approx$150 items & Out-of-domain speech and adversarial phrasings & NFR-18 false-command rate; the \texttt{unknown} intent's test \\
-\texttt{commonvoice} & 300 clips, 263 speakers, 15 accent buckets & Mozilla Common Voice release 17.0, an ungated mirror, stratified by accent~\cite{commonvoice} & Exp-0 speaker-sensitivity baseline \\
-\texttt{wake\_pos} & 3{,}000 clips (1{,}500 per class) & Piper TTS~\cite{piper} through openWakeWord's training pipeline~\cite{oww}, room-impulse-response and noise augmented & Branch~A keyword-spotter training \\
-\texttt{wake\_neg} & 5{,}040 clips, 3.50~h & Ambient speech, podcasts, room noise & NFR-15 false-accept measurement \\
+\texttt{train\_synth} & 1{,}940 pairs & Label-first generation; 872 transcripts replaced by round-trip recognition output & \acrshort{lora} fine-tuning \\
+\texttt{val\_synth} & 240 pairs & Held-out template families, clean text & Checkpoint selection on \acrshort{em} \\
+\texttt{test\_synth} & 240 pairs & Held-out template families, clean text & Second, descriptive split of the multi-model benchmark \\
+\texttt{test\_golden} & 200 audio files, 200 transcripts & Author, one recording session; transcripts from the \texttt{test\_synth} families & Multi-model benchmark accuracy of record and confirmatory paired tests; speaker-sensitivity experiment; acoustic-robustness experiment* \\
+\texttt{test\_ood} & 150 transcripts & Authored out-of-domain queries and adversarial phrasings, text only & False-command rate; the \texttt{unknown} intent's test \\
+\texttt{commonvoice} & 300 clips, 263 speakers, 15 accent buckets & Mozilla Common Voice 17.0 English test split~\cite{commonvoice,commonvoice17}, stratified by accent & Multi-speaker baseline of the speaker-sensitivity experiment \\
+\texttt{wake\_pos} & 3{,}000 clips (1{,}500 per class) & Three Piper voices~\cite{piper}, 20 renditions each, 25 augmentations per rendition & Keyword-spotter training* \\
+\texttt{wake\_neg} & 5{,}040 clips, 3.50~h & LibriSpeech~\cite{librispeech}, Speech Commands~\cite{speechcmd}, 720 near-miss clips & False-accept measurement* \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
 \paragraph{Synthetic generation and splits.} Diversity in the synthetic corpus is enumerated
 explicitly rather than left to sampling temperature, along axes chosen to cover the ways a command
-is actually spoken: imperative and polite forms, unit variants (metres, m), numeric forms (five,
-5, 5.0), drone subsetting (all drones, drone two, drones one and three), synonym sets per intent,
-filler words, self-corrections, and truncated utterances. Splits are assigned by
-\textbf{template family}, not by row: every paraphrase descended from the same label lands in the
-same split, because a row-wise split would place near-duplicate paraphrases of one label on both
-sides of the train/test boundary and inflate every accuracy figure that follows. \texttt{check\_leakage.py}
-enforces this partitioning as a gate rather than a report, checking family, surface-form, and
-eval-independence isolation together with the wake-corpus and noise-partition isolation described
-below; all four axes are clean. A second, independent gate -- the \textbf{conformance assert} --
-checks every label in every split against \texttt{cmd.gbnf} (Section~\ref{sec:schema}) before it
-is accepted into the dataset, because a label the grammar itself cannot produce would be an
-unreachable target that silently caps the accuracy any model could ever reach against it.
+is spoken: imperative and polite forms, unit variants (metres, m), numeric forms (five, 5, 5.0),
+drone subsetting (all drones, drone two, drones one and three), synonym sets per intent, filler
+words, self-corrections, and truncated utterances. Splits are assigned by \textbf{template family},
+not by row: every paraphrase descended from the same label lands in the same split. A row-wise split
+would place near-duplicate paraphrases of one label on both sides of the train/test boundary and
+inflate every accuracy figure that follows. \texttt{check\_leakage.py} enforces this
+partitioning as a gate rather than a report. It checks family and surface-form isolation (train
+against every held-out split, and the held-out splits against one another), noise-partition
+isolation and wake-corpus isolation; all four axes are clean. A second, independent gate, the
+\textbf{conformance check}, parses every label in every split against \texttt{cmd.gbnf}
+(Section~\ref{sec:schema}) before it is accepted, because a label the grammar cannot produce would
+be an unreachable target that caps the accuracy any model could reach against it.
 
-\paragraph{Audio: bulk synthesis and the golden set.} Bulk training and validation audio is
-synthesised with Piper text-to-speech~\cite{piper}, mixed with noise at four signal-to-noise
-levels, and passed back through \texttt{whisper.cpp}~\cite{whispercpp} in a round-trip: the training
-data is built from what the automatic speech recogniser actually transcribes, transcription errors
-included, rather than from the clean text a model will never see at inference time. The evaluation
-set that anchors every headline accuracy figure is different in kind: a single-speaker
-\textbf{golden set}, the author reading 200 utterances in a quiet room, covering all ten intents
-and every slot combination the required-slot matrix admits, recorded once and never re-synthesised.
-The original protocol called for two further sessions on the same 60-utterance subset -- a
-different room with real background noise, and the same room again on a different day, to capture
-voice variation across time -- and both were cut under the build schedule this project executed
-against; the \emph{M\'emoire d'Ing\'enieur} states the consequence of that cut for its own runtime
-validation as a limitation. The signal-to-noise sweep Chapter~\ref{chap:results} reports over is
-unaffected by the cut: it is mixed \emph{digitally} from this single session's clean recording, so
-noise remains the only variable Exp-3 varies and no additional session was ever needed for that
-comparison. What the cut removes is a claim this document does not make in either case: holding the
-speaker fixed at one session is an internal-validity choice, not an external one, and speaker
-generalisation is recovered separately, at the acoustic-model stage, by Exp-0 against
-\texttt{commonvoice} rather than by a second or third session of the same speaker.
+\paragraph{Audio synthesis and the golden set.} About half of the training rows keep their clean
+transcript. The rest are built by round trip: 872 rows replace the transcript with what
+\texttt{whisper.cpp}~\cite{whispercpp} recognises from Piper~\gls{tts}~\cite{piper} audio of it,
+mixed with noise at 20, 10 or 5~dB \gls{snr}, and 88 carry injected text perturbations. The training
+data therefore contains the recognition errors a model meets at inference rather than only clean
+text. The validation and \texttt{test\_synth} splits are clean text with no audio.
 
-\paragraph{Noise and annotation.} The noise corpus mixed into training and evaluation audio is
-named with its licence and provenance in the dataset card: ESC-50~\cite{esc50} for environmental
-sound classes and DREGON~\cite{dregon} for UAV-embedded rotor noise, mixed by the single, seeded
-path \texttt{data/mix\_noise.py}. Signal-to-noise ratio is computed on active-speech level against
-noise RMS rather than full-file RMS, because full-file RMS lets leading silence set the level and
-makes the nominal ratio depend on how promptly a speaker starts talking. Annotation quality is
-examined, not assumed: the author labels 50 golden-set utterances, five per intent, seals that pass
-under SHA-256 on the day of recording, then relabels the same 50 items in a different random order
-after an interval, with neither the sealed pass nor the generated targets visible. No agreement
-rate is computed from this exercise -- at a short interval, a matching pair of labels is as easily
-recall as schema clarity, so a percentage would measure memory rather than ambiguity. What is
-reported instead is the list of items the two passes label \emph{differently}: recall can only push
-two passes together, never apart, so a disagreement is evidence that the schema admits two readings
-regardless of the interval length, and the count is a lower bound rather than a claim of
-completeness. Across the 50 items, at an interval of 4.0~days, that count is zero. A null result of
-this shape establishes less than it appears to: it is consistent with a schema that admits no
-second reading, and equally consistent with an interval too short for recall to have decayed. It is
-reported here because the alternative --- running the exercise and omitting an unhelpful outcome ---
-would leave every disagreement count in this thesis unfalsifiable.
+The evaluation set of record differs in kind from the synthetic splits in its audio, not in its
+text. The single-speaker \textbf{golden set} is the author reading 200 utterances in a quiet room,
+recorded once and never re-synthesised. Its transcripts were drawn by the same generator from the
+template families held out for \texttt{test\_synth}, never from the validation families that select
+checkpoints, and they cover all ten intents and every slot combination the schema admits. Every
+in-domain exact-match figure is therefore measured on generator-produced phrasings; only
+\texttt{test\_ood} probes phrasings outside them.
 
-\paragraph{The wake corpus.} \texttt{wake\_pos} and \texttt{wake\_neg} are built for the \emph{M\'emoire
-d'Ing\'enieur}'s Branch~A keyword spotter and are described here because they share this chapter's
-construction pipeline, not because this document's own experiments consume them. Positive clips
-are synthesised with Piper and passed through openWakeWord's own training pipeline~\cite{oww},
-with the keyword placed at a random offset within the clip rather than centred, and forty
-near-miss phrases authored by hand, since no public corpus contains the words ``swarm'' or a
-phrase beginning with ``hold.'' Splits are assigned by base rendition (70/10/20) for positives, by
-speaker for negatives, and by phrase for near-misses, so that a held-out item differs from every
-training item along the axis that would otherwise let a spotter memorise a specific recording
-rather than the keyword itself; held-out clips are also mixed with room impulse responses and noise
-drawn from a disjoint 70/30 augmentation/evaluation partition, recorded per clip as
-\texttt{noise\_partition}, so a spotter cannot be evaluated on the exact acoustic conditions it was
-augmented against.
+The protocol also specified two further sessions on a 60-utterance subset: a different room with
+real background noise, and the same room on a different day, to capture voice variation across time.
+Neither was recorded, and the \emph{M\'emoire d'Ing\'enieur} states the consequence for its runtime
+validation as a limitation. The \gls{snr} sweep of the acoustic-robustness experiment, reported in
+the \emph{M\'emoire d'Ing\'enieur}, does not depend on them: it is mixed digitally from this
+session's clean recording, so noise is the only variable it varies. Holding the speaker fixed is an
+internal-validity choice, not an external one. Speaker variation is characterised separately, at
+the only speaker-sensitive stage, by the speaker-sensitivity experiment
+(Section~\ref{sec:exp0}), which positions the author within a multi-speaker distribution drawn from
+\texttt{commonvoice}. The parser consumes text and does not see the speaker, but nothing in this
+document establishes that end-to-end accuracy transfers to other speakers.
 
-\paragraph{Common Voice.} The Exp-0 speaker-sensitivity baseline draws 300 clips from an ungated
-mirror of Mozilla Common Voice release 17.0~\cite{commonvoice}, stratified across fifteen accent
-buckets spanning 263 speakers rather than sampled uniformly, since a uniform draw over the corpus
-is 39\% United States English and would answer a question about one accent rather than about
-speaker variation in general.
+\paragraph{Noise and annotation.} The noise mixed into training and evaluation audio comes from
+ESC-50~\cite{esc50} (environmental sound classes, licensed CC BY-NC) and DREGON~\cite{dregon}
+(rotor noise recorded by microphones mounted on a \gls{uav}, released for academic use). Room
+impulse responses come from the MIT Acoustical Reverberation Survey~\cite{traer2016}, and all of it
+is mixed by one seeded path, \texttt{data/mix\_noise.py}. The \gls{snr} is computed on active speech -- the
+\gls{rms} over the 20~ms frames within 30~dB of the loudest frame -- against the noise \gls{rms},
+rather than over the whole file. Over the whole file, leading silence would set the level and make
+the nominal ratio depend on how promptly a speaker starts talking.
+
+Annotation quality is examined, not assumed. The author labelled 50 golden-set utterances, five
+per intent, sealed that pass under SHA-256 on the day of recording, and relabelled the same 50 items
+in a different random order after an interval, with neither the sealed pass nor the generated
+targets visible. No agreement rate is computed from this exercise: at a short interval, a matching
+pair of labels is as easily recall as schema clarity, so a percentage would measure memory rather
+than ambiguity. What is reported instead is the list of items the two passes label
+\emph{differently}. Recall can only push two passes together, never apart, so a disagreement
+indicates either a second reading the schema admits or an annotator slip, whatever the interval;
+the count bounds the ambiguities found, not those present. Across the 50 items, at an interval of
+4.0~days, that count is zero. This null result is consistent both with a schema that admits no
+second reading and with an interval too short for recall to decay. It is reported because omitting
+an uninformative outcome would be selective reporting.
+
+\paragraph{The wake corpus.} \texttt{wake\_pos} and \texttt{wake\_neg} are built for the keyword
+spotter of the \emph{M\'emoire d'Ing\'enieur}'s reflex path. They are described here because
+dataset construction belongs to this document and they reuse its synthesis, noise partitions and
+leakage gate, not because this document's experiments consume them. Positive clips were rendered by
+three Piper voices, twenty renditions each, with the keyword at a random offset in the clip rather
+than centred, and augmented with room impulse responses and noise by the corpus builder
+\texttt{data/wake\_corpus.py}. The spotter itself is a classifier head fitted over openWakeWord's
+frozen feature front end~\cite{oww}. Negatives are read speech from LibriSpeech~\cite{librispeech},
+short command words from Speech Commands~\cite{speechcmd}, and forty near-miss phrases authored by
+hand, since no public corpus contains the word ``swarm'' or a phrase beginning with ``hold''.
+
+Positives are split by base rendition (70/10/20), negatives by speaker, and near-misses by phrase,
+so each held-out item differs from every training item along the axis a spotter could otherwise
+memorise. Held-out clips are mixed from a disjoint augmentation/evaluation partition, recorded per
+clip as \texttt{noise\_partition}: room impulse responses and DREGON split 70/30, and ESC-50 by
+fold (folds 1--4 against fold 5). A spotter is therefore never evaluated under the acoustic
+conditions it was augmented with.
+
+\paragraph{The multi-speaker baseline.} The speaker-sensitivity experiment draws 300 clips from the
+English test split of Mozilla Common Voice release 17.0~\cite{commonvoice,commonvoice17}, through an
+ungated mirror of that release. The clips are stratified across fifteen accent buckets spanning 263
+speakers rather than sampled uniformly: the accent-labelled clips of that split are 39\% United
+States English, so a uniform draw would answer a question about one accent rather than about
+speaker variation.
 
 \section{The LoRA recipe}
 \label{sec:lora}
-Four base models are fine-tuned under one recipe, held identical across all four so that any
-accuracy difference Chapter~\ref{chap:results} reports is attributable to the model rather than to
-an uncontrolled difference in how it was trained: Qwen2.5-0.5B-Instruct~\cite{qwen25},
+Four base models were fine-tuned with \gls{lora} under one recipe, held identical across all four
+so that an accuracy difference Chapter~\ref{chap:results} reports is attributable to the model under
+an identical training budget rather than to how it was trained: Qwen2.5-0.5B-Instruct~\cite{qwen25},
 SmolLM2-360M-Instruct~\cite{smollm2}, and Llama-3.2-1B-Instruct~\cite{llama32}, spanning the
-0.36--1.2~B range RQ1 asks about, together with
-H2O-Danube3-500M-Chat~\cite{danube3}. Table~\ref{tab:lora} fixes every
-setting.
+0.36--1.2~B range RQ1 asks about, together with H2O-Danube3-500M-Chat~\cite{danube3} as a
+parameter-matched control. Table~\ref{tab:lora} fixes every setting.
 
-\paragraph{Why a fourth model.} The first three occupy three different parameter counts in three
-different model families, so no two of them share a family and every pairwise comparison varies
-scale and pretraining recipe at once: a difference between Qwen2.5-0.5B-Instruct and
-Llama-3.2-1B-Instruct is attributable to neither factor alone. H2O-Danube3-500M-Chat is introduced
-as a parameter-matched control against Qwen2.5-0.5B-Instruct -- 514~M parameters against 494~M, a
-difference of 4.0\% -- drawn from a fourth independent family and trained under the identical
-recipe of Table~\ref{tab:lora}. Holding scale fixed across that pair isolates the effect of model
-family, which leaves the 0.36--1.2~B span free to carry the effect of scale. The two effects are
-confounded in any three-model design of this shape and separable in this one.
+\paragraph{The parameter-matched control.} The first three models occupy three parameter counts in
+three model families, so every pairwise comparison among them varies scale and pretraining recipe at
+once. H2O-Danube3-500M-Chat was added as a control matched in size to Qwen2.5-0.5B-Instruct --
+514~M parameters against 494~M, a difference of 4.0\%, counted from the released checkpoints --
+drawn from a fourth family and trained under the recipe of Table~\ref{tab:lora}. Holding scale
+approximately fixed across that pair measures a family difference at one size. It does not remove
+family from the size comparison, whose endpoints, SmolLM2-360M and Llama-3.2-1B, are two further
+families. What the pair can establish is whether a family difference at fixed size is of the same
+order as the difference across the whole range, in which case parameter count alone does not order
+these models. Three qualifications bound the comparison: it holds on the reference surface only
+(Section~\ref{sec:quantisation-procedure}), under a three-epoch budget at which the control had not
+converged, and with the control's system prompt folded into its user turn, because its chat template
+has no system role.
 
 \begin{table}[htbp]
 \centering
-\caption{Fine-tuning recipe, identical across all four base models. Precision is fp16 rather
-than the bf16 originally specified; see the deviation below.}
+\caption[Fine-tuning recipe]{Fine-tuning recipe, identical across all four base models. Precision is fp16 because the
+T4 has no native bf16 support (see below).}
 \label{tab:lora}
 \begin{tabularx}{\textwidth}{@{}l X@{}}
 \toprule
 Setting & Value \\
 \midrule
-Method & LoRA~\cite{lora}, not QLoRA \\
+Method & \acrshort{lora}~\cite{lora}, not QLoRA \\
 Rank, alpha, dropout & $r = 16$, $\alpha = 32$, dropout $0.05$ \\
 Target modules & \texttt{q\_proj}, \texttt{k\_proj}, \texttt{v\_proj}, \texttt{o\_proj}, \texttt{gate\_proj}, \texttt{up\_proj}, \texttt{down\_proj} \\
 Optimiser & AdamW, learning rate $2\times10^{-4}$, cosine schedule, warmup ratio $0.03$ \\
-Epochs, batch & 3 epochs; effective batch 16 (per-device 4, gradient accumulation 4) \\
+Epochs, batch & 3 epochs; effective batch 32 (per-device 4 on each of two \acrshort{gpu}s under data parallelism, gradient accumulation 4) \\
 Sequence length & 256 tokens \\
 Loss & Completion-only masking -- prompt tokens contribute no gradient \\
-Precision & fp16 (deviation from the bf16 specification; see below) \\
+Precision & fp16 (no native bf16 on the T4; see below) \\
 Seed & 42, identical for all four runs \\
-Checkpoint selection & Best validation exact match, not best validation loss \\
+Checkpoint selection & Best validation \acrshort{em}, not best validation loss \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-\paragraph{LoRA, not QLoRA.} Low-rank adaptation~\cite{lora} freezes the base weights and trains a
-pair of rank-$r$ update matrices per targeted projection, which is sufficient on its own to bring
-a 0.36--1.2~B model to convergence on a vocabulary this narrow. QLoRA~\cite{qlora} adds one further step --
-quantising the frozen base weights during training, to fit a larger model into a smaller training
-budget -- and every model here is already small enough to fine-tune in full precision on the
-training hardware available, so that step would add a training-time quantisation confound without
-recovering any memory the training run needs. The rank-16 adapters target every linear projection
-in the transformer block, attention and feed-forward alike, rather than attention alone, on the
-same reasoning that motivates the schema in Section~\ref{sec:schema}: a narrower adapter would risk
-under-fitting a vocabulary this precise rather than saving a memory budget the training hardware
-does not require saving.
+\paragraph{Adaptation method.} \Gls{lora}~\cite{lora} freezes the base weights and trains
+a pair of rank-$r$ update matrices per targeted projection. QLoRA~\cite{qlora} adds one further
+step, quantising the frozen base weights during training to fit a larger model into a smaller
+training budget. Every model here is small enough to fine-tune without quantising its base weights
+on the training hardware, so that step would add a training-time quantisation confound without
+recovering any memory the run needs. The rank-16 adapters target every linear projection in the
+transformer block, attention and feed-forward alike, rather than attention alone: a narrower
+adapter would risk under-fitting a vocabulary this precise, and the memory it would save is not a
+constraint on the training hardware. Under the fixed three-epoch budget, Qwen2.5-0.5B-Instruct and
+Llama-3.2-1B-Instruct converged, while SmolLM2-360M-Instruct and H2O-Danube3-500M-Chat were still
+improving at the final epoch (Chapter~\ref{chap:results}). A difference between models is
+therefore a difference under an identical budget, not a difference between converged models.
 
 \paragraph{Completion-only masking.} The loss is computed only over the tokens the model is asked
-to produce -- the JSON command -- and the prompt tokens that precede it, transcript and schema
-instructions alike, contribute no gradient. Training on the prompt as well would reward the model
-for reproducing input it is never asked to generate at inference time, diluting the gradient signal
+to produce -- the \gls{json} command. The prompt tokens that precede it, the one-line instruction
+and the transcript alike, contribute no gradient. Training on the prompt as well would reward the
+model for reproducing input it is never asked to generate at inference time, diluting the gradient
 with tokens that carry no information about whether the command that follows is correct.
 
 \paragraph{Checkpoint selection.} The checkpoint kept from each run is the one with the highest
-exact match on \texttt{val\_synth} (Table~\ref{tab:dataset}), not the one with the lowest validation
-loss. Cross-entropy loss is computed token-by-token and rewards partial credit for a JSON output
-that is close in a token sense but wrong in the sense that matters to a flight controller -- a
-single incorrect digit in a coordinate can carry a small loss penalty and a complete exact-match
-failure at once -- so selecting on loss would optimise a proxy the deployment does not care about
-in place of the metric it does.
+\gls{em} on \texttt{val\_synth} (Table~\ref{tab:dataset}), not the one with the lowest
+validation loss. Cross-entropy loss is computed per token and gives partial credit to a \gls{json}
+output that is close in token terms but wrong as a command: a single wrong digit in a coordinate can
+cost little loss yet fail \gls{em} entirely. Selecting on loss would therefore optimise a proxy
+in place of the metric the deployment depends on. Validation shares the generator with every
+in-domain test split, but the golden set is drawn only from test families, so checkpoint selection
+never sees a family it is later scored on.
 
-\paragraph{The fp16-for-bf16 deviation.} Table~\ref{tab:lora} specifies fp16, not the bf16 this
-recipe originally called for, and the reason is fixed by the training hardware rather than by
-choice: all four models are fine-tuned on Kaggle's free-tier GPU accelerator, an NVIDIA~T4
-(compute capability~7.5, the Turing architecture). Hardware bf16 support was introduced with
-Ampere (compute capability~8.0), two generations later, so the T4 has no native bf16 path for the
-training run to use; every run is switched to fp16 instead, uniformly. The deviation is declared
-once, here, and not repeated in Chapter~\ref{chap:results}, because it applies identically to all
-four models: each is trained under the same substituted precision, on the same accelerator class,
-with every other setting in Table~\ref{tab:lora} held fixed, so precision is not a variable that
-differs across the comparison RQ1 depends on. The ranking among the four models that
-Chapter~\ref{chap:results} reports is a ranking obtained under one precision applied uniformly to
-all four, not an artefact of any one model receiving a training precision the others did not.
+\paragraph{Training precision.} Table~\ref{tab:lora} specifies fp16 rather than bf16, and the
+training hardware set this choice. All four models were fine-tuned on Kaggle's free-tier
+accelerator, two NVIDIA~T4 \glspl{gpu} (compute capability~7.5, the Turing architecture)~\cite{nvidiacc}.
+Native bf16 arithmetic arrived with the following architecture, Ampere (compute
+capability~8.0)~\cite{nvidiaampere}, so the T4 offers the training run no bf16 path, and every run
+used fp16 instead. The substitution is declared once, here, and not repeated in
+Chapter~\ref{chap:results}, because it applied identically to all four models: each was trained
+under the same precision, on the same accelerator class, with every other setting in
+Table~\ref{tab:lora} held fixed. The ranking among the four models that Chapter~\ref{chap:results}
+reports is therefore obtained under one precision applied to all four. Uniform substitution need
+not have a uniform effect, however: fp16's narrower exponent range can affect models
+pretrained in bf16 differently, and this is not ruled out.
 
-\paragraph{One training session, or two.} The parameter-matched control was trained in a separate
-session from the first three, under the same accelerator class and the same fp16 substitution but
-not in the same session instance. Training in fp16 on a GPU is not bit-reproducible, so its adapter
-is not an output of the run that produced the other three. The alternative -- retraining all four
-together -- would have replaced the three adapters against which every quantised result in
-Chapter~\ref{chap:results} was measured, and one session against two is the smaller of the two
-costs. It is recorded here because it qualifies the uniformity the preceding paragraph claims, and
-Chapter~\ref{chap:discussion} carries it into the threats to validity.
+\paragraph{Training sessions.} The parameter-matched control was trained in a separate session from
+the first three, on the same accelerator class and under the same fp16 substitution, but not in the
+same session instance. Training on a \gls{gpu} is not bit-reproducible across session
+instances~\cite{pytorchrepro}, so its adapter is not an output of the run that produced the other
+three. Retraining all four together would have replaced the three adapters against which every
+quantised result in Chapter~\ref{chap:results} was measured, and one session against two is the
+smaller cost. It qualifies the uniformity claimed above, and Chapter~\ref{chap:discussion} carries it
+into the threats to validity.
 
 \section{Quantisation procedure}
 \label{sec:quantisation-procedure}
-Three of the four fine-tuned adapters are merged into their base weights, converted to GGUF at
-f16, and quantised with \texttt{llama-quantize}~\cite{llamacpp} to two levels -- Q8\_0 and
-Q4\_K\_M -- producing six deployable artefacts. The fourth is held at the reference precision, for
-a reason established below under chat-template parity rather than chosen in advance. Merging and GGUF conversion run on
-Kaggle, alongside the fine-tuning itself, because both steps need the \texttt{torch} and
-\texttt{peft} stacks that this project's environment gate keeps off the workstation entirely;
-\texttt{llama-quantize} is pure C\,++ with no such dependency, so quantisation itself runs locally,
-against the f16 GGUF that Kaggle produces.
+All four fine-tuned adapters were merged into their base weights and converted to \gls{gguf} in
+fp16. Three were then quantised with \texttt{llama-quantize}~\cite{llamacpp} to two levels -- Q8\_0
+and Q4\_K\_M -- producing six deployable artefacts. The fourth, H2O-Danube3-500M-Chat, stays at
+fp16 on the reference surface defined below, for a reason established under chat-template parity
+rather than chosen in advance. Merging and conversion ran on Kaggle, alongside fine-tuning, because
+both need the \texttt{torch}~\cite{pytorch} and \texttt{peft}~\cite{peft} stacks, which are not
+installed on the workstation. \texttt{llama-quantize} is native C/C++ with no Python
+dependency~\cite{llamacpp}, so quantisation ran locally, against the fp16 \gls{gguf} files that
+Kaggle produced.
 
-\paragraph{Two measurement surfaces, never conflated.} The cost of deployment is measured, not
-assumed, by holding two surfaces strictly apart. \textbf{Surface~A} is the fp16 merged model run on
-the workstation under \texttt{transformers}, decoded without a grammar: a reference point, but not
-a configuration this project ever deploys. \textbf{Surface~B} is one of the six quantised GGUF
-artefacts run on the target Raspberry~Pi~5 under \texttt{llama.cpp} and the GBNF constraint: what
-actually ships, and the surface every headline accuracy figure in Chapter~\ref{chap:results}
-reports from. The difference between the two, $A - B$, is Contribution~C3, and it is what
-Table~18 in Chapter~\ref{chap:results} presents.
+\paragraph{Reference and deployed surfaces.} The cost of deployment is measured, not assumed, by
+holding two surfaces apart. The \textbf{reference surface} is the fine-tuned fp16 model -- base
+weights with the \acrshort{lora} adapter applied, not merged -- decoded under
+\texttt{transformers}~\cite{transformers} on a Kaggle T4, without a grammar: a reference point, not
+a deployed configuration. The \textbf{deployed surface} is one of the six quantised \gls{gguf}
+artefacts decoded by \texttt{llama.cpp} under the \gls{gbnf} constraint: the artefact and decoder
+that ship. Its accuracy is scored on the workstation and its latency and throughput are timed on the
+Raspberry~Pi~5 (Section~\ref{sec:definitions-of-record}). Every deployment accuracy figure in
+Chapter~\ref{chap:results} comes from the deployed surface; the four-model family comparison and the
+zero-shot baseline, which need H2O-Danube3-500M-Chat or the unadapted models, come from the
+reference surface. The reference-minus-deployed difference is the accuracy cost of the deployment
+pipeline that the harness of Contribution~C3 measures, and Table~\ref{tab:quantisation-delta}
+presents it.
 
-What that difference does \emph{not} isolate is weight precision. Three things change between the
-surfaces at once --- the numeric format, the inference runtime, and the presence of the decoding
-grammar --- so $A - B$ is the cost of the deployment pipeline as a whole. Reporting it as the cost
-of quantisation would attribute to rounding whatever the runtime change and the grammar contribute,
-and this document does not do that anywhere. One of the three terms is separable with the data
-collected here: decoding Surface~B a second time with the grammar disabled holds precision and
-runtime fixed and isolates the grammar, and Chapter~\ref{chap:results} reports that decomposition
-rather than asserting the confound is small. The remaining two terms, precision and runtime, stay
-confounded, and separating them would require a fourth surface this project did not run. The
-quantity $A - B$ measures is nonetheless the one a deployment decision needs, since no operator
-ships an fp16 checkpoint under \texttt{transformers} to a Raspberry~Pi~5; it is simply a different
-quantity from the perplexity delta the quantisation method papers report
-(Section~\ref{sec:quantisation}).
+That difference does \emph{not} isolate weight precision. Three things change between the surfaces
+at once -- the numeric format, the inference runtime, and the decoding grammar -- and the decoding
+settings differ as well: a 64-token cap and batched decoding on the reference surface, against a
+96-token cap and one sequence at a time on the deployed surface. For Llama-3.2-1B-Instruct, whose
+validation \gls{em} tied at epochs two and three, the checkpoint differs too: the reference
+surface scored the epoch-3 weights, while the deployed artefacts were merged from the epoch-2
+adapter that checkpoint selection kept. The difference is therefore the cost of the deployment
+pipeline as a whole. Reporting it as the cost of quantisation would attribute to rounding whatever
+the other changes contribute, and this document does not do that anywhere.
 
-\paragraph{Chat-template parity.} Fine-tuning happens through a HuggingFace tokeniser and its
-chat template; inference happens in \texttt{llama.cpp}, a separate implementation of the same
-template. If the two disagree on a special token, a whitespace convention, or a role marker, the
-mismatch produces no error at inference time -- the model simply decodes against a prompt shaped
-slightly differently from the one it was trained on, and accuracy degrades with nothing in the
-pipeline to flag why. Because this failure is silent, it cannot be left as a risk noted in passing:
-\texttt{test\_template\_parity.py} compares tokenised output for ten fixed prompts across both
-stacks and is run as a mandatory gate after every GGUF conversion, not as a diagnostic invoked only
-when a result already looks wrong.
+One term is separable with the data collected here. Decoding the deployed surface a second time with
+the grammar disabled holds precision and runtime fixed and isolates the grammar's effect on the
+deployed surface, and Chapter~\ref{chap:results} reports it. Attributing the remainder to precision
+and runtime assumes the grammar's effect is the same at both precisions, and separating precision
+from runtime would require a further surface, which was not measured. The difference is nonetheless
+the quantity a deployment decision needs, since the reference surface is not a configuration that
+runs on the board. It is a different quantity from the perplexity and generic-benchmark accuracy
+changes the quantisation literature reports (Section~\ref{sec:quantisation}).
 
-Two differences between the stacks are conventions rather than divergences, and the gate
-re-aligns both before comparing. \texttt{llama.cpp} omits the leading beginning-of-sequence
-piece from the rendered prompt because it inserts that token at tokenisation time instead, and
-Llama-3.2's template calls the current date into its system turn, so it renders the date of the
-check rather than the date of training. Each is applied only if, together, the two renderings
-become identical; a re-alignment that merely narrows a mismatch is discarded and the raw strings
-are compared, so neither convention can absorb a real divergence. The distinction is not
-cosmetic: read without it, the gate rejects Llama-3.2-1B-Instruct --- a model whose prompt is
-otherwise identical to the one it was trained on --- over a single calendar date.
+\paragraph{Chat-template parity.} Fine-tuning used a Hugging Face tokeniser and its chat template;
+inference uses \texttt{llama.cpp}, a separate implementation of the same template. If the two
+disagree on a special token, a whitespace convention, or a role marker, the mismatch raises no error
+at inference time: the model decodes against a prompt shaped differently from the one it was trained
+on, and accuracy degrades with nothing in the pipeline to flag why. Because the failure is silent,
+parity is checked in two halves over ten fixed audit prompts. \texttt{test\_template\_parity.py}
+confirms that the \texttt{llama.cpp} tokeniser reproduces the Hugging Face token identifiers for the
+Hugging Face rendering. \texttt{check\_parity\_gguf.py} renders each prompt through
+\texttt{llama.cpp}'s own template and compares both the rendered text and the token identifiers
+with the segmentation the adapter was trained under. The second half was added after the first
+deployed-surface sweep and confirmed all three quantised models at Q4\_K\_M; the Q8\_0 artefacts
+share their model's tokeniser and template but were not checked separately.
 
-\paragraph{The parity gate rejecting a conversion.} That policy is what kept the fourth model out
-of the quantised set. H2O-Danube3-500M-Chat renders identically under both stacks: the formatted
-prompt matches byte for byte on all ten audit prompts, so any comparison of rendered text would
-have passed it. The two tokenisers nonetheless segment that identical text differently. The word
-\texttt{drone}, which the prompt contains, is segmented as \texttt{dr}~+~\texttt{one} by the
-HuggingFace tokeniser and as \texttt{dro}~+~\texttt{ne} by \texttt{llama.cpp}, because
-SentencePiece merge ranking is not unique across implementations. The two sequences are the same
-length and detokenise to the same string, so nothing short of a token-level comparison separates
-them. A quantised artefact for this model would consequently be served under a segmentation it was
-never trained on -- the silent degradation this gate exists to detect -- and the model is therefore
-reported at the reference precision only. The other three models pass on all ten prompts, so the
-quantised results Chapter~\ref{chap:results} reports are unaffected.
+Two differences between the stacks are conventions rather than divergences, and the second half
+re-aligns both before comparing. First, \texttt{llama.cpp} omits the leading beginning-of-sequence
+piece from the rendered prompt, because it inserts that token at tokenisation
+time~\cite{llamacpp}. Second, Llama-3.2's chat template writes the current date into its system
+turn~\cite{llama32card}, so it renders the date of the check rather than the date of training. Each re-alignment is applied only if
+it makes the two renderings identical; one that merely narrows a mismatch is discarded and the raw
+strings are compared, so neither convention can absorb an unrelated divergence. Without the
+re-alignments, the gate would reject Llama-3.2-1B-Instruct over the rendered date alone, although its
+prompt is otherwise identical to the training prompt. The date re-alignment accepts one real
+difference by design: the model was trained with the date of its training session in the prompt, so
+every later serving differs from the training prompt by that date.
+
+\paragraph{Exclusion of the control model.} That policy is what kept H2O-Danube3-500M-Chat out of the
+quantised set. Its formatted prompt matches byte for byte under both stacks on all ten audit
+prompts, so a comparison of rendered text alone would have passed it. The two tokenisers
+nonetheless segment that identical text differently: the word \texttt{drone}, which the prompt
+contains, is segmented as \texttt{dr}~+~\texttt{one} by the Hugging Face tokeniser and as
+\texttt{dro}~+~\texttt{ne} by \texttt{llama.cpp}. The cause was not isolated. The two sequences are
+the same length and detokenise to the same string, so nothing short of a token-level comparison
+separates them. A quantised artefact for this model would be served under a segmentation it was
+never trained on -- the silent degradation the gate exists to detect -- so the model is reported on
+the reference surface only. The other three pass on all ten prompts, in rendered text and token
+identifiers, which is the evidence the quantised results of Chapter~\ref{chap:results} rest on.
 
 \section{Evaluation protocol and the definitions of record}
 \label{sec:definitions-of-record}
-Every accuracy number in either document traces to the functions fixed in this section, frozen
-alongside the command schema before any data existed, on the same principle: a metric changed
-after results exist is not a metric, it is a description of whichever result looked best.
+Every accuracy number in either document traces to the functions fixed in this section. The
+comparator, the canonical form and the accuracy metrics were fixed before any result existed, so
+that no metric could be adjusted after its results were known.
 
-\paragraph{Protocol.} Decoding is greedy, under the grammar of Section~\ref{sec:schema}, for every
-accuracy figure either document reports -- no sampling temperature, no beam search -- which makes a
-given model's output for a given input deterministic. This is also what separates the two
-categories of measurement this project takes. Exact match, the F1 scores, command recognition
-rate, and schema validity are computed once per test item and are therefore hardware-independent:
-they are run on the workstation, and evaluating them there rather than on the Raspberry~Pi~5
-changes nothing about their value, only how long they take to obtain. Latency is not
-hardware-independent in the same way -- it varies with scheduling, cache state, and thermal
-throttling on the specific device that ships -- so every timing figure either document reports is
-measured on the target Raspberry~Pi~5 itself, never inferred from the workstation. The two
-categories consequently report a different sample size for the same configuration: because
-decoding is deterministic, $n_{\mathrm{accuracy}}$ is the number of test items in the split being
-scored, while $n_{\mathrm{latency}}$ is the number of timed repetitions -- 200 per configuration by
-the original design before execution triaged it. Exp-1's Raspberry~Pi~5 runs were
-triaged to 60 repetitions per Q4\_K\_M configuration, with Q8\_0 left unmeasured on the Pi under
-that same triage; Exp-2 is triaged to 60 trials per branch on the same schedule. $n_{\mathrm{latency}}$
-is therefore reported per experiment as executed, not assumed uniform across the project from the
-original design figure. Reporting one $n$ for both accuracy and latency, or the design figure in
-place of the executed one, would misstate whichever number it was borrowed from.
+\paragraph{Protocol.} Decoding is greedy for every accuracy figure either document reports -- no
+sampling temperature, no beam search -- and runs under the grammar of Section~\ref{sec:schema} on
+the deployed surface, which makes a model's output for a given input deterministic. This separates
+two kinds of measurement. \Gls{em}, the F1 scores, schema validity, safe-failure rate and
+false-command rate take reference text as input. For the selected configuration, the parser's output
+on text was identical between the workstation and the Raspberry~Pi~5 on all 200 golden items. These
+metrics are therefore scored on the workstation, which changes how long they take to obtain but not
+their value. \Gls{crr} passes through speech recognition, whose transcripts differ
+between the two machines on two to six of the 200 items per noisy condition, so the \emph{M\'emoire
+d'Ing\'enieur} measures it on the board. Latency varies with scheduling, cache state and thermal
+throttling on the device that ships, so every timing figure either document reports is measured on
+the Raspberry~Pi~5 itself, never inferred from the workstation.
 
-\paragraph{Canonical form and the single comparator.} A single function, $\mathrm{canon}(\cdot)$,
-is applied to both the model's prediction and the reference label before either is compared to
-anything, so that exact match and command recognition rate are never computed against two
-differently normalised objects. Canonicalisation fixes the key order to the schema's declaration
-order, omits absent or null fields rather than emitting them, rounds every float to one decimal
-place -- matching the one-decimal limit the \texttt{num} rule already imposes on what the grammar
-can produce (Section~\ref{sec:schema}) -- deduplicates and sorts \texttt{ids} ascending, and strips
-all whitespace outside string literals. Two commands are equal if and only if their canonical forms
-are byte-identical, which reduces numeric comparison to a single rule: two numeric slots are equal
-if and only if $\mathrm{round}(a,1) = \mathrm{round}(b,1)$.
+The two kinds consequently report different sample sizes for one configuration: because decoding is
+deterministic, $n_{\mathrm{accuracy}}$ is the number of test items in the split being scored, while
+$n_{\mathrm{latency}}$ is the number of timed repetitions. The protocol as designed called for 200
+repetitions per configuration. The multi-model benchmark timed each Q4\_K\_M configuration over 60
+repetitions on the board and did not time Q8\_0 there, and the latency experiment of the
+\emph{M\'emoire d'Ing\'enieur} used 60 trials per path. $n_{\mathrm{latency}}$ is therefore reported
+per experiment as executed. Reporting one $n$ for both kinds, or the design figure in place of the
+executed one, would misstate whichever number it was borrowed from.
 
-Exact match and command recognition rate are, by design, the same comparison applied at two
-different points in the pipeline: exact match takes reference text as input, so the model is the
-only variable under test and the fine-tuned candidates can be separated from one another
-cleanly; command recognition rate takes audio through the entire pipeline, automatic speech
-recognition included. Because the comparator itself never changes between the two, the gap between
-them on the same underlying items is attributable to a single cause -- the cost of the
-speech-recognition stage -- and Chapter~\ref{chap:results} reports that gap as a finding in its
-own right rather than folding it into one end-to-end number. Feeding audio to the reference-text
-experiment instead would impose a shared word-error-rate ceiling on every model at once,
-compressing whatever separates them and making any remaining difference impossible to attribute to
-the parser rather than to the recogniser in front of it.
+\paragraph{Software environment.} Quantisation, the deployed surface and every timing run used
+\texttt{llama.cpp} build b10863 (commit 88ada91c), and speech recognition used \texttt{whisper.cpp}
+commit 52a939a with the \texttt{tiny.en} model~\cite{whisper}. Adapters were trained with
+\texttt{peft} 0.19.1 on the Kaggle image of each training session, whose \texttt{transformers} and
+PyTorch versions were not recorded, and \gls{gguf} conversion used the converter at the head of the
+\texttt{llama.cpp} repository at the time of each session, likewise unpinned. The system prompt is
+the single line ``You are a drone swarm command parser. Output only JSON matching schema.'', with
+the transcript as the user turn. The deployed surface decodes with a 96-token cap, a 1{,}024-token
+context and one sequence at a time. Speech synthesis uses three Piper voices (en\_US-lessac,
+en\_US-ryan and en\_GB-alba, all at medium quality), and generation and noise mixing are seeded
+with 42.
 
-Table~\ref{tab:metrics} fixes every metric either document reports; one absent from this table does
-not appear in either. This document's own results (Chapter~\ref{chap:results}) draw on exact
-match, the two F1 scores, schema validity, safe-failure rate, false-command rate, throughput, and
-the SLM decode latency Exp-1 measures on the Raspberry~Pi~5 alongside it; the remaining rows --
-Branch~A/B pipeline latency, formation accuracy, and convergence -- are computed by and reported in
-the \emph{M\'emoire d'Ing\'enieur}, which cites the comparator and the canonical form defined here
-rather than re-deriving them.
+\paragraph{Canonical form and comparator.} A single function, $\mathrm{canon}(\cdot)$, is applied to
+both the model's prediction and the reference label before either is compared to anything, so that
+\gls{em} and \gls{crr} are never computed against two differently normalised
+objects. Canonicalisation fixes the key order to the schema's declaration order and omits absent or null
+fields rather than emitting them. It rounds every float to one decimal place, matching the
+one-decimal limit the \texttt{num} rule imposes on what the grammar can produce
+(Section~\ref{sec:schema}), deduplicates and sorts \texttt{ids} ascending, and strips all
+whitespace outside string literals. Two commands are equal if and only if their canonical forms are
+byte-identical, which reduces numeric comparison to a single rule: two numeric slots are equal if
+and only if $\mathrm{round}(a,1) = \mathrm{round}(b,1)$.
 
-% xltabular, not table+tabularx: this table is ~300pt taller than a text page,
-% and as a float it was silently dropped from the PDF entirely (LaTeX reported
-% only "Float too large for page"). xltabular breaks across pages and repeats
-% the header row.
-\begin{xltabular}{\textwidth}{@{}l X l@{}}
-\caption{Metric definitions of record. Every accuracy number in either document is computed by
-the function named here, applied as described; a metric not listed here is not reported. Schema
-validity, throughput, and Exp-1's decode latency are defined directly from the evaluation harness
-that computes them, since each is already reported on every configuration.}
+\Gls{em} and \gls{crr} are, by design, the same comparison applied at two points
+in the pipeline. \Gls{em} takes reference text as input, so the model is the only variable under
+test and the fine-tuned candidates can be separated cleanly; \gls{crr} takes audio
+through the whole pipeline. The comparator and the items are the same: the golden set, scored from
+its transcripts and from its audio. The gap between the two therefore measures the cost of the audio
+front end, endpointing and speech recognition together, under the rule chosen for scoring an
+utterance the endpointer splits. The \emph{M\'emoire d'Ing\'enieur} reports that gap as a finding in its own
+right rather than folding it into one end-to-end number. Feeding audio to the reference-text
+experiment instead would impose a shared \gls{wer} ceiling on every model, compressing whatever
+separates them and confounding any remaining difference between the parser and the recogniser in
+front of it.
+
+Table~\ref{tab:metrics} fixes every metric this document reports and every accuracy metric the
+\emph{M\'emoire d'Ing\'enieur} reuses; the keyword-spotter, recovery and collision metrics that only
+the \emph{M\'emoire d'Ing\'enieur} uses are defined there. This document's results
+(Chapter~\ref{chap:results}) draw on \gls{em}, the two F1 scores, schema validity, safe-failure
+rate, false-command rate, \gls{wer}, throughput, decode latency, peak resident memory and the
+throttle proportion. The remaining rows -- \gls{crr}, latency on the reflex and parse
+paths, formation accuracy and convergence -- are computed by and reported in the \emph{M\'emoire
+d'Ing\'enieur}, which cites the comparator and the canonical form defined here rather than
+re-deriving them. The percentile rule applies to both documents.
+
+% xltabular, not table+tabularx: this table is taller than a text page, and as a float it was
+% silently dropped from the PDF entirely (LaTeX reported only "Float too large for page").
+% xltabular breaks across pages and repeats the header row.
+\begin{xltabular}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.2cm} X l@{}}
+\caption[Metric definitions of record]{Metric definitions of record: the function behind each metric and where it is reported
+(section of Chapter~\ref{chap:results}, or \textdagger{} for the \emph{M\'emoire d'Ing\'enieur}).
+Every accuracy figure in either document is computed as defined here.}
 \label{tab:metrics}\\
 \toprule
-Metric & Definition & Used in \\
+Metric & Definition & Reported in \\
 \midrule
 \endfirsthead
 \toprule
-Metric & Definition & Used in \\
+Metric & Definition & Reported in \\
 \midrule
 \endhead
-Exact match (EM) & Fraction of items where $\mathrm{canon}(\mathrm{pred})$ equals $\mathrm{canon}(\mathrm{gold})$; input is reference text & Exp-1, NFR-4 \\
-Command recognition rate (CRR) & The same comparison, with input being audio through the full pipeline & Exp-3, NFR-7, NFR-8 \\
-Intent macro-F1 & Unweighted mean of per-intent F1 over all ten intents present in the reference, so \texttt{unknown} cannot be inflated by frequency & Exp-1, NFR-5 \\
-Slot-F1 & Micro-averaged F1 over the multiset of (key, canonical value) pairs, across all items regardless of intent correctness & Exp-1 \\
-Schema validity & Fraction of items whose output parses as a schema-conformant command; under the grammar this is 1.0 by construction, and the grammar ablation is the one place it can move & Exp-1, NFR-6 \\
-Safe-failure rate & Among items where EM is 0, the fraction whose dispatched action is \texttt{unknown} or \texttt{HOVER}; denominator is failed items only & Exp-1, Exp-3, NFR-9 \\
-False-command rate & On the out-of-domain set, the fraction of items producing any intent other than \texttt{unknown} that also survives the validator & Exp-1, NFR-18 \\
-Throughput & Decode tokens summed over decode-seconds summed across the aggregation window, not the mean of per-trial ratios; measured on the three cores reserved for inference (\texttt{taskset -c 1-3 -t 3}) & Exp-1, RQ1 \\
-Word error rate (WER) & Word-level edit distance after the fixed normalisation committed in \texttt{eval/norm.py} & Exp-0, Exp-3 \\
-Latency & SLM decode and prefill latency, per-trial wall-clock, reported as p50/p95 alongside throughput. Branch~B: $T_0$ = end-of-speech, $T_1$ = bus-publish return. Branch~A: $T_0$ = keyword offset, same $T_1$; both branches also report an onset-anchored figure & Exp-1, Exp-2 \\
-Percentiles & Nearest-rank on the sorted sample, no interpolation; sample size $n$ stated in every cell & Exp-1, Exp-2, Exp-3 \\
-Formation accuracy (FA) & Fraction of drones within $\tau = 0.5$~m of the assigned slot, averaged over the final 5~s of a 60~s trial & Exp-4, NFR-13 \\
-Convergence & Rate of trials reaching FA $\geq 0.85$ at all, plus median and IQR of convergence time over converged trials only & Exp-4 \\
+\Acrlong{em} (\acrshort{em}) & Fraction of items where $\mathrm{canon}(\mathrm{pred})$ equals $\mathrm{canon}(\mathrm{gold})$; input is reference text & \ref{sec:exp1}--\ref{sec:grammar-ablation} \\
+\Acrlong{crr} (\acrshort{crr}) & The same comparison, with input being audio through the full pipeline & \textdagger \\
+Intent macro-F1 & Unweighted mean of per-intent F1 over all ten intents present in the reference, so \texttt{unknown} cannot be inflated by frequency & \ref{sec:exp1} \\
+Slot-F1 & Micro-averaged F1 over the multiset of (key, canonical value) pairs, across all items regardless of intent correctness & \ref{sec:exp1} \\
+Schema validity & Fraction of items whose output parses as a schema-conformant command; under the grammar this is 1.0 by construction, and the grammar ablation is the one place it can move & \ref{sec:exp1}, \ref{sec:grammar-ablation} \\
+Safe-failure rate & Among items where \acrshort{em} is 0, the fraction whose dispatched action is \texttt{unknown} or \texttt{hover}; denominator is failed items only & \ref{sec:exp1}, \textdagger \\
+False-command rate & On the out-of-domain set, the fraction of items producing any intent other than \texttt{unknown} that also survives the validator & \ref{sec:exp1} \\
+Throughput & Decode tokens summed over decode-seconds summed across the aggregation window, not the mean of per-trial ratios; measured on the three cores reserved for inference (\texttt{taskset -c 1-3}, three \texttt{llama.cpp} threads) & \ref{sec:exp1}, \ref{sec:selection} \\
+Peak resident memory & Maximum resident set size of the language-model process and its children, sampled every 20~ms during the timed run; a lower bound on full-stack memory & \ref{sec:exp1}, \ref{sec:selection} \\
+Throttle proportion & Fraction of timed trials during which the board reports a non-zero throttle flag & \ref{sec:exp1} \\
+\Acrlong{wer} (\acrshort{wer}) & Word-level edit distance after the fixed normalisation committed in \texttt{eval/norm.py} & \ref{sec:exp0}, \textdagger \\
+Speaker position & The author's \acrshort{wer}, with a bootstrap 95\% confidence interval, located within the distribution of per-bucket \acrshort{wer} over the Common Voice accent buckets & \ref{sec:exp0} \\
+Latency & Language-model decode and prefill latency, per-trial wall-clock, reported as p50/p95 alongside throughput. Parse path: $T_0$ = end of speech, $T_1$ = return of the publish call on the runtime's command bus; reflex path: $T_0$ = keyword offset, same $T_1$; both paths also report an onset-anchored figure & \ref{sec:exp1}, \ref{sec:selection}, \textdagger \\
+Percentiles & Nearest-rank on the sorted sample, no interpolation; sample size $n$ stated in every cell & all \\
+Formation accuracy & Fraction of drones within $\tau = 0.5$~m of the assigned slot, averaged over the final 5~s of a 60~s trial & \textdagger \\
+Convergence & Rate of trials whose formation accuracy reaches 0.85 at all, plus median and interquartile range of convergence time over converged trials only & \textdagger \\
 \bottomrule
 \end{xltabular}
 
-\paragraph{Requirements of record.} The metrics above are scored against numbered requirements,
-fixed in the project specification alongside the schema and cited by identifier in
-Chapter~\ref{chap:results}. Table~\ref{tab:requirements} lists every requirement this document
-refers to, with the budget it sets and the experiment that measures it; a requirement measured by
-Exp-2, Exp-3 or Exp-4 is listed for completeness and reported in the \emph{M\'emoire
-d'Ing\'enieur}. Two properties of the list govern how Chapter~\ref{chap:results} may use it.
-NFR-6 is satisfied by construction, so it is reported but never counted as a result. NFR-9a is
-defined over the full deployed stack, of which Exp-1's peak resident set size measures only the
-language-model process; an Exp-1 figure can therefore rule a configuration out, but only the
-full-stack measurement can confirm one.
+\paragraph{Requirements of record.} The metrics above are scored against budgets fixed alongside the
+schema before any result existed. Table~\ref{tab:requirements} lists every requirement this document
+uses, by the name Chapter~\ref{chap:results} refers to it with, together with its budget and the
+experiment that measures it. Two properties govern how Chapter~\ref{chap:results} may use the list.
+Schema validity is satisfied by construction, so it is reported but never counted as a result. The
+memory ceiling is defined over the full deployed stack, of which the multi-model benchmark's peak
+resident memory measures only the language-model process. That figure can rule a configuration out
+but cannot confirm one, and no full-stack measurement was made, so the ceiling is met for the
+language-model process only.
 
 \begin{table}[htbp]
 \centering
 \footnotesize
-\caption{Requirements of record referred to in this document. Budgets are fixed in the project
-specification before any result existed; a requirement missed is reported as missed and, where
-the specification's escalation rule applies, re-baselined against the measured figure rather than
-silently adjusted.}
+\caption[Requirements of record]{Requirements of record used in this document, with budget and measuring experiment.
+Budgets were fixed before any result existed; a missed requirement is reported as missed, not
+adjusted. Experiments marked * are reported in the \emph{M\'emoire d'Ing\'enieur}.}
 \label{tab:requirements}
-\begin{tabularx}{\textwidth}{@{}l X l l@{}}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.3cm} X l >{\raggedright\arraybackslash}p{2.6cm}@{}}
 \toprule
-ID & Requirement & Budget & Measured by \\
+Criterion & Requirement & Budget & Measured by \\
 \midrule
-NFR-2 & Branch~B latency, from end of speech & p95 $\leq$ 2{,}500~ms & Exp-2 \\
-NFR-4 & Exact match on the deployed quantised artefact, best model & $\geq$ 0.85 & Exp-1 \\
-NFR-5 & Intent macro-F1, best model & $\geq$ 0.90 & Exp-1 \\
-NFR-6 & Schema validity under the grammar & 100\%, by construction & Exp-1 \\
-NFR-7 & Command recognition rate on the golden set, clean audio & $\geq$ 0.80 & Exp-3 \\
-NFR-8 & Command recognition rate at 10~dB SNR & $\geq$ 0.65 & Exp-3 \\
-NFR-9 & Safe-failure rate: errors resolving to \texttt{unknown} or \texttt{HOVER} & $\geq$ 0.70 & Exp-1, Exp-3 \\
-NFR-9a & Peak resident memory, selected configuration, full stack & $\leq$ 2.5~GB & Exp-1, Exp-2 \\
-NFR-10 & Proportion of timed trials with a non-zero throttle flag & $\leq$ 5\%, always reported & Exp-1 \\
-NFR-11 & Speech-recognition word error rate on the author's speech, positioned against a multi-speaker distribution & bootstrap 95\% CI; no pass/fail & Exp-0 \\
-NFR-13 & Formation accuracy & $\geq$ 0.85 & Exp-4 \\
-NFR-15 & Keyword false accepts on ambient speech & $\leq$ 1 per hour & Exp-2 \\
-NFR-18 & False-command rate on the out-of-domain set & $\leq$ 0.05 & Exp-1 \\
+End-to-end latency & Parse-path latency, from end of speech & p95 $\leq$ 2{,}500~ms & Latency experiment* \\
+Exact-match threshold & \acrshort{em} on the deployed quantised artefact, best model & $\geq$ 0.85 & Multi-model benchmark \\
+Intent F1 & Intent macro-F1, best model & $\geq$ 0.90 & Multi-model benchmark \\
+Schema validity & Schema validity under the grammar & 100\%, by construction & Multi-model benchmark \\
+Clean-audio recognition & \acrshort{crr} on the golden set, clean audio & $\geq$ 0.80 & Acoustic-robustness experiment* \\
+Recognition in noise & \acrshort{crr} at 10~dB \acrshort{snr} & $\geq$ 0.65 & Acoustic-robustness experiment* \\
+Safe failure & Safe-failure rate: errors resolving to \texttt{unknown} or \texttt{hover} & $\geq$ 0.70 & Multi-model benchmark, acoustic-robustness experiment* \\
+Memory ceiling & Peak resident memory, selected configuration, full stack; only the language-model process was measured & $\leq$ 2.5~GB & Multi-model benchmark \\
+Memory per configuration & Peak resident memory, every configuration & reported; no pass/fail & Multi-model benchmark \\
+Throttling & Proportion of timed trials with a non-zero throttle flag & $\leq$ 5\%, reported for every run & Multi-model benchmark \\
+Speaker sensitivity & Speech-recognition \acrshort{wer} on the author's speech, positioned against a multi-speaker distribution & bootstrap 95\% CI; no pass/fail & Speaker-sensitivity experiment \\
+False commands & False-command rate on the out-of-domain set & $\leq$ 0.05 & Multi-model benchmark \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-\paragraph{The latency budget as a deployment constraint.} The stage allowances that
-Chapter~\ref{chap:results} measures Exp-1 against are part of an end-to-end latency budget whose
-derivation belongs to the \emph{M\'emoire d'Ing\'enieur}; this document uses it only as a
-constraint, and Table~\ref{tab:latency-budget} reproduces the rows it needs. The two language-model
-rows sum to the 1{,}350~ms stage allowance used in Figure~\ref{fig:pareto}. The allowances are
-targets, not a decomposition of NFR-2: they are set per stage, and the measured end-to-end figure,
-not their sum, is what NFR-2 is judged against.
+\paragraph{Selection rule and statistical plan.} The deployed configuration is the one with the
+highest \gls{em} among those meeting the 2{,}500~ms end-to-end latency budget and the 2.5~GB
+memory ceiling, ties broken toward lower p95 latency. Paired predictions are compared by McNemar's
+test in two confirmatory families of three, both on the golden split: model against model at
+Q4\_K\_M, and Q8\_0 against Q4\_K\_M within each model. Bonferroni correction within each family
+gives $\alpha = 0.0167$ against a family-wise $\alpha = 0.05$; the exact binomial test is used below
+25 discordant pairs and the continuity-corrected chi-square above it. The four base models are also
+scored zero-shot, without fine-tuning and without the grammar, as the baseline the fine-tune is
+measured from.
+
+\paragraph{Stage latency allowances.} The stage allowances against which
+Chapter~\ref{chap:results} measures the multi-model benchmark are part of an end-to-end latency
+budget derived in the \emph{M\'emoire d'Ing\'enieur}; this document uses it only as a constraint,
+and Table~\ref{tab:latency-budget} reproduces the rows it needs. The two language-model rows sum to
+the 1{,}350~ms stage allowance used in Figure~\ref{fig:pareto}. The allowances are targets, not a
+decomposition of the end-to-end budget: they are set per stage, and the measured end-to-end figure,
+not their sum, is what the 2{,}500~ms budget is judged against. Chapter~\ref{chap:results} applies
+these definitions, requirements and allowances to the measured configurations, in the order the
+selection rule needs them.
 
 \begin{table}[htbp]
 \centering
 \footnotesize
-\caption{Stage allowances of the Branch~B latency budget used as deployment constraints in this
+\caption[Stage latency allowances]{Stage allowances of the parse-path latency budget used as deployment constraints in this
 document (p95 targets, measured from end of speech). The full budget, including the reflex path,
 is derived in the \emph{M\'emoire d'Ing\'enieur}.}
 \label{tab:latency-budget}
@@ -534,7 +608,7 @@ Language-model decode & 1{,}100~ms \\
 Validation, state-machine check and dispatch & 50~ms \\
 \midrule
 Language-model stages combined & 1{,}350~ms \\
-End to end, from end of speech (NFR-2) & 2{,}500~ms \\
+End to end, from end of speech & 2{,}500~ms \\
 \bottomrule
 \end{tabular}
 \end{table}

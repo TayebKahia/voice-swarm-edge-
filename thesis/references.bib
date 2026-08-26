@@ -75,8 +75,79 @@
 @misc{whispercpp,
   title        = {whisper.cpp: Port of {OpenAI}'s {Whisper} Model in {C/C++}},
   author       = {Gerganov, Georgi and {the ggml contributors}},
+  version      = {commit 52a939a},
   url          = {https://github.com/ggml-org/whisper.cpp},
   urldate      = {2026-09-22}
+}
+
+% Training-side software. The Kaggle image's transformers and PyTorch versions were not
+% recorded; PEFT 0.19.1 is read from the adapters' adapter_config.json.
+@inproceedings{transformers,
+  title        = {Transformers: State-of-the-Art Natural Language Processing},
+  author       = {Wolf, Thomas and Debut, Lysandre and Sanh, Victor and Chaumond, Julien and
+                  Delangue, Clement and Moi, Anthony and Cistac, Pierric and Rault, Tim and
+                  Louf, R{\'e}mi and Funtowicz, Morgan and Davison, Joe and Shleifer, Sam and
+                  von Platen, Patrick and Ma, Clara and Jernite, Yacine and Plu, Julien and
+                  Xu, Canwen and Le Scao, Teven and Gugger, Sylvain and Drame, Mariama and
+                  Lhoest, Quentin and Rush, Alexander M.},
+  booktitle    = {Proceedings of the 2020 Conference on Empirical Methods in Natural Language
+                  Processing: System Demonstrations},
+  pages        = {38--45},
+  year         = {2020},
+  publisher    = {Association for Computational Linguistics},
+  doi          = {10.18653/v1/2020.emnlp-demos.6}
+}
+
+@misc{peft,
+  title        = {{PEFT}: State-of-the-art Parameter-Efficient Fine-Tuning methods},
+  author       = {Mangrulkar, Sourab and Gugger, Sylvain and Debut, Lysandre and Belkada, Younes
+                  and Paul, Sayak and Bossan, Benjamin and Tietz, Marian},
+  year         = {2022},
+  version      = {0.19.1},
+  url          = {https://github.com/huggingface/peft},
+  urldate      = {2026-09-23}
+}
+
+@inproceedings{pytorch,
+  title        = {{PyTorch}: An Imperative Style, High-Performance Deep Learning Library},
+  author       = {Paszke, Adam and Gross, Sam and Massa, Francisco and Lerer, Adam and
+                  Bradbury, James and Chanan, Gregory and Killeen, Trevor and Lin, Zeming and
+                  Gimelshein, Natalia and Antiga, Luca and Desmaison, Alban and K{\"o}pf, Andreas
+                  and Yang, Edward and DeVito, Zachary and Raison, Martin and Tejani, Alykhan and
+                  Chilamkurthy, Sasank and Steiner, Benoit and Fang, Lu and Bai, Junjie and
+                  Chintala, Soumith},
+  booktitle    = {Advances in Neural Information Processing Systems 32},
+  year         = {2019},
+  eprint       = {1912.01703},
+  archivePrefix= {arXiv},
+  url          = {https://arxiv.org/abs/1912.01703}
+}
+
+@misc{pytorchrepro,
+  title        = {Reproducibility},
+  author       = {{PyTorch Contributors}},
+  howpublished = {PyTorch documentation, notes},
+  url          = {https://docs.pytorch.org/docs/stable/notes/randomness.html},
+  urldate      = {2026-09-23},
+  note         = {Bitwise reproducibility is not guaranteed across releases, commits or platforms}
+}
+
+@misc{nvidiacc,
+  title        = {{CUDA} {GPU} Compute Capability},
+  author       = {{NVIDIA Corporation}},
+  url          = {https://developer.nvidia.com/cuda-gpus},
+  urldate      = {2026-09-23},
+  note         = {T4: compute capability 7.5; A100: 8.0}
+}
+
+@misc{nvidiaampere,
+  title        = {{NVIDIA} Ampere Architecture In-Depth},
+  author       = {{NVIDIA Corporation}},
+  year         = {2020},
+  howpublished = {NVIDIA Technical Blog},
+  url          = {https://developer.nvidia.com/blog/nvidia-ampere-architecture-in-depth/},
+  urldate      = {2026-09-23},
+  note         = {Introduces BF16 Tensor Core operations}
 }
 
 % -- Candidate language models ------------------------------------------------
@@ -98,6 +169,16 @@
   archivePrefix= {arXiv},
   primaryClass = {cs.CL},
   url          = {https://arxiv.org/abs/2502.02737}
+}
+
+@misc{llama32card,
+  title        = {{Llama-3.2-1B-Instruct} Model Card and Chat Template},
+  author       = {{Meta AI}},
+  year         = {2024},
+  howpublished = {Hugging Face model repository},
+  url          = {https://huggingface.co/meta-llama/Llama-3.2-1B-Instruct},
+  urldate      = {2026-09-23},
+  note         = {The chat template writes the current date into the system turn}
 }
 
 @misc{llama32,
@@ -150,6 +231,8 @@
 @misc{oww,
   title        = {{openWakeWord}},
   author       = {Scripka, David},
+  year         = {2024},
+  version      = {0.6.0},
   url          = {https://github.com/dscripka/openWakeWord},
   urldate      = {2026-09-22}
 }
@@ -161,11 +244,15 @@
   urldate      = {2026-09-22}
 }
 
+% rhasspy/piper was archived in October 2025; the installed piper-tts 1.8.0 is the piper1-gpl
+% codebase maintained by the Open Home Foundation.
 @misc{piper,
   title        = {{Piper}: A Fast, Local Neural Text-to-Speech System},
-  author       = {Hansen, Michael},
-  url          = {https://github.com/rhasspy/piper},
-  urldate      = {2026-09-22}
+  author       = {Hansen, Michael and {the Open Home Foundation}},
+  year         = {2026},
+  version      = {1.8.0},
+  url          = {https://github.com/OHF-Voice/piper1-gpl},
+  urldate      = {2026-09-23}
 }
 
 % -- Corpora ------------------------------------------------------------------
@@ -196,6 +283,38 @@
   year      = {2020},
   publisher = {European Language Resources Association},
   url       = {https://aclanthology.org/2020.lrec-1.520/}
+}
+
+@misc{commonvoice17,
+  title        = {Common Voice Corpus 17.0},
+  author       = {{Mozilla Foundation}},
+  year         = {2024},
+  howpublished = {Hugging Face dataset repository},
+  url          = {https://huggingface.co/datasets/mozilla-foundation/common_voice_17_0},
+  urldate      = {2026-09-23},
+  note         = {Release 17.0; read through the ungated mirror fsicoli/common\_voice\_17\_0}
+}
+
+@inproceedings{librispeech,
+  title        = {Librispeech: An {ASR} Corpus Based on Public Domain Audio Books},
+  author       = {Panayotov, Vassil and Chen, Guoguo and Povey, Daniel and Khudanpur, Sanjeev},
+  booktitle    = {2015 IEEE International Conference on Acoustics, Speech and Signal Processing
+                  (ICASSP)},
+  pages        = {5206--5210},
+  year         = {2015},
+  doi          = {10.1109/ICASSP.2015.7178964}
+}
+
+@article{traer2016,
+  title        = {Statistics of Natural Reverberation Enable Perceptual Separation of Sound and
+                  Space},
+  author       = {Traer, James and McDermott, Josh H.},
+  journal      = {Proceedings of the National Academy of Sciences},
+  volume       = {113},
+  number       = {48},
+  year         = {2016},
+  doi          = {10.1073/pnas.1612524113},
+  note         = {Source of the MIT Acoustical Reverberation Survey impulse responses}
 }
 
 @misc{speechcmd,
@@ -269,10 +388,11 @@
 }
 % Venue deliberately unasserted: the arXiv comments field says only "Extended
 % NeurIPS submission". Upgrade once the proceedings entry is confirmed.
-@misc{qlora,
+@inproceedings{qlora,
   title        = {{QLoRA}: Efficient Finetuning of Quantized {LLM}s},
   author       = {Dettmers, Tim and Pagnoni, Artidoro and Holtzman, Ari and
                   Zettlemoyer, Luke},
+  booktitle    = {Advances in Neural Information Processing Systems 36},
   year         = {2023},
   eprint       = {2305.14314},
   archivePrefix= {arXiv},
