@@ -47,9 +47,9 @@ WORDS |= {f"twenty-{w}": 20 + i for w, i in list(WORDS.items())[1:10]}
 #: Artefacts of how the project was run. A thesis is read by someone who has never seen prd.md,
 #: STATE.md or the sprint plan, so none of these may reach the prose (FAIL). Each has a thesis
 #: equivalent: "the requirements of Section X", "a preliminary experiment", "reduced to 60".
-INTERNAL = (r"\bprd(?:\.md|\.tex)?\b|\bPRD\b|project specification|hardware specification|STATE\.md|\bspike(?:-era)?\b|"
-            r"\bS[0-9]\b|triag(?:e|ed|ing)|\bsprint\b|build schedule|this project executed|\bGate~?\s*\d|\bD[0-9]{1,2}\b|"
-            r"\bsession~?\s*\d+|Table~?\s*3 of|escalation rule")
+INTERNAL = (r"\bprd(?:\.md|\.tex)?\b|\bPRD\b|project\s+specification|hardware\s+specification|STATE\.md|\bspike(?:-era)?\b|"
+            r"\bS[0-9]\b|triag(?:e|ed|ing)|\bsprint\b|build\s+schedule|this\s+project\s+executed|\bGate~?\s*\d|\bD[0-9]{1,2}\b|"
+            r"\bsession~?\s*\d+|Table~?\s*3 of|escalation\s+rule")
 #: Short codes a reader must be given before they meet them. Defined = first cell of a table row,
 #: inside \textbf{}, or followed at once by a parenthesis or colon that says what it is.
 CODES = r"\b(?:Exp-\d|N?FR-\d+[a-z]?|RQ\d|C[1-4]\b|Surface~?\s?[AB]\b|Branch~?\s?[AB]\b)"
@@ -535,7 +535,7 @@ class Review:
         prose = self.ch.prose()
         for m in re.finditer(INTERNAL, prose):
             ctx = re.sub(r"\s+", " ", prose[max(0, m.start() - 50): m.end() + 50]).strip()
-            self.add("FAIL", "internal", f"`{m.group()}` -- project-internal; the reader has no such document. "
+            self.add("FAIL", "internal", f"`{' '.join(m.group().split())}` -- project-internal; the reader has no such document. "
                      f"...{ctx}...", _line(prose, m.start()))
 
     def _document(self) -> list[Chapter]:
@@ -700,19 +700,34 @@ def rq_check(r: Review, n: int) -> None:
 
 
 def requirement_table_check(r: Review, label: str, target_col: int, source_col: int | None,
-                            strict: bool = True) -> None:
-    """`strict=False` for FR tables, whose second column is a verification method the chapter may
-    reword freely; NFR targets are numbers and must match."""
-    """Rows of the chapter's requirement table against prd Tables 11-12, cell by cell."""
+                            strict: bool = True, row_ids: dict[str, str] | None = None,
+                            source_names: dict[str, str] | None = None) -> None:
+    """Rows of the chapter's requirement table against prd Tables 11-12, cell by cell.
+
+    `strict=False` for FR tables, whose second column is a verification method the chapter may
+    reword freely; NFR targets are numbers and must match. A document that names its criteria
+    instead of printing IDs (the Master, issue 00) passes `row_ids`, first cell -> prd ID, and
+    `source_names`, experiment name -> prd code, so the same prd row is still what is compared."""
     m = re.search(rf"\\label\{{{label}\}}(.*?)\\end\{{tabularx\}}", r.ch.text, flags=re.S)
     if not m:
         r.add("FAIL", "requirements", f"table {label} not found")
         return
     reqs = prd_requirements()
     wording = ["| line | id | chapter wording | prd wording |", "|---|---|---|---|"]
-    for row in re.findall(r"^((?:N?FR)-\w+) & (.*?)\\\\\s*$", m.group(1), flags=re.M):
+    body = m.group(1)[m.group(1).find("\\midrule"):]
+    if row_ids is None:
+        rows = re.findall(r"^((?:N?FR)-\w+) & (.*?)\\\\\s*$", body, flags=re.M)
+    else:
+        rows = []
+        for name, rest in re.findall(r"^([^&\n\\]+?) & (.*?)\\\\\s*$", body, flags=re.M):
+            if name.strip() not in row_ids:
+                r.add("FAIL", "requirements", f"row `{name.strip()}` has no prd ID in the script's mapping",
+                      r.ch.find(f"{name.strip()} &")[0])
+                continue
+            rows.append((row_ids[name.strip()], rest, name.strip()))
+    for row in rows:
         rid, cells = row[0], [c.strip() for c in row[1].split(" & ")]
-        line = r.ch.find(f"{rid} &")[0]
+        line = r.ch.find(f"{row[2] if len(row) > 2 else rid} &")[0]
         want = reqs.get(rid)
         if not want:
             r.add("FAIL", "requirements", f"{rid} is not a requirement in prd.md", line)
@@ -720,12 +735,15 @@ def requirement_table_check(r: Review, label: str, target_col: int, source_col: 
         # Targets are compared on substance -- the numbers and the direction of the bound -- since
         # the chapter legitimately rewords "100% *by construction* -- reported as ..." to fit a cell.
         def gist(s: str) -> tuple:
-            s = norm(s)
+            s = re.sub(CODES, " ", norm(s), flags=re.I)   # "an RQ1 result" carries no target number
             return (sorted(re.findall(r"\d+(?:[.,]\d+)?", s)), "≤" in s, "≥" in s)
         ok = gist(cells[target_col - 1]) == gist(want[1])
         r.expect("requirements", ok, f"{rid} target `{cells[target_col - 1]}` vs prd `{want[1]}`", line, warn=not strict)
         if source_col is not None:
-            src_ok = norm(cells[source_col - 1]) == norm(want[2])
+            src = cells[source_col - 1]
+            for name, code in (source_names or {}).items():
+                src = re.sub(re.escape(name), code, src, flags=re.I)
+            src_ok = norm(src) == norm(want[2])
             r.expect("requirements", src_ok, f"{rid} source `{cells[source_col - 1]}` vs prd `{want[2]}`", line, warn=True)
         wording.append(f"| {line} | {rid} | {cells[0][:90]} | {want[0][:90]} |")
     r.manual.append(f"### Requirement wording, {label} vs prd.md (argument agent: a paraphrase may not change the "

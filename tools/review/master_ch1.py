@@ -6,7 +6,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from lib import (MASTER, RESULTS, Review, csv_rows, main_order, md_table, outline_check,  # noqa: E402
+from lib import (MASTER, REPO, RESULTS, Review, csv_rows, main_order, md_table, outline_check,  # noqa: E402
                  prd, rq_check)
 
 r = Review("master_ch1", "master", MASTER[0], MASTER[1:])
@@ -50,10 +50,11 @@ r.number("at 14.53~tok/s", lc, "results/thermal_headroom.md llama cooled")
 r.number("decodes at 18.13~tok/s", qu, "results/thermal_headroom.md qwen uncooled")
 r.number("clears by 40\\%", 100 * (qc / 20 - 1), "27.93 / 20 - 1")
 ch3 = (r.ch.path.parent / "ch3_method.tex").read_text()
+cores = re.search(r'^CORES = "([^"]+)"', (REPO / "eval/exp1.py").read_text(), re.M).group(1)
 r.text_claim("claim", "the three cores the deployed configuration reserves for speech recognition and language-model "
-             "inference", "three cores reserved for inference (\\texttt{taskset -c 1-3 -t 3})" in ch3,
-             "'three cores reserved for speech recognition and inference' matches Ch3's throughput definition "
-             "(taskset -c 1-3 -t 3; core 0 carries capture, VAD and the keyword spotter)")
+             "inference", f"three cores reserved for inference (\\texttt{{taskset -c {cores}}}" in ch3,
+             f"'three cores reserved for speech recognition and inference' matches Ch3's throughput definition "
+             f"(taskset -c {cores} in eval/exp1.py; core 0 carries capture, VAD and the keyword spotter)")
 r.number("against the 20~tok/s floor", 22 / (decode_ms / 1000), "22 tokens / 1.100 s (closing paragraph)")
 ch2 = (r.ch.path.parent / "ch2_related_work.tex").read_text()
 r.text_claim("coherence", "three deployment candidates", "four fine-tuned models" in ch2 and "a fourth" in r.ch.text,
