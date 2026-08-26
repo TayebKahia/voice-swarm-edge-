@@ -615,12 +615,18 @@ class Review:
     def _numbers(self) -> None:
         rows = ["| line | as written | trace |", "|---|---|---|"]
         claimed = {i.line for i in self.items if i.check == "claim" and i.status == "PASS"}
+        # A number a paper-number anchor covers belongs to a cited paper, never to results/, so
+        # tracing it to a source file can only produce a false UNTRACED; the citation agent checks it.
+        quoted = {i.line for i in self.items if i.check == "paper-number" and i.status == "PASS"}
         untraced = 0
         for n in numbers(self.ch):
             if not significant(n):
                 continue
             if n.line in claimed:
                 rows.append(f"| {n.line} | {n.text} | recomputed by a claim on this line |")
+                continue
+            if n.line in quoted:
+                rows.append(f"| {n.line} | {n.text} | quoted from a paper (see \"Numbers quoted from papers\") |")
                 continue
             hits = trace(n)
             measured = [h for h in hits if h[1] == "measured"]

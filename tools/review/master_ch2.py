@@ -58,16 +58,19 @@ r.text_claim("coherence", "four fine-tuned models", len(models) == 4,
              f"'four fine-tuned models' = {len(models)} fine-tuned models in results/table33_iso_parameter.md")
 for key in ("qwen25", "smollm2", "llama32", "danube3"):
     r.expect("cite", f"\\cite{{{key}}}" in text, f"model {key} cited where first named")
-r.text_claim("coherence", "Three of those models are carried through to the quantised artefact", False,
-             "Ch2 states three quantised + one reference-precision control; Ch1 says 'three deployment candidates' plus a control"
+r.text_claim("coherence", "Three of those models are carried through to quantised artefacts", False,
+             "Ch2 states three quantised + one fp16 control; Ch1 says 'three deployment candidates' plus a control"
              " -- the argument agent checks the two read as one story", warn=True)
 
 # -- Numbers that belong to a cited paper, not to results/: the citation agent must verify ------
-paper_numbers = [("twenty-five quantised language", "sbc2025"), ("three single-board computers", "sbc2025"),
-                 ("two inference runtimes", "sbc2025"), ("roughly 1.5~billion parameters", "sbc2025"),
-                 ("up to four times", "sbc2025"), ("under one percent in perplexity", "spqr,gptq"),
-                 ("seven billion parameters and above", "kurtic2025,kurt2026"),
-                 ("one-million-example", "massive")]
+paper_numbers = [("twenty-five quantised language", "sbc2025"), ("three \\glspl{sbc}", "sbc2025"),
+                 ("two inference runtimes", "sbc2025"), ("roughly\n1.5~billion parameters", "sbc2025"),
+                 ("up to four times", "sbc2025"), ("blocks of 32", "llamacpp"), ("super-blocks of 256", "llamacpp"),
+                 ("8.5~bits per weight", "llamacpp"), ("4.5~bits per weight", "llamacpp"), ("one percent of weight channels", "awq"),
+                 ("under one\npercent", "spqr"), ("eight billion parameters and above", "kurtic2025,kurt2026"),
+                 ("has 1.5~billion parameters", "kurtic2025"), ("one million\nutterances in 51 languages", "massive"),
+                 ("60 intents and 55 slot types", "massive"), ("258 to 580~million", "massive"),
+                 ("85.1--86.1", "massive"), ("73.6--76.8", "massive"), ("63.7--66.6", "massive")]
 rows = ["| line | claim | must be found in |", "|---|---|---|"]
 for anchor, key in paper_numbers:
     where = r.ch.find(anchor)

@@ -23,7 +23,7 @@ import lib  # noqa: E402
 #: script -> (chapter file, text to replace, replacement, FAIL check that must fire)
 MUTATIONS = {
     "master_ch1": ("master/ch1_introduction.tex", "floor at 27.93~tok/s", "floor at 27.39~tok/s", "claim"),
-    "master_ch2": ("master/ch2_related_work.tex", "constraint~\\cite{gptq,awq}", "constraint~\\cite{gptq,awq,lora}", "positioning"),
+    "master_ch2": ("master/ch2_related_work.tex", "model~\\cite{gptq}, with on-device", "model~\\cite{gptq,lora}, with on-device", "positioning"),
     "master_ch3": ("master/ch3_method.tex", "difference of 4.0\\%", "difference of 4.5\\%", "claim"),
     "master_ch4": ("master/ch4_results.tex", "SmolLM2-360M (785~ms)", "SmolLM2-360M (795~ms)", "claim"),
     "master_ch5": ("master/ch5_discussion.tex", "a margin of 67~ms", "a margin of 76~ms", "claim"),
@@ -33,7 +33,7 @@ MUTATIONS = {
 }
 #: Common checks, planted once each: a project-internal reference, an undefined code, an \\acrfull.
 EXTRA = [
-    ("master_ch2", "master/ch2_related_work.tex", "is Contribution C3;", "is Contribution C3, as prd.md fixes;", "internal"),
+    ("master_ch2", "master/ch2_related_work.tex", "as part of Contribution~C3.", "as part of Contribution~C3, as prd.md fixes.", "internal"),
     ("master_ch5", "master/ch5_discussion.tex", "Only three configurations", "Under Exp-7, only three configurations", "code"),
     ("master_ch1", "master/ch1_introduction.tex", "\\gls{json}", "\\acrfull{json}", "acronym"),
 ]
