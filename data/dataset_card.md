@@ -56,13 +56,13 @@ separately by Exp-0 on Mozilla Common Voice.
 
 ---
 
-## 3. Recording sessions — 320 files
+## 3. Recording sessions — 200 files (s2 and s3 were not recorded)
 
 | Folder | Files | Condition | Day |
 |---|---|---|---|
-| `audio/s1/` | 200 | Quiet room. All ten intents, every slot combination in the required-slot matrix. | D4 |
-| `audio/s2/` | 60 | A 60-item subset in a different room with real background: corridor noise, fan, distant conversation. | D5 |
-| `audio/s3/` | 60 | The same 60 items on a different day — day-to-day voice variation and microphone placement. | D5 |
+| `audio/s1/` | 200 | Quiet room, recorded 17–18 Sep. All ten intents, drawn from the 12 `test_synth` template families: 12 of the 34 (intent, slot-set) combinations the generator produces, one per family; `set_param` with `alt` and `spacing` never occurs in `train`. | D4 |
+| `audio/s2/` | 0 (planned 60, not recorded) | A 60-item subset in a different room with real background: corridor noise, fan, distant conversation. | D5 |
+| `audio/s3/` | 0 (planned 60, not recorded) | The same 60 items on a different day — day-to-day voice variation and microphone placement. | D5 |
 
 | Field | Value |
 |---|---|
