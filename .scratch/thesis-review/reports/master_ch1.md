@@ -28,7 +28,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | PASS | coherence | 23 | Ch1 names three deployment candidates plus a fourth control model; Ch2 says 'four fine-tuned models' |
 | PASS | claim | 27 | `within 1{,}100~ms` -> written 1100, source gives 1100.00 (Ch3 tab:latency-budget, decode row) |
 | PASS | claim | 28 | `at least 20~tokens per second` -> written 20, source gives 20.00 (22 tokens / 1.100 s) |
-| PASS | claim | 29 | 'three cores reserved for speech recognition and inference' matches Ch3's throughput definition (taskset -c 1-3 -t 3; core 0 carries capture, VAD and the keyword spotter) |
+| PASS | claim | 29 | 'three cores reserved for speech recognition and inference' matches Ch3's throughput definition (taskset -c 1-3 in eval/exp1.py; core 0 carries capture, VAD and the keyword spotter) |
 | PASS | claim | 31 | `at 27.93~tok/s` -> written 27.93, source gives 27.93 (results/thermal_headroom.md qwen cooled) |
 | PASS | claim | 31 | `at 14.53~tok/s` -> written 14.53, source gives 14.53 (results/thermal_headroom.md llama cooled) |
 | PASS | claim | 33 | `decodes at 18.13~tok/s` -> written 18.13, source gives 18.13 (results/thermal_headroom.md qwen uncooled) |
@@ -72,7 +72,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 43 | section | Why structured output matters for robot control | 396 |
 | 74 | section | Objectives | 280 |
 | 103 | section | Contributions | 274 |
-| 131 | section | Structure of this document | 179 |
+| 131 | section | Structure of this document | 180 |
 
 ### Codes used in this chapter (self-containment agent: is each one needed, or would a descriptive name read better?)
 
