@@ -72,10 +72,22 @@
   note         = {{GGUF} weight format, k-quant schemes, and {GBNF} grammar-constrained decoding}
 }
 
+@misc{llamacppchat,
+  title        = {llama.cpp: \texttt{common/chat.cpp}},
+  author       = {Gerganov, Georgi and {the ggml contributors}},
+  version      = {88ada91c},
+  url          = {https://github.com/ggml-org/llama.cpp/blob/88ada91c/common/chat.cpp},
+  urldate      = {2026-09-24},
+  note         = {Strips the leading BOS token from the rendered template, since it is added at
+                  tokenisation}
+}
+
 @misc{whispercpp,
   title        = {whisper.cpp: Port of {OpenAI}'s {Whisper} Model in {C/C++}},
   author       = {Gerganov, Georgi and {the ggml contributors}},
-  version      = {commit 52a939a},
+  year         = {2026},
+  version      = {52a939a},
+  note         = {Commit},
   url          = {https://github.com/ggml-org/whisper.cpp},
   urldate      = {2026-09-22}
 }
@@ -150,6 +162,14 @@
   note         = {Introduces BF16 Tensor Core operations}
 }
 
+@misc{nvidiat4,
+  title        = {{NVIDIA} {T4} Tensor Core {GPU} for {AI} Inference},
+  author       = {{NVIDIA Corporation}},
+  url          = {https://www.nvidia.com/en-us/data-center/tesla-t4/},
+  urldate      = {2026-09-24},
+  note         = {T4 is based on the Turing architecture}
+}
+
 % -- Candidate language models ------------------------------------------------
 @misc{qwen25,
   title        = {{Qwen2.5} Technical Report},
@@ -212,6 +232,28 @@
   eprint       = {2106.09685},
   archivePrefix= {arXiv},
   url          = {https://arxiv.org/abs/2106.09685}
+}
+
+@inproceedings{adamw,
+  title        = {Decoupled Weight Decay Regularization},
+  author       = {Loshchilov, Ilya and Hutter, Frank},
+  booktitle    = {7th International Conference on Learning Representations (ICLR)},
+  year         = {2019},
+  eprint       = {1711.05101},
+  archivePrefix= {arXiv},
+  url          = {https://arxiv.org/abs/1711.05101}
+}
+
+@article{mcnemar1947,
+  title        = {Note on the Sampling Error of the Difference Between Correlated Proportions or
+                  Percentages},
+  author       = {McNemar, Quinn},
+  journal      = {Psychometrika},
+  volume       = {12},
+  number       = {2},
+  pages        = {153--157},
+  year         = {1947},
+  doi          = {10.1007/BF02295996}
 }
 
 % -- Speech recognition and wake word -----------------------------------------
@@ -289,10 +331,11 @@
   title        = {Common Voice Corpus 17.0},
   author       = {{Mozilla Foundation}},
   year         = {2024},
-  howpublished = {Hugging Face dataset repository},
-  url          = {https://huggingface.co/datasets/mozilla-foundation/common_voice_17_0},
-  urldate      = {2026-09-23},
-  note         = {Release 17.0; read through the ungated mirror fsicoli/common\_voice\_17\_0}
+  howpublished = {Mozilla Common Voice, release announced 19 March 2024},
+  url          = {https://huggingface.co/datasets/fsicoli/common_voice_17_0},
+  urldate      = {2026-09-24},
+  note         = {Read through this unofficial mirror of release 17.0; the official Hugging Face
+                  repository no longer serves the data}
 }
 
 @inproceedings{librispeech,
@@ -312,6 +355,7 @@
   journal      = {Proceedings of the National Academy of Sciences},
   volume       = {113},
   number       = {48},
+  pages        = {E7856--E7865},
   year         = {2016},
   doi          = {10.1073/pnas.1612524113},
   note         = {Source of the MIT Acoustical Reverberation Survey impulse responses}
@@ -334,7 +378,9 @@
   pages     = {1--8},
   year      = {2018},
   publisher = {IEEE},
-  doi       = {10.1109/IROS.2018.8593581}
+  doi       = {10.1109/IROS.2018.8593581},
+  url       = {http://dregon.inria.fr/datasets/dregon/},
+  note      = {Dataset page: free for personal, educational and academic use only}
 }
 
 @inproceedings{esc50,
@@ -345,7 +391,8 @@
   year      = {2015},
   publisher = {ACM},
   doi       = {10.1145/2733373.2806390},
-  note      = {Source of the {ESC-50} dataset}
+  url       = {https://github.com/karolpiczak/ESC-50},
+  note      = {Source of the {ESC-50} dataset; the repository states its {CC BY-NC} 3.0 licence}
 }
 
 % -- Quantisation: methods and evaluation --------------------------------------
@@ -386,14 +433,15 @@
   archivePrefix= {arXiv},
   url          = {https://proceedings.iclr.cc/paper_files/paper/2024/hash/1787533e171dcc8549cc2eb5a4840eec-Abstract-Conference.html}
 }
-% Venue deliberately unasserted: the arXiv comments field says only "Extended
-% NeurIPS submission". Upgrade once the proceedings entry is confirmed.
+% Venue confirmed on proceedings.neurips.cc (NeurIPS 2023).
 @inproceedings{qlora,
   title        = {{QLoRA}: Efficient Finetuning of Quantized {LLM}s},
   author       = {Dettmers, Tim and Pagnoni, Artidoro and Holtzman, Ari and
                   Zettlemoyer, Luke},
   booktitle    = {Advances in Neural Information Processing Systems 36},
+  pages        = {10088--10115},
   year         = {2023},
+  doi          = {10.52202/075280-0441},
   eprint       = {2305.14314},
   archivePrefix= {arXiv},
   url          = {https://arxiv.org/abs/2305.14314}
