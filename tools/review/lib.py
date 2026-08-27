@@ -707,7 +707,9 @@ def requirement_table_check(r: Review, label: str, target_col: int, source_col: 
     `strict=False` for FR tables, whose second column is a verification method the chapter may
     reword freely; NFR targets are numbers and must match. A document that names its criteria
     instead of printing IDs (the Master, issue 00) passes `row_ids`, first cell -> prd ID, and
-    `source_names`, experiment name -> prd code, so the same prd row is still what is compared."""
+    `source_names`, experiment name -> prd code, so the same prd row is still what is compared.
+    A name mapped to None is a requirement derived from another prd table rather than listed in
+    Tables 11-12; the chapter script must check its derivation itself."""
     m = re.search(rf"\\label\{{{label}\}}(.*?)\\end\{{tabularx\}}", r.ch.text, flags=re.S)
     if not m:
         r.add("FAIL", "requirements", f"table {label} not found")
@@ -723,6 +725,8 @@ def requirement_table_check(r: Review, label: str, target_col: int, source_col: 
             if name.strip() not in row_ids:
                 r.add("FAIL", "requirements", f"row `{name.strip()}` has no prd ID in the script's mapping",
                       r.ch.find(f"{name.strip()} &")[0])
+                continue
+            if row_ids[name.strip()] is None:   # derived, not a prd row: the chapter script checks it
                 continue
             rows.append((row_ids[name.strip()], rest, name.strip()))
     for row in rows:

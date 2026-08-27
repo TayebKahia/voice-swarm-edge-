@@ -180,7 +180,15 @@ r.text_claim("parity", "producing six deployable artefacts", len(quantised) == 6
 # -- Protocol n's ------------------------------------------------------------------------------
 r.text_claim("protocol", "configuration over 60 repetitions on the board and did not time Q8\\_0",
              "Exp-1 executed at 60 reps/Q4_K_M-only" in state, "Exp-1 60 reps = STATE.md")
-r.text_claim("protocol", "used 60 trials per path", "Exp-2 200 -> 60 trials/branch" in state, "Exp-2 60/branch = STATE.md")
+# The latency experiment's executed n, from its analysis -- not STATE.md's "200 -> 60 trials/branch",
+# which is the triaged plan and let a design figure through as if it had run.
+exp2 = (RESULTS / "exp2_analysis.md").read_text(encoding="utf-8")
+n_parse = re.search(r"^\| E2E from T0[^|]*\| branch_b \| (\d+) \|", exp2, re.M).group(1)
+n_reflex = {c: re.search(rf"^\| Branch A from keyword offset \({c}\) \| {c} \| (\d+) \|", exp2, re.M).group(1)
+            for c in ("idle", "loaded")}
+r.text_claim("protocol", f"timed {n_parse} endpointed segments", True, f"parse-path n = {n_parse} (results/exp2_analysis.md)")
+r.text_claim("protocol", f"and {n_reflex['idle']} reflex triggers in each of its idle and loaded conditions",
+             n_reflex["idle"] == n_reflex["loaded"], f"reflex n = {n_reflex} (results/exp2_analysis.md)")
 # The pinning command as the harness launches it: `taskset -c CORES llama-server ... -t THREADS`. The
 # `-t` belongs to llama-server, so a \texttt{taskset ...} in the prose may carry only the `-c` list.
 harness = (REPO / "eval/exp1.py").read_text()
@@ -199,7 +207,8 @@ r.text_claim("protocol", "\\texttt{taskset", set(re.findall(r"\s(-\w+)", cmd)) =
 CRITERIA = {"End-to-end latency": "NFR-2", "Exact-match threshold": "NFR-4", "Intent F1": "NFR-5", "Schema validity": "NFR-6",
             "Clean-audio recognition": "NFR-7", "Recognition in noise": "NFR-8", "Safe failure": "NFR-9",
             "Memory ceiling": "NFR-9a", "Memory per configuration": "NFR-9b", "Throttling": "NFR-10",
-            "Speaker sensitivity": "NFR-11", "False commands": "NFR-18"}
+            "Speaker sensitivity": "NFR-11", "False commands": "NFR-18",
+            "Throughput floor": None}   # derived from prd Table 6's decode row, checked below
 EXPERIMENTS = {"speaker-sensitivity experiment": "Exp-0", "multi-model benchmark": "Exp-1",
                "latency experiment": "Exp-2", "acoustic-robustness experiment": "Exp-3",
                "formation-control experiment": "Exp-4"}
@@ -209,6 +218,15 @@ if t6:
     for stage, ms in re.findall(r"^(.*?) & ([\d{},]+)~ms \\\\", text[text.find("tab:latency-budget"):], flags=re.M):
         v = ms.replace("{,}", ",")
         r.expect("budget", v in t6.group(1), f"latency budget `{stage.strip()}` {v} ms appears in prd Table 6", warn=True)
+# The throughput floor is not a prd requirement: it is Table 6's decode allowance read as a rate.
+dec = re.search(r"^\| SLM decode \(\$\\approx\$(\d+) tokens[^|]*\| ([\d,]+) ms", prd(), re.M)
+tok, ms = int(dec.group(1)), int(dec.group(2).replace(",", ""))
+r.number("from a 22-token decode allowance", tok, "prd Table 6 decode row, tokens")
+r.number("within the 1{,}100~ms decode stage", ms, "prd Table 6 decode row, ms")
+floor = re.search(r"Throughput floor &[^\n]*?\$\\geq\$ (\d+)~tok/s", text)
+r.expect("requirements", bool(floor) and int(floor.group(1)) == round(tok / (ms / 1000)),
+         f"throughput floor {floor.group(1) if floor else '?'} tok/s = {tok} tokens / {ms / 1000} s",
+         r.ch.find("Throughput floor &")[0])
 lm = [int(x.replace("{,}", "")) for x in re.findall(r"Language-model (?:prefill|decode)[^&]*& ([\d{},]+)~ms", text)]
 r.number("Language-model stages combined & 1{,}350~ms", sum(lm), "prefill + decode rows")
 
