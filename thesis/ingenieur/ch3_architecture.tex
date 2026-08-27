@@ -1,0 +1,225 @@
+% Architecture and design --- section structure from prd.md 3.1, ownership from Table 3.
+%
+% This chapter OWNS: the dual-path decomposition, the Branch A membership rule (C4), the
+% validator and state-machine layers, the latency budget and the core allocation.
+% It does NOT own: the schema and grammar (Master Ch 3, sec:schema -- one fresh sentence and a
+% one-page summary here), any measured latency (Ch 5, Exp-2), the model comparison (Master Ch 4;
+% only the selected configuration is named here).
+%
+% Labels: tab:latency-budget is TAKEN in this document by thesis/generated/exp2_latency_budget.tex
+% (the measured table Ch 5 will \input). The design budget here is tab:stage-budget.
+
+\chapter{Architecture and Design}
+\label{chap:architecture}
+
+Section~\ref{sec:safety-problem} reduced the safety problem to three requirements: a wrong
+command must be hard to act on, a stopping command must be fast to act on, and the execution of
+any command must be bounded at the point where it takes effect. This chapter turns the first two
+into a design; the third is a property of the swarm controller and is realised in
+Chapter~\ref{chap:implementation}. Section~\ref{sec:dual-path} divides the runtime into two paths
+that read one audio stream. Section~\ref{sec:membership-rule} derives the rule deciding which
+utterances may take the fast path, and Section~\ref{sec:validation-layers} specifies the three
+checks the slow path's output must pass. Sections~\ref{sec:latency-budget}
+and~\ref{sec:resource-allocation} then give each stage a latency target and each path its own
+processor cores, so that neither path can spend the time of the other. Every figure in this
+chapter is a design target, fixed before any measurement; Chapter~\ref{chap:validation} measures
+the system against them.
+
+\section{Dual-path decomposition}
+\label{sec:dual-path}
+The runtime consists of two paths that read the same audio stream and publish to the same command
+bus (Figure~\ref{fig:architecture}). Branch~A is a two-class keyword spotter~\cite{oww} that
+listens continuously and, on detecting either stopping phrase, publishes a fixed command without
+transcribing anything. Branch~B is the general path: a \gls{vad} model~\cite{silero} segments the
+stream into utterances, \texttt{whisper.cpp tiny.en}~\cite{whisper,whispercpp} performs \gls{stt}
+on each, a fine-tuned \gls{slm} parses the transcript into a structured command under a decoding
+grammar~\cite{llamacpp}, and a semantic validator checks the result before it is published. The
+two paths share nothing between the audio buffer and the bus. They are not a fast and a slow
+setting of one pipeline: the reflex budget and the parse budget are anchored at different instants
+of the utterance (Section~\ref{sec:engineering-requirements}), so no single path can meet both,
+and the decomposition follows from that constraint rather than from a preference for redundancy.
+
+The language model on Branch~B is Qwen2.5-0.5B~\cite{qwen25}, fine-tuned and quantised to
+Q4\_K\_M. The \emph{M\'emoire de Master} selects this configuration by comparing models and
+quantisation levels on the same device; the present document treats the choice as fixed and
+designs the runtime around it.
+
+\begin{figure}[htbp]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+    font=\footnotesize,
+    stage/.style={draw, rounded corners=2pt, align=center, minimum height=10mm,
+                  text width=18mm, fill=white},
+    flow/.style={->, thick},
+    tag/.style={font=\footnotesize\bfseries}]
+  % Raspberry Pi 5
+  \node[stage] (mic) at (0,0)      {Microphone};
+  \node[stage] (buf) at (2.5,0)    {Ring buffer\\16~kHz};
+  \node[stage] (kws) at (5.3,1.4)  {Keyword\\spotter};
+  \node[stage] (vad) at (5.3,-1.4) {Endpointer\\(\acrshort{vad})};
+  \node[stage] (stt) at (7.8,-1.4) {\acrshort{stt}\\\texttt{tiny.en}};
+  \node[stage] (slm) at (10.3,-1.4) {\acrshort{slm}\\under grammar};
+  \node[stage] (val) at (12.8,-1.4) {Validator\\(layer 2)};
+  \node[stage, text width=21mm] (bus) at (15.4,0) {Command bus\\UDP, \acrshort{json}};
+  % Workstation
+  \node[stage, text width=21mm] (fsm) at (15.4,-4.0) {State machine\\(layer 3),\\ordering rule};
+  \node[stage] (ctl) at (12.3,-4.0) {Swarm\\controller\\50~Hz};
+  \node[stage] (sim) at (9.3,-4.0)  {Simulated\\swarm\\$N = 5$};
+
+  \draw[flow] (mic) -- (buf);
+  \draw[flow] (buf.east) -- ++(0.45,0) |- (kws.west);
+  \draw[flow] (buf.east) -- ++(0.45,0) |- (vad.west);
+  \draw[flow] (vad) -- (stt);
+  \draw[flow] (stt) -- (slm);
+  \draw[flow] (slm) -- (val);
+  \draw[flow] (kws.east) -| node[pos=0.25, above] {fixed command} (bus.north);
+  \draw[flow] (val.north) |- (bus.west);
+  \draw[->, thick, dashed] (kws.south) -- ++(0,-0.95) -| node[pos=0.25, above] {cancel decode}
+      (slm.north);
+  \draw[->, thick, dashed] (bus.south) -- node[right] {Wi-Fi} (fsm.north);
+  \draw[flow] (fsm) -- (ctl);
+  \draw[flow] (ctl) -- (sim);
+
+  \node[tag, anchor=south west] (ta) at (kws.north west) {Branch A};
+  \node[tag, anchor=north west] (tb) at (vad.south west) {Branch B};
+
+  \begin{scope}[on background layer]
+    \node[draw, fill=gray!8, rounded corners=4pt, inner sep=9pt,
+          fit=(mic) (ta) (tb) (val) (bus),
+          label={[font=\footnotesize\itshape, anchor=north west]north west:Raspberry Pi 5, offline}] {};
+    \node[draw, fill=gray!8, rounded corners=4pt, inner sep=9pt,
+          fit=(sim) (fsm),
+          label={[font=\footnotesize\itshape, anchor=north west]north west:Workstation}] {};
+  \end{scope}
+\end{tikzpicture}}
+\caption[Dual-path runtime architecture]{Dual-path runtime architecture. One audio stream feeds
+two paths. Branch~A, the keyword spotter, publishes one of two fixed commands and bypasses
+transcription and parsing entirely; Branch~B endpoints the utterance, transcribes it, parses the
+transcript into a command under the decoding grammar and validates the result. Both branches
+publish to one command bus. A Branch~A trigger cancels any decode in progress (dashed); the
+ordering rule at the bus's consumer discards any Branch~B result older than the latest Branch~A
+command, whether or not the cancellation succeeded. The state machine, the swarm controller and
+the simulated vehicles run on a workstation joined to the Pi by Wi-Fi.}
+\label{fig:architecture}
+\end{figure}
+
+\paragraph{Placement.} Everything up to and including the command bus runs on the
+Raspberry~Pi~5. The flight state machine, the swarm controller and the simulated aircraft run on a
+workstation. The split follows the claim under test: this document asks whether perception and
+language understanding fit on the edge device, not whether a physics engine does. A simulator
+sharing the Pi's four cores would contend for the cores that Section~\ref{sec:resource-allocation}
+allocates to the pipeline, and every latency figure would then depend on the simulator's load as
+well as on the pipeline. With the simulation off the device, latency measured on the Pi is a
+property of the pipeline alone. The state machine is placed beside the controller rather than
+beside the parser because two of its transitions, reaching the take-off altitude and making
+ground contact, are observations of the vehicles, and only the controller's side of the bus
+makes them.
+
+\paragraph{Command bus.} The two machines are joined by a minimal publish--subscribe bus
+carrying single-line \gls{json} messages over UDP. Each message carries a command, a tag naming
+the branch that produced it, and a sequence number drawn from one monotonic counter shared by both
+branches. The bus implements nothing else. The rule deciding whether a message may take effect
+belongs to its consumer, beside the state machine, and messages from both branches reach the state
+machine by that same route; a Branch~A message differs from a Branch~B message only in that it
+is a constant, never the output of a decoder. The bus sits behind an interface so that a
+distributed middleware can replace it in a deployment beyond simulation. Adopting one here would
+add failure modes of its own, such as peer discovery and network partition, to a system whose
+experiments are not designed to measure them.
+
+\paragraph{Prompt and prefix.} The command schema is not described in the prompt. Fine-tuning
+teaches the model the command format, so the prompt carries only a fixed system instruction and
+the transcript, and the fixed part is identical for every request. The design keeps that fixed
+part resident in the model's key--value cache between requests, so that prefill for each command
+processes only the transcript's tokens. The design estimate is roughly 15 tokens per command,
+against roughly 290 if the schema had to be restated in every prompt, and it is the reason a
+512-token context window suffices. The deployed parser departs from this assumption, for a reason
+given in Chapter~\ref{chap:implementation}; the latency budget of Section~\ref{sec:latency-budget}
+is stated as designed.
+
+\paragraph{Preemption and ordering.} When Branch~A fires while Branch~B is decoding, two actions
+follow, and only one of them is needed for correctness. The needed one is an ordering rule: the
+consumer discards any Branch~B message whose sequence number is lower than that of the latest
+Branch~A message already applied. A Branch~B command that was being decoded when the operator
+said \emph{swarm hold} therefore cannot take effect after the hold, whether or not its decode was
+stopped. The rule depends on when a sequence number is assigned. A Branch~B utterance reserves its
+number when it is accepted for processing, before transcription begins, and not when its decode
+completes. A number assigned at completion would make a slow decode that finishes after a later
+trigger compare as newer than the trigger, and the stale command would override the stop the rule
+exists to protect. The second action is an optimisation: the decode in progress is cancelled, so
+that the three inference cores are released at once rather than spent on a result that will be
+discarded. Correctness does not depend on the cancellation succeeding. What the cancellation
+governs is recovery, the time before Branch~B can accept the next utterance, which NFR-17 bounds
+at 300~ms at p95 (Table~\ref{tab:nonfunctional-requirements}).
+
+\section{Branch A membership rule}
+\label{sec:membership-rule}
+% The RULE is the point, not the list (contribution C4).
+% - Premise: an always-listening class is a permanent false-accept surface, and Branch A skips
+%   all three layers. Ch 1 (sec:safety-problem) motivates this; here it is made operational.
+% - Two tests, both necessary: (1) latency-decisive -- the 2,350 ms A/B delta at the 2.0 m/s
+%   speed ceiling is 4.7 m of travel, against a 1--10 m formation radius; (2) fail-safe under false
+%   accept -- a spurious trigger may only make the swarm do less.
+% - Table tab:membership: ten intents x two tests; exactly two pass. Short, because the prose
+%   carries the argument; land fails test 1 (descent is slow), movement verbs fail test 2.
+% - The two classes map onto existing intents: no new grammar rule, schema field or controller
+%   entry point. hold -> hover (the designated safe state, now reachable at reflex speed);
+%   abort -> land in place, motors off on contact (why not disarm, why not return-to-launch).
+% - Phrase design: three syllables, shared "swarm" prefix; both off-diagonal confusions are
+%   fail-safe, so inter-class confusion is a benign error class.
+% - resume excluded: a false accept would undo a safety action.
+% - The admission condition for a third class, stated as a checkable rule (Ch 1 promises this).
+\TODO{draft}
+
+\section{Three validation layers}
+\label{sec:validation-layers}
+% - Layer 1 (one page, write-once): one fresh sentence naming the Memoire de Master as owner of
+%   the schema and grammar; then only what this document needs from it -- ten intents, bounded
+%   digits and identifier list, structure guaranteed, ranges not expressible. No grammar listing.
+% - Layer 2, semantic validator: required-slot matrix; envelope clamp-and-log, never reject
+%   (radius [1,10] m, spacing [1,5] m, z [0.5,15] m, speed [0.2,2.0] m/s, |pos| <= 50 m by
+%   vector scaling so direction survives, yaw wrapped into [-180,180] deg); identifiers filtered
+%   to {0..N-1}, deduplicated, sorted, empty -> all drones; any failure -> HOVER + log.
+%   Source of record: schema/schema.py ENVELOPE, schema/validate.py, ADR-0001.
+% - Layer 3, flight state machine: five states, transitions, Table tab:legality (Table 9).
+%   Rejection resolution per ADR-0002: HOVER where hover is legal (TAKING_OFF, FLYING), logged
+%   no-op where it is not (LANDED, LANDING, ABORTED) -- the one place the "every rejection is a
+%   hold" principle of Ch 1 needs its precise form. abort in LANDED/ABORTED is a logged no-op.
+%   Recovery out of ABORTED is manual and non-vocal: keeps the reflex one-directional.
+% - What no layer catches: a schema-valid, in-envelope, state-legal wrong command (the yaw sign
+%   flip). Named as a boundary of the design, measured in Ch 5 / discussed in Ch 6. No figure.
+\TODO{draft}
+
+\section{Latency budget}
+\label{sec:latency-budget}
+% Budget = DESIGN. No measured figure anywhere in this section; Chapter~\ref{chap:validation}.
+% - Table tab:stage-budget: both branches, both anchors -- endpointing wait, STT, SLM prefill,
+%   SLM decode, validate+FSM+dispatch, E2E from end of speech, E2E from start of speech (3 s
+%   utterance), reflex from keyword offset, reflex from keyword onset (~700 ms phrase).
+%   Row wording fresh (Master's tab:latency-budget restates the parse rows).
+% - Anchors: T0 = last frame in the buffer when the endpointer declares end of speech; reflex
+%   anchored at keyword offset because an onset target of 150 ms is unsatisfiable by
+%   construction; onset reported as operator-perceived time.
+% - Endpointing line derived, not tuned: 450 ms of silence plus at most one 32 ms window
+%   = 482 ms worst case, inside the 500 ms allowance.
+% - Stage allowances are per-stage targets, not a decomposition: the E2E target is judged on the
+%   measured E2E, not the sum.
+% - Outside the budget, stated so it is not mistaken for an omission: capture/buffering latency
+%   before T0, and the Wi-Fi hop after dispatch.
+% - One fresh sentence: the Memoire de Master uses the parse-path rows as its deployment
+%   constraint.
+\TODO{draft}
+
+\section{Resource allocation}
+\label{sec:resource-allocation}
+% - Table tab:core-allocation (Table 7): core 0 = capture, ring buffer, endpointer, keyword
+%   spotter (the 80 ms frame loop); cores 1--3 = whisper.cpp -t 3 and llama.cpp -t 3.
+% - Why three cores suffice for both: STT and SLM are sequential by construction.
+% - Why the frame loop must never wait on Branch B: NFR-1 holds under load only if a decode
+%   cannot delay the next frame -- the design property the loaded condition of Exp-2 tests.
+%   That isolation held is Ch 5's to report; forward reference only.
+% - Per-thread pinning; a child process inherits the spawning thread's mask.
+% - Memory: worst-case arithmetic (largest configuration, full stack) as a bound, not a
+%   measurement -- OPEN QUESTION for the author: include here, or leave memory to the Master's
+%   requirements table?
+\TODO{draft}
