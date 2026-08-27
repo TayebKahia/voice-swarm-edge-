@@ -90,14 +90,14 @@ accuracy figure. `check_leakage.py` enforces this and is a gate, not a report.
 
 | Split | Size | Source | Role |
 |---|---|---|---|
-| `train_synth` | ~1,900 pairs | Label-first generation + round-trip augmentation | LoRA fine-tuning |
-| `val_synth` | ~250 pairs | Held-out template families | Checkpoint selection on exact match |
-| `test_synth` | ~250 pairs | Held-out template families | Exp-1; the McNemar paired sample |
-| `test_golden` | 320 audio / 200 transcripts | The author, three sessions | Headline accuracy and all of Exp-3 |
-| `test_ood` | ~150 items | Out-of-domain and adversarial phrasings | NFR-18; the real test of `unknown` |
-| `wake_pos` | ~1,500 clips per class | Piper TTS via openWakeWord's pipeline | Branch A training |
-| `wake_neg` | ≥ 3 h | Ambient speech, podcasts, room noise | NFR-15 false accepts per hour |
-| `commonvoice` | 300 clips | Common Voice English, validated | Exp-0 baseline |
+| `train_synth` | 1,940 pairs | Label-first generation; 872 transcripts replaced by round-trip ASR output (20/10/5 dB), 88 text perturbations | LoRA fine-tuning |
+| `val_synth` | 240 pairs | Held-out template families, clean text | Checkpoint selection on exact match |
+| `test_synth` | 240 pairs | Held-out template families, clean text | Exp-1 secondary (descriptive) split |
+| `test_golden` | 200 audio / 200 transcripts | The author, one session; transcripts from the test_synth families | Exp-1 accuracy of record and confirmatory McNemar; Exp-0; Exp-3 |
+| `test_ood` | 150 transcripts | Authored out-of-domain and adversarial phrasings, text only | NFR-18; the real test of `unknown` |
+| `wake_pos` | 1,500 clips per class | 3 Piper voices x 20 renditions x 25 augmentations (`data/wake_corpus.py`); heads fitted over openWakeWord's frozen front end | Branch A training |
+| `wake_neg` | 5,040 clips, 3.50 h | LibriSpeech dev-clean 1,936, Speech Commands v0.02 2,384, near-miss phrases 720 | NFR-15 false accepts per hour |
+| `commonvoice` | 300 clips | Common Voice 17.0 English test split, validated | Exp-0 baseline |
 
 **Conformance assert.** Every label in every split must be accepted by
 `schema/cmd.gbnf`. A label the grammar cannot produce is an unreachable target
@@ -325,7 +325,7 @@ explicitly so the null result cannot be read as a positive one.
 
 Nothing here is inter-annotator agreement, and that stronger claim — that an
 independent reader applies the schema identically — is not made anywhere. Nor is
-the weaker intra-annotator one: with a two-day interval this section claims no
+the weaker intra-annotator one: with a 4.0-day interval this section claims no
 reliability figure of any kind.
 
 **What survives the short interval.** Recall can only push the two passes toward
