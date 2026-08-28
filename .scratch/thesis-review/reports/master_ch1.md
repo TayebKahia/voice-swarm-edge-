@@ -71,7 +71,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 7 | section | The edge-inference problem | 425 |
 | 43 | section | Why structured output matters for robot control | 396 |
 | 74 | section | Objectives | 280 |
-| 103 | section | Contributions | 274 |
+| 103 | section | Contributions | 277 |
 | 131 | section | Structure of this document | 180 |
 
 ### Codes used in this chapter (self-containment agent: is each one needed, or would a descriptive name read better?)
