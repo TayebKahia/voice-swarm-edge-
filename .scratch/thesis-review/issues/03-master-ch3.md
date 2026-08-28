@@ -353,3 +353,14 @@ Not fixed here, for the author:
   generator targets frozen under the `dataset-v1.0` tag. Issue 01 is closed -- the wording is the
   author's call.
 - The effective batch of 32 is still inferred, not read from a Kaggle log.
+
+### 2026-09-24 -- follow-ups closed
+
+- Batch 32 confirmed: on Kaggle "GPU T4 x2" under transformers 5.0.0 (the version the training
+  session logged), `TrainingArguments(per_device_train_batch_size=4)` gives device_count 2,
+  n_gpu 2, train_batch_size 8, so 8 x 4 accumulation = 32. Ch3 stands; the stale "effective
+  batch 16" comments in train/configs/*.yaml were corrected.
+- Training versions: the session that trained the first three models logged transformers 5.0.0,
+  torch 2.10.0+cu128, peft 0.19.1; Ch3 now states them. The control's session is still
+  unlogged.
+- Ch1 C2 "gold labels are sealed" corrected to the annotation pass (author's decision).
