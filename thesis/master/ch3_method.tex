@@ -136,9 +136,10 @@ finished dataset is frozen under the version tag \texttt{dataset-v1.0} and docum
 card (\texttt{data/dataset\_card.md}) that records each component's source, licence and
 construction. Table~\ref{tab:dataset} lists every component that this document's experiments and
 the \emph{M\'emoire d'Ing\'enieur}'s runtime consume, with the role that motivates each one. That
-runtime has two paths from speech to command: a \textbf{reflex path}, on which a keyword spotter
-issues ``swarm hold'' or ``swarm abort'' directly, beside the \textbf{parse path} through speech
-recognition and the language model.
+runtime has two paths from speech to command. On the \textbf{reflex path}, a keyword spotter issues
+``swarm hold'' or ``swarm abort'' directly. On the \textbf{parse path}, \gls{vad} endpoints the
+utterance, declaring it finished once a stretch of silence follows it; speech recognition then
+transcribes it, and the language model parses the transcript.
 
 \begin{table}[htbp]
 \centering

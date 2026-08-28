@@ -7,9 +7,9 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | status | check | line | finding |
 |---|---|---|---|
 | WARN | budget |  | latency budget `Language-model stages combined` 1,350 ms appears in prd Table 6 |
-| WARN | acronym | 265 | `LoRA` typed by hand 1x (lines 265) -- \gls{lora} (the first \gls expands itself) |
-| WARN | absolute | 356 | `guaranteed` -- earned? ...n the same session instance. Training on a \gls{gpu} is not guaranteed to be bit-reproducible across session instances~... |
-| WARN | acronym | 497 | `JSON` typed by hand 1x (lines 497) -- \gls{json} (the first \gls expands itself) |
+| WARN | acronym | 266 | `LoRA` typed by hand 1x (lines 266) -- \gls{lora} (the first \gls expands itself) |
+| WARN | absolute | 357 | `guaranteed` -- earned? ...n the same session instance. Training on a \gls{gpu} is not guaranteed to be bit-reproducible across session instances~... |
+| WARN | acronym | 498 | `JSON` typed by hand 1x (lines 498) -- \gls{json} (the first \gls expands itself) |
 | PASS | check_tex |  | tools/check_tex.py: no problems beyond cross-chapter \ref (resolved below) |
 | PASS | ref |  | every \ref resolves within the document |
 | PASS | cite |  | 29 distinct keys cited, all resolved |
@@ -52,130 +52,130 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | PASS | claim | 112 | `so the 96-token cap` -> written 96, source gives 96.00 (eval/surface_b.py MAX_TOKENS) |
 | PASS | path | 130 | `data/surface_forms.py` exists in the repo |
 | PASS | path | 136 | `data/dataset_card.md` exists in the repo |
-| PASS | float | 151 | tab:dataset referenced before it appears (line 137) |
-| PASS | claim | 156 | `\texttt{train\_synth} & 1{,}940 pairs` -> written 1940, source gives 1940.00 (data/ rows of train_synth) |
-| PASS | claim | 156 | `872 transcripts replaced` -> written 872, source gives 872.00 (data/train.jsonl asr_* variants) |
-| PASS | claim | 157 | `\texttt{val\_synth} & 240 pairs` -> written 240, source gives 240.00 (data/ rows of val_synth) |
-| PASS | claim | 158 | `\texttt{test\_synth} & 240 pairs` -> written 240, source gives 240.00 (data/ rows of test_synth) |
-| PASS | claim | 159 | `& 200 audio files` -> written 200, source gives 200.00 (data/test_golden.jsonl rows) |
-| PASS | claim | 160 | `\texttt{test\_ood} & 150 transcripts` -> written 150, source gives 150.00 (data/ rows of test_ood) |
-| PASS | claim | 161 | `300 clips, 263 speakers` -> written 300, source gives 300.00 (sum of n over table16 buckets) |
-| PASS | claim | 161 | `15 accent buckets` -> written 15, source gives 15.00 (table16 bucket rows) |
-| PASS | dataset | 162 | wake_pos 3,000 = STATE.md wake-corpus record |
-| PASS | claim | 163 | `720 near-miss clips` -> written 720, source gives 720.00 (data/wake/wake_manifest.json neg sources) |
-| PASS | dataset | 163 | wake_neg sources = manifest {'adversarial': 720, 'speech_commands': 2384, 'librispeech': 1936} |
-| PASS | dataset | 163 | wake_neg 5,040 / 3.50 h = STATE.md |
-| PASS | path | 176 | `check_leakage.py` exists in the repo |
-| PASS | path | 181 | `cmd.gbnf` exists in the repo |
-| PASS | claim | 186 | `872 rows replace the transcript` -> written 872, source gives 872.00 (data/train.jsonl asr_* variants {'asr_10db': 291, 'asr_20db': 387, 'asr_5db': 194}) |
-| PASS | claim | 188 | `and 88 carry injected text perturbations` -> written 88, source gives 88.00 (data/train.jsonl perturb variant) |
-| PASS | dataset | 188 | round-trip SNR levels in data/train.jsonl: ['asr_10db', 'asr_20db', 'asr_5db'] |
-| PASS | path | 217 | `data/mix_noise.py` exists in the repo |
-| PASS | path | 221 | `data/wake_corpus.py` exists in the repo |
-| PASS | claim | 226 | `labelled 50 golden-set utterances` -> written 50, source gives 50.00 (annot_pass1.seal.json items) |
-| PASS | claim | 235 | `interval of 4.0~days` -> written 4.0, source gives 4.02 (seal timestamp -> first pass-2 label) |
-| PASS | claim | 235 | disagreements between passes: 0 |
-| PASS | path | 245 | `data/wake_corpus.py` exists in the repo |
-| PASS | dataset | 261 | 39% US English = data/dataset_card.md |
-| PASS | claim | 276 | `514~M parameters` -> written 514, source gives 514.00 (table33 danube params (M)) |
-| PASS | claim | 277 | `against 494~M` -> written 494, source gives 494.00 (table33 qwen params (M)) |
-| PASS | claim | 277 | `a difference of 4.0\%` -> written 4.0, source gives 4.05 (514 / 494 - 1) |
-| PASS | float | 292 | tab:lora referenced before it appears (line 272) |
-| PASS | lora | 298 | r = 16 in all 4 configs: {'h2o-danube3-500m': '16', 'smollm2-360m': '16', 'llama-3.2-1b': '16', 'qwen2.5-0.5b': '16'} |
-| PASS | lora | 298 | alpha = 32 in all 4 configs: {'h2o-danube3-500m': '32', 'smollm2-360m': '32', 'llama-3.2-1b': '32', 'qwen2.5-0.5b': '32'} |
-| PASS | lora | 298 | dropout = 0.05 in all 4 configs: {'h2o-danube3-500m': '0.05', 'smollm2-360m': '0.05', 'llama-3.2-1b': '0.05', 'qwen2.5-0.5b': '0.05'} |
-| PASS | lora | 299 | target modules identical in every config |
-| PASS | lora | 300 | learning_rate = 2.0e-4 in all 4 configs: {'h2o-danube3-500m': '2.0e-4', 'smollm2-360m': '2.0e-4', 'llama-3.2-1b': '2.0e-4', 'qwen2.5-0.5b': '2.0e-4'} |
-| PASS | lora | 300 | warmup_ratio = 0.03 in all 4 configs: {'h2o-danube3-500m': '0.03', 'smollm2-360m': '0.03', 'llama-3.2-1b': '0.03', 'qwen2.5-0.5b': '0.03'} |
-| PASS | lora | 301 | epochs = 3 in all 4 configs: {'h2o-danube3-500m': '3', 'smollm2-360m': '3', 'llama-3.2-1b': '3', 'qwen2.5-0.5b': '3'} |
-| PASS | lora | 301 | per_device_train_batch_size = 4 in all 4 configs: {'h2o-danube3-500m': '4', 'smollm2-360m': '4', 'llama-3.2-1b': '4', 'qwen2.5-0.5b': '4'} |
-| PASS | lora | 301 | gradient_accumulation_steps = 4 in all 4 configs: {'h2o-danube3-500m': '4', 'smollm2-360m': '4', 'llama-3.2-1b': '4', 'qwen2.5-0.5b': '4'} |
-| PASS | lora | 302 | max_seq_length = 256 in all 4 configs: {'h2o-danube3-500m': '256', 'smollm2-360m': '256', 'llama-3.2-1b': '256', 'qwen2.5-0.5b': '256'} |
-| PASS | lora | 304 | precision fp16 in every config |
-| PASS | lora | 305 | seed = 42 in all 4 configs: {'h2o-danube3-500m': '42', 'smollm2-360m': '42', 'llama-3.2-1b': '42', 'qwen2.5-0.5b': '42'} |
-| PASS | parity | 367 | gguf/ holds 6: ['llama-3.2-1b-instruct-Q4_K_M.gguf', 'llama-3.2-1b-instruct-Q8_0.gguf', 'qwen2.5-0.5b-instruct-Q4_K_M.gguf', 'qwen2.5-0.5b-instruct-Q8_0.gguf', 'smollm2-360m-instruct-Q4_K_M.gguf', 'smollm2-360m-instruct-Q8_0.gguf'] |
-| PASS | path | 414 | `test_template_parity.py` exists in the repo |
-| PASS | parity | 414 | eval/fixed_audit_prompts.json holds 10 prompts |
-| PASS | path | 416 | `check_parity_gguf.py` exists in the repo |
-| PASS | parity | 440 | dro+ne segmentation = results/gate3_parity.md |
-| PASS | protocol | 470 | Exp-1 60 reps = STATE.md |
-| PASS | protocol | 472 | parse-path n = 226 (results/exp2_analysis.md) |
-| PASS | protocol | 473 | reflex n = {'idle': '78', 'loaded': '78'} (results/exp2_analysis.md) |
-| PASS | path | 491 | `data/asr.py` exists in the repo |
-| PASS | float | 544 | tab:metrics referenced before it appears (line 526) |
-| PASS | requirements | 557 | NFR-6 target `100\%, by construction` vs prd `100% *by construction* — reported as a structural guarantee, not an achievement` |
-| PASS | requirements | 557 | NFR-6 source `Multi-model benchmark` vs prd `Exp-1` |
-| PASS | protocol | 560 | prose `taskset -c 1-3` vs harness `taskset -c 1-3` around llama-server `-t 3` (eval/exp1.py) |
-| PASS | path | 563 | `eval/norm.py` exists in the repo |
-| PASS | float | 590 | tab:requirements referenced before it appears (line 573) |
-| PASS | requirements | 595 | NFR-2 target `p95 $\leq$ 2{,}500~ms` vs prd `p95 $\leq$ 2,500 ms` |
-| PASS | requirements | 595 | NFR-2 source `Latency experiment*` vs prd `Exp-2` |
-| PASS | requirements | 596 | NFR-4 target `$\geq$ 0.85` vs prd `$\geq$ 0.85` |
-| PASS | requirements | 596 | NFR-4 source `Multi-model benchmark` vs prd `Exp-1` |
-| PASS | claim | 597 | `from a 22-token decode allowance` -> written 22, source gives 22.00 (prd Table 6 decode row, tokens) |
-| PASS | claim | 597 | `within the 1{,}100~ms decode stage` -> written 1100, source gives 1100.00 (prd Table 6 decode row, ms) |
-| PASS | requirements | 597 | throughput floor 20 tok/s = 22 tokens / 1.1 s |
-| PASS | requirements | 598 | NFR-5 target `$\geq$ 0.90` vs prd `$\geq$ 0.90` |
-| PASS | requirements | 598 | NFR-5 source `Multi-model benchmark` vs prd `Exp-1` |
-| PASS | requirements | 600 | NFR-7 target `$\geq$ 0.80` vs prd `$\geq$ 0.80` |
-| PASS | requirements | 600 | NFR-7 source `Acoustic-robustness experiment*` vs prd `Exp-3` |
-| PASS | requirements | 601 | NFR-8 target `$\geq$ 0.65` vs prd `$\geq$ 0.65` |
-| PASS | requirements | 601 | NFR-8 source `Acoustic-robustness experiment*` vs prd `Exp-3` |
-| PASS | requirements | 602 | NFR-9 target `$\geq$ 0.70` vs prd `$\geq$ 0.70` |
-| PASS | requirements | 602 | NFR-9 source `Multi-model benchmark, acoustic-robustness experiment*` vs prd `Exp-1, Exp-3` |
-| PASS | requirements | 603 | NFR-9a target `$\leq$ 2.5~GB` vs prd `$\leq$ 2.5 GB` |
-| PASS | requirements | 603 | NFR-9a source `Multi-model benchmark` vs prd `Exp-1` |
-| PASS | requirements | 604 | NFR-9b target `reported; no pass/fail` vs prd `Reported per configuration as an RQ1 result; no pass/fail` |
-| PASS | requirements | 604 | NFR-9b source `Multi-model benchmark` vs prd `Exp-1` |
-| PASS | requirements | 605 | NFR-10 target `$\leq$ 5\%, reported for every run` vs prd `$\leq$ 5%, and always reported` |
-| PASS | requirements | 605 | NFR-10 source `Multi-model benchmark` vs prd `Exp-1` |
-| PASS | requirements | 606 | NFR-11 target `bootstrap 95\% confidence interval; no pass/fail` vs prd `Reported with a bootstrap 95% CI` |
-| PASS | requirements | 606 | NFR-11 source `Speaker-sensitivity experiment` vs prd `Exp-0` |
-| PASS | requirements | 607 | NFR-18 target `$\leq$ 0.05` vs prd `$\leq$ 0.05` |
-| PASS | requirements | 607 | NFR-18 source `Multi-model benchmark` vs prd `Exp-1` |
-| PASS | float | 647 | tab:latency-budget referenced before it appears (line 576) |
-| PASS | claim | 658 | `Language-model stages combined & 1{,}350~ms` -> written 1350, source gives 1350.00 (prefill + decode rows) |
+| PASS | float | 152 | tab:dataset referenced before it appears (line 137) |
+| PASS | claim | 157 | `\texttt{train\_synth} & 1{,}940 pairs` -> written 1940, source gives 1940.00 (data/ rows of train_synth) |
+| PASS | claim | 157 | `872 transcripts replaced` -> written 872, source gives 872.00 (data/train.jsonl asr_* variants) |
+| PASS | claim | 158 | `\texttt{val\_synth} & 240 pairs` -> written 240, source gives 240.00 (data/ rows of val_synth) |
+| PASS | claim | 159 | `\texttt{test\_synth} & 240 pairs` -> written 240, source gives 240.00 (data/ rows of test_synth) |
+| PASS | claim | 160 | `& 200 audio files` -> written 200, source gives 200.00 (data/test_golden.jsonl rows) |
+| PASS | claim | 161 | `\texttt{test\_ood} & 150 transcripts` -> written 150, source gives 150.00 (data/ rows of test_ood) |
+| PASS | claim | 162 | `300 clips, 263 speakers` -> written 300, source gives 300.00 (sum of n over table16 buckets) |
+| PASS | claim | 162 | `15 accent buckets` -> written 15, source gives 15.00 (table16 bucket rows) |
+| PASS | dataset | 163 | wake_pos 3,000 = STATE.md wake-corpus record |
+| PASS | claim | 164 | `720 near-miss clips` -> written 720, source gives 720.00 (data/wake/wake_manifest.json neg sources) |
+| PASS | dataset | 164 | wake_neg sources = manifest {'adversarial': 720, 'speech_commands': 2384, 'librispeech': 1936} |
+| PASS | dataset | 164 | wake_neg 5,040 / 3.50 h = STATE.md |
+| PASS | path | 177 | `check_leakage.py` exists in the repo |
+| PASS | path | 182 | `cmd.gbnf` exists in the repo |
+| PASS | claim | 187 | `872 rows replace the transcript` -> written 872, source gives 872.00 (data/train.jsonl asr_* variants {'asr_10db': 291, 'asr_20db': 387, 'asr_5db': 194}) |
+| PASS | claim | 189 | `and 88 carry injected text perturbations` -> written 88, source gives 88.00 (data/train.jsonl perturb variant) |
+| PASS | dataset | 189 | round-trip SNR levels in data/train.jsonl: ['asr_10db', 'asr_20db', 'asr_5db'] |
+| PASS | path | 218 | `data/mix_noise.py` exists in the repo |
+| PASS | path | 222 | `data/wake_corpus.py` exists in the repo |
+| PASS | claim | 227 | `labelled 50 golden-set utterances` -> written 50, source gives 50.00 (annot_pass1.seal.json items) |
+| PASS | claim | 236 | `interval of 4.0~days` -> written 4.0, source gives 4.02 (seal timestamp -> first pass-2 label) |
+| PASS | claim | 236 | disagreements between passes: 0 |
+| PASS | path | 246 | `data/wake_corpus.py` exists in the repo |
+| PASS | dataset | 262 | 39% US English = data/dataset_card.md |
+| PASS | claim | 277 | `514~M parameters` -> written 514, source gives 514.00 (table33 danube params (M)) |
+| PASS | claim | 278 | `against 494~M` -> written 494, source gives 494.00 (table33 qwen params (M)) |
+| PASS | claim | 278 | `a difference of 4.0\%` -> written 4.0, source gives 4.05 (514 / 494 - 1) |
+| PASS | float | 293 | tab:lora referenced before it appears (line 273) |
+| PASS | lora | 299 | r = 16 in all 4 configs: {'h2o-danube3-500m': '16', 'smollm2-360m': '16', 'llama-3.2-1b': '16', 'qwen2.5-0.5b': '16'} |
+| PASS | lora | 299 | alpha = 32 in all 4 configs: {'h2o-danube3-500m': '32', 'smollm2-360m': '32', 'llama-3.2-1b': '32', 'qwen2.5-0.5b': '32'} |
+| PASS | lora | 299 | dropout = 0.05 in all 4 configs: {'h2o-danube3-500m': '0.05', 'smollm2-360m': '0.05', 'llama-3.2-1b': '0.05', 'qwen2.5-0.5b': '0.05'} |
+| PASS | lora | 300 | target modules identical in every config |
+| PASS | lora | 301 | learning_rate = 2.0e-4 in all 4 configs: {'h2o-danube3-500m': '2.0e-4', 'smollm2-360m': '2.0e-4', 'llama-3.2-1b': '2.0e-4', 'qwen2.5-0.5b': '2.0e-4'} |
+| PASS | lora | 301 | warmup_ratio = 0.03 in all 4 configs: {'h2o-danube3-500m': '0.03', 'smollm2-360m': '0.03', 'llama-3.2-1b': '0.03', 'qwen2.5-0.5b': '0.03'} |
+| PASS | lora | 302 | epochs = 3 in all 4 configs: {'h2o-danube3-500m': '3', 'smollm2-360m': '3', 'llama-3.2-1b': '3', 'qwen2.5-0.5b': '3'} |
+| PASS | lora | 302 | per_device_train_batch_size = 4 in all 4 configs: {'h2o-danube3-500m': '4', 'smollm2-360m': '4', 'llama-3.2-1b': '4', 'qwen2.5-0.5b': '4'} |
+| PASS | lora | 302 | gradient_accumulation_steps = 4 in all 4 configs: {'h2o-danube3-500m': '4', 'smollm2-360m': '4', 'llama-3.2-1b': '4', 'qwen2.5-0.5b': '4'} |
+| PASS | lora | 303 | max_seq_length = 256 in all 4 configs: {'h2o-danube3-500m': '256', 'smollm2-360m': '256', 'llama-3.2-1b': '256', 'qwen2.5-0.5b': '256'} |
+| PASS | lora | 305 | precision fp16 in every config |
+| PASS | lora | 306 | seed = 42 in all 4 configs: {'h2o-danube3-500m': '42', 'smollm2-360m': '42', 'llama-3.2-1b': '42', 'qwen2.5-0.5b': '42'} |
+| PASS | parity | 368 | gguf/ holds 6: ['llama-3.2-1b-instruct-Q4_K_M.gguf', 'llama-3.2-1b-instruct-Q8_0.gguf', 'qwen2.5-0.5b-instruct-Q4_K_M.gguf', 'qwen2.5-0.5b-instruct-Q8_0.gguf', 'smollm2-360m-instruct-Q4_K_M.gguf', 'smollm2-360m-instruct-Q8_0.gguf'] |
+| PASS | path | 415 | `test_template_parity.py` exists in the repo |
+| PASS | parity | 415 | eval/fixed_audit_prompts.json holds 10 prompts |
+| PASS | path | 417 | `check_parity_gguf.py` exists in the repo |
+| PASS | parity | 441 | dro+ne segmentation = results/gate3_parity.md |
+| PASS | protocol | 471 | Exp-1 60 reps = STATE.md |
+| PASS | protocol | 473 | parse-path n = 226 (results/exp2_analysis.md) |
+| PASS | protocol | 474 | reflex n = {'idle': '78', 'loaded': '78'} (results/exp2_analysis.md) |
+| PASS | path | 492 | `data/asr.py` exists in the repo |
+| PASS | float | 545 | tab:metrics referenced before it appears (line 527) |
+| PASS | requirements | 558 | NFR-6 target `100\%, by construction` vs prd `100% *by construction* — reported as a structural guarantee, not an achievement` |
+| PASS | requirements | 558 | NFR-6 source `Multi-model benchmark` vs prd `Exp-1` |
+| PASS | protocol | 561 | prose `taskset -c 1-3` vs harness `taskset -c 1-3` around llama-server `-t 3` (eval/exp1.py) |
+| PASS | path | 564 | `eval/norm.py` exists in the repo |
+| PASS | float | 591 | tab:requirements referenced before it appears (line 574) |
+| PASS | requirements | 596 | NFR-2 target `p95 $\leq$ 2{,}500~ms` vs prd `p95 $\leq$ 2,500 ms` |
+| PASS | requirements | 596 | NFR-2 source `Latency experiment*` vs prd `Exp-2` |
+| PASS | requirements | 597 | NFR-4 target `$\geq$ 0.85` vs prd `$\geq$ 0.85` |
+| PASS | requirements | 597 | NFR-4 source `Multi-model benchmark` vs prd `Exp-1` |
+| PASS | claim | 598 | `from a 22-token decode allowance` -> written 22, source gives 22.00 (prd Table 6 decode row, tokens) |
+| PASS | claim | 598 | `within the 1{,}100~ms decode stage` -> written 1100, source gives 1100.00 (prd Table 6 decode row, ms) |
+| PASS | requirements | 598 | throughput floor 20 tok/s = 22 tokens / 1.1 s |
+| PASS | requirements | 599 | NFR-5 target `$\geq$ 0.90` vs prd `$\geq$ 0.90` |
+| PASS | requirements | 599 | NFR-5 source `Multi-model benchmark` vs prd `Exp-1` |
+| PASS | requirements | 601 | NFR-7 target `$\geq$ 0.80` vs prd `$\geq$ 0.80` |
+| PASS | requirements | 601 | NFR-7 source `Acoustic-robustness experiment*` vs prd `Exp-3` |
+| PASS | requirements | 602 | NFR-8 target `$\geq$ 0.65` vs prd `$\geq$ 0.65` |
+| PASS | requirements | 602 | NFR-8 source `Acoustic-robustness experiment*` vs prd `Exp-3` |
+| PASS | requirements | 603 | NFR-9 target `$\geq$ 0.70` vs prd `$\geq$ 0.70` |
+| PASS | requirements | 603 | NFR-9 source `Multi-model benchmark, acoustic-robustness experiment*` vs prd `Exp-1, Exp-3` |
+| PASS | requirements | 604 | NFR-9a target `$\leq$ 2.5~GB` vs prd `$\leq$ 2.5 GB` |
+| PASS | requirements | 604 | NFR-9a source `Multi-model benchmark` vs prd `Exp-1` |
+| PASS | requirements | 605 | NFR-9b target `reported; no pass/fail` vs prd `Reported per configuration as an RQ1 result; no pass/fail` |
+| PASS | requirements | 605 | NFR-9b source `Multi-model benchmark` vs prd `Exp-1` |
+| PASS | requirements | 606 | NFR-10 target `$\leq$ 5\%, reported for every run` vs prd `$\leq$ 5%, and always reported` |
+| PASS | requirements | 606 | NFR-10 source `Multi-model benchmark` vs prd `Exp-1` |
+| PASS | requirements | 607 | NFR-11 target `bootstrap 95\% confidence interval; no pass/fail` vs prd `Reported with a bootstrap 95% CI` |
+| PASS | requirements | 607 | NFR-11 source `Speaker-sensitivity experiment` vs prd `Exp-0` |
+| PASS | requirements | 608 | NFR-18 target `$\leq$ 0.05` vs prd `$\leq$ 0.05` |
+| PASS | requirements | 608 | NFR-18 source `Multi-model benchmark` vs prd `Exp-1` |
+| PASS | float | 648 | tab:latency-budget referenced before it appears (line 577) |
+| PASS | claim | 659 | `Language-model stages combined & 1{,}350~ms` -> written 1350, source gives 1350.00 (prefill + decode rows) |
 
 ### Citation sheet (for the citation agent: open each identifier, judge SUPPORTS / PARTIAL / DOES NOT SUPPORT per row)
 
 | # | line | keys | sentence the citation must support |
 |---|---|---|---|
 | 1 | 56 | llamacpp | \paragraph{The decoding grammar.} The first layer is a context-free grammar in the \gls{gbnf} formalism, which \texttt{llama.cpp} parses once per request and applies at every decoding step by masking the decoder's token distribution~\cite{llamacpp}. |
-| 2 | 161 | commonvoice, commonvoice17 | \texttt{commonvoice} & 300 clips, 263 speakers, 15 accent buckets & Mozilla Common Voice 17.0 English test split~\cite{commonvoice,commonvoice17}, stratified by accent & Multi-speaker baseline of the speaker-sensitivity experiment \\ |
-| 3 | 162 | piper | \texttt{wake\_pos} & 3{,}000 clips (1{,}500 per class) & Three Piper voices~\cite{piper}, 20 renditions each, 25 augmentations per rendition & Keyword-spotter training* \\ |
-| 4 | 163 | librispeech | \texttt{wake\_neg} & 5{,}040 clips, 3.50~h & LibriSpeech~\cite{librispeech}, Speech Commands~\cite{speechcmd}, 720 near-miss clips & Keyword-spotter training and false-accept measurement* \\ |
-| 5 | 163 | speechcmd | \texttt{wake\_neg} & 5{,}040 clips, 3.50~h & LibriSpeech~\cite{librispeech}, Speech Commands~\cite{speechcmd}, 720 near-miss clips & Keyword-spotter training and false-accept measurement* \\ |
-| 6 | 187 | whispercpp | The rest are built by round trip: 872 rows replace the transcript with what \texttt{whisper.cpp}~\cite{whispercpp} recognises from Piper~\gls{tts}~\cite{piper} audio of it, mixed with noise at 20, 10 or 5~dB \gls{snr}, and 88 carry injected text perturbations. |
-| 7 | 187 | piper | The rest are built by round trip: 872 rows replace the transcript with what \texttt{whisper.cpp}~\cite{whispercpp} recognises from Piper~\gls{tts}~\cite{piper} audio of it, mixed with noise at 20, 10 or 5~dB \gls{snr}, and 88 carry injected text perturbations. |
-| 8 | 215 | esc50 | \paragraph{Noise and annotation.} The noise mixed into training and evaluation audio comes from ESC-50~\cite{esc50} (environmental sound classes, licensed CC BY-NC 3.0) and DREGON~\cite{dregon} (rotor noise recorded by microphones mounted on a \gls{uav}, free for personal, educational and academic use). |
-| 9 | 215 | dregon | \paragraph{Noise and annotation.} The noise mixed into training and evaluation audio comes from ESC-50~\cite{esc50} (environmental sound classes, licensed CC BY-NC 3.0) and DREGON~\cite{dregon} (rotor noise recorded by microphones mounted on a \gls{uav}, free for personal, educational and academic use). |
-| 10 | 220 | traer2016 | Room impulse responses from the MIT Acoustical Reverberation Survey~\cite{traer2016} are applied only to the wake corpus, by \texttt{data/wake\_corpus.py}; the parser's audio is not reverberated. |
-| 11 | 246 | oww | The spotter itself is a classifier head fitted over openWakeWord's frozen feature front end~\cite{oww}. |
-| 12 | 246 | librispeech | Negatives are read speech from LibriSpeech~\cite{librispeech}, short command words from Speech Commands~\cite{speechcmd}, and forty near-miss phrases authored by hand, since neither LibriSpeech nor Speech Commands supplies the confusions that matter to this spotter: short phrases beginning with ``swarm'' or ``hold''. |
-| 13 | 247 | speechcmd | Negatives are read speech from LibriSpeech~\cite{librispeech}, short command words from Speech Commands~\cite{speechcmd}, and forty near-miss phrases authored by hand, since neither LibriSpeech nor Speech Commands supplies the confusions that matter to this spotter: short phrases beginning with ``swarm'' or ``hold''. |
-| 14 | 259 | commonvoice, commonvoice17 | \paragraph{The multi-speaker baseline.} The speaker-sensitivity experiment draws 300 clips from the English test split of Mozilla Common Voice release 17.0~\cite{commonvoice,commonvoice17}, through an ungated mirror of that release. |
-| 15 | 267 | qwen25 | \section{The LoRA recipe} \label{sec:lora} Four base models were fine-tuned with \gls{lora}: Qwen2.5-0.5B-Instruct~\cite{qwen25}, SmolLM2-360M-Instruct~\cite{smollm2} and Llama-3.2-1B-Instruct~\cite{llama32}, spanning the 0.36--1.2~B range RQ1 asks about, and H2O-Danube3-500M-Chat~\cite{danube3} as a parameter-matched  |
-| 16 | 268 | smollm2 | \section{The LoRA recipe} \label{sec:lora} Four base models were fine-tuned with \gls{lora}: Qwen2.5-0.5B-Instruct~\cite{qwen25}, SmolLM2-360M-Instruct~\cite{smollm2} and Llama-3.2-1B-Instruct~\cite{llama32}, spanning the 0.36--1.2~B range RQ1 asks about, and H2O-Danube3-500M-Chat~\cite{danube3} as a parameter-matched  |
-| 17 | 268 | llama32 | \section{The LoRA recipe} \label{sec:lora} Four base models were fine-tuned with \gls{lora}: Qwen2.5-0.5B-Instruct~\cite{qwen25}, SmolLM2-360M-Instruct~\cite{smollm2} and Llama-3.2-1B-Instruct~\cite{llama32}, spanning the 0.36--1.2~B range RQ1 asks about, and H2O-Danube3-500M-Chat~\cite{danube3} as a parameter-matched  |
-| 18 | 269 | danube3 | \section{The LoRA recipe} \label{sec:lora} Four base models were fine-tuned with \gls{lora}: Qwen2.5-0.5B-Instruct~\cite{qwen25}, SmolLM2-360M-Instruct~\cite{smollm2} and Llama-3.2-1B-Instruct~\cite{llama32}, spanning the 0.36--1.2~B range RQ1 asks about, and H2O-Danube3-500M-Chat~\cite{danube3} as a parameter-matched  |
-| 19 | 297 | lora | \midrule Method & \acrshort{lora}~\cite{lora}, not QLoRA \\ |
-| 20 | 300 | adamw | Optimiser & AdamW~\cite{adamw}, learning rate $2\times10^{-4}$, cosine schedule, warmup ratio $0.03$ \\ |
-| 21 | 311 | lora | \paragraph{Adaptation method.} \Gls{lora}~\cite{lora} freezes the base weights and trains a pair of rank-$r$ update matrices per targeted projection. |
-| 22 | 312 | qlora | QLoRA~\cite{qlora} adds one further step, quantising the frozen base weights during training to fit a larger model into a smaller training budget. |
-| 23 | 318 | qlora | Adapters on every linear layer are what QLoRA found necessary to match full fine-tuning~\cite{qlora}, and the memory a narrower adapter would save is not a constraint on the training hardware. |
-| 24 | 343 | nvidiat4 | All four models were fine-tuned on Kaggle's free-tier accelerator, two NVIDIA~T4 \glspl{gpu} of the Turing architecture~\cite{nvidiat4} (compute capability~7.5~\cite{nvidiacc}). |
-| 25 | 344 | nvidiacc | All four models were fine-tuned on Kaggle's free-tier accelerator, two NVIDIA~T4 \glspl{gpu} of the Turing architecture~\cite{nvidiat4} (compute capability~7.5~\cite{nvidiacc}). |
-| 26 | 345 | nvidiaampere | Native bf16 arithmetic arrived with the following architecture, Ampere (compute capability~8.0)~\cite{nvidiaampere}, so the T4 offers the training run no native bf16 path, and every run used fp16 instead. |
-| 27 | 357 | pytorchrepro | Training on a \gls{gpu} is not guaranteed to be bit-reproducible across session instances~\cite{pytorchrepro}, so its adapter is not an output of the run that produced the other three. |
-| 28 | 366 | llamacpp | Three were then quantised with \texttt{llama-quantize}~\cite{llamacpp} to two levels -- Q8\_0 and Q4\_K\_M -- producing six deployable artefacts. |
-| 29 | 370 | pytorch | Merging and conversion ran on Kaggle, alongside fine-tuning, because both need the \texttt{torch}~\cite{pytorch} and \texttt{peft}~\cite{peft} stacks, which are not installed on the workstation. |
-| 30 | 370 | peft | Merging and conversion ran on Kaggle, alongside fine-tuning, because both need the \texttt{torch}~\cite{pytorch} and \texttt{peft}~\cite{peft} stacks, which are not installed on the workstation. |
-| 31 | 372 | llamacpp | \texttt{llama-quantize} is native C/C++ with no Python dependency~\cite{llamacpp}, so quantisation ran locally, against the fp16 \gls{gguf} files that Kaggle produced. |
-| 32 | 378 | transformers | The \textbf{reference surface} is the fine-tuned fp16 model -- base weights with the \acrshort{lora} adapter applied, not merged -- decoded under \texttt{transformers}~\cite{transformers} on a Kaggle T4, without a grammar: a reference point, not a deployed configuration. |
-| 33 | 426 | llamacppchat | First, \texttt{llama.cpp} omits the leading beginning-of-sequence piece from the rendered prompt, because it inserts that token at tokenisation time~\cite{llamacppchat}. |
-| 34 | 427 | llama32card | Second, Llama-3.2's chat template writes the current date into its system turn~\cite{llama32card}, so it renders the date of the check rather than the date of training. |
-| 35 | 490 | whisper | Speech recognition used \texttt{whisper.cpp} commit 52a939a with the \texttt{tiny.en} model~\cite{whisper}, prompted with a fixed 25-word command vocabulary (\texttt{data/asr.py}), both when the round-trip training rows were built and at run time. |
-| 36 | 620 | mcnemar1947 | If no configuration satisfies both constraints, the rule fails openly: the constraint is re-baselined against the measured figure, and the re-baselining is reported rather than the constraint treated as met. Paired deployed-surface predictions, under the grammar, are compared by McNemar's test~\cite{mcnemar1947} in two |
+| 2 | 162 | commonvoice, commonvoice17 | \texttt{commonvoice} & 300 clips, 263 speakers, 15 accent buckets & Mozilla Common Voice 17.0 English test split~\cite{commonvoice,commonvoice17}, stratified by accent & Multi-speaker baseline of the speaker-sensitivity experiment \\ |
+| 3 | 163 | piper | \texttt{wake\_pos} & 3{,}000 clips (1{,}500 per class) & Three Piper voices~\cite{piper}, 20 renditions each, 25 augmentations per rendition & Keyword-spotter training* \\ |
+| 4 | 164 | librispeech | \texttt{wake\_neg} & 5{,}040 clips, 3.50~h & LibriSpeech~\cite{librispeech}, Speech Commands~\cite{speechcmd}, 720 near-miss clips & Keyword-spotter training and false-accept measurement* \\ |
+| 5 | 164 | speechcmd | \texttt{wake\_neg} & 5{,}040 clips, 3.50~h & LibriSpeech~\cite{librispeech}, Speech Commands~\cite{speechcmd}, 720 near-miss clips & Keyword-spotter training and false-accept measurement* \\ |
+| 6 | 188 | whispercpp | The rest are built by round trip: 872 rows replace the transcript with what \texttt{whisper.cpp}~\cite{whispercpp} recognises from Piper~\gls{tts}~\cite{piper} audio of it, mixed with noise at 20, 10 or 5~dB \gls{snr}, and 88 carry injected text perturbations. |
+| 7 | 188 | piper | The rest are built by round trip: 872 rows replace the transcript with what \texttt{whisper.cpp}~\cite{whispercpp} recognises from Piper~\gls{tts}~\cite{piper} audio of it, mixed with noise at 20, 10 or 5~dB \gls{snr}, and 88 carry injected text perturbations. |
+| 8 | 216 | esc50 | \paragraph{Noise and annotation.} The noise mixed into training and evaluation audio comes from ESC-50~\cite{esc50} (environmental sound classes, licensed CC BY-NC 3.0) and DREGON~\cite{dregon} (rotor noise recorded by microphones mounted on a \gls{uav}, free for personal, educational and academic use). |
+| 9 | 216 | dregon | \paragraph{Noise and annotation.} The noise mixed into training and evaluation audio comes from ESC-50~\cite{esc50} (environmental sound classes, licensed CC BY-NC 3.0) and DREGON~\cite{dregon} (rotor noise recorded by microphones mounted on a \gls{uav}, free for personal, educational and academic use). |
+| 10 | 221 | traer2016 | Room impulse responses from the MIT Acoustical Reverberation Survey~\cite{traer2016} are applied only to the wake corpus, by \texttt{data/wake\_corpus.py}; the parser's audio is not reverberated. |
+| 11 | 247 | oww | The spotter itself is a classifier head fitted over openWakeWord's frozen feature front end~\cite{oww}. |
+| 12 | 247 | librispeech | Negatives are read speech from LibriSpeech~\cite{librispeech}, short command words from Speech Commands~\cite{speechcmd}, and forty near-miss phrases authored by hand, since neither LibriSpeech nor Speech Commands supplies the confusions that matter to this spotter: short phrases beginning with ``swarm'' or ``hold''. |
+| 13 | 248 | speechcmd | Negatives are read speech from LibriSpeech~\cite{librispeech}, short command words from Speech Commands~\cite{speechcmd}, and forty near-miss phrases authored by hand, since neither LibriSpeech nor Speech Commands supplies the confusions that matter to this spotter: short phrases beginning with ``swarm'' or ``hold''. |
+| 14 | 260 | commonvoice, commonvoice17 | \paragraph{The multi-speaker baseline.} The speaker-sensitivity experiment draws 300 clips from the English test split of Mozilla Common Voice release 17.0~\cite{commonvoice,commonvoice17}, through an ungated mirror of that release. |
+| 15 | 268 | qwen25 | \section{The LoRA recipe} \label{sec:lora} Four base models were fine-tuned with \gls{lora}: Qwen2.5-0.5B-Instruct~\cite{qwen25}, SmolLM2-360M-Instruct~\cite{smollm2} and Llama-3.2-1B-Instruct~\cite{llama32}, spanning the 0.36--1.2~B range RQ1 asks about, and H2O-Danube3-500M-Chat~\cite{danube3} as a parameter-matched  |
+| 16 | 269 | smollm2 | \section{The LoRA recipe} \label{sec:lora} Four base models were fine-tuned with \gls{lora}: Qwen2.5-0.5B-Instruct~\cite{qwen25}, SmolLM2-360M-Instruct~\cite{smollm2} and Llama-3.2-1B-Instruct~\cite{llama32}, spanning the 0.36--1.2~B range RQ1 asks about, and H2O-Danube3-500M-Chat~\cite{danube3} as a parameter-matched  |
+| 17 | 269 | llama32 | \section{The LoRA recipe} \label{sec:lora} Four base models were fine-tuned with \gls{lora}: Qwen2.5-0.5B-Instruct~\cite{qwen25}, SmolLM2-360M-Instruct~\cite{smollm2} and Llama-3.2-1B-Instruct~\cite{llama32}, spanning the 0.36--1.2~B range RQ1 asks about, and H2O-Danube3-500M-Chat~\cite{danube3} as a parameter-matched  |
+| 18 | 270 | danube3 | \section{The LoRA recipe} \label{sec:lora} Four base models were fine-tuned with \gls{lora}: Qwen2.5-0.5B-Instruct~\cite{qwen25}, SmolLM2-360M-Instruct~\cite{smollm2} and Llama-3.2-1B-Instruct~\cite{llama32}, spanning the 0.36--1.2~B range RQ1 asks about, and H2O-Danube3-500M-Chat~\cite{danube3} as a parameter-matched  |
+| 19 | 298 | lora | \midrule Method & \acrshort{lora}~\cite{lora}, not QLoRA \\ |
+| 20 | 301 | adamw | Optimiser & AdamW~\cite{adamw}, learning rate $2\times10^{-4}$, cosine schedule, warmup ratio $0.03$ \\ |
+| 21 | 312 | lora | \paragraph{Adaptation method.} \Gls{lora}~\cite{lora} freezes the base weights and trains a pair of rank-$r$ update matrices per targeted projection. |
+| 22 | 313 | qlora | QLoRA~\cite{qlora} adds one further step, quantising the frozen base weights during training to fit a larger model into a smaller training budget. |
+| 23 | 319 | qlora | Adapters on every linear layer are what QLoRA found necessary to match full fine-tuning~\cite{qlora}, and the memory a narrower adapter would save is not a constraint on the training hardware. |
+| 24 | 344 | nvidiat4 | All four models were fine-tuned on Kaggle's free-tier accelerator, two NVIDIA~T4 \glspl{gpu} of the Turing architecture~\cite{nvidiat4} (compute capability~7.5~\cite{nvidiacc}). |
+| 25 | 345 | nvidiacc | All four models were fine-tuned on Kaggle's free-tier accelerator, two NVIDIA~T4 \glspl{gpu} of the Turing architecture~\cite{nvidiat4} (compute capability~7.5~\cite{nvidiacc}). |
+| 26 | 346 | nvidiaampere | Native bf16 arithmetic arrived with the following architecture, Ampere (compute capability~8.0)~\cite{nvidiaampere}, so the T4 offers the training run no native bf16 path, and every run used fp16 instead. |
+| 27 | 358 | pytorchrepro | Training on a \gls{gpu} is not guaranteed to be bit-reproducible across session instances~\cite{pytorchrepro}, so its adapter is not an output of the run that produced the other three. |
+| 28 | 367 | llamacpp | Three were then quantised with \texttt{llama-quantize}~\cite{llamacpp} to two levels -- Q8\_0 and Q4\_K\_M -- producing six deployable artefacts. |
+| 29 | 371 | pytorch | Merging and conversion ran on Kaggle, alongside fine-tuning, because both need the \texttt{torch}~\cite{pytorch} and \texttt{peft}~\cite{peft} stacks, which are not installed on the workstation. |
+| 30 | 371 | peft | Merging and conversion ran on Kaggle, alongside fine-tuning, because both need the \texttt{torch}~\cite{pytorch} and \texttt{peft}~\cite{peft} stacks, which are not installed on the workstation. |
+| 31 | 373 | llamacpp | \texttt{llama-quantize} is native C/C++ with no Python dependency~\cite{llamacpp}, so quantisation ran locally, against the fp16 \gls{gguf} files that Kaggle produced. |
+| 32 | 379 | transformers | The \textbf{reference surface} is the fine-tuned fp16 model -- base weights with the \acrshort{lora} adapter applied, not merged -- decoded under \texttt{transformers}~\cite{transformers} on a Kaggle T4, without a grammar: a reference point, not a deployed configuration. |
+| 33 | 427 | llamacppchat | First, \texttt{llama.cpp} omits the leading beginning-of-sequence piece from the rendered prompt, because it inserts that token at tokenisation time~\cite{llamacppchat}. |
+| 34 | 428 | llama32card | Second, Llama-3.2's chat template writes the current date into its system turn~\cite{llama32card}, so it renders the date of the check rather than the date of training. |
+| 35 | 491 | whisper | Speech recognition used \texttt{whisper.cpp} commit 52a939a with the \texttt{tiny.en} model~\cite{whisper}, prompted with a fixed 25-word command vocabulary (\texttt{data/asr.py}), both when the round-trip training rows were built and at run time. |
+| 36 | 621 | mcnemar1947 | If no configuration satisfies both constraints, the rule fails openly: the constraint is re-baselined against the measured figure, and the re-baselining is reported rather than the constraint treated as met. Paired deployed-surface predictions, under the grammar, are compared by McNemar's test~\cite{mcnemar1947} in two |
 
 | key | title | year | identifier |
 |---|---|---|---|
@@ -215,10 +215,10 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 |---|---|---|---|
 | 1 | chapter | Method | 61 |
 | 10 | section | Command schema and grammar design | 988 |
-| 123 | section | Label-first dataset construction | 1738 |
-| 265 | section | The LoRA recipe | 1077 |
-| 363 | section | Quantisation procedure | 1058 |
-| 447 | section | Evaluation protocol and the definitions of record | 2575 |
+| 123 | section | Label-first dataset construction | 1757 |
+| 266 | section | The LoRA recipe | 1077 |
+| 364 | section | Quantisation procedure | 1058 |
+| 448 | section | Evaluation protocol and the definitions of record | 2575 |
 
 ### Codes used in this chapter (self-containment agent: is each one needed, or would a descriptive name read better?)
 
@@ -233,18 +233,18 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 
 | line | id | chapter wording | prd wording |
 |---|---|---|---|
-| 595 | NFR-2 | Parse-path latency, from end of speech | Branch B latency, from end-of-speech |
-| 596 | NFR-4 | \acrshort{em} on the deployed quantised artefact, best model | Exact match on the deployed quantised artefact, best model |
-| 598 | NFR-5 | Intent macro-F1, best model | Intent macro-F1, best model |
-| 557 | NFR-6 | Schema validity under the grammar | Schema validity under GBNF |
-| 600 | NFR-7 | \acrshort{crr} on the golden set, clean audio | CRR on the golden set, clean audio |
-| 601 | NFR-8 | \acrshort{crr} at 10~dB \acrshort{snr} | CRR at 10 dB SNR |
-| 602 | NFR-9 | Safe-failure rate: errors resolving to \texttt{unknown} or \texttt{hover} | Safe-failure rate — proportion of errors resolving to `unknown` or `HOVER` rather than a w |
-| 603 | NFR-9a | Peak resident memory, selected configuration, full stack; only the language-model process  | Peak resident memory, *selected deployment configuration*, full stack |
-| 604 | NFR-9b | Peak resident memory, every configuration | Peak resident memory, every configuration |
-| 605 | NFR-10 | Proportion of timed trials with a non-zero throttle flag | Thermal — proportion of trials with a non-zero throttle flag |
-| 606 | NFR-11 | Speech-recognition \acrshort{wer} on the author's speech, positioned against a multi-speak | Word error rate of `tiny.en` on the author's speech, positioned against a multi-speaker di |
-| 607 | NFR-18 | False-command rate on the out-of-domain set | False-command rate on the out-of-domain set |
+| 596 | NFR-2 | Parse-path latency, from end of speech | Branch B latency, from end-of-speech |
+| 597 | NFR-4 | \acrshort{em} on the deployed quantised artefact, best model | Exact match on the deployed quantised artefact, best model |
+| 599 | NFR-5 | Intent macro-F1, best model | Intent macro-F1, best model |
+| 558 | NFR-6 | Schema validity under the grammar | Schema validity under GBNF |
+| 601 | NFR-7 | \acrshort{crr} on the golden set, clean audio | CRR on the golden set, clean audio |
+| 602 | NFR-8 | \acrshort{crr} at 10~dB \acrshort{snr} | CRR at 10 dB SNR |
+| 603 | NFR-9 | Safe-failure rate: errors resolving to \texttt{unknown} or \texttt{hover} | Safe-failure rate — proportion of errors resolving to `unknown` or `HOVER` rather than a w |
+| 604 | NFR-9a | Peak resident memory, selected configuration, full stack; only the language-model process  | Peak resident memory, *selected deployment configuration*, full stack |
+| 605 | NFR-9b | Peak resident memory, every configuration | Peak resident memory, every configuration |
+| 606 | NFR-10 | Proportion of timed trials with a non-zero throttle flag | Thermal — proportion of trials with a non-zero throttle flag |
+| 607 | NFR-11 | Speech-recognition \acrshort{wer} on the author's speech, positioned against a multi-speak | Word error rate of `tiny.en` on the author's speech, positioned against a multi-speaker di |
+| 608 | NFR-18 | False-command rate on the out-of-domain set | False-command rate on the out-of-domain set |
 
 ### For the reproducibility agent
 
@@ -264,94 +264,94 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 46 | 0.13 | recomputed by a claim on this line |
 | 46 | 1.33 | recomputed by a claim on this line |
 | 98 | 16.0 | measured: results/table18_quantisation_delta.md:3, results/table18_quantisation_delta.md:9 |
-| 156 | 1{,}940 | recomputed by a claim on this line |
-| 156 | 872 | recomputed by a claim on this line |
-| 157 | 240 | recomputed by a claim on this line |
+| 157 | 1{,}940 | recomputed by a claim on this line |
+| 157 | 872 | recomputed by a claim on this line |
 | 158 | 240 | recomputed by a claim on this line |
-| 159 | 200 | recomputed by a claim on this line |
-| 159 | 200 | recomputed by a claim on this line |
-| 160 | 150 | recomputed by a claim on this line |
-| 161 | 300 | recomputed by a claim on this line |
-| 161 | 263 | recomputed by a claim on this line |
-| 161 | 17.0 | recomputed by a claim on this line |
-| 162 | 3{,}000 | measured: results/nfr9_nfr18_abstention.csv:4, results/nfr9_nfr18_abstention.csv:7 |
-| 162 | 1{,}500 | measured: train/kaggle_out/surface_a.csv:4, train/kaggle_out/surface_a.csv:10 |
-| 163 | 5{,}040 | recomputed by a claim on this line |
-| 163 | 3.50 | recomputed by a claim on this line |
-| 163 | 720 | recomputed by a claim on this line |
-| 170 | 5.0 | measured: results/exp2_latency_budget.md:3, results/exp2_latency_budget.md:21 |
-| 173 | 120 | measured: results/wake_training.md:32, results/wake_training.json:20 |
-| 186 | 872 | recomputed by a claim on this line |
-| 188 | 5 | recomputed by a claim on this line |
-| 193 | 200 | measured: results/exp2_latency_budget.md:4, results/table16_asr_speaker_sensitivity.md:20 |
-| 215 | 3.0 | measured: results/exp2_latency_budget.md:4, results/exp2_latency_budget.md:12 |
-| 222 | 20 | measured: results/table16_asr_speaker_sensitivity.md:20, results/exp3_pi_analysis.md:15 |
-| 222 | 30 | measured: results/table16_asr_speaker_sensitivity.md:7, results/exp3_pi_analysis.md:83 |
-| 235 | 4.0 | recomputed by a claim on this line |
-| 258 | 300 | measured: results/exp2_latency_budget.md:27, results/wake_training.md:13 |
-| 259 | 17.0 | measured: results/exp2_latency_budget.md:27, results/wake_training.md:30 |
-| 260 | 263 | DECLARED ONLY: .scratch/sprint-pfe/STATE.md:101 |
-| 261 | 39 | measured: results/exp3_pi_analysis.md:68, results/exp3_analysis.md:68 |
-| 269 | 0.36 | measured: results/wake_training.json:169, results/wake_training.json:813 |
-| 269 | 1.2 | measured: spikes/reports/S1_llama_throughput_thermals.md:40, results/exp2_latency_budget.md:12 /1024 |
-| 276 | 514 | recomputed by a claim on this line |
-| 277 | 494 | recomputed by a claim on this line |
-| 277 | 4.0 | recomputed by a claim on this line |
-| 298 | 0.05 | measured: results/nfr18_false_command.md:3, results/wake_training.md:5 |
-| 300 | 2 | measured: results/nfr18_false_command.md:9, results/nfr18_false_command.md:10 |
-| 300 | 0.03 | measured: results/wake_training.md:11, results/wake_training.md:13 |
-| 302 | 256 | measured: results/gate3_parity.json:24, results/gate3_parity.json:37 |
-| 321 | 0.900 | measured: results/wake_training.json:1714, results/wake_training.json:2500 |
-| 322 | 0.008 | measured: results/wake_training.json:542, results/wake_training.json:581 |
-| 322 | 240 | measured: results/mcnemar.md:42, results/mcnemar.md:43 |
-| 322 | 0.025 | measured: results/exp3_pi_analysis.md:19, results/exp3_analysis.md:19 |
-| 322 | 0.038 | measured: results/exp3_pi_analysis.md:41, results/exp3_analysis.md:41 |
-| 344 | 7.5 | measured: results/wake_training.md:23 x100, results/wake_training.json:158 x100 |
-| 345 | 8.0 | measured: results/nfr18_false_command.md:8, results/nfr18_false_command.md:10 |
-| 459 | 200 | measured: results/exp2_latency_budget.md:4, results/table16_asr_speaker_sensitivity.md:20 |
-| 462 | 200 | measured: results/exp2_latency_budget.md:4, results/table16_asr_speaker_sensitivity.md:20 |
-| 469 | 200 | measured: results/exp2_latency_budget.md:4, results/table16_asr_speaker_sensitivity.md:20 |
-| 472 | 226 | measured: results/exp2_latency_budget.md:11, results/exp2_latency_budget.md:12 |
-| 472 | 200 | measured: results/exp2_latency_budget.md:4, results/table16_asr_speaker_sensitivity.md:20 |
-| 492 | 0.19 | measured: results/nfr18_false_command.md:7, results/exp3_pi_analysis.md:21 |
-| 493 | 5.0 | measured: results/exp2_latency_budget.md:3, results/exp2_latency_budget.md:21 |
-| 494 | 2.10 | measured: results/wake_training.json:731 x100, results/exp0.csv:2 /1024 |
-| 494 | 12.8 | measured: results/wake_training.json:69 x100, results/wake_training.json:81 x100 |
-| 498 | 1{,}024 | measured: spikes/reports/S2_whisper_timing.md:45, spikes/reports/S0_audio_bringup.md:45 |
-| 499 | 512 | DECLARED ONLY: prd.md:243, prd.md:349 |
-| 557 | 1.0 | measured: results/nfr18_false_command.md:7, results/nfr18_false_command.md:8 |
-| 561 | 20 | measured: results/table16_asr_speaker_sensitivity.md:20, results/exp3_pi_analysis.md:15 |
-| 564 | 95 | measured: results/exp2_latency_budget.md:7, results/exp2_latency_budget.md:9 |
-| 567 | 0.5 | measured: results/nfr18_false_command.md:9, results/nfr18_false_command.md:10 |
-| 568 | 0.85 | measured: results/exp4_formation.md:13, results/table19_grammar_ablation.md:11 |
-| 577 | 16.0 | measured: results/table18_quantisation_delta.md:3, results/table18_quantisation_delta.md:9 |
-| 577 | 1{,}100 | measured: results/exp2_latency_budget.md:14, results/exp2_analysis.md:15 |
-| 595 | 2{,}500 | measured: results/exp2_latency_budget.md:16, results/exp2_latency_budget.md:17 |
-| 596 | 0.85 | measured: results/exp4_formation.md:13, results/table19_grammar_ablation.md:11 |
-| 597 | 1{,}100 | recomputed by a claim on this line |
-| 597 | 20 | recomputed by a claim on this line |
-| 598 | 0.90 | measured: results/wake_training.json:1714, results/wake_training.json:2500 |
-| 599 | 100 | measured: results/thermal_headroom.md:14, results/thermal_headroom.md:16 |
-| 600 | 0.80 | measured: results/exp4_formation.md:11, results/exp4_formation.md:11 |
-| 601 | 10 | measured: results/table16_asr_speaker_sensitivity.md:5, results/table16_asr_speaker_sensitivity.md:7 |
-| 601 | 0.65 | measured: results/exp3_pi_analysis.md:50, results/exp3_pi_analysis.md:60 |
-| 602 | 0.70 | measured: results/table20_end_to_end.md:22, results/limitation_abstention.md:15 |
-| 603 | 2.5 | measured: results/nfr18_false_command.md:9, results/nfr18_false_command.md:10 |
-| 605 | 5 | measured: results/exp2_latency_budget.md:3, results/exp2_latency_budget.md:7 |
-| 606 | 95 | measured: results/exp2_latency_budget.md:7, results/exp2_latency_budget.md:9 |
-| 607 | 0.05 | measured: results/nfr18_false_command.md:3, results/wake_training.md:5 |
-| 613 | 2{,}500 | measured: results/exp2_latency_budget.md:16, results/exp2_latency_budget.md:17 |
-| 614 | 2.5 | measured: results/nfr18_false_command.md:9, results/nfr18_false_command.md:10 |
-| 622 | 0.0167 | measured: results/mcnemar.md:12, results/mcnemar.md:18 |
-| 622 | 0.05 | measured: results/nfr18_false_command.md:3, results/wake_training.md:5 |
-| 624 | 200 | measured: results/exp2_latency_budget.md:4, results/table16_asr_speaker_sensitivity.md:20 |
-| 626 | 200 | measured: results/exp2_latency_budget.md:4, results/table16_asr_speaker_sensitivity.md:20 |
-| 635 | 1{,}350 | measured: results/exp2.csv:8 x100 |
-| 637 | 2{,}500 | measured: results/exp2_latency_budget.md:16, results/exp2_latency_budget.md:17 |
-| 652 | 500 | measured: results/exp2_latency_budget.md:11, results/gate3_parity.md:21 |
-| 653 | 1{,}200 | measured: results/exp2_latency_budget.md:12, results/exp2_analysis.md:13 |
-| 654 | 250 | measured: results/exp2_latency_budget.md:13, results/exp2_analysis.md:14 |
-| 655 | 1{,}100 | measured: results/exp2_latency_budget.md:14, results/exp2_analysis.md:15 |
-| 656 | 50 | measured: results/exp2_latency_budget.md:9, results/exp2_latency_budget.md:15 |
-| 658 | 1{,}350 | recomputed by a claim on this line |
-| 659 | 2{,}500 | measured: results/exp2_latency_budget.md:16, results/exp2_latency_budget.md:17 |
+| 159 | 240 | recomputed by a claim on this line |
+| 160 | 200 | recomputed by a claim on this line |
+| 160 | 200 | recomputed by a claim on this line |
+| 161 | 150 | recomputed by a claim on this line |
+| 162 | 300 | recomputed by a claim on this line |
+| 162 | 263 | recomputed by a claim on this line |
+| 162 | 17.0 | recomputed by a claim on this line |
+| 163 | 3{,}000 | measured: results/nfr9_nfr18_abstention.csv:4, results/nfr9_nfr18_abstention.csv:7 |
+| 163 | 1{,}500 | measured: train/kaggle_out/surface_a.csv:4, train/kaggle_out/surface_a.csv:10 |
+| 164 | 5{,}040 | recomputed by a claim on this line |
+| 164 | 3.50 | recomputed by a claim on this line |
+| 164 | 720 | recomputed by a claim on this line |
+| 171 | 5.0 | measured: results/exp2_latency_budget.md:3, results/exp2_latency_budget.md:21 |
+| 174 | 120 | measured: results/wake_training.md:32, results/wake_training.json:20 |
+| 187 | 872 | recomputed by a claim on this line |
+| 189 | 5 | recomputed by a claim on this line |
+| 194 | 200 | measured: results/exp2_latency_budget.md:4, results/table16_asr_speaker_sensitivity.md:20 |
+| 216 | 3.0 | measured: results/exp2_latency_budget.md:4, results/exp2_latency_budget.md:12 |
+| 223 | 20 | measured: results/table16_asr_speaker_sensitivity.md:20, results/exp3_pi_analysis.md:15 |
+| 223 | 30 | measured: results/table16_asr_speaker_sensitivity.md:7, results/exp3_pi_analysis.md:83 |
+| 236 | 4.0 | recomputed by a claim on this line |
+| 259 | 300 | measured: results/exp2_latency_budget.md:27, results/wake_training.md:13 |
+| 260 | 17.0 | measured: results/exp2_latency_budget.md:27, results/wake_training.md:30 |
+| 261 | 263 | DECLARED ONLY: .scratch/sprint-pfe/STATE.md:101 |
+| 262 | 39 | measured: results/exp3_pi_analysis.md:68, results/exp3_analysis.md:68 |
+| 270 | 0.36 | measured: results/wake_training.json:169, results/wake_training.json:813 |
+| 270 | 1.2 | measured: spikes/reports/S1_llama_throughput_thermals.md:40, results/exp2_latency_budget.md:12 /1024 |
+| 277 | 514 | recomputed by a claim on this line |
+| 278 | 494 | recomputed by a claim on this line |
+| 278 | 4.0 | recomputed by a claim on this line |
+| 299 | 0.05 | measured: results/nfr18_false_command.md:3, results/wake_training.md:5 |
+| 301 | 2 | measured: results/nfr18_false_command.md:9, results/nfr18_false_command.md:10 |
+| 301 | 0.03 | measured: results/wake_training.md:11, results/wake_training.md:13 |
+| 303 | 256 | measured: results/gate3_parity.json:24, results/gate3_parity.json:37 |
+| 322 | 0.900 | measured: results/wake_training.json:1714, results/wake_training.json:2500 |
+| 323 | 0.008 | measured: results/wake_training.json:542, results/wake_training.json:581 |
+| 323 | 240 | measured: results/mcnemar.md:42, results/mcnemar.md:43 |
+| 323 | 0.025 | measured: results/exp3_pi_analysis.md:19, results/exp3_analysis.md:19 |
+| 323 | 0.038 | measured: results/exp3_pi_analysis.md:41, results/exp3_analysis.md:41 |
+| 345 | 7.5 | measured: results/wake_training.md:23 x100, results/wake_training.json:158 x100 |
+| 346 | 8.0 | measured: results/nfr18_false_command.md:8, results/nfr18_false_command.md:10 |
+| 460 | 200 | measured: results/exp2_latency_budget.md:4, results/table16_asr_speaker_sensitivity.md:20 |
+| 463 | 200 | measured: results/exp2_latency_budget.md:4, results/table16_asr_speaker_sensitivity.md:20 |
+| 470 | 200 | measured: results/exp2_latency_budget.md:4, results/table16_asr_speaker_sensitivity.md:20 |
+| 473 | 226 | measured: results/exp2_latency_budget.md:11, results/exp2_latency_budget.md:12 |
+| 473 | 200 | measured: results/exp2_latency_budget.md:4, results/table16_asr_speaker_sensitivity.md:20 |
+| 493 | 0.19 | measured: results/nfr18_false_command.md:7, results/exp3_pi_analysis.md:21 |
+| 494 | 5.0 | measured: results/exp2_latency_budget.md:3, results/exp2_latency_budget.md:21 |
+| 495 | 2.10 | measured: results/wake_training.json:731 x100, results/exp0.csv:2 /1024 |
+| 495 | 12.8 | measured: results/wake_training.json:69 x100, results/wake_training.json:81 x100 |
+| 499 | 1{,}024 | measured: spikes/reports/S2_whisper_timing.md:45, spikes/reports/S0_audio_bringup.md:45 |
+| 500 | 512 | DECLARED ONLY: prd.md:243, prd.md:349 |
+| 558 | 1.0 | measured: results/nfr18_false_command.md:7, results/nfr18_false_command.md:8 |
+| 562 | 20 | measured: results/table16_asr_speaker_sensitivity.md:20, results/exp3_pi_analysis.md:15 |
+| 565 | 95 | measured: results/exp2_latency_budget.md:7, results/exp2_latency_budget.md:9 |
+| 568 | 0.5 | measured: results/nfr18_false_command.md:9, results/nfr18_false_command.md:10 |
+| 569 | 0.85 | measured: results/exp4_formation.md:13, results/table19_grammar_ablation.md:11 |
+| 578 | 16.0 | measured: results/table18_quantisation_delta.md:3, results/table18_quantisation_delta.md:9 |
+| 578 | 1{,}100 | measured: results/exp2_latency_budget.md:14, results/exp2_analysis.md:15 |
+| 596 | 2{,}500 | measured: results/exp2_latency_budget.md:16, results/exp2_latency_budget.md:17 |
+| 597 | 0.85 | measured: results/exp4_formation.md:13, results/table19_grammar_ablation.md:11 |
+| 598 | 1{,}100 | recomputed by a claim on this line |
+| 598 | 20 | recomputed by a claim on this line |
+| 599 | 0.90 | measured: results/wake_training.json:1714, results/wake_training.json:2500 |
+| 600 | 100 | measured: results/thermal_headroom.md:14, results/thermal_headroom.md:16 |
+| 601 | 0.80 | measured: results/exp4_formation.md:11, results/exp4_formation.md:11 |
+| 602 | 10 | measured: results/table16_asr_speaker_sensitivity.md:5, results/table16_asr_speaker_sensitivity.md:7 |
+| 602 | 0.65 | measured: results/exp3_pi_analysis.md:50, results/exp3_pi_analysis.md:60 |
+| 603 | 0.70 | measured: results/table20_end_to_end.md:22, results/limitation_abstention.md:15 |
+| 604 | 2.5 | measured: results/nfr18_false_command.md:9, results/nfr18_false_command.md:10 |
+| 606 | 5 | measured: results/exp2_latency_budget.md:3, results/exp2_latency_budget.md:7 |
+| 607 | 95 | measured: results/exp2_latency_budget.md:7, results/exp2_latency_budget.md:9 |
+| 608 | 0.05 | measured: results/nfr18_false_command.md:3, results/wake_training.md:5 |
+| 614 | 2{,}500 | measured: results/exp2_latency_budget.md:16, results/exp2_latency_budget.md:17 |
+| 615 | 2.5 | measured: results/nfr18_false_command.md:9, results/nfr18_false_command.md:10 |
+| 623 | 0.0167 | measured: results/mcnemar.md:12, results/mcnemar.md:18 |
+| 623 | 0.05 | measured: results/nfr18_false_command.md:3, results/wake_training.md:5 |
+| 625 | 200 | measured: results/exp2_latency_budget.md:4, results/table16_asr_speaker_sensitivity.md:20 |
+| 627 | 200 | measured: results/exp2_latency_budget.md:4, results/table16_asr_speaker_sensitivity.md:20 |
+| 636 | 1{,}350 | measured: results/exp2.csv:8 x100 |
+| 638 | 2{,}500 | measured: results/exp2_latency_budget.md:16, results/exp2_latency_budget.md:17 |
+| 653 | 500 | measured: results/exp2_latency_budget.md:11, results/gate3_parity.md:21 |
+| 654 | 1{,}200 | measured: results/exp2_latency_budget.md:12, results/exp2_analysis.md:13 |
+| 655 | 250 | measured: results/exp2_latency_budget.md:13, results/exp2_analysis.md:14 |
+| 656 | 1{,}100 | measured: results/exp2_latency_budget.md:14, results/exp2_analysis.md:15 |
+| 657 | 50 | measured: results/exp2_latency_budget.md:9, results/exp2_latency_budget.md:15 |
+| 659 | 1{,}350 | recomputed by a claim on this line |
+| 660 | 2{,}500 | measured: results/exp2_latency_budget.md:16, results/exp2_latency_budget.md:17 |
