@@ -92,8 +92,9 @@
   urldate      = {2026-09-22}
 }
 
-% Training-side software. The Kaggle image's transformers and PyTorch versions were not
-% recorded; PEFT 0.19.1 is read from the adapters' adapter_config.json.
+% Training-side software. transformers 5.0.0, torch 2.10.0+cu128 and peft 0.19.1 are from the
+% Kaggle log of the session that trained Qwen2.5, SmolLM2 and Llama; the control's session was
+% not logged. PEFT 0.19.1 also matches the adapters' adapter_config.json.
 @inproceedings{transformers,
   title        = {Transformers: State-of-the-Art Natural Language Processing},
   author       = {Wolf, Thomas and Debut, Lysandre and Sanh, Victor and Chaumond, Julien and

@@ -489,10 +489,11 @@ uncached.
 \texttt{llama.cpp} build b10863 (commit 88ada91c). Speech recognition used \texttt{whisper.cpp}
 commit 52a939a with the \texttt{tiny.en} model~\cite{whisper}, prompted with a fixed 25-word command
 vocabulary (\texttt{data/asr.py}), both when the round-trip training rows were built and at run
-time. Adapters were trained with \texttt{peft} 0.19.1 on the Kaggle image of each training session;
-its \texttt{transformers} and PyTorch versions were not recorded. \gls{gguf} conversion used the
-converter at the head of the \texttt{llama.cpp} repository at the time of each session, likewise
-unpinned. The system prompt is the single line ``You are a drone swarm command parser. Output only
+time. Adapters were trained with \texttt{peft} 0.19.1 on the Kaggle image of each training session.
+The session that trained the first three models logged \texttt{transformers} 5.0.0 and PyTorch
+2.10.0 (CUDA 12.8); the control's session image was not recorded. \gls{gguf} conversion used the
+converter at the head of the \texttt{llama.cpp} repository at the time of each session, which was
+not pinned. The system prompt is the single line ``You are a drone swarm command parser. Output only
 JSON matching schema.'', with the transcript as the user turn. The multi-model benchmark decodes
 with a 96-token cap, a 1{,}024-token context and one sequence at a time; the runtime uses a
 512-token context. Speech synthesis uses three Piper voices (en\_US-lessac,
