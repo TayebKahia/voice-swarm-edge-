@@ -229,3 +229,127 @@ Ch4 lines that repeat errors fixed in Ch3:
   fix in eval/tables.py, not by hand.
 - Anything quoting the recipe's batch size: it is 32, not 16.
 - Ch5 uses NFR IDs 5x (issue 05).
+
+### 2026-09-24 -- second pass on the rewritten chapter (awaiting the author's decisions)
+
+Why: the first pass reviewed the pre-rewrite text; 1ea2dae changed 860 lines, so the new sentences
+had never been checked against source. Run: script (unchanged, 0 FAIL / 3 WARN / 118 PASS), one
+reviewer (D1-D12 on the diff `369403f..1ea2dae` first, then the whole chapter), one citation agent
+(the 10 added and 4 changed bib entries, and old keys attached to new sentences), one verifier on
+BLOCKER/MAJOR. IDs are W-numbered so they do not collide with V1-V37.
+
+Confirmed by the reviewer against source (no finding): the 20 ms / 30 dB SNR gate, the random
+keyword offset, the speaker/phrase splits, 720 near-misses, 70/10/20 positives, the Q8_0 tokeniser
+and template (all `tokenizer.*` GGUF keys hash identically to Q4_K_M -- the text may say so), the
+statistical plan's families and tests, the software versions, the system prompt, seed 42, the 90-char
+bound, the Common Voice 39% (959/2,448), every tab:metrics "Reported in" ref, "amended once", the
+leakage gate. Citations: 0 BLOCKER; `pytorch` and `commonvoice17` (2024) written from memory are
+correct; ESC-50 CC BY-NC 3.0 and DREGON "personal, educational and academic use only" are correct.
+
+#### Verified BLOCKER / MAJOR
+
+| # | Sev | Line | Text | Verdict | Problem | Proposed fix |
+|---|---|---|---|---|---|---|
+| W1 | BLOCKER | 187 | "every slot combination the schema admits" | CONFIRMED | Golden (= test_synth) covers 12 (intent, slot-set) combinations from 12 held-out families; the generator produces 34, the grammar admits 38; `set_param{alt,spacing}` (22 golden items) never occurs in training. Also `data/dataset_card.md:63`. | "...drawn from the 12 template families held out for test_synth: all ten intents, but 12 of the 34 (intent, slot-set) combinations the generator produces, one family per combination; one (set_param with altitude and spacing) never occurs in training." Same in the card. |
+| W2 | BLOCKER | 451-452 | "used 60 trials per path" | CONFIRMED | 60 is the planned minimum; the run timed 226 endpointed segments (parse path) and 78 triggers per condition (reflex). The paragraph itself warns against quoting design figures. **Script error:** `master_ch3.py:183` PASSed it against the plan line in STATE.md. | "...timed 226 endpointed segments from the 200 golden utterances on the parse path, and 78 reflex triggers in each of its idle and loaded conditions." Re-anchor the script check on `results/exp2_analysis.md`. |
+| W3 | BLOCKER | 523 | false-command: "any intent other than unknown that also survives the validator" | CONFIRMED | `eval/metrics.py:92-94,154-165`: an output the validator rejects falls back to hover, and hover counts. Under the chapter's wording two reported SmolLM2 figures would not reproduce. | "...whose dispatched action -- the output after the validator, where an invalid output falls back to hover -- is anything other than `unknown`; hover counts as a false command." |
+| W4 | BLOCKER | 573-575 | selection rule "among those meeting" both constraints | PARTLY (mostly real) | On Ch3's own terms nothing can be shown to meet them (memory ceiling unconfirmable, l.541-544; end-to-end p95 3,122 ms misses). The failure clause is missing; Ch4 applies a rule-out reading. | "...among configurations not ruled out by the end-to-end latency budget or the memory ceiling (on the evidence available each can only rule a configuration out); if none satisfies both, the rule fails openly: the constraint is re-baselined against the measured figure and the re-baselining is reported." |
+| W5 | BLOCKER (low impact) | 233-234 | "no public corpus contains the word 'swarm' or a phrase beginning with 'hold'" | CONFIRMED | Common Voice 17.0 test.tsv has "swarm" once and three "Hold..." sentences; LibriSpeech dev-clean has one "HOLD ON TO ME". | "...since neither LibriSpeech nor Speech Commands supplies the confusions that matter to this spotter: short phrases beginning with 'swarm' or 'hold'." |
+| W6 | MAJOR | 304-305 | "Qwen2.5-0.5B-Instruct and Llama-3.2-1B-Instruct converged" | CONFIRMED | Only validation EM is logged (no loss). Qwen .8667/.9042/.9125 (still rising, 2 items); only Llama flat (.900/.900). Ch4 l.169-170 repeats it. | "Only Llama-3.2-1B-Instruct's validation EM was unchanged between epochs two and three (0.900); Qwen2.5 still rose by 0.008 (two of 240 items), SmolLM2 by 0.025, H2O-Danube3 by 0.038. No model is shown to have converged." |
+| W7 | MAJOR | 203-207 | RIRs "...all of it is mixed by one seeded path, data/mix_noise.py" | PARTLY | Noise part true; mix_noise.py has no RIR code. RIRs are applied only to the wake corpus (`data/wake_corpus.py`); parser audio is not reverberated. | "All noise is mixed by one seeded path, data/mix_noise.py: DREGON and ESC-50 (augmentation partition) for the training round trip, DREGON (evaluation partition) for the SNR sweep. Room impulse responses from the MIT survey are applied only to the wake corpus, by data/wake_corpus.py; the parser's audio is not reverberated." |
+| W8 | MAJOR | tab:requirements | "lists every requirement this document uses" | CONFIRMED | The 20 tok/s floor (Ch1 l.27, Ch2 l.30, Ch4 l.334) is not in the table; the 22-token decode it derives from is never stated, and Ch3 states a 16.0-token mean. | Add a row "Throughput floor: >= 20 tok/s on the three inference cores, from a ~22-token decode allowance within 1,100 ms; multi-model benchmark", and one clause: 22 is a design allowance above the measured 16.0 mean. |
+| W9 | MAJOR | 434-466 | (absent) | CONFIRMED | The Pi timing protocol is not stated anywhere: `eval/exp1.py` pins cores, enforces the performance governor, swap off, page cache dropped per config, 600 s warm-up (excluded), `cache_prompt=true`; accuracy sweeps and the deployed parser run `cache_prompt=false` (latency experiment: 300 s warm-up); active cooler. | One "Timing protocol" paragraph listing those settings. |
+| W10 | MAJOR | 456-466 | (absent) | CONFIRMED | whisper.cpp runs with a fixed 25-word domain prompt (`data/asr.py:33-37`) in the runtime and in building the 872 round-trip rows; Ch4 l.48-55 measures its effect. | "...tiny.en, prompted with a fixed 25-word command vocabulary (data/asr.py), both for the round-trip corpus and at run time." |
+| W11 | MINOR (merged) | 183-189 | limitation not sized | PARTLY, duplicate of W1 | W1's wording sizes it. What W1 does not say: the 200 golden items are 12 clusters, while the CIs and McNemar tests treat them as independent. | Optional: one sentence of clustering caveat next to the statistical plan. |
+
+#### MINOR / NIT (reviewer and citation agent; not verifier-checked, per the loop)
+
+| # | Line | Problem | Proposed fix |
+|---|---|---|---|
+| W12 | 169-171 | Leakage parenthetical overstates: held-out splits are checked against each other for surface form only; test_ood not checked | "family and surface-form isolation of train against validation, test_synth and the golden set, and surface-form isolation of those three against one another" |
+| W13 | 142,152,184,213 | Golden recording spanned two days (115 + 85 takes, 17-18 Sep) | "one session over two consecutive days"; "sealed on the day recording was completed" |
+| W14 | 442 | "two to six ... per noisy condition" omits clean (4 items) | "two to six of the 200 items per condition, clean audio included" |
+| W15 | 463 | 1,024 context is the benchmark; runtime uses 512 (`runtime/parser.py:70`) | add "; the runtime uses a 512-token context" |
+| W16 | 529 | prefill/decode are llama-server's reported timings, not wall-clock | "server-reported prefill and decode time" |
+| W17 | 527 | WER defined as a distance, aggregation unstated | "word edits summed over utterances divided by total reference words (corpus WER)" |
+| W18 | 156 | wake_neg also trains the spotter (3,930/5,040 in train) | "Keyword-spotter training and false-accept measurement" |
+| W19 | 141,226,529 | reflex / parse path never defined in the Master | define at l.141 in one clause |
+| W20 | 384-386 | attribution assumption ignores the cap/batching/checkpoint differences just listed | "...and that the cap, batching and checkpoint differences contribute nothing" |
+| W21 | 334-335, 302-303 | uncited: bf16 pretraining and fp16 range; "narrower adapter would under-fit" | cite `qlora` at l.302; soften or cite l.334 |
+| W22 | 285, 575-579 | AdamW, McNemar, Bonferroni named without citation | add Loshchilov & Hutter 2019 and McNemar 1947 to the bib |
+| W23 | 379-380 | "this document does not do that anywhere" -- Ch4's section is titled "The quantisation delta" | delete the clause |
+| W24 | §3.2 | Ch1's C2 promises a version tag and dataset card; Ch3 never names them | one sentence: frozen at tag dataset-v1.0, documented in the dataset card (no URL) |
+| W25 | 491-493 | tab:metrics also defines Ingénieur-only latency/formation/convergence rows | "...reuses, together with its latency, formation-accuracy and convergence definitions" |
+| W26 | 575 | McNemar surface unnamed | "Paired deployed-surface predictions (grammar on)" |
+| W27 | 350-351 | Danube "stays at fp16 on the reference surface" conflates its fp16 GGUF | "was converted to fp16 GGUF but not quantised, and is reported on the reference surface only" |
+| W28 | 153 | test_ood: 12 of 150 are harvested recogniser outputs | "...authored, and recogniser output on noise and silence (12 harvested)" |
+| W29 | bib | `commonvoice17` URL now a data-less placeholder | point at the mirror used (fsicoli/common_voice_17_0) |
+| W30 | 326 / bib | `nvidiacc` does not say Turing | also cite the T4 product page, or move the cite to after "7.5" |
+| W31 | 327-328 | "no bf16 path" -- emulation exists | "no native bf16 path" |
+| W32 | bib | `qlora` stale comment, missing pages/doi; `traer2016` missing pages; `whispercpp` missing year | add `pages = {10088--10115}`, `doi = {10.52202/075280-0441}`; `pages = {E7856--E7865}`; `year = {2026}` |
+| W33 | 204 / bib | ESC-50 and DREGON licences cited to papers that do not state them | add the repo / dataset-page `url` to `esc50` and `dregon`; "CC BY-NC 3.0" |
+| W34 | 340 | pytorchrepro says "not guaranteed", text says "is not" | "is not guaranteed to be bit-reproducible" |
+| W35 | 407 | llama.cpp BOS-drop is a code claim cited to the repo root | pin `common/chat.cpp` at 88ada91c in the note, or leave |
+| W36 | 22 sentences | over 40 words (list in the reviewer output: l.4-8, 14-17, 19-22, 101-104, 104-106, 114-116, 126-129, 161-165, 171-174, 212-215, 245-248, 252-257, 261-264, 268-271, 301-304, 372-375, 392-395, 450-452, 458-461, 475-477, 496-499, 583-586) | split each as proposed |
+| W37 | NITs | "bootstrap 95% CI" by hand (567); "fixes" x3 (257,471,491); "one session against two is the smaller cost" (342); determinism credited to the grammar (436, should be greedy + one slot); "(p95 targets, measured from end of speech)" only true of the e2e row (596); "never evaluated"/"No corpus existed" (240,123); "below 25 ... above it" leaves 25 (578); wire-format: say 19.6 is the relevant counterfactual under a per-intent grammar (40-44); m16: Ch2 l.110 "compiled from the same schema" (issue 02 is closed -- a one-word fix) | as listed |
+
+#### For issue 04 -- additions to the hand-off above
+- Ch4 l.9-12: hardware independence stated as a consequence of greedy decoding + grammar, and
+  "surfaces" used for workstation vs Pi -> Ch3 establishes it empirically, for the selected
+  configuration, on text input only (W-verifier B6).
+- Ch4 l.291-322: says end-to-end latency "has not been measured"; the latency experiment measured
+  p95 3,122 ms (misses 2,500) and no chapter reports it (W4).
+- Ch4 l.169-170: "converged" (W6).
+- Ch4 l.126: attributes the prefill distribution to a prompt cache "the protocol deliberately
+  enables" -- true of the benchmark, false of the deployed parser (`cache_prompt=false`) (W9).
+
+#### Questions for the author
+1. W8: add a throughput row to tab:requirements, or annotate the decode row of the latency-budget
+   table?
+2. W11: add the clustering caveat (200 items = 12 families) to the statistical plan?
+3. W22/W21: add new bib entries (AdamW, McNemar), or cut the uncited sentences?
+4. W37-m16: touch Ch2 (closed issue 02) for the one-word "compiled" -> "written" fix?
+
+### 2026-09-24 -- second pass: author's decisions and resolution
+
+Decisions: fix everything as proposed; (1) W8 add the throughput row; (2) W11 add the clustering
+caveat; (3) W21/W22 add the bib entries; (4) W37-m16 fix Ch2 l.110.
+
+Applied (W1-W37), with what was checked while fixing:
+- W1: 12 of 34 combinations recomputed from the jsonl files; the 96/12/12 family split is now in
+  the text. The dataset card's §3 also still described s2/s3 as recorded (320 files); both folders
+  are empty, so the card now says 200 files, s2/s3 planned and not recorded.
+- W9: the timing protocol is scoped to what the harnesses enforce. Swap off, one model resident
+  and page-cache drop are the multi-model benchmark's only (`eval/exp1.py`); `eval/exp2.py`
+  enforces the governor but not those. The cooler is stated for the benchmark's run of record
+  only (`results/thermal_headroom.md`); nothing records whether it was fitted for the latency
+  experiment. The Pi's RAM variant and OS are recorded nowhere, so they are not stated.
+- W21: all four base checkpoints are distributed in bf16 (`torch_dtype` in each model's
+  config.json; Llama read through an ungated mirror). l.302 now cites `qlora` for all-linear
+  adapters.
+- W22: `adamw` (Loshchilov & Hutter, ICLR 2019) and `mcnemar1947` (Psychometrika 12(2):153-157,
+  Crossref) added. W30: `nvidiat4` (T4 product page, "Based on the new NVIDIA Turing
+  architecture"). W35: `llamacppchat` pins `common/chat.cpp` at 88ada91c.
+- Q8_0 sentence now states the check that was made: all `tokenizer.*` GGUF fields hash identically
+  to Q4_K_M for the three models (gguf-py, re-run while fixing).
+- W36: every flagged sentence split; three new ones over 40 words written during the fixes were
+  split too.
+
+Script (`tools/review/`): the "60 trials per path" check now reads the executed n from
+`results/exp2_analysis.md` (226 parse-path segments, 78 reflex triggers per condition), not
+STATE.md's plan line. `requirement_table_check` accepts a criterion mapped to None -- a
+requirement derived from another prd table -- and `master_ch3.py` checks the throughput floor's
+derivation itself (prd Table 6 decode row: 22 tokens / 1.1 s = 20 tok/s).
+
+Final: 0 FAIL, 4 WARN, 125 PASS; selftest passed; Ch1 and Ch2 scripts unchanged (0 FAIL); clean
+Master build in a scratch copy, 0 errors, biber 0 warnings, only `chap:conclusion` undefined.
+WARNs: the three justified above (budget sum row, LoRA in the section heading, JSON in the verbatim
+system prompt) plus `guaranteed` at the pytorchrepro sentence, which is the hedge W34 asked for
+("is not guaranteed to be"), not an absolute.
+
+Not fixed here, for the author:
+- Ch1 C2 (l.113-114) says the dataset's "gold labels are sealed under a SHA-256 checksum". What is
+  sealed is annotation pass 1 (`annot/annot_pass1.seal.json`, 50 items); the golden labels are
+  generator targets frozen under the `dataset-v1.0` tag. Issue 01 is closed -- the wording is the
+  author's call.
+- The effective batch of 32 is still inferred, not read from a Kaggle log.

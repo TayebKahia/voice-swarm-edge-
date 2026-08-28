@@ -154,22 +154,106 @@ at 300~ms at p95 (Table~\ref{tab:nonfunctional-requirements}).
 
 \section{Branch A membership rule}
 \label{sec:membership-rule}
-% The RULE is the point, not the list (contribution C4).
-% - Premise: an always-listening class is a permanent false-accept surface, and Branch A skips
-%   all three layers. Ch 1 (sec:safety-problem) motivates this; here it is made operational.
-% - Two tests, both necessary: (1) latency-decisive -- the 2,350 ms A/B delta at the 2.0 m/s
-%   speed ceiling is 4.7 m of travel, against a 1--10 m formation radius; (2) fail-safe under false
-%   accept -- a spurious trigger may only make the swarm do less.
-% - Table tab:membership: ten intents x two tests; exactly two pass. Short, because the prose
-%   carries the argument; land fails test 1 (descent is slow), movement verbs fail test 2.
-% - The two classes map onto existing intents: no new grammar rule, schema field or controller
-%   entry point. hold -> hover (the designated safe state, now reachable at reflex speed);
-%   abort -> land in place, motors off on contact (why not disarm, why not return-to-launch).
-% - Phrase design: three syllables, shared "swarm" prefix; both off-diagonal confusions are
-%   fail-safe, so inter-class confusion is a benign error class.
-% - resume excluded: a false accept would undo a safety action.
-% - The admission condition for a third class, stated as a checkable rule (Ch 1 promises this).
-\TODO{draft}
+Branch~A bypasses the stages that interpret speech, not the stages that check commands. Its
+commands enter the same consumer as
+Branch~B's and pass the semantic validator and the state machine like any other message; what
+they bypass is transcription and parsing, the two stages that establish what the operator said.
+The consequence is that no layer can detect a false accept. A spurious trigger publishes
+\texttt{\{"intent":"hover"\}}, which is well-formed, inside the physical envelope and legal
+while the swarm is taking off or flying: it is indistinguishable, at every check the architecture has,
+from a hold the operator asked for. The layers of Section~\ref{sec:validation-layers} test the
+form, range and legality of a command, and a false accept on Branch~A fails none of those tests,
+because the error lies in whether the command was spoken at all. Because the spotter listens
+continuously, every class it carries is a standing source of such errors. The only protection is
+therefore to restrict which commands the path may carry, and the membership rule does so with two
+tests, both of which a command must pass.
+
+\paragraph{Latency-decisive.} The first test asks whether the time Branch~A saves changes the
+physical outcome. The difference between the parse budget and the reflex budget is
+$2{,}500 - 150 = 2{,}350$~ms (Table~\ref{tab:nonfunctional-requirements}). At the validator's
+speed ceiling of 2.0~m/s, that interval is 4.7~m of travel, comparable to the largest formation
+radius the envelope admits (10~m) and larger than every admissible inter-drone spacing (1--5~m). A
+stop that arrives through Branch~B can therefore arrive after a vehicle has already covered the
+distance the stop was meant to prevent. A command passes this test only if that delay matters to
+what the vehicles do.
+
+\paragraph{Fail-safe under false accept.} The second test asks what happens when the command is
+executed without having been spoken. A command passes only if its unprompted execution moves the
+swarm towards a safer state: Branch~A may make the swarm do less, never more. This is the test
+that answers the objection of the previous paragraph, since a false accept of a command that
+passes it costs an unnecessary stop and nothing else.
+
+Neither test is sufficient alone. The first alone would admit any urgent movement, and a false
+accept of an urgent movement is uncommanded motion with no stage behind it able to recognise the
+error. The second alone would admit commands that are harmless but gain nothing from the fast
+path, and each of them would enlarge the false-accept surface for no benefit, because the
+false-accept budget of NFR-15 is aggregated over every Branch~A class. Table~\ref{tab:membership}
+applies both tests to the ten intents of the schema. Exactly two pass.
+
+\begin{table}[htbp]
+\centering
+\footnotesize
+\caption[Branch A membership rule applied to the ten intents]{The Branch~A membership rule
+applied to every intent of the command schema. A command is admitted to Branch~A only if it passes
+both tests. A dash marks a test that was not evaluated because the command had already failed the
+other; ``Branch~B only'' marks a command whose unprompted execution would add motion.}
+\label{tab:membership}
+\begin{tabularx}{\textwidth}{@{}l X X l@{}}
+\toprule
+Intent & Latency-decisive & Fail-safe under false accept & Path \\
+\midrule
+\texttt{hover}     & Yes & Yes: stops lateral motion & Branch~A \\
+\texttt{abort}     & Yes & Yes: descends in place & Branch~A \\
+\texttt{land}      & No: the descent itself is slow & Yes & Branch~B \\
+\texttt{set\_param} & No & Yes, for a value that reduces speed or spacing & Branch~B \\
+\texttt{unknown}   & No: nothing is dispatched & Yes & Branch~B \\
+\texttt{takeoff}   & -- & No: spins up the rotors & Branch~B only \\
+\texttt{move}      & -- & No: uncommanded translation & Branch~B only \\
+\texttt{altitude}  & -- & No: uncommanded climb or descent & Branch~B only \\
+\texttt{rotate}    & -- & No: uncommanded yaw & Branch~B only \\
+\texttt{formation} & -- & No: every vehicle changes slot & Branch~B only \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The two admitted classes map onto intents the schema already contains, so Branch~A adds no
+grammar rule, no schema field and no controller entry point. \texttt{swarm hold} publishes
+\texttt{hover}: lateral motion stops, altitude is held, the rotors keep running, and the mission
+can be resumed. The hover is already the state every rejection on Branch~B resolves to where the
+flight state permits it (Section~\ref{sec:validation-layers}), so the reflex makes the system's
+existing safe state reachable at reflex speed rather than introducing a new one. \texttt{swarm
+abort} publishes \texttt{abort}, defined as an immediate descent in place with the motors stopped
+on ground contact; the mission ends and cannot be resumed by voice. Two other definitions were
+rejected. Stopping the motors in flight, anywhere in an altitude envelope of 0.5--15~m, is a
+decision to lose the airframe. A return to the launch point requires flight, which is what the
+command exists to stop. Descending in place removes energy from the situation without lateral
+motion, and it keeps the two classes distinct in effect: a hold stays airborne and an abort comes
+down.
+
+Both phrases are two words with a common prefix rather than single words. A keyword classifier
+scores a fixed window of audio~\cite{oww}, and a single short word fills little of it, so a
+one-word class gives the classifier less evidence and invites more false accepts on continuous
+speech. The shared word \emph{swarm} supplies an onset that is uncommon in ordinary speech to
+both classes at once. It also brings the two classes closer acoustically, which raises the chance
+of one being heard as the other. That confusion is benign by construction: hearing \emph{abort}
+for \emph{hold} is the more conservative error, and hearing \emph{hold} for \emph{abort} still
+stops the swarm. Because both classes passed the second test, an error between them stays within
+the set of fail-safe outcomes.
+
+The most obvious third class is excluded deliberately. A \texttt{resume} phrase would be as
+urgent to the operator as any other, but a false accept would restart motion the operator had
+chosen to freeze, which reverses a safety action rather than adding one. It fails the second test,
+and resumption is therefore available only through Branch~B, where the added 2.35~s costs
+nothing. Recovery out of an abort is not available by voice on either path, for the same reason
+(Section~\ref{sec:validation-layers}).
+
+The rule states the condition under which a third class could be admitted: its command passes
+both tests, and the false accepts it adds fit within the aggregate budget measured with it in
+place. The tests apply to the command a phrase publishes, not to the phrase, so a change of
+wording cannot admit a command the rule excludes, and they are applied again whenever the schema
+gains an intent. For the present vocabulary the rule yields exactly two classes; that result is
+contribution C4 (Section~\ref{sec:contributions}), and it is what makes the membership of
+Branch~A checkable by a reader who did not choose it.
 
 \section{Three validation layers}
 \label{sec:validation-layers}
