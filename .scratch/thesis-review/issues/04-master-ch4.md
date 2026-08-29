@@ -329,10 +329,35 @@ filtering on the 0.85 EM threshold. For Ch5: it must use "satisfying" when it re
   write GiB. The ceiling is 2.5 GiB.
 - Ch5 l.96 `\ref{sec:exp1}` should become `\ref{sec:benchmark}` (likewise any `sec:exp0` ->
   `sec:speaker-sensitivity`). Then delete the two alias labels in Ch4 (lines 24 and 67).
-- Selection: Ch4 §4.7 now reports the end-to-end measurement (Qwen2.5-0.5B p95 3,122 ms, n = 226)
-  and applies the rule under its failure clause. The budget is re-baselined, and the selected
-  configuration misses 2,500 ms as specified. Any Ch5 sentence treating the latency constraint as
-  met, or as unmeasured, contradicts it.
+- Selection (updated 2026-09-24, after option B). Ch4 §4.7 now reads:
+  - The rule is "highest EM among configurations *satisfying* both the 2,500 ms end-to-end budget
+    and the 2.5 GiB memory ceiling". A partial measurement can show a miss, never a pass. When
+    Ch5 restates the rule, use "satisfying", never "not ruled out".
+  - Nothing satisfies both, so the failure clause re-baselines both constraints. Memory is applied
+    to the language-model process only. The end-to-end budget becomes 3,122 ms, Qwen2.5-0.5B's own
+    p95 (n = 226), so the re-baselined budget cannot test Qwen. Qwen misses 2,500 ms as specified by
+    622 ms (25%).
+  - Qwen is selected. Under the reading that admits unmeasured SmolLM2-360M, Qwen still wins on EM
+    (0.935 vs 0.760, p = 1.1e-7), so the selection does not depend on SmolLM2's latency.
+  - The 0.85 EM threshold is a check on the selected model (Ch3 l.597, "best model"), not a filter
+    in the rule. SmolLM2 loses on the EM ranking; that it also misses 0.85 is a second fact, not the
+    reason it is not selected.
+  - The 1,350 ms stage allowance and the 1,100 ms decode allowance are budget allowances
+    (Table~\ref{tab:latency-budget}), not constraints of the rule. The rule's constraints are the
+    end-to-end budget and the memory ceiling.
+- Ch5 draft passages this contradicts (working tree 2026-09-24, line numbers approximate):
+  - l.48-56 "Selection under the accuracy floor": "the threshold rules it out" gives the wrong
+    reason SmolLM2 is not selected (see above), and "one remains" should say it remains only
+    against the re-baselined budget.
+  - l.60-66: "the feasible set that the selection draws from is empty" (uncooled) and "feasible only
+    because the board is cooled" measure feasibility against the stage allowance, which is not a
+    rule constraint. Against the rule's own end-to-end budget, Qwen is not feasible as specified,
+    cooled or not.
+  - l.66: the 278 ms combined-stage margin holds under cached prefill only; add that.
+  - l.73-83 "Unmeasured points and axes": "whether the selected configuration remains feasible
+    against the end-to-end budget is a question this document leaves open" is false. It was
+    measured (3,122 ms) and misses. The contention argument can stay as a reason the other two
+    configurations' end-to-end figures cannot be inferred from their stage times.
 - Ch4 no longer says "decisively" (Ch5 l.26 does), "two-fifths", or that the family choice is
   "first-order". The last two were interpretation, cut from Results; Ch5 may carry that reading,
   hedged. Ch4's family claim is now "a family difference at about 0.5 B, 15-2, p = 0.0023
