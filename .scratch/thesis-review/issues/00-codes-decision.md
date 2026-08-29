@@ -39,3 +39,16 @@ Decided 2026-09-23: the recommendation, as written.
 The names follow the Master Ch4 section titles where one exists, so the prose and the headings
 agree. The other document's experiments are named in words, never coded. Every chapter issue
 (01-08) applies this table; a chapter review that finds a code in prose reports it as D11.
+
+### 2026-09-24 -- amended for the Ingenieur (issue 06, author's decision)
+
+Reading the built Ingenieur PDF, the author found that requirement IDs were met in the prose before
+the tables that define them, that the experiment names were never described, and that "C4" meant
+nothing to a reader with no C1-C3 in the document. Two rows of the table above change for the
+Ingenieur:
+
+| Family | Policy, as amended |
+|---|---|
+| NFR-/FR- | **Both documents use named criteria.** The Ingenieur's tables name each criterion as the Master's `tab:requirements` does; a criterion in both documents has one name (End-to-end latency, Clean-audio recognition, Recognition in noise), and `ingenieur_ch1.py` checks that. |
+| C1-C4 | The Master keeps C1-C3. The Ingenieur has one contribution and names it ("the contribution of this document"), with no number. |
+| Exp-N | Unchanged (names), plus: each experiment is described in one sentence where it is first named. |

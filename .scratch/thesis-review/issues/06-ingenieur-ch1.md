@@ -169,3 +169,24 @@ adjustments:
 - Issue 08: the glossaries/tabularx first-use problem above; re-check l.390-393 (Master C3
   paraphrase, A22) once Master Ch1 is final.
 - Code, not thesis: FSM `takeoff` with `z = NaN` in LANDED (verifier.md, A3).
+
+### 2026-09-24 -- author's reading of the PDF: three codes still undefined for a reader
+
+1. The experiments were named but never described. They are now described in one sentence each in
+   Section 1.2 at first mention, from what `results/exp2_analysis.md`, `exp3_pi_analysis.md` and
+   `exp4_formation.md` record, with no trial counts. The Measured-by column carries the full names.
+2. The FR/NFR IDs were defined only by table rows, and in print the prose reached them first
+   (Table 1.1 floats to p.12, after "FR-5 and FR-9 determine..." on p.11). Both tables now use named
+   criteria, like the Master. The shared ones reuse the Master's names, so one requirement has one
+   name across both documents. Every prose use of an ID is now its name, including Ch3's three.
+3. C4 was defined only by its bullet, and the number meant nothing without C1-C3. The bullet is now
+   a `\textbf{Contribution.}` quote block, with its text still prd C4 verbatim. "C4" is gone from
+   the prose of Ch1 and Ch3.
+
+Issue 00 is amended to match. The script maps names back to prd IDs (`row_ids`, as `master_ch3.py`
+does), and it now checks that every shared criterion has the Master's name.
+Result: **0 FAIL, 5 WARN, 60 PASS**. The WARNs are the same five, justified above. The selftest
+passes, and the build has 0 errors.
+
+Still open, for the Ch3 review: Ch3 uses Branch A/B 41 times, and since this change no chapter
+defines those terms. They should become the reflex/parse path of Section 1.1.
