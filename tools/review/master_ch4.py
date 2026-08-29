@@ -334,7 +334,17 @@ stt_min = min(sg["stt_ms"] for x in (RESULTS / "exp2_preds/clean.jsonl").read_te
               for sg in __import__("json").loads(x)["segments"] if sg.get("stt_ms") is not None)
 r.number("recorded is 1{,}063~ms", stt_min, "min stt_ms over results/exp2_preds/clean.jsonl")
 r.number("at least 3{,}346~ms", p(cool[L], "total_ms") + stt_min, "llama total p95 + min STT")
-r.number("re-baselined to the measured 3{,}122~ms", float(e2e_t0["p95"].replace(",", "")), "exp2 E2E p95")
+e2e_p95 = float(e2e_t0["p95"].replace(",", ""))
+r.number("segments, 622~ms (25\\%) above", e2e_p95 - 2500, "exp2 E2E p95 - 2500")
+r.number("622~ms (25\\%) above the budget", 100 * (e2e_p95 / 2500 - 1), "exp2 E2E p95 / 2500 - 1", nth=1)
+r.number("at least 35\\% clear of it", 100 * (1 - max(rss.values()) / 2.5), "1 - max peak RSS / 2.5")
+r.number("re-baselined to the measured 3{,}122~ms", e2e_p95, "exp2 E2E p95")
+r.number("lower bound of 3{,}346~ms exceeds", p(cool[L], "total_ms") + stt_min, "llama total p95 + min STT")
+r.text_claim("claim", "lower bound of 3{,}346~ms exceeds\nit", p(cool[L], "total_ms") + stt_min > e2e_p95,
+             f"llama bound {p(cool[L], 'total_ms') + stt_min:.0f} > re-baselined {e2e_p95:.0f}")
+r.text_claim("claim", "a difference Section~\\ref{sec:statistics}\nestablishes as significant",
+             qs["significant"] == "yes", f"qwen vs smollm2 golden Q4: p {qs['p_value']}, significant = {qs['significant']}")
+r.number("as specified by 622~ms", e2e_p95 - 2500, "exp2 E2E p95 - 2500")
 r.text_claim("claim", "none exceeds 0.935 on\nthe golden split", all(em(m, "Q8_0") <= em(Q) for m in (Q, L, S)), "every Q8_0 golden EM <= 0.935")
 r.number("misses the exact-match threshold by 9~pp", 100 * (0.85 - em(S)), "0.85 - smollm2 EM")
 meets = {m: em(m) >= 0.85 and p(cool[m], "slm_decode_ms") <= 1100 and p(cool[m], "total_ms") <= 1350
@@ -348,7 +358,9 @@ r.text_claim("claim", "dominated\non the point estimates", em(L) < em(Q) and p(c
 r.text_claim("claim", "$n = 60$ timed runs per", all(len(v) == 60 for v in cool.values()), f"cooled n per config: {[len(v) for v in cool.values()]}")
 
 r.manual.append("### For the argument agent\n\n- §4.7: the selection rule is applied under its failure clause "
-                "(the end-to-end budget re-baselined to the one measured figure); judge whether the text reports "
-                "the re-baselining plainly and whether the Llama-3.2-1B lower bound is argued soundly.\n"
+                "(both constraints re-baselined to what was measured); judge whether the text says plainly that the "
+                "re-baselined budget cannot test the selected configuration, whether the selection is shown to hold "
+                "under the reading that admits unmeasured configurations, and whether the Llama-3.2-1B lower bound "
+                "is argued soundly.\n"
                 "- The register is Results; flag any sentence that interprets rather than reports (that belongs to Ch5).")
 sys.exit(r.finish())
