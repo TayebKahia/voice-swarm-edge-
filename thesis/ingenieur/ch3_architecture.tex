@@ -1,6 +1,6 @@
 % Architecture and design --- section structure from prd.md 3.1, ownership from Table 3.
 %
-% This chapter OWNS: the dual-path decomposition, the Branch A membership rule (C4), the
+% This chapter OWNS: the dual-path decomposition, the reflex-path membership rule, the
 % validator and state-machine layers, the latency budget and the core allocation.
 % It does NOT own: the schema and grammar (Master Ch 3, sec:schema -- one fresh sentence and a
 % one-page summary here), any measured latency (Ch 5, Exp-2), the model comparison (Master Ch 4;
@@ -28,18 +28,19 @@ the system against them.
 \section{Dual-path decomposition}
 \label{sec:dual-path}
 The runtime consists of two paths that read the same audio stream and publish to the same command
-bus (Figure~\ref{fig:architecture}). Branch~A is a two-class keyword spotter~\cite{oww} that
-listens continuously and, on detecting either stopping phrase, publishes a fixed command without
-transcribing anything. Branch~B is the general path: a \gls{vad} model~\cite{silero} segments the
-stream into utterances, \texttt{whisper.cpp tiny.en}~\cite{whisper,whispercpp} performs \gls{stt}
-on each, a fine-tuned \gls{slm} parses the transcript into a structured command under a decoding
-grammar~\cite{llamacpp}, and a semantic validator checks the result before it is published. The
-two paths share nothing between the audio buffer and the bus. They are not a fast and a slow
+bus (Figure~\ref{fig:architecture}), the reflex path and the parse path of
+Section~\ref{sec:operational-context}. The reflex path is a two-class keyword spotter~\cite{oww}
+that listens continuously and, on detecting either stopping phrase, publishes a fixed command
+without transcribing anything. The parse path is the general path: a \gls{vad} model~\cite{silero}
+segments the stream into utterances, \texttt{whisper.cpp tiny.en}~\cite{whisper,whispercpp} performs
+\gls{stt} on each, a fine-tuned \gls{slm} parses the transcript into a structured command under a
+decoding grammar~\cite{llamacpp}, and a semantic validator checks the result before it is published.
+The two paths share nothing between the audio buffer and the bus. They are not a fast and a slow
 setting of one pipeline: the reflex budget and the parse budget are anchored at different instants
-of the utterance (Section~\ref{sec:engineering-requirements}), so no single path can meet both,
-and the decomposition follows from that constraint rather than from a preference for redundancy.
+of the utterance (Section~\ref{sec:engineering-requirements}), so no single path can meet both, and
+the decomposition follows from that constraint rather than from a preference for redundancy.
 
-The language model on Branch~B is Qwen2.5-0.5B~\cite{qwen25}, fine-tuned and quantised to
+The language model on the parse path is Qwen2.5-0.5B~\cite{qwen25}, fine-tuned and quantised to
 Q4\_K\_M. The \emph{M\'emoire de Master} selects this configuration by comparing models and
 quantisation levels on the same device; the present document treats the choice as fixed and
 designs the runtime around it.
@@ -81,8 +82,8 @@ designs the runtime around it.
   \draw[flow] (fsm) -- (ctl);
   \draw[flow] (ctl) -- (sim);
 
-  \node[tag, anchor=south west] (ta) at (kws.north west) {Branch A};
-  \node[tag, anchor=north west] (tb) at (vad.south west) {Branch B};
+  \node[tag, anchor=south west] (ta) at (kws.north west) {Reflex path};
+  \node[tag, anchor=north west] (tb) at (vad.south west) {Parse path};
 
   \begin{scope}[on background layer]
     \node[draw, fill=gray!8, rounded corners=4pt, inner sep=9pt,
@@ -93,14 +94,14 @@ designs the runtime around it.
           label={[font=\footnotesize\itshape, anchor=north west]north west:Workstation}] {};
   \end{scope}
 \end{tikzpicture}}
-\caption[Dual-path runtime architecture]{Dual-path runtime architecture. One audio stream feeds
-two paths. Branch~A, the keyword spotter, publishes one of two fixed commands and bypasses
-transcription and parsing entirely; Branch~B endpoints the utterance, transcribes it, parses the
-transcript into a command under the decoding grammar and validates the result. Both branches
-publish to one command bus. A Branch~A trigger cancels any decode in progress (dashed); the
-ordering rule at the bus's consumer discards any Branch~B result older than the latest Branch~A
-command, whether or not the cancellation succeeded. The state machine, the swarm controller and
-the simulated vehicles run on a workstation joined to the Pi by Wi-Fi.}
+\caption[Dual-path runtime architecture]{Dual-path runtime architecture. One audio stream feeds two
+paths. The reflex path, the keyword spotter, publishes one of two fixed commands and bypasses
+transcription and parsing entirely; the parse path endpoints the utterance, transcribes it, parses
+the transcript into a command under the decoding grammar and validates the result. Both paths
+publish to one command bus. A reflex-path trigger cancels any decode in progress (dashed); the
+ordering rule at the bus's consumer discards any parse-path result older than the latest reflex-path
+command, whether or not the cancellation succeeded. The state machine, the swarm controller and the
+simulated vehicles run on a workstation joined to the Pi by Wi-Fi.}
 \label{fig:architecture}
 \end{figure}
 
@@ -118,11 +119,11 @@ makes them.
 
 \paragraph{Command bus.} The two machines are joined by a minimal publish--subscribe bus
 carrying single-line \gls{json} messages over UDP. Each message carries a command, a tag naming
-the branch that produced it, and a sequence number drawn from one monotonic counter shared by both
-branches. The bus implements nothing else. The rule deciding whether a message may take effect
-belongs to its consumer, beside the state machine, and messages from both branches reach the state
-machine by that same route; a Branch~A message differs from a Branch~B message only in that it
-is a constant, never the output of a decoder. The bus sits behind an interface so that a
+the path that produced it, and a sequence number drawn from one monotonic counter shared by both
+paths. The bus implements nothing else. The rule deciding whether a message may take effect
+belongs to its consumer, beside the state machine, and messages from both paths reach the state
+machine by that same route; a reflex-path message differs from a parse-path message only in that
+it is a constant, never the output of a decoder. The bus sits behind an interface so that a
 distributed middleware can replace it in a deployment beyond simulation. Adopting one here would
 add failure modes of its own, such as peer discovery and network partition, to a system whose
 experiments are not designed to measure them.
@@ -137,94 +138,93 @@ against roughly 290 if the schema had to be restated in every prompt, and it is 
 given in Chapter~\ref{chap:implementation}; the latency budget of Section~\ref{sec:latency-budget}
 is stated as designed.
 
-\paragraph{Preemption and ordering.} When Branch~A fires while Branch~B is decoding, two actions
-follow, and only one of them is needed for correctness. The needed one is an ordering rule: the
-consumer discards any Branch~B message whose sequence number is lower than that of the latest
-Branch~A message already applied. A Branch~B command that was being decoded when the operator
-said \emph{swarm hold} therefore cannot take effect after the hold, whether or not its decode was
-stopped. The rule depends on when a sequence number is assigned. A Branch~B utterance reserves its
-number when it is accepted for processing, before transcription begins, and not when its decode
-completes. A number assigned at completion would make a slow decode that finishes after a later
-trigger compare as newer than the trigger, and the stale command would override the stop the rule
-exists to protect. The second action is an optimisation: the decode in progress is cancelled, so
-that the three inference cores are released at once rather than spent on a result that will be
-discarded. Correctness does not depend on the cancellation succeeding. What the cancellation
-governs is recovery, the time before Branch~B can accept the next utterance, which the
-preemption-recovery criterion bounds
-at 300~ms at p95 (Table~\ref{tab:nonfunctional-requirements}).
+\paragraph{Preemption and ordering.} When the reflex path fires while the parse path is decoding,
+two actions follow, and only one of them is needed for correctness. The needed one is an ordering
+rule: the consumer discards any parse-path message whose sequence number is lower than that of the
+latest reflex-path message already applied. A parse-path command that was being decoded when the
+operator said \emph{swarm hold} therefore cannot take effect after the hold, whether or not its
+decode was stopped. The rule depends on when a sequence number is assigned. A parse-path utterance
+reserves its number when it is accepted for processing, before transcription begins, and not when
+its decode completes. A number assigned at completion would make a slow decode that finishes after a
+later trigger compare as newer than the trigger, and the stale command would override the stop the
+rule exists to protect. The second action is an optimisation: the decode in progress is cancelled,
+so that the three inference cores are released at once rather than spent on a result that will be
+discarded. Correctness does not depend on the cancellation succeeding. What the cancellation governs
+is recovery, the time before the parse path can accept the next utterance, which the
+preemption-recovery criterion bounds at 300~ms at p95 (Table~\ref{tab:nonfunctional-requirements}).
 
-\section{Branch A membership rule}
+\section{Reflex-path membership rule}
 \label{sec:membership-rule}
-Branch~A bypasses the stages that interpret speech, not the stages that check commands. Its
-commands enter the same consumer as
-Branch~B's and pass the semantic validator and the state machine like any other message; what
-they bypass is transcription and parsing, the two stages that establish what the operator said.
-The consequence is that no layer can detect a false accept. A spurious trigger publishes
-\texttt{\{"intent":"hover"\}}, which is well-formed, inside the physical envelope and legal
-while the swarm is taking off or flying: it is indistinguishable, at every check the architecture has,
-from a hold the operator asked for. The layers of Section~\ref{sec:validation-layers} test the
-form, range and legality of a command, and a false accept on Branch~A fails none of those tests,
-because the error lies in whether the command was spoken at all. Because the spotter listens
-continuously, every class it carries is a standing source of such errors. The only protection is
-therefore to restrict which commands the path may carry, and the membership rule does so with two
-tests, both of which a command must pass.
+The reflex path bypasses the stages that interpret speech, not the stages that check commands. Its
+commands enter the same consumer as the parse path's and pass the semantic validator and the state
+machine like any other message; what they bypass is transcription and parsing, the two stages that
+establish what the operator said. The consequence is that no layer can detect a false accept. A
+spurious trigger publishes \texttt{\{"intent":"hover"\}}, which is well-formed, inside the physical
+envelope and legal while the swarm is taking off or flying: it is indistinguishable, at every check
+the architecture has, from a hold the operator asked for. The layers of
+Section~\ref{sec:validation-layers} test the form, range and legality of a command, and a false
+accept on the reflex path fails none of those tests, because the error lies in whether the command
+was spoken at all. Because the spotter listens continuously, every class it carries is a standing
+source of such errors. The only protection is therefore to restrict which commands the path may
+carry, and the membership rule does so with two tests, both of which a command must pass.
 
-\paragraph{Latency-decisive.} The first test asks whether the time Branch~A saves changes the
-physical outcome. The difference between the parse budget and the reflex budget is
-$2{,}500 - 150 = 2{,}350$~ms (Table~\ref{tab:nonfunctional-requirements}). At the validator's
-speed ceiling of 2.0~m/s, that interval is 4.7~m of travel, comparable to the largest formation
-radius the envelope admits (10~m) and larger than every admissible inter-drone spacing (1--5~m). A
-stop that arrives through Branch~B can therefore arrive after a vehicle has already covered the
-distance the stop was meant to prevent. A command passes this test only if that delay matters to
-what the vehicles do.
+\paragraph{Latency-decisive.} The first test asks whether the time the reflex path saves changes the
+physical outcome. The difference between the parse budget and the reflex budget is $2{,}500 - 150 =
+2{,}350$~ms (Table~\ref{tab:nonfunctional-requirements}). At the validator's speed ceiling of
+2.0~m/s, that interval is 4.7~m of travel, comparable to the largest formation radius the envelope
+admits (10~m) and larger than every admissible inter-drone spacing (1--5~m). A stop that arrives
+through the parse path can therefore arrive after a vehicle has already covered the distance the
+stop was meant to prevent. A command passes this test only if that delay matters to what the
+vehicles do.
 
 \paragraph{Fail-safe under false accept.} The second test asks what happens when the command is
 executed without having been spoken. A command passes only if its unprompted execution moves the
-swarm towards a safer state: Branch~A may make the swarm do less, never more. This is the test
-that answers the objection of the previous paragraph, since a false accept of a command that
+swarm towards a safer state: the reflex path may make the swarm do less, never more. This is the
+test that answers the objection of the previous paragraph, since a false accept of a command that
 passes it costs an unnecessary stop and nothing else.
 
 Neither test is sufficient alone. The first alone would admit any urgent movement, and a false
 accept of an urgent movement is uncommanded motion with no stage behind it able to recognise the
 error. The second alone would admit commands that are harmless but gain nothing from the fast
 path, and each of them would enlarge the false-accept surface for no benefit, because the
-keyword false-accept budget is aggregated over every Branch~A class. Table~\ref{tab:membership}
+keyword false-accept budget is aggregated over every reflex-path class. Table~\ref{tab:membership}
 applies both tests to the ten intents of the schema. Exactly two pass.
 
 \begin{table}[htbp]
 \centering
 \footnotesize
-\caption[Branch A membership rule applied to the ten intents]{The Branch~A membership rule
-applied to every intent of the command schema. A command is admitted to Branch~A only if it passes
-both tests. A dash marks a test that was not evaluated because the command had already failed the
-other; ``Branch~B only'' marks a command whose unprompted execution would add motion.}
+\caption[Reflex-path membership rule applied to the ten intents]{The reflex-path membership rule
+applied to every intent of the command schema. A command is admitted to the reflex path only if it
+passes both tests. The Path column names the path that carries the command. A dash marks a test
+that was not evaluated because the command had already failed the other; ``Parse only'' marks a
+command whose unprompted execution would add motion.}
 \label{tab:membership}
 \begin{tabularx}{\textwidth}{@{}l X X l@{}}
 \toprule
 Intent & Latency-decisive & Fail-safe under false accept & Path \\
 \midrule
-\texttt{hover}     & Yes & Yes: stops lateral motion & Branch~A \\
-\texttt{abort}     & Yes & Yes: descends in place & Branch~A \\
-\texttt{land}      & No: the descent itself is slow & Yes & Branch~B \\
-\texttt{set\_param} & No & Yes, for a value that reduces speed or spacing & Branch~B \\
-\texttt{unknown}   & No: nothing is dispatched & Yes & Branch~B \\
-\texttt{takeoff}   & -- & No: spins up the rotors & Branch~B only \\
-\texttt{move}      & -- & No: uncommanded translation & Branch~B only \\
-\texttt{altitude}  & -- & No: uncommanded climb or descent & Branch~B only \\
-\texttt{rotate}    & -- & No: uncommanded yaw & Branch~B only \\
-\texttt{formation} & -- & No: every vehicle changes slot & Branch~B only \\
+\texttt{hover}     & Yes & Yes: stops lateral motion & Reflex \\
+\texttt{abort}     & Yes & Yes: descends in place & Reflex \\
+\texttt{land}      & No: the descent itself is slow & Yes & Parse \\
+\texttt{set\_param} & No & Yes, for a value that reduces speed or spacing & Parse \\
+\texttt{unknown}   & No: nothing is dispatched & Yes & Parse \\
+\texttt{takeoff}   & -- & No: spins up the rotors & Parse only \\
+\texttt{move}      & -- & No: uncommanded translation & Parse only \\
+\texttt{altitude}  & -- & No: uncommanded climb or descent & Parse only \\
+\texttt{rotate}    & -- & No: uncommanded yaw & Parse only \\
+\texttt{formation} & -- & No: every vehicle changes slot & Parse only \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-The two admitted classes map onto intents the schema already contains, so Branch~A adds no
+The two admitted classes map onto intents the schema already contains, so the reflex path adds no
 grammar rule, no schema field and no controller entry point. \texttt{swarm hold} publishes
-\texttt{hover}: lateral motion stops, altitude is held, the rotors keep running, and the mission
-can be resumed. The hover is already the state every rejection on Branch~B resolves to where the
+\texttt{hover}: lateral motion stops, altitude is held, the rotors keep running, and the mission can
+be resumed. The hover is already the state every rejection on the parse path resolves to where the
 flight state permits it (Section~\ref{sec:validation-layers}), so the reflex makes the system's
 existing safe state reachable at reflex speed rather than introducing a new one. \texttt{swarm
-abort} publishes \texttt{abort}, defined as an immediate descent in place with the motors stopped
-on ground contact; the mission ends and cannot be resumed by voice. Two other definitions were
+abort} publishes \texttt{abort}, defined as an immediate descent in place with the motors stopped on
+ground contact; the mission ends and cannot be resumed by voice. Two other definitions were
 rejected. Stopping the motors in flight, anywhere in an altitude envelope of 0.5--15~m, is a
 decision to lose the airframe. A return to the launch point requires flight, which is what the
 command exists to stop. Descending in place removes energy from the situation without lateral
@@ -244,7 +244,7 @@ the set of fail-safe outcomes.
 The most obvious third class is excluded deliberately. A \texttt{resume} phrase would be as
 urgent to the operator as any other, but a false accept would restart motion the operator had
 chosen to freeze, which reverses a safety action rather than adding one. It fails the second test,
-and resumption is therefore available only through Branch~B, where the added 2.35~s costs
+and resumption is therefore available only through the parse path, where the added 2.35~s costs
 nothing. Recovery out of an abort is not available by voice on either path, for the same reason
 (Section~\ref{sec:validation-layers}).
 
@@ -254,8 +254,7 @@ place. The tests apply to the command a phrase publishes, not to the phrase, so 
 wording cannot admit a command the rule excludes, and they are applied again whenever the schema
 gains an intent. For the present vocabulary the rule yields exactly two classes; that result is
 the contribution of this document (Section~\ref{sec:contributions}), and it is what makes the
-membership of
-Branch~A checkable by a reader who did not choose it.
+membership of the reflex path checkable by a reader who did not choose it.
 
 \section{Three validation layers}
 \label{sec:validation-layers}
@@ -279,7 +278,7 @@ Branch~A checkable by a reader who did not choose it.
 \section{Latency budget}
 \label{sec:latency-budget}
 % Budget = DESIGN. No measured figure anywhere in this section; Chapter~\ref{chap:validation}.
-% - Table tab:stage-budget: both branches, both anchors -- endpointing wait, STT, SLM prefill,
+% - Table tab:stage-budget: both paths, both anchors -- endpointing wait, STT, SLM prefill,
 %   SLM decode, validate+FSM+dispatch, E2E from end of speech, E2E from start of speech (3 s
 %   utterance), reflex from keyword offset, reflex from keyword onset (~700 ms phrase).
 %   Row wording fresh (Master's tab:latency-budget restates the parse rows).
@@ -301,7 +300,7 @@ Branch~A checkable by a reader who did not choose it.
 % - Table tab:core-allocation (Table 7): core 0 = capture, ring buffer, endpointer, keyword
 %   spotter (the 80 ms frame loop); cores 1--3 = whisper.cpp -t 3 and llama.cpp -t 3.
 % - Why three cores suffice for both: STT and SLM are sequential by construction.
-% - Why the frame loop must never wait on Branch B: NFR-1 holds under load only if a decode
+% - Why the frame loop must never wait on the parse path: reflex latency holds under load only if a decode
 %   cannot delay the next frame -- the design property the loaded condition of Exp-2 tests.
 %   That isolation held is Ch 5's to report; forward reference only.
 % - Per-thread pinning; a child process inherits the spawning thread's mask.
