@@ -11,7 +11,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from lib import (INGENIEUR, RESULTS, Review, csv_rows, main_order, numbers, outline_check, prd,  # noqa: E402
+from lib import (INGENIEUR, RESULTS, THESIS, Review, csv_rows, main_order, numbers, outline_check, prd,  # noqa: E402
                  prd_requirements, requirement_table_check, rq_check)
 
 r = Review("ingenieur_ch1", "ingenieur", INGENIEUR[0], INGENIEUR[1:])
@@ -26,27 +26,45 @@ r.expect("label", "\\label{chap:introduction}" in text, "carries \\label{chap:in
 # -- RQs and contribution against prd.md §2 -----------------------------------------------------
 rq_check(r, 2)
 rq_check(r, 3)
+# This document has one contribution, so it is named, not numbered (issue 06); its text is prd C4.
 c4 = re.search(r"\*\*C4\.\*\* (.*?) \(\[", prd())
-body = re.search(r"\\textbf\{C4\.\}\s*(.*?)\\end\{itemize\}", text, flags=re.S)
+body = re.search(r"\\textbf\{Contribution\.\}\s*(.*?)\\end\{quote\}", text, flags=re.S)
 r.expect("contribution", bool(c4 and body) and re.sub(r"\s+", " ", body.group(1)).strip().rstrip(".") ==
-         c4.group(1).strip().rstrip("."), "C4 matches prd.md §2.1 verbatim")
+         c4.group(1).strip().rstrip("."), "the contribution matches prd.md §2.1 C4 verbatim")
 r.expect("contribution", not re.search(r"\\textbf\{C[123]\.\}", text), "C1-C3 not claimed here (Master's, Table 2)")
 n_contrib = len(re.findall(r"^- \*\*C\d\.\*\*", prd(), flags=re.M))
-r.text_claim("claim", "four claimed contributions", n_contrib == 4, f"prd.md §2.1 lists {n_contrib} contributions")
+r.text_claim("claim", "four contributions claimed", n_contrib == 4, f"prd.md §2.1 lists {n_contrib} contributions")
 
 # -- Requirement tables and the counts quoted about them ----------------------------------------
-requirement_table_check(r, "tab:functional-requirements", target_col=2, source_col=None, strict=False)
-# The Source column names experiments as issue 00 does; the map turns each name back into the
-# prd code, so the prd row is still what the cell is compared against.
+# Both tables name their criteria instead of printing prd IDs (issue 06, as the Master does); the
+# maps send each name back to its prd row, so every cell is still compared with prd.
+FR_NAMES = {"Offline speech recognition": "FR-5", "Reflex path": "FR-6", "Swarm controller": "FR-7",
+            "Simulation backends": "FR-8", "Live demonstration": "FR-9", "Flight state machine": "FR-11"}
+NFR_NAMES = {"Reflex latency": "NFR-1", "End-to-end latency": "NFR-2", "Per-stage attribution": "NFR-3",
+             "Preemption recovery": "NFR-17", "Keyword false accepts": "NFR-15",
+             "Keyword false rejects": "NFR-16", "Clean-audio recognition": "NFR-7",
+             "Recognition in noise": "NFR-8", "Collisions": "NFR-12", "Formation accuracy": "NFR-13",
+             "Offline operation": "NFR-14"}
+EXPERIMENTS = {"Latency experiment": "Exp-2", "Acoustic-robustness experiment": "Exp-3",
+               "Formation-control experiment": "Exp-4", "End-to-end run, networking disabled": "FR-5"}
+requirement_table_check(r, "tab:functional-requirements", target_col=2, source_col=None, strict=False,
+                        row_ids=FR_NAMES)
 requirement_table_check(r, "tab:nonfunctional-requirements", target_col=2, source_col=3,
-                        source_names={"Latency": "Exp-2", "Acoustic robustness": "Exp-3",
-                                      "Formation control": "Exp-4"})
+                        row_ids=NFR_NAMES, source_names=EXPERIMENTS)
+# "a criterion shared with the Memoire de Master carries the same name there": check it.
+master_rows = set(re.findall(r"^([^&\n\\]+?) & ", (THESIS / "master/ch3_method.tex").read_text(), flags=re.M))
+master_ids = {"NFR-2", "NFR-4", "NFR-5", "NFR-6", "NFR-7", "NFR-8", "NFR-9", "NFR-9a", "NFR-9b", "NFR-10",
+              "NFR-11", "NFR-18"}   # the rows of Master tab:requirements (master_ch3.py CRITERIA)
+for name, rid in NFR_NAMES.items():
+    if rid in master_ids:
+        r.expect("requirements", name in master_rows, f"shared criterion `{name}` ({rid}) has the same name "
+                 "in Master tab:requirements", r.ch.find(f"{name} &")[0])
 reqs = prd_requirements()
 n_fr = sum(k.startswith("FR-") for k in reqs)
 n_nfr = sum(k.startswith("NFR-") for k in reqs)
 r.number("Twelve \\glspl{fr}", n_fr, "FR rows in prd.md Table 11")
-r.number("twenty-one \\gls{nfr} rows", n_nfr, "NFR rows in prd.md Table 12 (9a and 9b included)")
-fr_shown = len(re.findall(r"^FR-\d+ &", text, flags=re.M))
+r.number("twenty-one \\glspl{nfr}", n_nfr, "NFR rows in prd.md Table 12 (9a and 9b included)")
+fr_shown = sum(bool(re.search(rf"^{re.escape(n)} &", text, flags=re.M)) for n in FR_NAMES)
 r.number("The remaining six of the twelve", n_fr - fr_shown, f"{n_fr} - {fr_shown} tabulated here")
 r.text_claim("claim", "Five chapters follow", len(main_order("ingenieur")) - 1 == 5,
              f"{len(main_order('ingenieur')) - 1} chapters after this one in main_ingenieur.tex")
