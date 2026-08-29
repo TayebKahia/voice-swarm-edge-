@@ -1,10 +1,10 @@
 ### Latency budget versus measured (Exp-2)
 
-Raspberry Pi 5, cooled, governor `performance`, Table 7 pinning (frame loop core 0;
-STT and SLM cores 1-3). Real-time WAV replay: Branch B on the 200 golden utterances
+Raspberry Pi 5, cooled, governor `performance`, cores pinned (frame loop on core 0;
+STT and SLM on cores 1-3). Real-time WAV replay: Branch B on the 200 golden utterances
 (clean), one sample per endpointed segment; Branch A on the author's 40 real takes,
 twice, idle and during a Branch B decode. Nearest-rank percentiles; the verdict is on
-the p95. The bus is loopback on the Pi (the Wi-Fi hop is outside the budget, prd 4.7).
+the p95. The bus is loopback on the Pi; the Wi-Fi hop is outside the budget.
 
 | Stage | n | p50 | p95 | p99 | Target p95 | Verdict |
 | :--- | ---: | ---: | ---: | ---: | ---: | :--- |
@@ -26,7 +26,7 @@ the p95. The bus is loopback on the Pi (the Wi-Fi hop is outside the budget, prd
 | Branch A from keyword onset, loaded | 78 | 967 | 1,266 | 1,278 | 850 | MISSES |
 | Pre-emption recovery (NFR-17) | 78 | 601 | 1,195 | 1,505 | 300 | MISSES |
 
-Prefill is the deployed parser's, with the prompt cache off (Surface B parity); Table 6's
-line assumes a cached prefix. Start-of-speech has no verdict: its 5,500 ms target is for a
+Prefill is the deployed parser's, with the prompt cache off; the budget's prefill
+allowance assumes a cached prefix. Start-of-speech has no verdict: its 5,500 ms target is for a
 3 s utterance. Split rate, cross-trigger matrix, pre-emption outcomes and the core-0 frame
 budget: `results/exp2_analysis.md`.

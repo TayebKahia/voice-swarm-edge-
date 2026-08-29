@@ -3,7 +3,7 @@
   \centering
   \footnotesize
   \setlength{\tabcolsep}{4pt}
-  \caption[Latency budget versus measured (Exp-2)]{Raspberry Pi 5, cooled, governor \texttt{performance}, Table 7 pinning (frame loop core 0; STT and SLM cores 1-3). Real-time WAV replay: Branch B on the 200 golden utterances (clean), one sample per endpointed segment; Branch A on the author's 40 real takes, twice, idle and during a Branch B decode. Nearest-rank percentiles; the verdict is on the p95. The bus is loopback on the Pi (the Wi-Fi hop is outside the budget, prd 4.7).}
+  \caption[Latency budget versus measured (Exp-2)]{Raspberry Pi 5, cooled, governor \texttt{performance}, cores pinned (frame loop on core 0; STT and SLM on cores 1-3). Real-time WAV replay: Branch B on the 200 golden utterances (clean), one sample per endpointed segment; Branch A on the author's 40 real takes, twice, idle and during a Branch B decode. Nearest-rank percentiles; the verdict is on the p95. The bus is loopback on the Pi; the Wi-Fi hop is outside the budget.}
   \label{tab:latency-budget}
   \begin{tabular}{lrrrrrl}
     \toprule
@@ -29,5 +29,5 @@
     \bottomrule
   \end{tabular}
   \par\medskip
-  \begin{minipage}{\textwidth}\footnotesize\raggedright Prefill is the deployed parser's, with the prompt cache off (Surface B parity); Table 6's line assumes a cached prefix. Start-of-speech has no verdict: its 5,500 ms target is for a 3 s utterance. Split rate, cross-trigger matrix, pre-emption outcomes and the core-0 frame budget: \texttt{results/exp2\_analysis.md}.\end{minipage}
+  \begin{minipage}{\textwidth}\footnotesize\raggedright Prefill is the deployed parser's, with the prompt cache off; the budget's prefill allowance assumes a cached prefix. Start-of-speech has no verdict: its 5,500 ms target is for a 3 s utterance. Split rate, cross-trigger matrix, pre-emption outcomes and the core-0 frame budget: \texttt{results/exp2\_analysis.md}.\end{minipage}
 \end{table}

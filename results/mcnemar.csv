@@ -14,3 +14,10 @@ quantisation,secondary,test_synth,smollm2-360m-instruct,smollm2-360m-instruct Q4
 quantisation,secondary,test_ood,llama-3.2-1b-instruct,llama-3.2-1b-instruct Q4_K_M,llama-3.2-1b-instruct Q8_0,150,0.8133,0.8,0.0133,119,3,1,27,4,exact,0.25,0.625,0.617075,0.625,0.0167,no
 quantisation,secondary,test_ood,qwen2.5-0.5b-instruct,qwen2.5-0.5b-instruct Q4_K_M,qwen2.5-0.5b-instruct Q8_0,150,0.7467,0.7333,0.0133,109,3,1,37,4,exact,0.25,0.625,0.617075,0.625,0.0167,no
 quantisation,secondary,test_ood,smollm2-360m-instruct,smollm2-360m-instruct Q4_K_M,smollm2-360m-instruct Q8_0,150,0.66,0.6067,0.0533,87,12,4,47,16,exact,3.0625,0.0768127,0.0801183,0.0768127,0.0167,no
+deployment,exploratory,test_golden,llama-3.2-1b-instruct,llama-3.2-1b-instruct fp16,llama-3.2-1b-instruct Q4_K_M,200,0.925,0.91,0.015,182,3,0,15,3,exact,1.3333,0.25,0.248213,0.25,0.0083,no
+deployment,exploratory,test_golden,llama-3.2-1b-instruct,llama-3.2-1b-instruct fp16,llama-3.2-1b-instruct Q8_0,200,0.925,0.915,0.01,183,2,0,15,2,exact,0.5,0.5,0.4795,0.5,0.0083,no
+deployment,exploratory,test_golden,qwen2.5-0.5b-instruct,qwen2.5-0.5b-instruct fp16,qwen2.5-0.5b-instruct Q4_K_M,200,0.935,0.935,0.0,187,0,0,13,0,exact,0.0,1,1,1,0.0083,no
+deployment,exploratory,test_golden,qwen2.5-0.5b-instruct,qwen2.5-0.5b-instruct fp16,qwen2.5-0.5b-instruct Q8_0,200,0.935,0.93,0.005,186,1,0,13,1,exact,0.0,1,1,1,0.0083,no
+deployment,exploratory,test_golden,smollm2-360m-instruct,smollm2-360m-instruct fp16,smollm2-360m-instruct Q4_K_M,200,0.775,0.76,0.015,143,12,9,36,21,exact,0.1905,0.663624,0.662521,0.663624,0.0083,no
+deployment,exploratory,test_golden,smollm2-360m-instruct,smollm2-360m-instruct fp16,smollm2-360m-instruct Q8_0,200,0.775,0.79,-0.015,155,0,3,42,3,exact,1.3333,0.25,0.248213,0.25,0.0083,no
+family control,exploratory,test_golden,fp16 reference,qwen2.5-0.5b-instruct fp16,h2o-danube3-500m-chat fp16,200,0.935,0.87,0.065,172,15,2,11,17,exact,8.4706,0.00234985,0.00360935,0.00234985,0.05,yes

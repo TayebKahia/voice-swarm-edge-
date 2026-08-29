@@ -13,8 +13,9 @@ import json
 
 import pytest
 
-from eval.mcnemar import (FAMILY_ALPHA, PRIMARY_SPLIT, check_against_surface_b,
-                          compare, load_correct, paired)
+from eval.mcnemar import (FAMILY_ALPHA, MODELS, PRIMARY_SPLIT, QUANTS,
+                          check_against_surface_a, check_against_surface_b, compare,
+                          deployment_family, load_correct, paired)
 from eval.stats import bonferroni_alpha
 
 
@@ -64,6 +65,25 @@ class TestFamilyCorrection:
 
     def test_the_primary_split_is_the_recorded_speech_one(self):
         assert PRIMARY_SPLIT == "test_golden"
+
+    def test_the_exploratory_deployment_family_pairs_fp16_with_each_artefact(self):
+        # Table 18's delta is fp16 against quantised; the confirmatory quantisation
+        # family is Q4_K_M against Q8_0. This family must be the former, six wide.
+        items = {"1": True, "2": False}
+        correct = {(m, q, PRIMARY_SPLIT): items for m in MODELS for q in QUANTS}
+        reference = {(m, PRIMARY_SPLIT): items for m in MODELS}
+        rows = deployment_family(correct, reference)
+        assert len(rows) == 6
+        assert all(r["system_a"].endswith(" fp16") and r["role"] == "exploratory" for r in rows)
+        assert {r["alpha"] for r in rows} == {round(0.05 / 6, 4)}
+
+    def test_a_drifted_reference_exact_match_is_reported(self, tmp_path, monkeypatch):
+        import eval.mcnemar as module
+        summary = tmp_path / "surface_a.csv"
+        summary.write_text("model,surface,split,n,exact_match,best_val_em\n"
+                           "m,A_fp16_finetuned,test_golden,2,1.0,\n")
+        monkeypatch.setattr(module, "SURFACE_A", summary)
+        assert check_against_surface_a({("m", "test_golden"): {"1": True, "2": False}})
 
 
 class TestProvenance:

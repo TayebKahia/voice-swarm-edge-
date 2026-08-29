@@ -172,11 +172,23 @@ def _fmt(value: float, places: int = 1) -> str:
     return "--" if value != value else f"{value * 100:.{places}f}"
 
 
+def _signed(value: float, places: int = 1) -> str:
+    """A signed difference with a true minus sign (U+2212; `$-$` once rendered to LaTeX)."""
+    return f"{value:+.{places}f}".replace("-", "\u2212")
+
+
 def _table(
     buckets: dict[str, Scored], author: Scored | None, condition: str, prompted_gap: str
 ) -> str:
+    clips = sum(s.n for s in buckets.values())
     lines = [
-        f"### Table 16: ASR speaker sensitivity (Exp-0) --- {condition}",
+        f"### Table 16: Speech-recognition word error rate by accent bucket, {condition}",
+        "",
+        f"Word error rate of `whisper.cpp` `tiny.en`, {condition}, on {clips} validated Common Voice",
+        f"English clips bucketed by the corpus's accent metadata ({len(buckets)} buckets), and on the",
+        "author's recorded drone commands. Intervals are 95% bootstrap intervals over utterances;",
+        "a bucket under ten utterances reports `n too small`. S / D / I: substitutions, deletions",
+        "and insertions. Source: `results/exp0.csv`.",
         "",
         "| Accent bucket | n | words | WER % | 95% CI | S / D / I |",
         "| :--- | ---: | ---: | ---: | :--- | :--- |",
@@ -202,7 +214,8 @@ def _table(
             f"({_ordinal(pct)} percentile of the bucket distribution). "
             "The comparison is indicative, not matched: the author read drone commands "
             "and the Common Voice speakers read general English, so the two figures are "
-            "over different text. No pass/fail is claimed --- NFR-11 asks for a position.",
+            "over different text. No pass/fail is claimed: the speaker-sensitivity "
+            "requirement asks for a position, not a threshold.",
             "",
             prompted_gap,
         ]
@@ -224,7 +237,9 @@ def run(argv: Sequence[str] | None = None) -> int:
         raise SystemExit("no transcripts -- run eval/exp0_transcribe.py first")
 
     matched = unprompted or prompted
-    condition = "matched condition, no domain prompt" if unprompted else "domain prompt"
+    # "Unprompted" rather than "matched": both speakers are decoded the same way, but the
+    # comparison is not matched in text, and the note under the table says so.
+    condition = "unprompted decoder" if unprompted else "domain-prompted decoder"
     buckets = score(matched)
     author_rows = author_unprompted or author
     author_label = author_rows[0]["bucket"] if author_rows else "Author"
@@ -237,16 +252,16 @@ def run(argv: Sequence[str] | None = None) -> int:
         with_prompt, without = pooled(prompted).wer, pooled(unprompted).wer
         delta = (with_prompt - without) * 100
         gap = (
-            f"Domain prompt on Common Voice: {_fmt(without)} % -> {_fmt(with_prompt)} % "
-            f"({delta:+.1f} pp). "
+            f"Domain prompt on Common Voice: {_fmt(without)}% \u2192 {_fmt(with_prompt)}% "
+            f"({_signed(delta)} pp). "
         )
     if author and author_unprompted:
         with_prompt, without = pooled(author).wer, pooled(author_unprompted).wer
         delta = (with_prompt - without) * 100
         gap += (
-            f"Domain prompt on the author's commands: {_fmt(without)} % -> "
-            f"{_fmt(with_prompt)} % ({delta:+.1f} pp). "
-            "The deployed configuration keeps the prompt; Table 16 positions the author "
+            f"Domain prompt on the author's commands: {_fmt(without)}% \u2192 "
+            f"{_fmt(with_prompt)}% ({_signed(delta)} pp). "
+            "The deployed configuration keeps the prompt; this table positions the author "
             "without it, because only the unprompted pass puts both speakers under the "
             "same condition."
         )

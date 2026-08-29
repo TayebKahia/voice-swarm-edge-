@@ -3,7 +3,7 @@
   \centering
   \scriptsize
   \setlength{\tabcolsep}{3pt}
-  \caption[ASR speaker sensitivity (Exp-0) --- matched condition, no domain prompt]{ASR speaker sensitivity (Exp-0) --- matched condition, no domain prompt}
+  \caption[Speech-recognition word error rate by accent bucket, unprompted decoder]{Word error rate of \texttt{whisper.cpp} \texttt{tiny.en}, unprompted decoder, on 300 validated Common Voice English clips bucketed by the corpus's accent metadata (15 buckets), and on the author's recorded drone commands. Intervals are 95\% bootstrap intervals over utterances; a bucket under ten utterances reports \texttt{n too small}. S / D / I: substitutions, deletions and insertions. Source: \texttt{results/exp0.csv}.}
   \label{tab:asr-sensitivity}
   \begin{tabular}{lrrrll}
     \toprule
@@ -28,5 +28,5 @@
     \bottomrule
   \end{tabular}
   \par\medskip
-  \begin{minipage}{\textwidth}\footnotesize\raggedright The author's WER is lower than 7 of the 15 accent buckets (53rd percentile of the bucket distribution). The comparison is indicative, not matched: the author read drone commands and the Common Voice speakers read general English, so the two figures are over different text. No pass/fail is claimed --- NFR-11 asks for a position. Domain prompt on Common Voice: 22.4 \% -> 22.9 \% (+0.5 pp). Domain prompt on the author's commands: 23.1 \% -> 23.0 \% (-0.1 pp). The deployed configuration keeps the prompt; Table 16 positions the author without it, because only the unprompted pass puts both speakers under the same condition.\end{minipage}
+  \begin{minipage}{\textwidth}\footnotesize\raggedright The author's WER is lower than 7 of the 15 accent buckets (53rd percentile of the bucket distribution). The comparison is indicative, not matched: the author read drone commands and the Common Voice speakers read general English, so the two figures are over different text. No pass/fail is claimed: the speaker-sensitivity requirement asks for a position, not a threshold. Domain prompt on Common Voice: 22.4\% $\to$ 22.9\% (+0.5 pp). Domain prompt on the author's commands: 23.1\% $\to$ 23.0\% ($-$0.1 pp). The deployed configuration keeps the prompt; this table positions the author without it, because only the unprompted pass puts both speakers under the same condition.\end{minipage}
 \end{table}

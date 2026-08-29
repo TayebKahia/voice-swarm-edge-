@@ -45,25 +45,13 @@ def test_the_iso_parameter_pair_is_qwen_and_danube(meta):
     assert "h2o-danube3-500m-chat" in line
 
 
-def test_bracketing_claim_appears_only_when_true(meta):
-    """'The largest model is not the best' is a claim about the data, so it must
-    not be printed when the data does not support it."""
-    ordered = sorted(meta, key=lambda m: meta[m]["params"])
-    smallest, largest = ordered[0], ordered[-1]
-
-    # Largest genuinely best -> the claim must be absent.
-    rows = [_row(m, "test_golden", 0.50) for m in meta if m != largest]
-    rows.append(_row(largest, "test_golden", 0.99))
-    assert "largest model is not the best" not in table33(rows)
-
-    # A smaller model beats it -> the claim must appear, naming that model.
-    rows = [_row(m, "test_golden", 0.50) for m in meta if m != largest]
-    rows.append(_row(largest, "test_golden", 0.60))
-    rows = [r for r in rows if r["model"] != smallest]
-    rows.append(_row(smallest, "test_golden", 0.95))
-    text = table33(rows)
-    assert "largest model is not the best" in text
-    assert smallest in text
+def test_the_full_span_is_not_presented_as_a_size_effect(meta):
+    """No family appears at two sizes, so the smallest-to-largest contrast crosses
+    families too. The note may report it, but never as a size effect or a ratio."""
+    rows = [_row(m, "test_golden", 0.9) for m in meta]
+    note = table33(rows)
+    assert "not a size effect" in note
+    assert "two-fifths" not in note and "largest model is not the best" not in note
 
 
 def test_zero_shot_rows_are_excluded(meta):
@@ -74,8 +62,8 @@ def test_zero_shot_rows_are_excluded(meta):
         rows.append(_row(m, "test_golden", 0.90))
         rows.append(_row(m, "test_golden", 0.0, surface="A_fp16_zeroshot"))
     text = table33(rows)
-    assert "0.9000" in text
-    assert "0.0000" not in text
+    assert "0.900" in text
+    assert "0.000" not in text
 
 
 def test_a_model_without_config_metadata_is_refused(meta):
@@ -89,7 +77,7 @@ def test_a_model_without_config_metadata_is_refused(meta):
 def test_rows_are_ordered_by_parameter_count(meta):
     rows = [_row(m, "test_golden", 0.9) for m in meta]
     text = table33(rows)
-    positions = [text.index(f"`{m}` |") for m in
+    positions = [text.index(f"| {m} |") for m in
                  sorted(meta, key=lambda x: meta[x]["params"])]
     assert positions == sorted(positions), "table is not ordered by parameter count"
 
@@ -127,7 +115,7 @@ def test_slot_f1_is_withheld_on_the_abstention_split():
                if l.startswith("|") and "`test_ood`" in l)
     cells = [c.strip() for c in ood.split("|")]
     assert cells[5] == "--", ood
-    assert cells[6] == "74.7", f"EM must still be reported on this split: {ood}"
+    assert cells[6] == "0.747", f"EM must still be reported on this split: {ood}"
 
 
 def test_slot_f1_is_reported_on_the_splits_that_have_slots():
@@ -136,7 +124,7 @@ def test_slot_f1_is_reported_on_the_splits_that_have_slots():
     for split in ("test_synth", "test_golden"):
         line = next(l for l in table17([_sb_row(split, slot="0.961")]).splitlines()
                     if l.startswith("|") and f"`{split}`" in l)
-        assert [c.strip() for c in line.split("|")][5] == "96.1", line
+        assert [c.strip() for c in line.split("|")][5] == "0.961", line
 
 
 # --- LaTeX emission -------------------------------------------------------------
@@ -179,13 +167,21 @@ def test_latex_column_spec_follows_the_markdown_alignment():
 
 
 def test_latex_abbreviation_touches_labels_and_never_numbers():
-    """Table 17 only fits the text block with `-instruct` dropped. The guard is that
-    abbreviation is a label rewrite: no digit may move."""
+    """Table 17 only fits the text block with `-instruct` dropped, and the PDF uses one
+    display name per model. The guard is that this is a label rewrite: no digit may move."""
     plain = markdown_to_latex(_MD, "tab:x")
     short = markdown_to_latex(_MD, "tab:x", abbreviate=True)
     assert "qwen2.5-0.5b-instruct" in plain and "qwen2.5-0.5b-instruct" not in short
-    assert "qwen2.5-0.5b" in short
+    assert "Qwen2.5-0.5B" in short
     assert [c for c in plain if c.isdigit()] == [c for c in short if c.isdigit()]
+
+
+def test_a_caption_names_another_float_by_label_and_an_acronym_by_key():
+    """No float number or hand-typed acronym may reach the PDF from a caption."""
+    md = _MD.replace("Prose that becomes", "See [Table](#tab:y); [GBNF](#acr:gbnf) prose that becomes")
+    tex = markdown_to_latex(md, "tab:x")
+    assert r"Table~\ref{tab:y}" in tex and r"\acrshort{gbnf}" in tex
+    assert "(\\#" not in tex and "acr:" not in tex
 
 
 def test_latex_refuses_a_ragged_table_rather_than_emitting_broken_tex():

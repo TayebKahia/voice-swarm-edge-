@@ -1,6 +1,9 @@
-### NFR-18: false-command rate on out-of-domain input
+### False-command rate on out-of-domain input
 
-Budget: <= 0.05. Measured on `test_ood`, Surface B.
+Share of the 150 out-of-domain `test_ood` items whose dispatched action is anything
+other than `unknown`, on the deployed surface; an output the validator rejects falls
+back to `hover`, and `hover` counts as a false command. Budget: ≤ 0.05.
+Source: `results/surface_b.csv`.
 
 | Model | Quant | False-command rate | Verdict |
 | :--- | :--- | ---: | :--- |

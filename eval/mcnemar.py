@@ -26,6 +26,20 @@ model comparison repeated at Q8_0 as a robustness check, and the quantisation pa
 Bonferroni family is fixed by the question it answers and not by how many tables a
 script happens to be able to produce.
 
+**Two exploratory families**, added after the results existed and labelled so:
+
+    deployment        the fp16 reference model (Kaggle, `transformers`, no grammar)
+                      against each of its quantised artefacts, on `test_golden` ---
+                      six pairs, alpha = 0.05 / 6. This is the comparison Table 18
+                      reports as a delta; the confirmatory quantisation family tests
+                      Q4_K_M against Q8_0, which is a different question.
+    family control    qwen2.5-0.5b against h2o-danube3-500m, both fp16 reference, on
+                      `test_golden` --- one pair, alpha = 0.05. The parameter-matched
+                      family difference of Table 33.
+
+The reference-surface predictions are re-scored from `train/kaggle_out/preds_*.jsonl`
+by the same `eval/metrics.py`, and checked against `train/kaggle_out/surface_a.csv`.
+
 **The correctness vector is re-derived, never read from a summary.** `eval/metrics.py`
 scores each raw prediction against its gold exactly as the sweep did, so the exact
 match recomputed here is a check on `results/surface_b.csv` rather than a copy of it:
@@ -55,6 +69,8 @@ REPO = Path(__file__).resolve().parent.parent
 RESULTS = REPO / "results"
 PREDICTIONS = RESULTS / "surface_b_preds"
 SURFACE_B = RESULTS / "surface_b.csv"
+REFERENCE = REPO / "train" / "kaggle_out"
+SURFACE_A = REFERENCE / "surface_a.csv"
 OUT_CSV = RESULTS / "mcnemar.csv"
 OUT_MD = RESULTS / "mcnemar.md"
 
@@ -72,6 +88,9 @@ PRIMARY_SPLIT = "test_golden"
 DEPLOYED_QUANT = "Q4_K_M"
 
 FAMILY_ALPHA = 0.05
+
+#: The parameter-matched control of Table 33: same size class, different family.
+CONTROL = ("qwen2.5-0.5b-instruct", "h2o-danube3-500m-chat")
 
 FIELDNAMES = [
     "family", "role", "split", "context", "system_a", "system_b", "n",
@@ -112,6 +131,16 @@ def load_correct(model: str, quant: str, split: str) -> dict[str, bool]:
         raise SystemExit(f"missing {_display(path)} -- run eval/surface_b.py")
     rows = [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
     scored = score_predictions([r["raw"] for r in rows], [r["gold"] for r in rows])
+    return {row["id"]: prediction.correct for row, prediction in zip(rows, scored)}
+
+
+def load_reference(model: str, split: str) -> dict[str, bool]:
+    """Item id -> was the fp16 reference model's prediction exactly right, on this split."""
+    path = REFERENCE / f"preds_{model}_{split}.jsonl"
+    if not path.is_file():
+        raise SystemExit(f"missing {_display(path)} -- produced by the Kaggle training notebook")
+    rows = [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
+    scored = score_predictions([r["pred"] for r in rows], [r["gold"] for r in rows])
     return {row["id"]: prediction.correct for row, prediction in zip(rows, scored)}
 
 
@@ -170,6 +199,46 @@ def quant_family(correct: dict, split: str, role: str) -> list[dict]:
     ]
 
 
+def deployment_family(correct: dict, reference: dict) -> list[dict]:
+    """fp16 reference against each quantised artefact of the same model (exploratory)."""
+    alpha = bonferroni_alpha(len(MODELS) * len(QUANTS), family_alpha=FAMILY_ALPHA)
+    return [
+        compare(f"{model} fp16", f"{model} {quant}",
+                reference[(model, PRIMARY_SPLIT)], correct[(model, quant, PRIMARY_SPLIT)],
+                family="deployment", role="exploratory", split=PRIMARY_SPLIT, context=model,
+                alpha=alpha)
+        for model in MODELS for quant in QUANTS
+    ]
+
+
+def control_family(reference: dict) -> list[dict]:
+    """The parameter-matched family control, fp16 reference surface (exploratory)."""
+    a, b = CONTROL
+    return [compare(f"{a} fp16", f"{b} fp16", reference[(a, PRIMARY_SPLIT)],
+                    reference[(b, PRIMARY_SPLIT)], family="family control", role="exploratory",
+                    split=PRIMARY_SPLIT, context="fp16 reference", alpha=FAMILY_ALPHA)]
+
+
+def check_against_surface_a(reference: dict) -> list[str]:
+    """Re-derived reference exact match against the Kaggle summary."""
+    if not SURFACE_A.is_file():
+        return [f"`{_display(SURFACE_A)}` absent -- reference exact match not cross-checked."]
+    published = {
+        (r["model"], r["split"]): float(r["exact_match"])
+        for r in csv.DictReader(SURFACE_A.open(encoding="utf-8"))
+        if r["surface"] == "A_fp16_finetuned"
+    }
+    problems = []
+    for key, items in sorted(reference.items()):
+        recomputed = sum(items.values()) / len(items)
+        expected = published.get(key)
+        if expected is None:
+            problems.append(f"{key} has reference predictions but no row in surface_a.csv")
+        elif abs(recomputed - expected) > 5e-5:
+            problems.append(f"{key}: preds give {recomputed:.4f}, surface_a.csv says {expected:.4f}")
+    return problems
+
+
 def check_against_surface_b(correct: dict) -> list[str]:
     """Re-derived exact match against the published table. Provenance, not decoration."""
     if not SURFACE_B.is_file():
@@ -213,6 +282,8 @@ def markdown(rows: list[dict], problems: list[str]) -> str:
     primary_model = [r for r in rows if r["family"] == "model" and r["role"] == "primary"]
     primary_quant = [r for r in rows if r["family"] == "quantisation" and r["role"] == "primary"]
     secondary = [r for r in rows if r["role"] == "secondary"]
+    deployment = [r for r in rows if r["family"] == "deployment"]
+    control = [r for r in rows if r["family"] == "family control"]
 
     lines = [
         "### McNemar tests on the Surface-B predictions (RQ1)",
@@ -251,6 +322,24 @@ def markdown(rows: list[dict], problems: list[str]) -> str:
     lines += _table(secondary)
     lines += [
         "",
+        "#### Exploratory -- added after the results existed",
+        "",
+        f"fp16 reference model against each quantised artefact, `{PRIMARY_SPLIT}`: the",
+        "difference Table 18 reports as a delta. The reference side is the fine-tuned fp16",
+        "model under `transformers` without a grammar (`train/kaggle_out/preds_*.jsonl`);",
+        "precision, runtime and grammar all change across the pair. Bonferroni over the six",
+        f"pairs: alpha = {bonferroni_alpha(len(MODELS) * len(QUANTS), family_alpha=FAMILY_ALPHA):.4f}.",
+        "",
+    ]
+    lines += _table(deployment)
+    lines += [
+        "",
+        f"Parameter-matched family control, fp16 reference, `{PRIMARY_SPLIT}` (single test, alpha {FAMILY_ALPHA}):",
+        "",
+    ]
+    lines += _table(control)
+    lines += [
+        "",
         "#### Reading these numbers",
         "",
         "**A non-significant McNemar is not a finding of equivalence.** Where `b+c` is 1,",
@@ -268,11 +357,12 @@ def markdown(rows: list[dict], problems: list[str]) -> str:
     ]
     if problems:
         lines += ["**Provenance check FAILED** -- the re-derived exact match does not match",
-                  "`results/surface_b.csv`:", ""]
+                  "`results/surface_b.csv` / `train/kaggle_out/surface_a.csv`:", ""]
         lines += [f"  - {problem}" for problem in problems]
     else:
         lines += ["Provenance: exact match re-derived from the per-item predictions matches",
-                  "every `grammar=on` row of `results/surface_b.csv` to four decimal places."]
+                  "every `grammar=on` row of `results/surface_b.csv` and every fine-tuned row of",
+                  "`train/kaggle_out/surface_a.csv` it uses, to four decimal places."]
     return "\n".join(lines) + "\n"
 
 
@@ -281,7 +371,10 @@ def run() -> int:
     correct = {(m, q, s): load_correct(m, q, s)
                for m in MODELS for q in QUANTS for s in SPLITS}
 
-    problems = check_against_surface_b(correct)
+    reference = {(m, PRIMARY_SPLIT): load_reference(m, PRIMARY_SPLIT)
+                 for m in MODELS + CONTROL[1:]}
+
+    problems = check_against_surface_b(correct) + check_against_surface_a(reference)
 
     rows: list[dict] = []
     rows += model_family(correct, DEPLOYED_QUANT, role="primary")
@@ -289,6 +382,8 @@ def run() -> int:
     rows += model_family(correct, "Q8_0", role="secondary")
     for split in ("test_synth", "test_ood"):
         rows += quant_family(correct, split, role="secondary")
+    rows += deployment_family(correct, reference)
+    rows += control_family(reference)
 
     OUT_CSV.parent.mkdir(parents=True, exist_ok=True)
     with OUT_CSV.open("w", newline="", encoding="utf-8") as handle:
@@ -310,7 +405,8 @@ def run() -> int:
         for problem in problems:
             print(f"  {problem}")
         return 1
-    print("provenance: recomputed exact match matches results/surface_b.csv on all 18 rows")
+    print("provenance: recomputed exact match matches results/surface_b.csv on all 18 rows "
+          f"and train/kaggle_out/surface_a.csv on {len(reference)}")
     return 0
 
 

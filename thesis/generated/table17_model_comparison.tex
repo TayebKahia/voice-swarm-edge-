@@ -3,30 +3,30 @@
   \centering
   \scriptsize
   \setlength{\tabcolsep}{2pt}
-  \caption[Model comparison (Exp-1, RQ1)]{Surface B --- the quantised artefact under \texttt{llama.cpp} with the GBNF grammar, which is what the aircraft actually runs. Accuracy columns are from \texttt{results/surface\_b.csv}; latency, throughput and memory columns are \texttt{results/exp1\_cooled.csv}, measured on the Pi with an active cooler fitted: 0 of 180 scored trials throttled, 67.5--74.1 C. The earlier uncooled run throttled on 180/180 and is reported separately, in the thermal-headroom table. p50/p95 is the SLM prefill and decode stages combined. Exp-1 on the hardware covers only Q4\_K\_M -- a Q8\_0 row keeps \texttt{--} because it was never measured on the hardware, not because the join failed. Slot-F1 is \texttt{--} on \texttt{test\_ood} because that split carries no gold slots: its gold target is \texttt{\{"intent":"unknown"\}} on all 150 items, so the metric has no dynamic range there. What the models do emit on those items is reported properly by the false-command rate (NFR-18).}
+  \caption[Model comparison on the deployed surface]{The deployed surface: each quantised artefact decoded by \texttt{llama.cpp} under the \acrshort{gbnf} grammar. Accuracy columns are fractions, scored on the workstation from \texttt{results/surface\_b.csv} over 240 (\texttt{test\_synth}), 200 (\texttt{test\_golden}) and 150 (\texttt{test\_ood}) items; Safe-fail is the share of errors that resolve to \texttt{unknown} or \texttt{hover}. Latency, throughput and memory are from \texttt{results/exp1\_cooled.csv}, measured on the Raspberry Pi 5 with an active cooler fitted (0 of 180 scored trials throttled, 67.5--74.1 \textdegree{}C; the uncooled run is in Table~\ref{tab:thermal-headroom}). p50/p95 is the language-model prefill and decode stages combined, 60 trials per configuration; Mem. is the peak resident set of the language-model process, in GiB. Only Q4\_K\_M was timed on the board, so a Q8\_0 row carries \texttt{--} there. Slot-F1 is \texttt{--} on \texttt{test\_ood}, whose 150 references carry no slots; what the models emit there is reported by the false-command rate, Table~\ref{tab:false-command}.}
   \label{tab:model-comparison}
   \begin{tabular}{lllrrrrrlrl}
     \toprule
-    Model & Quant & Split & Intent-F1 & Slot-F1 & EM & Safe-fail & Schema-valid & p50/p95 (ms) & tok/s & Peak RSS \\
+    Model & Quant & Split & Intent-F1 & Slot-F1 & \acrshort{em} & Safe-fail & Schema-valid & p50/p95 (ms) & tok/s & Mem. (GiB) \\
     \midrule
-    llama-3.2-1b & Q4\_K\_M & \texttt{test\_synth} & 99.1 & 97.5 & 95.8 & 0.0 & 100.0 & 1351.09/2282.45 & 14.53 & 1.63 GB \\
-    llama-3.2-1b & Q4\_K\_M & \texttt{test\_golden} & 99.6 & 94.5 & 91.0 & 0.0 & 100.0 & 1351.09/2282.45 & 14.53 & 1.63 GB \\
-    llama-3.2-1b & Q4\_K\_M & \texttt{test\_ood} & 89.7 & -- & 81.3 & 10.7 & 100.0 & 1351.09/2282.45 & 14.53 & 1.63 GB \\
-    llama-3.2-1b & Q8\_0 & \texttt{test\_synth} & 99.1 & 97.8 & 96.2 & 0.0 & 100.0 & -- & -- & -- \\
-    llama-3.2-1b & Q8\_0 & \texttt{test\_golden} & 99.6 & 94.8 & 91.5 & 0.0 & 100.0 & -- & -- & -- \\
-    llama-3.2-1b & Q8\_0 & \texttt{test\_ood} & 88.9 & -- & 80.0 & 10.0 & 100.0 & -- & -- & -- \\
-    qwen2.5-0.5b & Q4\_K\_M & \texttt{test\_synth} & 98.5 & 97.8 & 95.4 & 0.0 & 100.0 & 646.71/1072.41 & 27.93 & 0.68 GB \\
-    qwen2.5-0.5b & Q4\_K\_M & \texttt{test\_golden} & 100.0 & 96.1 & 93.5 & 0.0 & 100.0 & 646.71/1072.41 & 27.93 & 0.68 GB \\
-    qwen2.5-0.5b & Q4\_K\_M & \texttt{test\_ood} & 85.5 & -- & 74.7 & 15.8 & 100.0 & 646.71/1072.41 & 27.93 & 0.68 GB \\
-    qwen2.5-0.5b & Q8\_0 & \texttt{test\_synth} & 99.0 & 97.8 & 95.8 & 0.0 & 100.0 & -- & -- & -- \\
-    qwen2.5-0.5b & Q8\_0 & \texttt{test\_golden} & 100.0 & 95.8 & 93.0 & 0.0 & 100.0 & -- & -- & -- \\
-    qwen2.5-0.5b & Q8\_0 & \texttt{test\_ood} & 84.6 & -- & 73.3 & 15.0 & 100.0 & -- & -- & -- \\
-    smollm2-360m & Q4\_K\_M & \texttt{test\_synth} & 96.8 & 88.1 & 81.2 & 2.2 & 100.0 & 475.41/894.25 & 40.63 & 0.55 GB \\
-    smollm2-360m & Q4\_K\_M & \texttt{test\_golden} & 95.4 & 84.8 & 76.0 & 4.2 & 100.0 & 475.41/894.25 & 40.63 & 0.55 GB \\
-    smollm2-360m & Q4\_K\_M & \texttt{test\_ood} & 79.5 & -- & 66.0 & 5.9 & 100.0 & 475.41/894.25 & 40.63 & 0.55 GB \\
-    smollm2-360m & Q8\_0 & \texttt{test\_synth} & 98.0 & 88.6 & 81.2 & 0.0 & 100.0 & -- & -- & -- \\
-    smollm2-360m & Q8\_0 & \texttt{test\_golden} & 97.2 & 86.6 & 79.0 & 0.0 & 100.0 & -- & -- & -- \\
-    smollm2-360m & Q8\_0 & \texttt{test\_ood} & 75.5 & -- & 60.7 & 6.8 & 100.0 & -- & -- & -- \\
+    Llama-3.2-1B & Q4\_K\_M & \texttt{test\_synth} & 0.991 & 0.975 & 0.958 & 0.000 & 1.000 & 1,351/2,282 & 14.53 & 1.63 \\
+    Llama-3.2-1B & Q4\_K\_M & \texttt{test\_golden} & 0.996 & 0.945 & 0.910 & 0.000 & 1.000 & 1,351/2,282 & 14.53 & 1.63 \\
+    Llama-3.2-1B & Q4\_K\_M & \texttt{test\_ood} & 0.897 & -- & 0.813 & 0.107 & 1.000 & 1,351/2,282 & 14.53 & 1.63 \\
+    Llama-3.2-1B & Q8\_0 & \texttt{test\_synth} & 0.991 & 0.978 & 0.963 & 0.000 & 1.000 & -- & -- & -- \\
+    Llama-3.2-1B & Q8\_0 & \texttt{test\_golden} & 0.996 & 0.948 & 0.915 & 0.000 & 1.000 & -- & -- & -- \\
+    Llama-3.2-1B & Q8\_0 & \texttt{test\_ood} & 0.889 & -- & 0.800 & 0.100 & 1.000 & -- & -- & -- \\
+    Qwen2.5-0.5B & Q4\_K\_M & \texttt{test\_synth} & 0.985 & 0.978 & 0.954 & 0.000 & 1.000 & 647/1,072 & 27.93 & 0.68 \\
+    Qwen2.5-0.5B & Q4\_K\_M & \texttt{test\_golden} & 1.000 & 0.961 & 0.935 & 0.000 & 1.000 & 647/1,072 & 27.93 & 0.68 \\
+    Qwen2.5-0.5B & Q4\_K\_M & \texttt{test\_ood} & 0.855 & -- & 0.747 & 0.158 & 1.000 & 647/1,072 & 27.93 & 0.68 \\
+    Qwen2.5-0.5B & Q8\_0 & \texttt{test\_synth} & 0.990 & 0.978 & 0.958 & 0.000 & 1.000 & -- & -- & -- \\
+    Qwen2.5-0.5B & Q8\_0 & \texttt{test\_golden} & 1.000 & 0.958 & 0.930 & 0.000 & 1.000 & -- & -- & -- \\
+    Qwen2.5-0.5B & Q8\_0 & \texttt{test\_ood} & 0.846 & -- & 0.733 & 0.150 & 1.000 & -- & -- & -- \\
+    SmolLM2-360M & Q4\_K\_M & \texttt{test\_synth} & 0.968 & 0.881 & 0.812 & 0.022 & 1.000 & 475/894 & 40.63 & 0.55 \\
+    SmolLM2-360M & Q4\_K\_M & \texttt{test\_golden} & 0.954 & 0.848 & 0.760 & 0.042 & 1.000 & 475/894 & 40.63 & 0.55 \\
+    SmolLM2-360M & Q4\_K\_M & \texttt{test\_ood} & 0.795 & -- & 0.660 & 0.059 & 1.000 & 475/894 & 40.63 & 0.55 \\
+    SmolLM2-360M & Q8\_0 & \texttt{test\_synth} & 0.980 & 0.886 & 0.812 & 0.000 & 1.000 & -- & -- & -- \\
+    SmolLM2-360M & Q8\_0 & \texttt{test\_golden} & 0.972 & 0.866 & 0.790 & 0.000 & 1.000 & -- & -- & -- \\
+    SmolLM2-360M & Q8\_0 & \texttt{test\_ood} & 0.755 & -- & 0.607 & 0.068 & 1.000 & -- & -- & -- \\
     \bottomrule
   \end{tabular}
 \end{table}

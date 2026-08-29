@@ -45,6 +45,11 @@ import matplotlib
 
 matplotlib.use("Agg")           # no display on the workstation or in CI
 import matplotlib.pyplot as plt
+from matplotlib.transforms import blended_transform_factory
+
+#: TrueType, not Type 3, in the PDF: Type 3 fonts are vector but render poorly in some
+#: viewers and are rejected by some submission checkers.
+matplotlib.rcParams["pdf.fonttype"] = 42
 
 if __package__ in (None, ""):   # `python eval/plots.py`
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -79,8 +84,10 @@ SLM_BUDGET_MS = 250.0 + 1100.0
 #: latency ranking.
 NFR4_EM = 0.85
 
-MARKERS = {"llama-3.2-1b-instruct": "o", "qwen2.5-0.5b-instruct": "s",
-           "smollm2-360m-instruct": "^"}
+#: The names the thesis prose uses. Each point is labelled, so one marker shape serves
+#: every model and the legend needs to explain only fill (frontier) and area (memory).
+DISPLAY = {"llama-3.2-1b-instruct": "Llama-3.2-1B", "qwen2.5-0.5b-instruct": "Qwen2.5-0.5B",
+           "smollm2-360m-instruct": "SmolLM2-360M"}
 
 
 def _display(path: Path) -> str:
@@ -123,7 +130,7 @@ def _points() -> tuple[list[dict], list[dict]]:
         if row["grammar"] != "on" or row["split"] != SPLIT:
             continue
         entry = {"model": row["model"], "quant": row["quant"],
-                 "em": float(row["exact_match"])}
+                 "em": float(row["exact_match"]), "n_items": row["n"]}
         summary = exp1.get(f"{row['model']}-{row['quant']}")
         if summary and summary.get("total_p95") not in ("", None):
             entry["p95_ms"] = float(summary["total_p95"])
@@ -176,71 +183,67 @@ def figure2() -> list[Path]:
     for point in plottable:
         dominated = point not in frontier
         axes.scatter(point["p95_ms"], point["em"], s=area(point["rss_mb"]),
-                     marker=MARKERS.get(point["model"], "D"),
+                     marker="o",
                      facecolor="white" if dominated else "#1f6feb",
                      edgecolor="#1f6feb", linewidth=1.6, zorder=3,
                      alpha=0.95)
-        #: Label below the marker by default, above when a label below would land on
-        #: the NFR-4 rule and make two unrelated things illegible at once.
-        above = 0 < point["em"] - NFR4_EM < 0.10
-        pad = 10 + (area(point["rss_mb"]) ** 0.5) / 2
+        #: Label to the left of the marker, vertically centred: a label centred above or
+        #: below spans about 700 ms of the axis and crossed a budget line on two of the
+        #: three points. Every point sits right of 800 ms, so the left side has room.
+        pad = 6 + (area(point["rss_mb"]) ** 0.5) / 2
         axes.annotate(
-            f"{point['model'].replace('-instruct', '')} {point['quant']}\n"
-            f"EM {point['em']:.3f} · p95 {point['p95_ms']:.0f} ms · "
-            f"{point['rss_mb'] / 1024:.2f} GB",
+            f"{DISPLAY.get(point['model'], point['model'])} {point['quant']}\n"
+            f"EM {point['em']:.3f} · p95 {point['p95_ms']:,.0f} ms\n"
+            f"{point['rss_mb'] / 1024:.2f} GiB",
             xy=(point["p95_ms"], point["em"]),
-            xytext=(0, pad if above else -pad),
-            textcoords="offset points", ha="center",
-            va="bottom" if above else "top", fontsize=7.5, color="0.15")
+            xytext=(-pad, 0), textcoords="offset points", ha="right", va="center",
+            fontsize=7.5, color="0.15")
 
+    axes.set_ylim(0.55, 1.0)
+    axes.set_xlim(0, max(NFR2_MS, max(p["p95_ms"] for p in plottable)) * 1.12)
+
+    #: Line labels sit in the top margin, above the plotting area, so that no label can
+    #: land on a point annotation (the rotated in-axes labels did, on two points).
+    top = blended_transform_factory(axes.transData, axes.transAxes)
     axes.axvline(SLM_BUDGET_MS, color="#b45309", linewidth=1.2, zorder=2)
-    axes.text(SLM_BUDGET_MS - 95, 0.995, "Table 6 SLM budget 1,350 ms\n(same quantity as the axis)",
-              rotation=90, ha="right", va="top", fontsize=7, color="#b45309")
+    axes.text(SLM_BUDGET_MS, 1.015, "Language-model stage allowance\n1,350 ms (same quantity as the axis)",
+              transform=top, ha="center", va="bottom", fontsize=7, color="#b45309")
 
     axes.axvline(NFR2_MS, color="#b91c1c", linewidth=1.4, linestyle="--", zorder=2)
-    axes.text(NFR2_MS - 30, 0.995, "NFR-2 end-to-end 2,500 ms\n(axis is SLM stages only)",
-              rotation=90, ha="right", va="top", fontsize=7, color="#b91c1c")
+    axes.text(NFR2_MS, 1.015, "End-to-end budget 2,500 ms\n(the axis measures part of it)",
+              transform=top, ha="center", va="bottom", fontsize=7, color="#b91c1c")
 
     axes.axhline(NFR4_EM, color="#15803d", linewidth=1.2, linestyle=":", zorder=2)
-    axes.text(axes.get_xlim()[1] - 60, NFR4_EM - 0.010, "NFR-4  EM ≥ 0.85", ha="right",
-              va="top", fontsize=7.5, color="#15803d")
+    axes.text(40, NFR4_EM + 0.004, "Exact-match threshold 0.85", ha="left",
+              va="bottom", fontsize=7.5, color="#15803d")
 
     if unmeasured:
-        names = "\n".join(f"  · {p['model'].replace('-instruct', '')} {p['quant']}"
+        names = "\n".join(f"  · {DISPLAY.get(p['model'], p['model'])} {p['quant']}"
                           f"  EM {p['em']:.3f}" for p in unmeasured)
         axes.text(0.015, 0.03,
-                  "Not plotted — no Pi measurement exists\n"
-                  "(Exp-1 scoped to Q4_K_M, Sat-19 triage):\n" + names,
+                  "Not plotted, not timed on the Raspberry Pi 5:\n" + names,
                   transform=axes.transAxes, fontsize=7.5, va="bottom", ha="left",
                   color="0.25",
                   bbox=dict(boxstyle="round,pad=0.45", facecolor="#f6f6f6",
                             edgecolor="0.75", linewidth=0.7))
 
-    throttled = {p["throttled"] for p in plottable}
-    if throttled == {0.0}:
-        thermal = "no trial thermally throttled (2.4 GHz held, active cooler fitted)"
-    elif throttled == {1.0}:
-        thermal = "every trial thermally throttled (1.5 GHz cap, no active cooler)"
-    else:
-        thermal = f"throttled fraction {min(throttled):.2f}–{max(throttled):.2f}"
+    #: No in-figure title: the thesis caption names and numbers the figure, and a title
+    #: typed here ("Figure 2") cannot follow the document's own numbering. The thermal
+    #: state the title used to carry is in the caption.
     n_latency = {p["n_latency"] for p in plottable}
-
-    axes.set_xlabel("SLM prefill + decode, p95 (ms) — Raspberry Pi 5, "
-                    f"n = {min(n_latency)} timed runs per config")
-    axes.set_ylabel(f"Exact match on `{SPLIT}` (n = 200 items)")
-    axes.set_title("Figure 2 — Accuracy/latency Pareto frontier, Surface B\n"
-                   + thermal, fontsize=10.5)
+    n_items = {int(p["n_items"]) for p in plottable}
+    axes.set_xlabel("Language-model prefill + decode, p95 (ms)\n"
+                    f"Raspberry Pi 5, n = {min(n_latency)} timed runs per configuration")
+    axes.set_ylabel(f"Exact match on {SPLIT} (n = {min(n_items)} items)")
     axes.grid(True, linewidth=0.4, color="0.9", zorder=0)
     axes.set_axisbelow(True)
-    axes.set_ylim(0.55, 1.0)
-    axes.set_xlim(0, max(NFR2_MS, max(p["p95_ms"] for p in plottable)) * 1.12)
     for spine in ("top", "right"):
         axes.spines[spine].set_visible(False)
 
     #: A size legend, not a colour one: marker area is the only channel carrying RSS,
     #: and a reader cannot decode it from the points alone.
     handles = [axes.scatter([], [], s=area(mb), facecolor="white", edgecolor="0.4",
-                            linewidth=1.2, label=f"{mb / 1024:.1f} GB peak RSS")
+                            linewidth=1.2, label=f"{mb / 1024:.1f} GiB peak memory")
                for mb in (512, 1024, 1536)]
     if len(frontier) > 1:
         handles.insert(0, axes.plot([], [], color="0.45", linewidth=1.0,
@@ -251,7 +254,8 @@ def figure2() -> list[Path]:
         axes.scatter([], [], s=70, facecolor="white", edgecolor="#1f6feb",
                      linewidth=1.6, label="dominated"),
     ]
-    axes.legend(handles=handles, loc="upper left", fontsize=7, frameon=True,
+    #: Anchored in the empty band between the two budget lines, below the threshold.
+    axes.legend(handles=handles, loc="lower left", bbox_to_anchor=(0.52, 0.02), fontsize=7, frameon=True,
                 borderpad=0.6, labelspacing=0.9, handletextpad=1.0, framealpha=0.95)
 
     figure.tight_layout()
@@ -273,7 +277,7 @@ def run() -> int:
         frontier = "frontier " if point in pareto_frontier(plottable) else "dominated"
         print(f"  {frontier} {point['model']:24s} {point['quant']:7s} "
               f"EM {point['em']:.4f}  p95 {point['p95_ms']:8.2f} ms  "
-              f"RSS {point['rss_mb'] / 1024:.2f} GB")
+              f"RSS {point['rss_mb'] / 1024:.2f} GiB")
     for point in unmeasured:
         print(f"  UNMEASURED {point['model']:24s} {point['quant']:7s} "
               f"EM {point['em']:.4f}  p95 -- (Exp-1 covers Q4_K_M only)")

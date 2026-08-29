@@ -96,6 +96,54 @@ def _pct(value: float | None, places: int = 1) -> str:
     return "--" if value is None else f"{100 * value:.{places}f}"
 
 
+def _frac(value: float | None, places: int = 3) -> str:
+    """A rate as a fraction, the scale the prose and the 0.85 threshold use.
+
+    Three places resolve one item in 200; the pooled figures of Table 19 (3,540 decodes)
+    keep four, because their difference is under a tenth of a point.
+    """
+    return "--" if value is None else f"{value:.{places}f}"
+
+
+def _signed(value: float, places: int = 1) -> str:
+    """A signed difference with a true minus sign (U+2212, rendered `$-$` in LaTeX)."""
+    text = f"{value:+.{places}f}"
+    if float(text) == 0:
+        return f"{0:.{places}f}"
+    return text.replace("-", "\u2212")
+
+
+def _half_up(value: float, places: int = 3) -> str:
+    """Round half up, as the prose does: 0.0375 is 0.038, where float formatting gives 0.037."""
+    from decimal import ROUND_HALF_UP, Decimal
+    return str(Decimal(repr(round(value, 9))).quantize(Decimal(1).scaleb(-places), rounding=ROUND_HALF_UP))
+
+
+MCNEMAR = REPO / "results" / "mcnemar.csv"
+
+
+def _mcnemar(family: str) -> dict[tuple[str, str], dict]:
+    """(system_a, system_b) -> row of `results/mcnemar.csv` for one family, or {}."""
+    if not MCNEMAR.is_file():
+        return {}
+    return {(r["system_a"], r["system_b"]): r for r in _rows(MCNEMAR) if r["family"] == family}
+
+
+ADAPTERS = REPO / "train" / "kaggle_out" / "adapters"
+
+
+def _epoch_gains() -> dict[str, float]:
+    """Model -> validation EM gained between the last two epochs, from the training logs."""
+    import json
+
+    gains = {}
+    for path in sorted(ADAPTERS.glob("*/training_history.json")):
+        history = json.loads(path.read_text(encoding="utf-8"))["history"]
+        if len(history) >= 2:
+            gains[path.parent.name] = history[-1]["val_exact_match"] - history[-2]["val_exact_match"]
+    return gains
+
+
 def _exp1_summaries(path: Path = EXP1) -> dict[str, dict]:
     """Exp-1 config (== a Q4_K_M gguf stem, e.g. `qwen2.5-0.5b-instruct-Q4_K_M`) -> summary.
 
@@ -111,27 +159,39 @@ def _exp1_summaries(path: Path = EXP1) -> dict[str, dict]:
 
 
 #: 2.4 GHz pinned by the `performance` governor / 1.5 GHz held under throttle (STATE.md, Exp-1).
-CLOCK_RATIO = 2.4 / 1.5
+CLOCK_UNCAPPED_GHZ = 2.4
+CLOCK_RATIO = CLOCK_UNCAPPED_GHZ / 1.5
+
+
+def _cooled_run_state() -> str:
+    """"0 of 180 scored trials throttled, 67.5-74.1 C", computed from the per-trial rows."""
+    if not EXP1.is_file():
+        return "no timed run on record"
+    rows = [r for r in read_trials(EXP1) if not r["config"].endswith("-warmup")]
+    temps = [float(r["temperature_c"]) for r in rows if r.get("temperature_c") not in ("", None)]
+    throttled = sum(str(r.get("throttled_now")) in ("1", "True") for r in rows)
+    return (f"{throttled} of {len(rows)} scored trials throttled, "
+            f"{min(temps):.1f}\u2013{max(temps):.1f} \u00b0C")
 
 
 def table17(surface_b: list[dict]) -> str:
     exp1 = _exp1_summaries()
     lines = [
-        "### Table 17: Model comparison (Exp-1, RQ1)",
+        "### Table 17: Model comparison on the deployed surface",
         "",
-        "Surface B --- the quantised artefact under `llama.cpp` with the GBNF grammar, which is",
-        "what the aircraft actually runs. Accuracy columns are from `results/surface_b.csv`;",
-        f"latency, throughput and memory columns are `results/{EXP1.name}`, measured on",
-        "the Pi with an active cooler fitted: 0 of 180 scored trials throttled, 67.5--74.1 C.",
-        "The earlier uncooled run throttled on 180/180 and is reported separately, in the",
-        "thermal-headroom table. p50/p95 is the SLM prefill and decode stages combined. Exp-1",
-        "on the hardware covers only Q4_K_M -- a Q8_0 row keeps `--` because it was never measured",
-        "on the hardware, not because the join failed. Slot-F1 is `--` on `test_ood` because that",
-        "split carries no gold slots: its gold target is `{\"intent\":\"unknown\"}` on all 150 items,",
-        "so the metric has no dynamic range there. What the models do emit on those items is",
-        "reported properly by the false-command rate (NFR-18).",
+        "The deployed surface: each quantised artefact decoded by `llama.cpp` under the [GBNF](#acr:gbnf)",
+        "grammar. Accuracy columns are fractions, scored on the workstation from",
+        "`results/surface_b.csv` over 240 (`test_synth`), 200 (`test_golden`) and 150 (`test_ood`)",
+        "items; Safe-fail is the share of errors that resolve to `unknown` or `hover`.",
+        f"Latency, throughput and memory are from `results/{EXP1.name}`, measured on the Raspberry",
+        f"Pi 5 with an active cooler fitted ({_cooled_run_state()};",
+        "the uncooled run is in [Table](#tab:thermal-headroom)). p50/p95 is the language-model prefill",
+        "and decode stages combined, 60 trials per configuration; Mem. is the peak resident",
+        "set of the language-model process, in GiB. Only Q4_K_M was timed on the board, so a Q8_0 row carries `--`",
+        "there. Slot-F1 is `--` on `test_ood`, whose 150 references carry no slots; what the models",
+        "emit there is reported by the false-command rate, [Table](#tab:false-command).",
         "",
-        "| Model | Quant | Split | Intent-F1 | Slot-F1 | EM | Safe-fail | Schema-valid | p50/p95 (ms) | tok/s | Peak RSS |",
+        "| Model | Quant | Split | Intent-F1 | Slot-F1 | [EM](#acr:em) | Safe-fail | Schema-valid | p50/p95 (ms) | tok/s | Mem. (GiB) |",
         "| :--- | :--- | :--- | ---: | ---: | ---: | ---: | ---: | :--- | ---: | :--- |",
     ]
     for row in surface_b:
@@ -139,21 +199,24 @@ def table17(surface_b: list[dict]) -> str:
         if summary:
             p50 = summary.get("total_p50", "")
             p95 = summary.get("total_p95", "")
-            latency = "--" if p50 == "" or p95 == "" else f"{p50}/{p95}"
+            # Whole milliseconds, as the prose quotes them; hundredths of a ms are not resolved by
+            # 60 trials, and the two extra digits were what pushed this table past the text block.
+            latency = "--" if p50 == "" or p95 == "" else f"{float(p50):,.0f}/{float(p95):,.0f}"
             tok_s = summary.get("tokens_per_second", "--") or "--"
             rss = summary.get("peak_rss_mb", "")
-            rss_str = "--" if rss == "" else f"{rss / 1024:.2f} GB"
+            # `peak_rss_mb` is bytes / 1024**2 (eval/bench.py), so / 1024 is GiB, the header's unit.
+            rss_str = "--" if rss == "" else f"{rss / 1024:.2f}"
         else:
             latency, tok_s, rss_str = "--", "--", "--"
         # `--`, not 0.0, where the split has no gold slots to score -- see NO_SLOT_SPLITS.
         slot_f1 = None if row["split"] in NO_SLOT_SPLITS else _f(row["slot_micro_f1"])
         lines.append(
             f"| {row['model']} | {row['quant']} | `{row['split']}` "
-            f"| {_pct(_f(row['intent_macro_f1']))} "
-            f"| {_pct(slot_f1)} "
-            f"| {_pct(_f(row['exact_match']))} "
-            f"| {_pct(_f(row['safe_failure_rate']))} "
-            f"| {_pct(_f(row['schema_validity']))} | {latency} | {tok_s} | {rss_str} |"
+            f"| {_frac(_f(row['intent_macro_f1']))} "
+            f"| {_frac(slot_f1)} "
+            f"| {_frac(_f(row['exact_match']))} "
+            f"| {_frac(_f(row['safe_failure_rate']))} "
+            f"| {_frac(_f(row['schema_validity']))} | {latency} | {tok_s} | {rss_str} |"
         )
     return "\n".join(lines) + "\n"
 
@@ -161,32 +224,47 @@ def table17(surface_b: list[dict]) -> str:
 def table18(surface_a: list[dict], surface_b: list[dict], split: str) -> str:
     fp16 = {r["model"]: _f(r["exact_match"]) for r in surface_a
             if r["surface"] == "A_fp16_finetuned" and r["split"] == split}
+    tests = _mcnemar("deployment")
+    n_items = next((int(r["n"]) for r in surface_b if r["split"] == split), 0)
+    alpha = next((float(r["alpha"]) for r in tests.values()), None)
     lines = [
         f"### Table 18: Quantisation delta --- exact match on `{split}`",
         "",
-        "Surface A is FP16 under `transformers` with no grammar. Surface B is the same",
-        "adapter merged, converted and quantised, decoded by `llama.cpp` under the GBNF",
-        "constraint. The delta therefore measures the *deployment pipeline*, not weight",
-        "precision alone --- the grammar is part of what changes, and on out-of-domain input",
-        "it is the dominant term.",
+        f"Exact match on `{split}` ({n_items} items) of each fine-tuned fp16 model on the reference",
+        "surface (base model plus adapter under `transformers` on a Kaggle T4, no grammar)",
+        "against its quantised artefacts on the deployed surface (`llama.cpp` under the [GBNF](#acr:gbnf)",
+        "grammar, scored on the workstation). Numeric format, runtime, grammar and decoding",
+        "settings change together, and for Llama-3.2-1B the checkpoint as well, so the delta",
+        "measures the *deployment pipeline*, not weight precision alone. b and c are the items",
+        "only the reference and only the deployed artefact get right; p is the exact McNemar",
+        f"test, an exploratory family of {len(tests)} corrected to \u03b1 = "
+        f"{'--' if alpha is None else f'{alpha:.4f}'}; no pair reaches it. Sources:",
+        "`train/kaggle_out/surface_a.csv`, `results/surface_b.csv`, `results/mcnemar.csv`.",
         "",
-        "| Model | Quant | FP16 EM (surface A) | Quantised EM (surface B) | Delta (pp) |",
-        "| :--- | :--- | ---: | ---: | ---: |",
+        "| Model | Quant | Reference [EM](#acr:em) | Deployed [EM](#acr:em) | Delta (pp) | b / c | p |",
+        "| :--- | :--- | ---: | ---: | ---: | ---: | ---: |",
     ]
     for row in surface_b:
         if row["split"] != split:
             continue
         before, after = fp16.get(row["model"]), _f(row["exact_match"])
-        delta = "--" if before is None or after is None else f"{100 * (after - before):+.1f}"
-        lines.append(f"| {row['model']} | {row['quant']} | {_pct(before)} | {_pct(after)} | {delta} |")
+        delta = "--" if before is None or after is None else _signed(100 * (after - before))
+        test = tests.get((f"{row['model']} fp16", f"{row['model']} {row['quant']}"))
+        counts = "--" if test is None else f"{test['only_a']} / {test['only_b']}"
+        p_value = "--" if test is None else f"{float(test['p_value']):.2f}"
+        lines.append(f"| {row['model']} | {row['quant']} | {_frac(before)} | {_frac(after)} "
+                     f"| {delta} | {counts} | {p_value} |")
     return "\n".join(lines) + "\n"
 
 
 def nfr18(surface_b: list[dict]) -> str:
     lines = [
-        "### NFR-18: false-command rate on out-of-domain input",
+        "### False-command rate on out-of-domain input",
         "",
-        f"Budget: <= {FALSE_COMMAND_BUDGET:.2f}. Measured on `test_ood`, Surface B.",
+        "Share of the 150 out-of-domain `test_ood` items whose dispatched action is anything",
+        "other than `unknown`, on the deployed surface; an output the validator rejects falls",
+        f"back to `hover`, and `hover` counts as a false command. Budget: \u2264 {FALSE_COMMAND_BUDGET:.2f}.",
+        "Source: `results/surface_b.csv`.",
         "",
         "| Model | Quant | False-command rate | Verdict |",
         "| :--- | :--- | ---: | :--- |",
@@ -200,21 +278,6 @@ def nfr18(surface_b: list[dict]) -> str:
     return "\n".join(lines) + "\n"
 
 
-def _exp1_decode_p95_q4km() -> str:
-    """Decode p95 pooled over every scored Exp-1 trial, all three Q4_K_M configs together.
-
-    Exp-1 never ran Q8_0 on the Pi (STATE.md triage), so this is a Q4_K_M-only figure,
-    not the six-artefact pool the accuracy columns are. Said explicitly in the caption
-    rather than left for a reader to assume it covers what the EM columns cover.
-    """
-    if not EXP1.is_file():
-        return "--"
-    from eval.stats import nearest_rank
-    rows = [r for r in read_trials(EXP1) if not r["config"].endswith("-warmup")]
-    samples = [float(r["slm_decode_ms"]) for r in rows if r.get("slm_decode_ms") not in ("", None)]
-    return f"{nearest_rank(samples, 95):.1f} ms" if samples else "--"
-
-
 def table19(constrained: list[dict], ablated: list[dict]) -> str:
     """Table 19, the grammar ablation --- contribution C1 measured rather than asserted."""
 
@@ -226,22 +289,20 @@ def table19(constrained: list[dict], ablated: list[dict]) -> str:
 
     on_items, on_invalid, on_em = totals(constrained)
     off_items, off_invalid, off_em = totals(ablated)
-    decode_p95 = _exp1_decode_p95_q4km()
     lines = [
         "### Table 19: Grammar ablation",
         "",
-        "Same six artefacts, same 590 items, same greedy decode; the only change is whether",
-        f"`llama.cpp` is given `schema/cmd.gbnf`. Decode p95 is `results/{EXP1.name}`, the Pi ---",
-        "the workstation's decode time is not the deployed latency. It is pooled over the",
-        "**three Q4_K_M configs only** (Exp-1 did not run Q8_0 on hardware); the grammar-off",
-        "row has no Pi measurement at all -- the ablation itself only ran on the workstation.",
+        "The six deployed artefacts decode the same 590 items (240 `test_synth`, 200",
+        "`test_golden`, 150 `test_ood`) greedily, with and without `schema/cmd.gbnf` given to",
+        "`llama.cpp`; nothing else changes. Scored on the workstation. Sources:",
+        "`results/surface_b.csv` (grammar on) and `results/surface_b_nogrammar.csv` (grammar off).",
         "",
-        "| Condition | Items | Schema validity | Malformed | EM (pooled) | Decode p95 |",
-        "| :--- | ---: | ---: | ---: | ---: | :--- |",
+        "| Condition | Decodes | Schema validity | Malformed | [EM](#acr:em) (pooled) |",
+        "| :--- | ---: | ---: | ---: | ---: |",
         f"| Grammar on | {on_items} | {1 - on_invalid / on_items:.4f} | {on_invalid} "
-        f"| {on_em:.4f} | {decode_p95} |",
+        f"| {on_em:.4f} |",
         f"| Grammar off | {off_items} | {1 - off_invalid / off_items:.4f} | {off_invalid} "
-        f"| {off_em:.4f} | -- |",
+        f"| {off_em:.4f} |",
         "",
         "Pooled over every model, quantisation and split. Exact match is pooled by item, not",
         "averaged over the eighteen rows, so the larger splits carry their real weight.",
@@ -347,11 +408,11 @@ def latency_budget(exp2: list[dict]) -> str:
     lines = [
         "### Latency budget versus measured (Exp-2)",
         "",
-        "Raspberry Pi 5, cooled, governor `performance`, Table 7 pinning (frame loop core 0;",
-        "STT and SLM cores 1-3). Real-time WAV replay: Branch B on the 200 golden utterances",
+        "Raspberry Pi 5, cooled, governor `performance`, cores pinned (frame loop on core 0;",
+        "STT and SLM on cores 1-3). Real-time WAV replay: Branch B on the 200 golden utterances",
         "(clean), one sample per endpointed segment; Branch A on the author's 40 real takes,",
         "twice, idle and during a Branch B decode. Nearest-rank percentiles; the verdict is on",
-        "the p95. The bus is loopback on the Pi (the Wi-Fi hop is outside the budget, prd 4.7).",
+        "the p95. The bus is loopback on the Pi; the Wi-Fi hop is outside the budget.",
         "",
         "| Stage | n | p50 | p95 | p99 | Target p95 | Verdict |",
         "| :--- | ---: | ---: | ---: | ---: | ---: | :--- |",
@@ -365,8 +426,8 @@ def latency_budget(exp2: list[dict]) -> str:
                      f"| {ms(target) if target else '--'} | {row['verdict'] or '--'} |")
     lines += [
         "",
-        "Prefill is the deployed parser's, with the prompt cache off (Surface B parity); Table 6's",
-        "line assumes a cached prefix. Start-of-speech has no verdict: its 5,500 ms target is for a",
+        "Prefill is the deployed parser's, with the prompt cache off; the budget's prefill",
+        "allowance assumes a cached prefix. Start-of-speech has no verdict: its 5,500 ms target is for a",
         "3 s utterance. Split rate, cross-trigger matrix, pre-emption outcomes and the core-0 frame",
         "budget: `results/exp2_analysis.md`.",
     ]
@@ -419,9 +480,11 @@ def table33(surface_a: list[dict]) -> str:
 
     order = sorted(by_model, key=lambda m: meta[m]["params"])
     lines = [
-        "### Table 33: Surface-A model comparison, all four models",
+        "### Table 33: Exact match of the four fine-tuned models on the reference surface",
         "",
-        "FP16 under `transformers`, fine-tuned, greedy. Generated by `eval/tables.py` from",
+        "Exact match of each fine-tuned fp16 model on the reference surface (base model plus",
+        "adapter under `transformers` on a Kaggle T4, greedy, no grammar), by split: 240",
+        "(`test_synth`), 200 (`test_golden`) and 150 (`test_ood`) items. Source:",
         "`train/kaggle_out/surface_a.csv`; parameter counts and families from",
         "`train/configs/*.yaml`. Ordered by parameter count.",
         "",
@@ -429,13 +492,13 @@ def table33(surface_a: list[dict]) -> str:
         "| :--- | ---: | :--- | " + " | ".join("---:" for _ in SPLITS) + " |",
     ]
     for model in order:
-        cells = [f"{by_model[model].get(s):.4f}" if by_model[model].get(s) is not None
-                 else "--" for s in SPLITS]
-        lines.append(f"| `{model}` | {meta[model]['params'] / 1e6:,.0f} M | "
+        cells = [_frac(by_model[model].get(s)) for s in SPLITS]
+        lines.append(f"| {model} | {meta[model]['params'] / 1e6:,.0f} M | "
                      f"{meta[model]['family']} | " + " | ".join(cells) + " |")
 
-    # The two contrasts the table exists to support, computed rather than asserted.
-    lines += ["", "#### The two effects, separated", ""]
+    # The contrast the table exists to support, computed rather than asserted. Prose, not
+    # a markdown sub-heading and bullets: the note is printed under the LaTeX table as-is.
+    lines += [""]
     pairs = []
     ranked = [(m, meta[m]["params"], by_model[m].get(DELTA_SPLIT)) for m in order]
     ranked = [r for r in ranked if r[2] is not None]
@@ -451,40 +514,42 @@ def table33(surface_a: list[dict]) -> str:
                 best = (spread, m_a, p_a, e_a, m_b, p_b, e_b)
     if best:
         _, m_a, p_a, e_a, m_b, p_b, e_b = best
+        test = _mcnemar("family control").get((f"{m_a} fp16", f"{m_b} fp16")) \
+            or _mcnemar("family control").get((f"{m_b} fp16", f"{m_a} fp16"))
+        paired = ("" if test is None else
+                  f"; {test['only_a']} against {test['only_b']} discordant items, exact McNemar "
+                  f"p = {float(test['p_value']):.4f}")
         pairs.append(
-            f"- **Family, at matched size** (`{m_a}` {p_a/1e6:,.0f} M vs `{m_b}` "
-            f"{p_b/1e6:,.0f} M --- {_pct(abs(p_a - p_b) / min(p_a, p_b))}% apart): "
-            f"**{abs(e_a - e_b) * 100:.1f} pp** on `{DELTA_SPLIT}` "
-            f"({e_a:.4f} vs {e_b:.4f}).")
+            f"**Family, at matched size** ({m_a}, {p_a/1e6:,.0f} M, against {m_b}, "
+            f"{p_b/1e6:,.0f} M, {_pct(abs(p_a - p_b) / min(p_a, p_b))}% apart): "
+            f"{abs(e_a - e_b) * 100:.1f} pp on `{DELTA_SPLIT}` ({_frac(e_a)} against {_frac(e_b)}"
+            f"{paired}).")
 
-    # Size: the widest parameter spread available.
+    # The widest parameter spread. Not a size effect: no family appears at two sizes, so
+    # the endpoints differ in family as well, and the note says so rather than a ratio.
     lo, hi = ranked[0], ranked[-1]
     pairs.append(
-        f"- **Size, across the full range** (`{lo[0]}` {lo[1]/1e6:,.0f} M vs `{hi[0]}` "
-        f"{hi[1]/1e6:,.0f} M, {hi[1]/lo[1]:.1f}x): "
-        f"**{(hi[2] - lo[2]) * 100:+.1f} pp** on `{DELTA_SPLIT}` "
-        f"({lo[2]:.4f} -> {hi[2]:.4f}).")
+        f"**Full span** ({lo[0]}, {lo[1]/1e6:,.0f} M, to {hi[0]}, {hi[1]/1e6:,.0f} M, "
+        f"{hi[1]/lo[1]:.1f}\u00d7): {_signed((hi[2] - lo[2]) * 100)} pp on `{DELTA_SPLIT}` "
+        f"({_frac(lo[2])} \u2192 {_frac(hi[2])}); the endpoints are also two different families, so "
+        "this is not a size effect.")
+    lines.append(" ".join(pairs))
 
-    # Is the largest model bracketed by smaller ones? Stated only if true.
-    largest = ranked[-1]
-    better = [m for m, _, e in ranked[:-1] if e > largest[2]]
-    if better:
-        pairs.append(
-            f"- **The largest model is not the best.** `{largest[0]}` "
-            f"({largest[1]/1e6:,.0f} M, {largest[2]:.4f}) is beaten on `{DELTA_SPLIT}` by "
-            + ", ".join(f"`{m}`" for m in better)
-            + ". Parameter count does not order this table.")
-    lines += pairs
-    lines += [
-        "",
-        "Caveat carried from `train/configs/h2o-danube3-500m.yaml`: the recipe is frozen",
-        "at three epochs for every model, and the per-epoch validation curves show",
-        "`h2o-danube3-500m-chat` and `smollm2-360m-instruct` still improving at epoch 3",
-        "while the other two have converged. Part of any gap is therefore convergence",
-        "under a fixed budget rather than capability. The claim this table supports is",
-        "about performance **under an identical three-epoch budget**, not about capability.",
-        "",
-    ]
+    # Convergence, from the training logs rather than a sentence carried from a config.
+    gains = _epoch_gains()
+    rising = sorted((g, m) for m, g in gains.items() if m in by_model and g > 0)
+    flat = [m for m, g in gains.items() if m in by_model and g <= 0]
+    if rising:
+        lines += [
+            "",
+            "The recipe is frozen at three epochs for every model. Validation exact match was "
+            + ("unchanged between epochs two and three only for " + ", ".join(flat) + "; " if flat else "")
+            + "it was still rising at epoch 3 for "
+            + ", ".join(f"{m} (+{_half_up(g)})" for g, m in rising)
+            + ", so no model is shown to have converged, and the comparison is one "
+            "**under an identical three-epoch budget**, not one of capability.",
+        ]
+    lines += [""]
     return "\n".join(lines)
 
 
@@ -497,17 +562,16 @@ def thermal_headroom(cooled: dict[str, dict], throttled: dict[str, dict]) -> str
     cores, same governor, same artefacts -- so the difference isolates cooling.
     """
     lines = [
-        "### Thermal headroom --- the cooled run of record against the uncooled one",
+        "### Thermal headroom: cooled and uncooled benchmark runs",
         "",
-        "`results/exp1_cooled.csv` (of record) against `results/exp1.csv`. Identical protocol:",
-        "same board, same three Q4_K_M artefacts, 60 scored trials per configuration after a",
-        "ten-minute warm-up, cores pinned to 1--3, `performance` governor, swap disabled. The",
-        "only difference is the active cooler the hardware specification declares, which was",
-        "not fitted for the first run. The delta therefore isolates cooling. Accuracy is unaffected and is not repeated here:",
-        "Surface B is decoded greedily under a fixed grammar on the workstation, so it does",
-        "not vary with the board's clock.",
+        "The multi-model benchmark's run of record (`results/exp1_cooled.csv`, active cooler",
+        "fitted) against an earlier run without active cooling (`results/exp1.csv`). The protocol",
+        "is otherwise identical: same board, same three Q4_K_M artefacts, 60 scored trials per",
+        "configuration after a ten-minute warm-up, cores 1\u20133 pinned, `performance` governor,",
+        "swap disabled. Accuracy is not repeated: it is scored on the workstation and does not",
+        "depend on the board's clock.",
         "",
-        "| Config | Run | Throttled trials | Temp max | Decode p95 (ms) | SLM total p95 (ms) | tok/s |",
+        "| Config | Run | Throttled trials | Max temp. (\u00b0C) | Decode p95 (ms) | [SLM](#acr:slm) total p95 (ms) | tok/s |",
         "| :--- | :--- | :--- | ---: | ---: | ---: | ---: |",
     ]
     for config in sorted(cooled):
@@ -517,23 +581,26 @@ def thermal_headroom(cooled: dict[str, dict], throttled: dict[str, dict]) -> str
                 continue
             share = _f(summary.get("throttled_fraction"))
             lines.append(
-                f"| {config} | {run} | {'--' if share is None else f'{100 * share:.0f}%'} "
+                f"| {' '.join(config.rsplit('-', 1))} | {run} "
+                f"| {'--' if share is None else f'{100 * share:.0f}%'} "
                 f"| {_f(summary.get('max_temperature_c')) or float('nan'):.1f} "
                 f"| {_f(summary.get('slm_decode_p95')) or float('nan'):.1f} "
                 f"| {_f(summary.get('total_p95')) or float('nan'):.1f} "
                 f"| {_f(summary.get('tokens_per_second')) or float('nan'):.2f} |")
 
-    lines += ["", "**NFR-10 (proportion of trials with a non-zero throttle flag, budget 5%).**"]
-    for run, summaries, path in (("Cooled", cooled, "results/exp1_cooled.csv"),
-                                 ("Uncooled", throttled, "results/exp1.csv")):
+    verdicts = []
+    for run, summaries in (("cooled", cooled), ("uncooled", throttled)):
         shares = [_f(s.get("throttled_fraction")) for s in summaries.values()]
         shares = [v for v in shares if v is not None]
         if not shares:
             continue
         worst = max(shares)
-        verdict = "MEETS" if worst <= 0.05 else "MISSES"
-        lines.append(f"- {run} (`{path}`): worst configuration {100 * worst:.0f}% --- "
-                     f"**{verdict}**.")
+        verdicts.append(f"{run}, worst configuration {100 * worst:.0f}% "
+                        f"({'meets' if worst <= 0.05 else 'misses'})")
+    notes = []
+    if verdicts:
+        notes.append("**Throttling** (share of trials with a non-zero throttle flag, budget 5%): "
+                     + "; ".join(verdicts) + ".")
 
     deltas = []
     for config in sorted(cooled):
@@ -547,29 +614,26 @@ def thermal_headroom(cooled: dict[str, dict], throttled: dict[str, dict]) -> str
         deltas.append((config, 100 * (cold_p95 - hot_p95) / hot_p95,
                        100 * (cold_tps - hot_tps) / hot_tps))
     if deltas:
-        lines += [
-            "",
-            "**What the cooler bought.** Decode p95 and throughput, cooled against uncooled:",
-            "",
-        ]
-        lines += [f"- `{c}`: decode p95 {dp:+.1f}%, throughput {dt:+.1f}%."
-                  for c, dp, dt in deltas]
-        # Stated from the data, not asserted: an earlier version claimed the 1.6x clock
-        # ratio bounded every gain, and smollm2's 1.685x throughput gain falsified it.
-        largest = max(deltas, key=lambda d: d[2])[0]
-        above = [c for c, _, dt in deltas if 1 + dt / 100 > CLOCK_RATIO]
-        lines += [
-            "",
-            f"The effect is largest on `{largest}`. The uncooled run held 1.5 GHz against the",
-            f"2.4 GHz the `performance` governor pins, a {CLOCK_RATIO:.1f}x clock ratio. "
-            + (f"The throughput gain of {', '.join(f'`{c}`' for c in above)} exceeds that ratio, so "
-               "the core clock alone does not account for the difference; this run does not "
-               "identify the remaining term."
-               if above else
-               "No throughput gain reaches that ratio, so the clock is the dominant term but not "
-               "the only one."),
-            "",
-        ]
+        # The base is the uncooled run: "decode p95 -25.1%" is the cooled figure relative to
+        # the uncooled one. Said in the note, because read the other way round the same
+        # throughput figure overstates what the missing cooler cost by up to 28 points.
+        notes.append(
+            "**Cooled relative to uncooled**: "
+            + "; ".join(f"{' '.join(c.rsplit('-', 1))}, decode p95 {_signed(dp)}% and throughput {_signed(dt)}%"
+                        for c, dp, dt in deltas) + ".")
+        # Stated from the data, not asserted: the throttled clock was capped, not logged, so
+        # the ratio is a lower bound and a gain above it does not by itself rule the clock out.
+        largest = max(deltas, key=lambda d: d[2])
+        needed = CLOCK_UNCAPPED_GHZ / (1 + largest[2] / 100)
+        notes.append(
+            f"The uncooled run was capped at 1.5 GHz against the {CLOCK_UNCAPPED_GHZ:.1f} GHz the "
+            f"`performance` governor sets, a clock ratio of at least {CLOCK_RATIO:.1f}\u00d7; the "
+            f"clock actually held was not logged. The largest throughput gain, "
+            f"{1 + largest[2] / 100:.2f}\u00d7 on {largest[0].rsplit('-', 1)[0]}, is accounted for by "
+            f"the clock alone only if the throttled clock fell below {needed:.2f} GHz.")
+    if notes:
+        lines += ["", " ".join(notes)]
+    lines += [""]
     return "\n".join(lines) + "\n"
 
 
@@ -592,7 +656,21 @@ GENERATED = REPO / "thesis" / "generated"
 _TEX_ESCAPES = (("\\", r"\textbackslash{}"), ("&", r"\&"), ("%", r"\%"),
                 ("$", r"\$"), ("#", r"\#"), ("_", r"\_"), ("{", r"\{"),
                 ("}", r"\}"), ("~", r"\textasciitilde{}"),
-                ("^", r"\textasciicircum{}"))
+                ("^", r"\textasciicircum{}"),
+                # Typography the markdown writes as Unicode; applied after the escapes
+                # above, so the backslashes they introduce are not escaped again. The
+                # chapter body is kept ASCII, and these reach it through \input.
+                ("\u2013", "--"), ("\u2014", "---"), ("\u2212", "$-$"),
+                ("\u00d7", r"$\times$"), ("\u2192", r"$\to$"), ("\u2264", r"$\leq$"),
+                ("\u00b0", r"\textdegree{}"), ("\u03b1", r"$\alpha$"))
+
+#: `[Table](#tab:x)` in the markdown -> `Table~\ref{tab:x}` in the PDF: the one place a
+#: caption may name another float, by label and never by a number typed in.
+_REF = re.compile(r"\[(Table|Figure|Section)\]\(#([A-Za-z0-9:-]+)\)")
+#: `[SLM](#acr:slm)` -> `\acrshort{slm}`: an acronym from shared/acronyms.tex, never typed
+#: by hand in the PDF. \acrshort, not \gls, because these land in float captions and table
+#: heads, where a first-use expansion would be spent before the prose reaches the term.
+_ACR = re.compile(r"\[([A-Za-z0-9]+)\]\(#acr:([a-z0-9]+)\)")
 
 
 def _tex_escape(text: str) -> str:
@@ -618,10 +696,16 @@ def _tex_cell(cell: str) -> str:
         if index % 2:
             out.append(r"\texttt{" + _tex_escape(part) + "}")
             continue
-        text = _tex_escape(part)
-        for pattern, replacement in _EMPHASIS:
-            text = pattern.sub(replacement, text)
-        out.append(text)
+        part = _ACR.sub(lambda m: "\x00acr" + m.group(2) + "\x00", part)
+        pieces = _REF.split(part)
+        for step in range(0, len(pieces), 3):
+            text = _tex_escape(pieces[step])
+            for pattern, replacement in _EMPHASIS:
+                text = pattern.sub(replacement, text)
+            text = re.sub("\x00acr([a-z0-9]+)\x00", r"\\acrshort{\1}", text)
+            out.append(text)
+            if step + 2 < len(pieces):
+                out.append(pieces[step + 1] + r"~\ref{" + pieces[step + 2] + "}")
     return "".join(out)
 
 
@@ -637,7 +721,11 @@ def _align(spec: str) -> str:
 #: project is an instruction-tuned checkpoint, so the suffix distinguishes nothing and
 #: dropping it is what makes the table fit without shrinking the type further. The markdown
 #: under results/ keeps the full artefact stem, because that is the measurement record.
-_TEX_ABBREVIATIONS = (("-instruct", ""),)
+_TEX_ABBREVIATIONS = (("qwen2.5-0.5b-instruct", "Qwen2.5-0.5B"),
+                      ("llama-3.2-1b-instruct", "Llama-3.2-1B"),
+                      ("smollm2-360m-instruct", "SmolLM2-360M"),
+                      ("h2o-danube3-500m-chat", "H2O-Danube3-500M"),
+                      ("-instruct", ""))
 
 
 def markdown_to_latex(markdown: str, label: str, size: str = r"\footnotesize",
@@ -678,8 +766,8 @@ def markdown_to_latex(markdown: str, label: str, size: str = r"\footnotesize",
     # per-line conversion would leave the marker in the PDF as a literal asterisk.
     # "Table 16:" is stripped: LaTeX numbers the float itself, and a heading used as the
     # caption would otherwise print as "Table 4.1: Table 16: ...".
-    heading = _tex_cell(re.sub(r"^Table \d+:\s*", "", title))
-    caption = _tex_cell(" ".join(caption_lines)) or heading
+    heading = cell(re.sub(r"^Table \d+:\s*", "", title))
+    caption = cell(" ".join(caption_lines)) or heading
     # The List of Tables gets the heading, not the paragraph: a five-sentence entry with
     # an unbreakable \texttt{path} in it runs 60pt into the margin there.
     short = heading or caption
@@ -702,7 +790,7 @@ def markdown_to_latex(markdown: str, label: str, size: str = r"\footnotesize",
     if notes_lines:
         out += [r"  \par\medskip",
                 r"  \begin{minipage}{\textwidth}\footnotesize\raggedright "
-                + _tex_cell(" ".join(notes_lines)) + r"\end{minipage}"]
+                + cell(" ".join(notes_lines)) + r"\end{minipage}"]
     out += [r"\end{table}", ""]
     return "\n".join(out)
 
@@ -712,10 +800,10 @@ def markdown_to_latex(markdown: str, label: str, size: str = r"\footnotesize",
 #: columns and needs both tighter settings; the rest are comfortable at footnotesize.
 _TABLES = (
     ("table17_model_comparison", "tab:model-comparison", r"\scriptsize", 2, True),
-    ("table18_quantisation_delta", "tab:quantisation-delta", r"\footnotesize", 5, False),
-    ("nfr18_false_command", "tab:false-command", r"\footnotesize", 5, False),
-    ("table19_grammar_ablation", "tab:grammar-ablation", r"\scriptsize", 3, False),
-    ("table33_iso_parameter", "tab:iso-parameter", r"\footnotesize", 5, False),
+    ("table18_quantisation_delta", "tab:quantisation-delta", r"\footnotesize", 5, True),
+    ("nfr18_false_command", "tab:false-command", r"\footnotesize", 5, True),
+    ("table19_grammar_ablation", "tab:grammar-ablation", r"\scriptsize", 3, True),
+    ("table33_iso_parameter", "tab:iso-parameter", r"\footnotesize", 5, True),
     ("thermal_headroom", "tab:thermal-headroom", r"\scriptsize", 3, True),
     ("table20_end_to_end", "tab:end-to-end", r"\scriptsize", 3, False),
     ("exp2_latency_budget", "tab:latency-budget", r"\footnotesize", 4, False),

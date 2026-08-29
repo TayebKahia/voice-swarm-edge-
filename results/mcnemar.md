@@ -46,6 +46,29 @@ in their own right.
 | qwen2.5-0.5b-instruct Q4_K_M | qwen2.5-0.5b-instruct Q8_0 | 150 | 0.7467 | 0.7333 | 109 | 3 | 1 | 37 | 4 | exact | 0.625 | 0.0167 | no |
 | smollm2-360m-instruct Q4_K_M | smollm2-360m-instruct Q8_0 | 150 | 0.6600 | 0.6067 | 87 | 12 | 4 | 47 | 16 | exact | 0.0768127 | 0.0167 | no |
 
+#### Exploratory -- added after the results existed
+
+fp16 reference model against each quantised artefact, `test_golden`: the
+difference Table 18 reports as a delta. The reference side is the fine-tuned fp16
+model under `transformers` without a grammar (`train/kaggle_out/preds_*.jsonl`);
+precision, runtime and grammar all change across the pair. Bonferroni over the six
+pairs: alpha = 0.0083.
+
+| A | B | n | EM A | EM B | a (both) | b (A only) | c (B only) | d (neither) | b+c | test | p | alpha | significant |
+| :--- | :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | :--- | ---: | ---: | :--- |
+| llama-3.2-1b-instruct fp16 | llama-3.2-1b-instruct Q4_K_M | 200 | 0.9250 | 0.9100 | 182 | 3 | 0 | 15 | 3 | exact | 0.25 | 0.0083 | no |
+| llama-3.2-1b-instruct fp16 | llama-3.2-1b-instruct Q8_0 | 200 | 0.9250 | 0.9150 | 183 | 2 | 0 | 15 | 2 | exact | 0.5 | 0.0083 | no |
+| qwen2.5-0.5b-instruct fp16 | qwen2.5-0.5b-instruct Q4_K_M | 200 | 0.9350 | 0.9350 | 187 | 0 | 0 | 13 | 0 | exact | 1 | 0.0083 | no |
+| qwen2.5-0.5b-instruct fp16 | qwen2.5-0.5b-instruct Q8_0 | 200 | 0.9350 | 0.9300 | 186 | 1 | 0 | 13 | 1 | exact | 1 | 0.0083 | no |
+| smollm2-360m-instruct fp16 | smollm2-360m-instruct Q4_K_M | 200 | 0.7750 | 0.7600 | 143 | 12 | 9 | 36 | 21 | exact | 0.663624 | 0.0083 | no |
+| smollm2-360m-instruct fp16 | smollm2-360m-instruct Q8_0 | 200 | 0.7750 | 0.7900 | 155 | 0 | 3 | 42 | 3 | exact | 0.25 | 0.0083 | no |
+
+Parameter-matched family control, fp16 reference, `test_golden` (single test, alpha 0.05):
+
+| A | B | n | EM A | EM B | a (both) | b (A only) | c (B only) | d (neither) | b+c | test | p | alpha | significant |
+| :--- | :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | :--- | ---: | ---: | :--- |
+| qwen2.5-0.5b-instruct fp16 | h2o-danube3-500m-chat fp16 | 200 | 0.9350 | 0.8700 | 172 | 15 | 2 | 11 | 17 | exact | 0.00234985 | 0.0500 | yes |
+
 #### Reading these numbers
 
 **A non-significant McNemar is not a finding of equivalence.** Where `b+c` is 1,
@@ -61,4 +84,5 @@ happen to split them 12/12. Comparing the summary figures alone would have
 reported a difference of exactly zero where there are two dozen of them.
 
 Provenance: exact match re-derived from the per-item predictions matches
-every `grammar=on` row of `results/surface_b.csv` to four decimal places.
+every `grammar=on` row of `results/surface_b.csv` and every fine-tuned row of
+`train/kaggle_out/surface_a.csv` it uses, to four decimal places.
