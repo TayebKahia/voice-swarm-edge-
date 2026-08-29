@@ -188,5 +188,7 @@ does), and it now checks that every shared criterion has the Master's name.
 Result: **0 FAIL, 5 WARN, 60 PASS**. The WARNs are the same five, justified above. The selftest
 passes, and the build has 0 errors.
 
-Still open, for the Ch3 review: Ch3 uses Branch A/B 41 times, and since this change no chapter
-defines those terms. They should become the reflex/parse path of Section 1.1.
+Ch3's 41 Branch A/B uses have been renamed to the reflex/parse path of Section 1.1, on the author's
+request, including the heading "Reflex-path membership rule", the figure tags and the membership
+table. Still open for the Ch3 review: ch3 l.37-40 repeats the V3 non sequitur ("no single path can
+meet both").
