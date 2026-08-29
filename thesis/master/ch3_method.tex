@@ -208,7 +208,7 @@ the \emph{M\'emoire d'Ing\'enieur}, does not depend on them: it is mixed digital
 session's clean recording, so noise is the only variable it varies. Holding the speaker fixed is an
 internal-validity choice, not an external one. Speaker variation is characterised separately, at
 the only speaker-sensitive stage, by the speaker-sensitivity experiment
-(Section~\ref{sec:exp0}), which positions the author within a multi-speaker distribution drawn from
+(Section~\ref{sec:speaker-sensitivity}), which positions the author within a multi-speaker distribution drawn from
 \texttt{commonvoice}. The parser consumes text and does not see the speaker, but nothing in this
 document establishes that end-to-end accuracy transfers to other speakers.
 
@@ -551,19 +551,19 @@ Metric & Definition & Reported in \\
 Metric & Definition & Reported in \\
 \midrule
 \endhead
-\Acrlong{em} (\acrshort{em}) & Fraction of items where $\mathrm{canon}(\mathrm{pred})$ equals $\mathrm{canon}(\mathrm{gold})$; input is reference text & \ref{sec:exp1}--\ref{sec:grammar-ablation} \\
+\Acrlong{em} (\acrshort{em}) & Fraction of items where $\mathrm{canon}(\mathrm{pred})$ equals $\mathrm{canon}(\mathrm{gold})$; input is reference text & \ref{sec:benchmark}--\ref{sec:grammar-ablation} \\
 \Acrlong{crr} (\acrshort{crr}) & The same comparison, with input being audio through the full pipeline & \textdagger \\
-Intent macro-F1 & Unweighted mean of per-intent F1 over all ten intents present in the reference, so \texttt{unknown} cannot be inflated by frequency & \ref{sec:exp1} \\
-Slot-F1 & Micro-averaged F1 over the multiset of (key, canonical value) pairs, across all items regardless of intent correctness & \ref{sec:exp1} \\
-Schema validity & Fraction of items whose output parses as a schema-conformant command; under the grammar this is 1.0 by construction, and the grammar ablation is the one place it can move & \ref{sec:exp1}, \ref{sec:grammar-ablation} \\
-Safe-failure rate & Among items where \acrshort{em} is 0, the fraction whose dispatched action is \texttt{unknown} or \texttt{hover}; denominator is failed items only & \ref{sec:exp1}, \textdagger \\
-False-command rate & On the out-of-domain set, the fraction of items whose dispatched action -- the output after the validator, where an invalid output falls back to \texttt{hover} -- is anything other than \texttt{unknown}; \texttt{hover} counts as a false command here & \ref{sec:exp1} \\
-Throughput & Decode tokens summed over decode-seconds summed across the aggregation window, not the mean of per-trial ratios; measured on the three cores reserved for inference (\texttt{taskset -c 1-3}, three \texttt{llama.cpp} threads) & \ref{sec:exp1}, \ref{sec:selection} \\
-Peak resident memory & Maximum resident set size of the language-model process and its children, sampled every 20~ms during the timed run; a lower bound on full-stack memory & \ref{sec:exp1}, \ref{sec:selection} \\
-Throttle proportion & Fraction of timed trials during which the board reports a non-zero throttle flag & \ref{sec:exp1} \\
-\Acrlong{wer} (\acrshort{wer}) & Word-level edits summed over utterances, divided by the total number of reference words (corpus \acrshort{wer}), after the fixed normalisation committed in \texttt{eval/norm.py} & \ref{sec:exp0}, \textdagger \\
-Speaker position & The author's \acrshort{wer}, with a bootstrap 95\% confidence interval, located within the distribution of per-bucket \acrshort{wer} over the Common Voice accent buckets & \ref{sec:exp0} \\
-Latency & Language-model decode and prefill latency, per trial as reported by the \texttt{llama.cpp} server, reported as p50/p95 alongside throughput. Parse path: $T_0$ = end of speech, $T_1$ = return of the publish call on the runtime's command bus; reflex path: $T_0$ = keyword offset, same $T_1$; both paths also report an onset-anchored figure & \ref{sec:exp1}, \ref{sec:selection}, \textdagger \\
+Intent macro-F1 & Unweighted mean of per-intent F1 over all ten intents present in the reference, so \texttt{unknown} cannot be inflated by frequency & \ref{sec:benchmark} \\
+Slot-F1 & Micro-averaged F1 over the multiset of (key, canonical value) pairs, across all items regardless of intent correctness & \ref{sec:benchmark} \\
+Schema validity & Fraction of items whose output parses as a schema-conformant command; under the grammar this is 1.0 by construction, and the grammar ablation is the one place it can move & \ref{sec:benchmark}, \ref{sec:grammar-ablation} \\
+Safe-failure rate & Among items where \acrshort{em} is 0, the fraction whose dispatched action is \texttt{unknown} or \texttt{hover}; denominator is failed items only & \ref{sec:benchmark}, \textdagger \\
+False-command rate & On the out-of-domain set, the fraction of items whose dispatched action -- the output after the validator, where an invalid output falls back to \texttt{hover} -- is anything other than \texttt{unknown}; \texttt{hover} counts as a false command here & \ref{sec:benchmark} \\
+Throughput & Decode tokens summed over decode-seconds summed across the aggregation window, not the mean of per-trial ratios; measured on the three cores reserved for inference (\texttt{taskset -c 1-3}, three \texttt{llama.cpp} threads) & \ref{sec:benchmark}, \ref{sec:selection} \\
+Peak resident memory & Maximum resident set size of the language-model process and its children, sampled every 20~ms during the timed run; a lower bound on full-stack memory & \ref{sec:benchmark}, \ref{sec:selection} \\
+Throttle proportion & Fraction of timed trials during which the board reports a non-zero throttle flag & \ref{sec:benchmark} \\
+\Acrlong{wer} (\acrshort{wer}) & Word-level edits summed over utterances, divided by the total number of reference words (corpus \acrshort{wer}), after the fixed normalisation committed in \texttt{eval/norm.py} & \ref{sec:speaker-sensitivity}, \textdagger \\
+Speaker position & The author's \acrshort{wer}, with a bootstrap 95\% confidence interval, located within the distribution of per-bucket \acrshort{wer} over the Common Voice accent buckets & \ref{sec:speaker-sensitivity} \\
+Latency & Language-model decode and prefill latency, per trial as reported by the \texttt{llama.cpp} server, reported as p50/p95 alongside throughput. Parse path: $T_0$ = end of speech, $T_1$ = return of the publish call on the runtime's command bus; reflex path: $T_0$ = keyword offset, same $T_1$; both paths also report an onset-anchored figure & \ref{sec:benchmark}, \ref{sec:selection}, \textdagger \\
 Percentiles & Nearest-rank on the sorted sample, no interpolation; sample size $n$ stated in every cell & all \\
 Formation accuracy & Fraction of drones within $\tau = 0.5$~m of the assigned slot, averaged over the final 5~s of a 60~s trial & \textdagger \\
 Convergence & Rate of trials whose formation accuracy reaches 0.85 at all, plus median and interquartile range of convergence time over converged trials only & \textdagger \\
@@ -601,7 +601,7 @@ Schema validity & Schema validity under the grammar & 100\%, by construction & M
 Clean-audio recognition & \acrshort{crr} on the golden set, clean audio & $\geq$ 0.80 & Acoustic-robustness experiment* \\
 Recognition in noise & \acrshort{crr} at 10~dB \acrshort{snr} & $\geq$ 0.65 & Acoustic-robustness experiment* \\
 Safe failure & Safe-failure rate: errors resolving to \texttt{unknown} or \texttt{hover} & $\geq$ 0.70 & Multi-model benchmark, acoustic-robustness experiment* \\
-Memory ceiling & Peak resident memory, selected configuration, full stack; only the language-model process was measured & $\leq$ 2.5~GB & Multi-model benchmark \\
+Memory ceiling & Peak resident memory, selected configuration, full stack; only the language-model process was measured & $\leq$ 2.5~GiB & Multi-model benchmark \\
 Memory per configuration & Peak resident memory, every configuration & reported; no pass/fail & Multi-model benchmark \\
 Throttling & Proportion of timed trials with a non-zero throttle flag & $\leq$ 5\%, reported for every run & Multi-model benchmark \\
 Speaker sensitivity & Speech-recognition \acrshort{wer} on the author's speech, positioned against a multi-speaker distribution & bootstrap 95\% confidence interval; no pass/fail & Speaker-sensitivity experiment \\
@@ -612,16 +612,22 @@ False commands & False-command rate on the out-of-domain set & $\leq$ 0.05 & Mul
 
 \paragraph{Selection rule and statistical plan.} The deployed configuration is the one with the
 highest \gls{em} among configurations not ruled out by the 2{,}500~ms end-to-end latency budget or
-the 2.5~GB memory ceiling, ties broken toward lower p95 latency. On the evidence available, each
+the 2.5~GiB memory ceiling, ties broken toward lower p95 latency. On the evidence available, each
 constraint can only rule a configuration out: the benchmark measures part of the stack, and a
 configuration is excluded when that part alone already exceeds the budget. If no configuration
 satisfies both constraints, the rule fails openly: the constraint is re-baselined against the
 measured figure, and the re-baselining is reported rather than the constraint treated as met.
+One case the rule did not anticipate arose in applying it: a constraint measured end to end for one
+configuration only. Chapter~\ref{chap:results} treats it under the failure clause, so that
+measuring a configuration cannot by itself rule that configuration out while unmeasured ones stand.
 Paired deployed-surface predictions, under the grammar, are compared by McNemar's
 test~\cite{mcnemar1947} in two confirmatory families of three, both on the golden split: model
 against model at Q4\_K\_M, and Q8\_0 against Q4\_K\_M within each model. Bonferroni correction within
 each family gives $\alpha = 0.0167$ against a family-wise $\alpha = 0.05$; the exact binomial test is
-used below 25 discordant pairs and the continuity-corrected chi-square from 25 upwards. The tests
+used below 25 discordant pairs and the continuity-corrected chi-square from 25 upwards. Two further
+comparisons were added after the results existed and are reported as exploratory: each fine-tuned
+reference model against its quantised artefacts, corrected over those six pairs, and the
+parameter-matched family control. The tests
 treat the 200 golden items as independent, whereas they are paraphrases of 12 command patterns, 10
 to 22 items each. Items within a pattern share whatever makes that pattern easy or hard, so the
 effective sample is smaller than 200, and the intervals and $p$-values are optimistic to that

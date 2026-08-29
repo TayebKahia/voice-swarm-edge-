@@ -2,42 +2,34 @@
 \label{chap:results}
 
 This chapter reports what the protocol of Chapter~\ref{chap:method} measured. It is organised
-around the experiments rather than around the research question, and the answer to RQ1 is
-assembled only in Section~\ref{sec:selection}, from the selection rule that was fixed in writing
-before any of these numbers existed.
+around the experiments rather than around the research question, and the measurements the answer
+to RQ1 draws on culminate in Section~\ref{sec:selection}, where the selection rule stated in
+Section~\ref{sec:definitions-of-record} is applied to them.
 
-Two properties of the protocol shape every section that follows. First, the separation of
-surfaces held throughout: accuracy is hardware-independent under greedy decoding with a fixed
-grammar and is measured on the workstation, while every latency, throughput and memory figure is
-measured on the target Raspberry~Pi~5. Second, the split between reference-text input and audio
-input is absolute here. Exp-1 reads the \emph{transcript} of each test item, not its audio, so
-every accuracy figure in Sections~\ref{sec:exp1} to~\ref{sec:statistics} is an upper bound on what
-the deployed pipeline achieves. Section~\ref{sec:exp0} measures the size of the gap that bound
-conceals; closing it is Exp-3, which is reported in the \emph{M\'emoire d'Ing\'enieur}.
+Two properties of the protocol shape every section that follows. First, the surfaces are kept
+apart. Accuracy is scored on the workstation: for the selected configuration, the deployed surface
+produced identical outputs on the workstation and on the Raspberry~Pi~5 for all 200 golden
+transcripts (Section~\ref{sec:definitions-of-record}). Every latency, throughput and memory figure
+is measured on the Raspberry~Pi~5 itself. Second, the multi-model benchmark reads the
+\emph{transcript} of each test item, not its audio. Every accuracy figure in
+Sections~\ref{sec:benchmark} to~\ref{sec:statistics} is therefore measured on reference text, and
+is expected to overstate what the deployed pipeline achieves from audio.
+Section~\ref{sec:speaker-sensitivity} measures the recognition error that the audio input carries.
 
 Every table in this chapter is rendered by \texttt{eval/tables.py} directly from the measurement
-CSVs named in its caption, and no table cell was transcribed by hand. The figures quoted in the
-prose are taken from those tables and CSVs, and each was checked back against its source.
+files named in its caption, and no table cell was transcribed by hand. The figures quoted in the
+prose are taken from those tables and files, and each was checked back against its source.
 
 \section{Speaker sensitivity at the acoustic front end}
-\label{sec:exp0}
+\label{sec:speaker-sensitivity}\label{sec:exp0}
 
-The acoustic front end is a source of error that Exp-1 cannot see, and Exp-0 measures how large it
-is before any language model is involved. Table~\ref{tab:asr-sensitivity} reports \gls{wer} for
-\texttt{whisper.cpp tiny.en}~\cite{whispercpp} on 300 validated Common Voice English
-clips~\cite{commonvoice}, bucketed by the accent metadata the corpus carries, alongside the
-author's 200 recorded drone commands.
+The acoustic front end is a source of error that the multi-model benchmark cannot see, and the
+speaker-sensitivity experiment measures its \gls{wer} before any language model is involved.
+Table~\ref{tab:asr-sensitivity} reports \gls{wer} for \texttt{whisper.cpp tiny.en}~\cite{whisper,whispercpp}
+on 300 validated Common Voice English clips~\cite{commonvoice}, bucketed by the accent metadata the
+corpus carries, alongside the author's 200 recorded drone commands.
 
 \input{generated/table16_asr_speaker_sensitivity}
-
-The author's \gls{wer} is 23.1\% with a 95\% confidence interval of [20.3, 25.9], which places the
-author below 7 of the 15 accent buckets --- the 53rd percentile of the bucket distribution. NFR-11
-asks for that position rather than for a threshold, and the position is unremarkable: the author is
-neither an unusually easy nor an unusually hard speaker for this acoustic model. The spread across
-buckets is the more consequential number. New~Zealand English is transcribed at 6.2\% and Hong Kong
-English at 49.5\%, an eightfold range, and the largest bucket in the sample --- India and South
-Asia, 80 utterances --- sits at 27.9\% [22.5, 33.6]. A system fielded against the operator
-population this spread describes does not have one error rate.
 
 Two cautions bound what Table~\ref{tab:asr-sensitivity} supports. The comparison is indicative
 rather than matched: the author read drone commands and the Common Voice speakers read general
@@ -46,180 +38,202 @@ their ordering. Seven of the fifteen buckets carry fewer than 10 utterances, and
 reported as \texttt{n too small} rather than as numbers that would invite comparison they cannot
 support.
 
+Within those limits, the author's \gls{wer} is 23.1\% with a 95\% confidence interval of [20.3,
+25.9], which places the author below 7 of the 15 accent buckets --- the 53rd percentile of the
+bucket distribution. The speaker-sensitivity requirement (Table~\ref{tab:requirements}) asks for
+that position rather than for a threshold, and it places the author near the median of the bucket
+distribution. The spread across buckets is wider. New~Zealand English is transcribed at 6.2\%
+[0.0, 16.3] and Hong Kong English at 49.5\% [35.0, 63.6], intervals that do not overlap, and the
+largest bucket in the sample --- India and South Asia, 80 utterances --- sits at 27.9\% [22.5,
+33.6]. Across this speaker population, the recogniser's error rate varies by a factor of about
+eight between buckets.
+
 The deployed configuration passes a domain prompt to the decoder; Table~\ref{tab:asr-sensitivity}
 reports the unprompted pass, because only that condition puts both speakers under the same
 treatment. The prompt's measured effect is small and its sign is not consistent: on Common Voice it
-moves \gls{wer} from 22.4\% to 22.9\% (+0.5~pp), and on the author's commands from 23.1\% to 23.0\%
-($-$0.1~pp). Neither movement exceeds the width of the confidence interval on either figure. The
-prompt is retained because it is what the runtime ships, not because this experiment established a
-benefit.
+moves \gls{wer} from 22.4\% to 22.9\% (+0.5 percentage points, pp), and on the author's commands from
+23.1\% to 23.0\% ($-$0.1~pp). The prompt is retained because it is what the runtime ships, not
+because this experiment established a benefit.
 
-\paragraph{What this bounds.} A \gls{wer} in the low twenties is the input the language model would
-receive in flight, and Exp-1 does not receive it. The exact-match figures that follow are therefore
-ceilings. Quantifying the drop from ceiling to floor requires running the full pipeline on audio at
-graded signal-to-noise ratios, which is Exp-3; the difference between exact match here and
-\gls{crr} there is defined in Chapter~\ref{chap:method} precisely so that the \acrshort{stt}
-cost can be read off as a single subtraction once that experiment exists.
+\paragraph{Reference-text input.} A \gls{wer} in the low twenties, for this speaker under clean
+recording, is the input the language model receives from the deployed front end. The multi-model
+benchmark does not receive it: it reads the reference transcript. The exact-match figures that
+follow are therefore measured on reference input, not on the pipeline's input. How much of that
+accuracy survives audio input, and the net cost of the audio front end (recognition and
+segmentation together), are measured by the acoustic-robustness experiment of the
+\emph{M\'emoire d'Ing\'enieur}.
 
 \section{The multi-model benchmark}
-\label{sec:exp1}
+\label{sec:benchmark}\label{sec:exp1}
 
 Table~\ref{tab:model-comparison} is the central measurement of this document: three fine-tuned
 \glspl{slm} at Q4\_K\_M and Q8\_0, decoded under the \gls{gbnf} constraint by
-\texttt{llama.cpp}~\cite{llamacpp}, scored on three splits, with the Pi-side timing joined on.
+\texttt{llama.cpp}~\cite{llamacpp} and scored on three splits on the workstation, with latency,
+throughput and memory measured on the Raspberry~Pi~5 for the Q4\_K\_M configurations.
 
 \input{generated/table17_model_comparison}
 
-\paragraph{Accuracy.} On \texttt{test\_golden} --- the reference transcripts of the author's recorded commands, and
-therefore the split of record --- Qwen2.5-0.5B~\cite{qwen25} reaches
+\paragraph{Accuracy.} On \texttt{test\_golden} --- the reference transcripts of the author's
+recorded commands, and the split the selection rule ranks on --- Qwen2.5-0.5B~\cite{qwen25} reaches
 0.935 exact match at Q4\_K\_M, Llama-3.2-1B~\cite{llama32} reaches 0.910, and
-SmolLM2-360M~\cite{smollm2} reaches 0.760. The ordering does not follow parameter count: the
-1.24~B model is beaten by the 0.49~B model by 2.5~pp, a result Section~\ref{sec:iso-parameter}
-separates into its two contributing effects. On the golden split, intent macro-F1 is above 95 for
-every configuration and reaches 100.0 for Qwen2.5-0.5B, so the errors that remain are
-predominantly parameter errors inside a correctly identified intent rather than misidentified
-commands.
+SmolLM2-360M~\cite{smollm2} reaches 0.760. On this split the 0.49~B model scores 2.5~pp above the
+1.24~B model, a difference Section~\ref{sec:statistics} does not find significant; on
+\texttt{test\_synth} and \texttt{test\_ood} the ordering follows parameter count.
+Section~\ref{sec:iso-parameter} examines the effect of model family at matched size. On the golden
+split, intent macro-F1 is above 0.95 for every configuration and reaches 1.000 for Qwen2.5-0.5B. Of
+the 152 golden-split errors across the six configurations, 133 (87.5\%) keep the reference intent,
+from 79\% for SmolLM2-360M at Q4\_K\_M to all of them for Qwen2.5-0.5B
+(\texttt{results/golden\_error\_intents.md}). The remaining errors are thus mostly parameter
+errors inside a correctly identified intent rather than misidentified commands.
 
-\paragraph{Schema validity is 1.0000 everywhere, and that is by construction.} Every one of the
-eighteen rows reports 100.0\% schema validity. Under the grammar this is not a measurement of the
-model but a property of the decoder, and the only experiment in which the figure is free to move is
-the ablation of Section~\ref{sec:grammar-ablation}. It is reported here because NFR-6 requires it
-to be reported, not because the models earned it.
+\paragraph{Schema validity.} Every one of the eighteen rows reports a schema validity of 1.000.
+Under the grammar this is a property of the decoder rather than a measurement of the model, and the
+only experiment in which the figure is free to move is the ablation of
+Section~\ref{sec:grammar-ablation}. It is reported here because the schema-validity requirement
+(Table~\ref{tab:requirements}) asks for it to be reported; it is not a measured property of the
+models.
 
-\paragraph{Slot-F1 is withheld on the abstention split.} Every \texttt{test\_ood} row carries
-\texttt{--} rather than a number in the slot column. That split's 150 references are
+\paragraph{Slot-F1 on the abstention split.} Every \texttt{test\_ood} row carries \texttt{--}
+rather than a number in the slot column. That split's 150 references are
 \texttt{\{"intent":"unknown"\}} and carry no slots at all, so the metric has no dynamic range on
 it: with zero gold slot pairs, precision is zero whenever the model emits any slot and the score
-can only take one of two degenerate values. What the models do emit there is reported properly by
-the false-command rate below.
+can only take one of two degenerate values. What the models do emit there is reported by the
+false-command rate below.
 
-\paragraph{Thermal state, and why two runs exist.} Exp-1 was executed twice. The first execution
-predates the active cooler that the hardware specification declares, and it throttled on all 180
-scored trials at a 1.5~GHz cap against the 2.4~GHz the \texttt{performance} governor pins. That
-run measured a configuration this project never declared, so it is not the run of record; it is
-retained and reported in Table~\ref{tab:thermal-headroom}, because NFR-10 requires the throttle
-proportion always to be reported and because the difference between the two runs is itself a
+\paragraph{Thermal state.} The multi-model benchmark was run twice on the board. The run of
+record, whose protocol Section~\ref{sec:definitions-of-record} describes, was made with an active
+cooler fitted. An earlier run without active cooling throttled on all 180 scored trials, with the
+clock capped at 1.5~GHz against the 2.4~GHz the \texttt{performance} governor sets. Because the
+target configuration includes active cooling, that run is not used for selection. It is reported in
+Table~\ref{tab:thermal-headroom}, because the throttling requirement asks for the throttle
+proportion of every run to be reported, and because the difference between the two runs is itself a
 measurement.
 
 \input{generated/thermal_headroom}
 
-NFR-10 moves from 100\% of trials throttled, against a 5\% budget, to 0\%. The cost of the missing
-cooler was 25.1\% to 41.3\% of decode p95 and 35.2\% to 68.5\% of throughput, largest on the
-smallest model. The throttled run held 1.5~GHz against 2.4~GHz, a 1.6$\times$ clock ratio, and
-SmolLM2-360M's throughput gain of 1.69$\times$ exceeds it: the core clock alone does not account
-for the difference, and this pair of runs does not identify the remaining term. For a
-\gls{sbc} deployment the operational reading is direct: on this class of hardware the
-enclosure is a term in the latency budget, and a throughput figure quoted without its thermal
-state is not reproducible.
+The throttle proportion moves from 100\% of trials, against a 5\% budget, to 0\%. Fitting the
+cooler reduced decode p95 by 25.1\% to 41.3\% and raised throughput by 35.2\% to 68.5\%, the
+largest change being on the smallest model. The uncooled run was capped at, not held at, 1.5~GHz,
+so the clock ratio between the runs is at least 1.6$\times$. SmolLM2-360M's throughput gain of
+1.69$\times$ is accounted for by the clock alone only if the throttled clock fell below 1.42~GHz,
+and the clock actually held was not logged.
 
 \paragraph{Latency, throughput and memory.} On the cooled run, Qwen2.5-0.5B at Q4\_K\_M decodes at
-27.93~tok/s with a combined prefill-plus-decode p95 of 1{,}072~ms, SmolLM2-360M at 40.63~tok/s and
-894~ms, and Llama-3.2-1B at 14.53~tok/s and 2{,}282~ms. Against the decode allowance of
-1{,}100~ms p95 in Table~\ref{tab:latency-budget}, Qwen2.5-0.5B (1{,}033~ms) and SmolLM2-360M (785~ms) meet the budget and
-Llama-3.2-1B (1{,}842~ms) misses it by 67\%. Peak resident set size of the language-model process
-is 0.68~GB, 0.55~GB and 1.63~GB respectively, so no configuration is ruled out by NFR-9a's 2.5~GB
-ceiling, the nearest approach being 35\% clear.
+27.93~tok/s with a combined prefill-plus-decode p95 (95th percentile) of 1{,}072~ms, SmolLM2-360M
+at 40.63~tok/s and 894~ms, and Llama-3.2-1B at 14.53~tok/s and 2{,}282~ms. Against the decode
+allowance of 1{,}100~ms p95 in Table~\ref{tab:latency-budget}, Qwen2.5-0.5B (1{,}033~ms) and
+SmolLM2-360M (785~ms) meet the budget and Llama-3.2-1B (1{,}842~ms) misses it by 67\%. Peak
+resident memory of the language-model process is 0.68~GiB, 0.55~GiB and 1.63~GiB respectively, so
+no configuration is ruled out by the 2.5~GiB memory ceiling, the nearest approach being 35\% clear.
 
-The prefill allowance of 250~ms p95 is the one stage budget the selected configuration misses, and
-the shape of the miss matters more than its size. Qwen2.5-0.5B posts a prefill p50 of 38.5~ms and a
-p95 of 328.8~ms; only 8 of its 60 trials exceed the budget at all. That distribution is the
-prompt-cache behaviour the protocol deliberately enables: the system-prompt prefix is resident
-across requests, most calls pay a few tens of milliseconds, and a minority miss the cache and pay a
-full prefill. Llama-3.2-1B's miss is of a different kind --- a p50 of 267.7~ms already exceeds the
-budget, and 34 of 60 trials do. The distinction is between a tail and a level, and only the latter
-is a property of the model. The combined \acrshort{slm} stage budget that both figures roll up
-into, 1{,}350~ms, is met by Qwen2.5-0.5B with 278~ms to spare.
+The prefill allowance of 250~ms p95 is the one language-model stage allowance the selected
+configuration misses. Qwen2.5-0.5B posts a prefill p50 of 38.5~ms and a p95 of 328.8~ms; only 8 of
+its 60 trials exceed the allowance at all. These are the figures of a cached prefix: the benchmark
+times with the server's prompt cache enabled, whereas the deployed parser runs without it
+(Section~\ref{sec:definitions-of-record}). The items over the allowance are nested across models:
+each of SmolLM2-360M's three is among Qwen2.5-0.5B's eight, and each of those is among
+Llama-3.2-1B's. These runs do not identify whether input length or cache behaviour causes the
+tail.
+Llama-3.2-1B's miss is of a different kind: a p50 of 267.7~ms already exceeds the allowance, and 34
+of 60 trials do. Under cached prefill, the combined \gls{slm} stage allowance that both figures roll
+up into, 1{,}350~ms, is met by Qwen2.5-0.5B with 278~ms to spare. The deployed parser's uncached
+prefill, measured by the latency experiment of the \emph{M\'emoire d'Ing\'enieur}, has a p95 of
+751~ms, so this margin describes the cached condition only.
 
-\paragraph{Abstention is missed by every configuration measured.} Two requirements fail here and
-must be stated in the same breath as the accuracy figures they sit beside. NFR-9, the safe-failure
-rate, has a budget of $\geq$~0.70 and measures between 0.0000 and 0.1579, pooling to 0.0530 over
-528 errors. NFR-18, the false-command rate on out-of-distribution input, has a budget of
-$\leq$~0.05 and measures between 0.1867 and 0.3933. Neither is a near miss: NFR-9 is missed by
-roughly a factor of thirteen on the pooled figure and NFR-18 by a factor of four to eight, and no
-configuration satisfies either. Both measure the same behaviour: when a configuration is wrong or out of domain, it emits a
-well-formed command rather than \texttt{unknown}.
-Per the escalation rule fixed in the project specification, both are re-baselined against the
-measured figures and the re-baselining is recorded rather than the budgets being quietly adjusted;
-a re-baselined constraint is not a satisfied one, and neither requirement is reported as met
-anywhere in this document. The failure mode, its root cause and what would be required to address
-it are analysed in the discussion of limitations that follows.
+\paragraph{Abstention.} Two requirements are missed here, and they are reported alongside the
+accuracy figures. The safe-failure rate has a budget of $\geq$~0.70 and measures between 0.0000 and
+0.1579, pooling to 0.0530 over 528 errors. The false-command rate on out-of-domain input
+(Table~\ref{tab:false-command}) has a budget of $\leq$~0.05 and measures between 0.1867 and 0.3933.
+Both are missed by a wide margin: the safe-failure threshold by roughly a factor of thirteen on the
+pooled figure and the false-command threshold by a factor of four to eight, and no configuration
+satisfies either. Both reflect one tendency: when a configuration is wrong or out of domain, it
+emits a well-formed command rather than \texttt{unknown}.
 
-\section{Isolating model family from model size}
+\input{generated/nfr18_false_command}
+
+Both requirements are reported as missed (Table~\ref{tab:requirements}). Neither budget is
+adjusted, and neither requirement is reported as met anywhere in this document. The likely cause of
+the failure is examined in Section~\ref{sec:failure-modes}.
+
+\section{A parameter-matched family control}
 \label{sec:iso-parameter}
 
-Section~\ref{sec:exp1} established that parameter count does not order the results. Two effects
-are confounded in that observation, and Table~\ref{tab:iso-parameter} separates them by adding a
-fourth model, H2O-Danube3-500M~\cite{danube3}, chosen for the control it provides rather than as a
-deployment candidate: at 514~M parameters it sits within 4.0\% of Qwen2.5-0.5B's 494~M, so the
-pair differs in family while holding size approximately fixed.
+On the golden split, Section~\ref{sec:benchmark} found the 0.49~B model scoring above the 1.24~B
+model by a margin that is not significant. Model family and model size are confounded among the
+three deployed models, since each belongs to a different family. Table~\ref{tab:iso-parameter}
+therefore adds a fourth model, H2O-Danube3-500M~\cite{danube3}, chosen for the control it provides
+rather than as a deployment candidate. At 514~M parameters (Table~\ref{tab:iso-parameter}) it sits
+within 4.0\% of Qwen2.5-0.5B's 494~M, so the pair differs in family while holding size
+approximately fixed.
 
 \input{generated/table33_iso_parameter}
 
-At matched size the family effect on \texttt{test\_golden} is 6.5~pp, with Qwen2.5-0.5B at 0.9350
-against H2O-Danube3-500M at 0.8700. Across the full 3.4$\times$ span of the range the size effect
-is 15.0~pp, from SmolLM2-360M at 0.7750 to Llama-3.2-1B at 0.9250. Family therefore accounts for
-something on the order of two-fifths of what the full size range buys, measured on the same task
-under the same recipe --- and the ordering is not monotone in parameters, since the largest model
-in the table is beaten by a model with 40\% of its parameters. For a deployment selecting under a
-memory and latency ceiling, this is the operationally useful finding in the accuracy results: at
-the sub-billion scale the choice of pretrained family is a first-order decision rather than a
-detail to be settled after the size is fixed.
+At matched size the family difference on \texttt{test\_golden} is 6.5~pp, with Qwen2.5-0.5B at
+0.935 against H2O-Danube3-500M at 0.870, on 15 against 2 discordant items (exact McNemar
+$p = 0.0023$, an exploratory test; \texttt{results/mcnemar.csv}). The larger model of the pair is
+the less accurate on all three splits. The 15.0~pp span from SmolLM2-360M at 0.775 to Llama-3.2-1B
+at 0.925 covers the full 3.4$\times$ range of size, but its endpoints also differ in family, and no
+family appears at two sizes. These data therefore measure a family difference at about 0.5~B
+parameters; they do not express it as a share of a size effect.
 
 One caveat constrains the claim and is carried on the table itself. The training recipe is frozen
-at three epochs for every model, and the per-epoch validation curves show H2O-Danube3-500M and
-SmolLM2-360M still improving at epoch 3 while Qwen2.5-0.5B and Llama-3.2-1B have converged. Part
-of both gaps is therefore convergence under a fixed budget rather than capability. The claim the
-table supports is about performance under an identical three-epoch budget, which is the condition
-a practitioner with a fixed fine-tuning allowance actually faces, and it is not a claim about the
-ceiling any of these families could reach.
+at three epochs for every model. Validation exact match was still rising at epoch 3 for every model
+except Llama-3.2-1B (unchanged at 0.900), from 0.008 for Qwen2.5-0.5B to 0.038 for
+H2O-Danube3-500M, so no model is shown to have converged. The lower-scoring model of each contrast
+rose most, SmolLM2-360M by 0.025 and H2O-Danube3-500M by 0.038, so part of both gaps may be
+convergence under a fixed budget rather than capability. The claim the table supports is about
+performance under an identical three-epoch budget, and it is not a claim about the ceiling any of
+these families could reach.
 
 Three further differences separate H2O-Danube3-500M from the other rows, and each is declared
 rather than corrected. Its chat template has no system role, so the system prompt is folded into
 the user turn; the fold is probed from the template rather than keyed to the model name, and the
 three original models keep their system-turn rendering unchanged. It was trained in a separate
-fine-tuning session, and half-precision GPU training is not bit-reproducible across sessions. And
-it is reported on Surface~A only: the template-parity gate of Chapter~\ref{chap:method} passes the
-three deployed models on all ten audit prompts, on both the formatted text and the token
-identifiers, but fails H2O-Danube3-500M on the identifiers of all ten --- the two tokenisers segment
-the identical word ``drone'' differently --- so a quantised artefact of it would not be the model
-that was trained, and no Surface~B, latency or ablation figure exists for it.
+fine-tuning session (Section~\ref{sec:lora}), and \gls{gpu} training is not guaranteed to be
+bit-reproducible across sessions~\cite{pytorchrepro}. It is reported on the reference surface only.
+The chat-template parity check of Section~\ref{sec:quantisation-procedure} passes the three
+deployed models on all ten audit prompts, on both the formatted text and the token identifiers, but
+fails H2O-Danube3-500M on the identifiers of all ten: the two tokenisers segment the identical word
+``drone'' differently. A quantised artefact of it would therefore not be the model that was
+trained, and no deployed-surface, latency or ablation figure exists for it.
 
-\paragraph{Without fine-tuning.} The same four models, prompted zero-shot at FP16 without the
-grammar before training began, score an exact match of 0.000 on every split: not one of the
-590 items, for any of the four, matches its reference under the comparator. The predictions behind
-these rows were not retained, so the misses cannot be broken down here into malformed output and
-well-formed but wrong commands. What the rows establish is the baseline the fine-tune is measured
-from: none of the accuracy reported in this chapter is available from the pretrained models as
-prompted.
+\paragraph{Zero-shot baseline.} The same four models, prompted zero-shot at fp16 on the reference
+surface, without fine-tuning and without the grammar, score an exact match of 0.000 on every split:
+not one of the 590 items, for any of the four, matches its reference under the comparator (the
+zero-shot rows of \texttt{train/kaggle\_out/surface\_a.csv}). The predictions behind these rows were
+not retained, so the misses cannot be broken down here into malformed output and well-formed but
+wrong commands. What the rows establish is the baseline the fine-tune is measured from: none of the
+accuracy reported in this chapter is available from the pretrained models as prompted.
 
 \section{The quantisation delta}
 \label{sec:quantisation-delta}
 
-Table~\ref{tab:quantisation-delta} reports contribution C3: the accuracy difference between the
-FP16 model on the workstation and the quantised \gls{gguf} artefact decoded under the grammar,
-on the golden split.
+Table~\ref{tab:quantisation-delta} reports the accuracy cost of the deployment pipeline that the
+harness of Contribution~C3 measures: the difference between each fine-tuned fp16 model on the
+reference surface and its quantised \gls{gguf} artefacts on the deployed surface, on the golden
+split.
 
 \input{generated/table18_quantisation_delta}
 
 The deltas span $-$1.5~pp to $+$1.5~pp. Llama-3.2-1B loses 1.5~pp at Q4\_K\_M and 1.0~pp at Q8\_0;
 Qwen2.5-0.5B loses nothing at Q4\_K\_M and 0.5~pp at Q8\_0; SmolLM2-360M loses 1.5~pp at Q4\_K\_M
-and \emph{gains} 1.5~pp at Q8\_0. A quantised model scoring above its own FP16 parent is the
-clearest available evidence about the scale of these numbers: at $n = 200$ a 1.5~pp difference is
-three items, and no mechanism by which 8-bit weights improve on 16-bit ones is proposed here. The
-whole column is consistent with measurement noise, and Section~\ref{sec:statistics} tests that
-reading directly rather than leaving it as an impression.
+and \emph{gains} 1.5~pp at Q8\_0. A quantised model scoring above its own fp16 parent indicates the
+scale of these numbers: at $n = 200$ a 1.5~pp difference is three items, and since precision,
+runtime and decoding change together, the gain is not attributed to any one of them. The paired
+counts in the table test the reading that the whole column lies within the sampling variability
+of a 200-item test set. No difference exceeds three items net, and none reaches significance in the
+exploratory McNemar family of six ($\alpha = 0.0083$), whose smallest $p$ is 0.25.
 
 What this delta does \emph{not} isolate is weight precision, and the table's own caption says so.
 Three things change between the two surfaces at once --- the numeric format, the inference runtime,
-and the presence of the decoding grammar --- so the difference measures the deployment pipeline as
-a whole. This is the quantity a practitioner deciding whether to ship a quantised artefact needs,
-and it is deliberately not the quantity a study of quantisation error would report. The
-literature measuring quantisation degradation on downstream tasks at larger
-scales~\cite{kurtic2025,kurt2026} reports the isolated effect; the number here is a different and
-coarser one, and the two should not be read against each other. One of the three confounded terms
-is separable with the data already collected --- decoding the quantised artefact a second time with
-the grammar disabled holds precision and runtime fixed --- which is the ablation the next section
-reports.
+and the presence of the decoding grammar --- and so do the decoding settings and, for Llama-3.2-1B,
+the checkpoint (Section~\ref{sec:quantisation-procedure}). The difference therefore measures the
+deployment pipeline as a whole. The literature measuring quantisation degradation on downstream
+tasks at larger scales~\cite{kurtic2025,kurt2026} reports the isolated effect; the number here is a
+different and coarser one, and the two should not be read against each other. One of the confounded
+terms is separable with the data already collected. Decoding the quantised artefact a second time
+with the grammar disabled holds precision and runtime fixed, and that is the ablation the next
+section reports.
 
 \section{The grammar ablation}
 \label{sec:grammar-ablation}
@@ -230,120 +244,145 @@ six artefacts, same 590 items, same greedy decode.
 \input{generated/table19_grammar_ablation}
 
 Pooled over 3{,}540 decodes, schema validity falls from 1.0000 to 0.9997 and exactly one output is
-malformed. Exact match moves from 0.8508 to 0.8492, a difference of 0.17~pp, or six decodes in 3{,}540. On this test set,
-under these models, the grammar's measurable contribution to output validity is one command in
-three and a half thousand.
+malformed. Exact match moves from 0.8508 to 0.8492, a difference of 0.17~pp, or six decodes in
+3{,}540. On this test set, under these models, the grammar's measurable contribution to output
+validity is one decode in 3{,}540.
 
-The number bounds a measurable contribution on this distribution and nothing more. The property
-a grammar provides is a statement about reachability --- no token sequence violating the schema is
-reachable under the constraint, for any input --- and a rate on a test set drawn from the training
-distribution does not measure a property of that form. What the ablation measures is how often the
-fine-tuned models depart from the format when nothing prevents them: once in 3{,}540 decodes.
+The number bounds a measurable contribution on these three test splits and nothing more. The
+property a grammar provides is a statement about reachability --- no token sequence violating the
+schema is reachable under the constraint, for any input --- and a rate on a finite test set does
+not measure a property of that form. What the ablation measures is how often the fine-tuned models
+depart from the format when nothing prevents them: once in 3{,}540 decodes.
 
-The literature reports that grammar-constrained decoding can distort the output
-distribution~\cite{park2024} and degrade reasoning performance on tasks requiring intermediate
-steps~\cite{tam2024}. Neither cost is visible here: exact match differs by 0.17~pp, in the
-direction that favours the grammar, on a single-turn schema with ten intents and a bounded slot
-vocabulary. Chapter~\ref{chap:discussion} takes up what these two readings imply, and how far a
-task this small may be generalised from.
+The literature reports that grammar-constrained decoding can distort the model's distribution over
+grammatical outputs~\cite{park2024}, and that format restrictions, most strongly \gls{json}-mode
+constrained decoding, degrade performance on multi-step reasoning tasks while matching or improving
+it on classification tasks~\cite{tam2024}. Neither cost appears in exact match here: it differs by
+0.17~pp, in the direction that favours the grammar, on a single-turn schema with ten intents and a
+bounded slot vocabulary, a task closer to the classification side of that finding.
+Chapter~\ref{chap:discussion} takes up what these two readings imply, and how far a task this small
+may be generalised from.
 
 \section{Statistical analysis}
 \label{sec:statistics}
 
 Exact match figures separated by two or three items invite over-reading, and the paired structure
 of the data supports a direct test. Every configuration decodes the same items deterministically,
-so predictions are paired per item and McNemar's test applies. Two confirmatory families were
-declared: three pairwise model comparisons at Q4\_K\_M on the golden split, and three
-quantisation comparisons within each model on the same split. Bonferroni correction within each
-family of three gives $\alpha = 0.0167$ against a family-wise $\alpha = 0.05$. The exact binomial
-test is used below 25 discordant pairs, where the chi-square approximation is not trustworthy, and
-the continuity-corrected chi-square above it; both p-values are carried in
-\texttt{results/mcnemar.csv} and the verdict agrees under either test for every row.
+so predictions are paired per item and McNemar's test~\cite{mcnemar1947} applies. The statistical
+plan of Section~\ref{sec:definitions-of-record} declares two confirmatory families: three pairwise
+model comparisons at Q4\_K\_M on the golden split, and three quantisation comparisons within each
+model on the same split. Bonferroni correction~\cite{dunn1961} within each family of three gives
+$\alpha = 0.0167$ against a family-wise $\alpha = 0.05$. Below 25 discordant pairs, the threshold
+the plan fixes, the exact binomial test is used, and from 25 upwards the continuity-corrected
+chi-square; both p-values are carried in \texttt{results/mcnemar.csv}, and the verdict agrees under
+either test for every row. Two exploratory comparisons were added after the results existed and are
+labelled so: the reference-to-deployed pairs of Table~\ref{tab:quantisation-delta}, and the family
+control of Table~\ref{tab:iso-parameter}.
 
 \paragraph{Model against model.} Qwen2.5-0.5B and Llama-3.2-1B are not separated: the two disagree
-on 5 items out of 200, splitting them 5--0 in Qwen's favour, for an exact $p = 0.0625$ against
-$\alpha = 0.0167$. Both are separated from SmolLM2-360M decisively --- $p = 2.5 \times 10^{-6}$
-against Llama-3.2-1B and $p = 1.1 \times 10^{-7}$ against Qwen2.5-0.5B, on 38 and 41 discordant
-pairs respectively. The measured 2.5~pp gap between the two leading models is therefore not
-established as real by this evidence, while the 17.5~pp gap to the smallest model is.
+on 5 items out of 200, splitting them 5--0 in Qwen2.5-0.5B's favour, for an exact $p = 0.0625$
+against $\alpha = 0.0167$. With five discordant pairs the smallest attainable exact $p$ is 0.0625,
+so no split of them could have reached the corrected $\alpha$; separating the two models at this
+level would require at least seven disagreements, all in one direction. Both are separated from
+SmolLM2-360M at the corrected $\alpha$ --- $p = 2.5 \times 10^{-6}$ against Llama-3.2-1B and
+$p = 1.1 \times 10^{-7}$ against Qwen2.5-0.5B, on 38 and 41 discordant pairs respectively, split 34
+against 4 and 38 against 3. The measured 2.5~pp gap between the two leading models is therefore not
+established by this evidence, while the gaps of 15.0 and 17.5~pp to the smallest model are.
 
 \paragraph{Quantisation against quantisation.} No quantisation comparison reaches significance,
-on the confirmatory golden split or on the descriptive ones. On the golden split the Llama-3.2-1B and Qwen2.5-0.5B
-pairs each disagree on a single item out of 200 and return $p = 1$; the SmolLM2-360M pair disagrees
-on 22 and returns $p = 0.286$. Read with Section~\ref{sec:quantisation-delta}, the conclusion is
-that the quantisation deltas in Table~\ref{tab:quantisation-delta} are not distinguishable from
-noise on this evidence.
+on the confirmatory golden split or on the descriptive ones. On the golden split the Llama-3.2-1B
+and Qwen2.5-0.5B pairs each disagree on a single item out of 200 and return $p = 1$; the
+SmolLM2-360M pair disagrees on 22 and returns $p = 0.286$. The Q4\_K\_M and Q8\_0 artefacts of each
+model are therefore not distinguishable on this evidence; the reference-to-deployed differences of
+Table~\ref{tab:quantisation-delta} are tested separately, in that table.
 
-\paragraph{Two cautions about how these results may be quoted.} First, a non-significant McNemar
-is not a finding of equivalence. Where the discordant count is 1, the smallest attainable exact
-p-value is 1.0 --- the test cannot reject regardless of what is true. What such a row establishes
-is that the two artefacts disagreed on one item in 200, which is a bound on their difference worth
-quoting, and is a different claim from the assertion that no difference exists. Second, an
-identical exact match is not an identical model. SmolLM2-360M scores 0.8125 at both quantisations
-on \texttt{test\_synth}, and the pairing shows why that coincidence is not a result: the two
-artefacts disagree on 24 items and happen to split them 12--12. Comparing summary figures alone
-would have reported a difference of exactly zero where there are two dozen of them, which is the
-case for reporting the paired counts and not only the p-value.
+\paragraph{Interpreting the tests.} First, a non-significant McNemar is not a finding of
+equivalence. Where the discordant count is 1, the smallest attainable exact p-value is 1.0 --- the
+test cannot reject regardless of what is true. What such a row establishes is that the two
+artefacts disagreed on one item in 200, a small observed difference, and that is a different claim
+from the assertion that no difference exists. Second, identical exact-match scores do not imply
+identical predictions. SmolLM2-360M scores 0.8125 at both quantisations on \texttt{test\_synth},
+and the paired counts establish why that coincidence is not a result: the two artefacts disagree on
+24 items and happen to split them 12--12. Comparing summary figures alone would have reported a
+difference of exactly zero where there are two dozen; for this reason the paired counts are reported
+alongside the p-values.
 
 \section{The selection rule applied}
 \label{sec:selection}
 
-The selection rule was fixed in writing before any result existed: \emph{the deployed model is the
-configuration with the highest exact match among those satisfying NFR-2 and NFR-9a, ties breaking
-toward lower p95 latency}. Applying it requires the constraint set first and the ranking second.
+The selection rule of Section~\ref{sec:definitions-of-record} deploys the configuration with the
+highest exact match among those not ruled out by the 2{,}500~ms end-to-end latency budget or the
+2.5~GiB memory ceiling, ties breaking toward lower p95 latency, and it fails openly when no
+configuration satisfies both constraints. Applying it requires the constraint set first and the
+ranking second. Figure~\ref{fig:pareto} places the three Q4\_K\_M configurations against both
+constraints.
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\textwidth]{../results/figure2_pareto.pdf}
-  \caption{The accuracy--latency Pareto frontier on Surface B, the quantised artefact
-  under \texttt{llama.cpp} with the \gls{gbnf} constraint. Vertical axis is exact match on
-  \texttt{test\_golden} ($n = 200$ items); horizontal axis is combined \acrshort{slm} prefill and
+  \caption[Accuracy--latency Pareto frontier of the deployed configurations]{The
+  accuracy--latency Pareto frontier on the deployed surface, the quantised artefact under
+  \texttt{llama.cpp} with the \acrshort{gbnf} constraint. Vertical axis: exact match on
+  \texttt{test\_golden} ($n = 200$ items). Horizontal axis: combined \acrshort{slm} prefill and
   decode p95 in milliseconds, measured on the cooled Raspberry~Pi~5 ($n = 60$ timed runs per
-  configuration, no trial throttled). Marker area encodes peak resident set size. The solid
-  vertical line is the \acrshort{slm} stage allowance of 1{,}350~ms (Table~\ref{tab:latency-budget}), which is the same
-  quantity as the axis; the dashed line at 2{,}500~ms is NFR-2, an end-to-end budget of which the
-  axis measures only a part, so a point left of it has failed to rule itself out rather than passed.
-  The horizontal line is NFR-4's exact-match floor of 0.85. Q8\_0 configurations are not plotted:
-  Exp-1 was scoped to Q4\_K\_M on hardware, so no Pi latency exists for them. Generated by
+  configuration, no trial throttled). Marker area encodes the peak resident memory of the
+  language-model process (GiB); filled markers are non-dominated, joined by the grey frontier line,
+  and the hollow marker is dominated. The solid vertical line is the \acrshort{slm} stage allowance of
+  1{,}350~ms (Table~\ref{tab:latency-budget}), the same quantity as the axis; the dashed line at
+  2{,}500~ms is the end-to-end latency budget, of which the axis measures only a part, so a point
+  left of it is not ruled out but is not shown to comply. The dotted horizontal line is the 0.85
+  exact-match threshold. Q8\_0 configurations are not plotted: the benchmark timed only Q4\_K\_M on
+  the board. Only Qwen2.5-0.5B lies above the threshold and inside the stage allowance. Generated by
   \texttt{eval/plots.py} from \texttt{results/surface\_b.csv} and
   \texttt{results/exp1\_cooled.csv}.}
   \label{fig:pareto}
 \end{figure}
 
-\paragraph{NFR-9a eliminates nothing.} Peak resident set size of the language-model process is
-0.55~GB to 1.63~GB against a 2.5~GB ceiling that applies to the full stack. No configuration is
-ruled out; confirming the selected one against the full stack is Exp-2's measurement.
+\paragraph{Memory constraint.} Peak resident memory of the language-model process is 0.55~GiB to
+1.63~GiB, against a 2.5~GiB ceiling that applies to the full stack. No configuration is ruled out.
+No full-stack measurement was made, so the ceiling is met for the language-model process only
+(Section~\ref{sec:definitions-of-record}).
 
-\paragraph{NFR-2 has not been measured, and cannot be decided here.} NFR-2 bounds end-to-end
-latency from end of speech at 2{,}500~ms p95. Exp-1 measures the \acrshort{slm} stages only, and
-the remaining stages --- endpointing, \acrshort{stt}, validation and dispatch --- are measured by
-Exp-2, which is reported in the \emph{M\'emoire d'Ing\'enieur}; the selection rule is applied
-here on the Exp-1 evidence alone. The constraint can therefore be
-applied in one direction only. Because total latency is at least \acrshort{slm} latency on every
-trial, the p95 of the total is at least the p95 of the \acrshort{slm} stages, and a configuration
-whose \acrshort{slm} p95 already approaches 2{,}500~ms is ruled out without waiting for Exp-2.
-Llama-3.2-1B's 2{,}282~ms leaves 218~ms for the rest of a pipeline whose \acrshort{stt} stage alone
-is budgeted at 1{,}200~ms: it is eliminated. Qwen2.5-0.5B at 1{,}072~ms and SmolLM2-360M at 894~ms
-are not eliminated by this argument, and neither is confirmed by it. This is the sense in which
-Figure~\ref{fig:pareto}'s dashed line is drawn but not treated as a verdict.
+\paragraph{End-to-end latency constraint.} The end-to-end latency budget bounds latency from end
+of speech at 2{,}500~ms p95. The multi-model benchmark measures the \gls{slm} stages only. The
+latency experiment of the \emph{M\'emoire d'Ing\'enieur} measured the full parse path for the
+selected configuration alone: from end of speech, Qwen2.5-0.5B's p95 is 3{,}122~ms over 226
+segments, above the budget, and the shortest speech-recognition time it recorded is 1{,}063~ms.
+Every trial's total is at least its language-model time plus that shortest recognition time.
+Llama-3.2-1B's language-model p95 of 2{,}282~ms, measured with the prompt cache enabled, which can
+only lower it, therefore implies an end-to-end p95 of at least 3{,}346~ms: it is ruled out on this
+evidence alone. SmolLM2-360M, at 894~ms, was not measured end to end and is not ruled out.
 
-\paragraph{The rule selects Qwen2.5-0.5B at Q4\_K\_M.} Among the configurations not eliminated,
-exact match on the golden split is 0.935 for Qwen2.5-0.5B and 0.760 for SmolLM2-360M, and the rule
-ranks on exact match without a tie to break. The selected configuration is also the only one of the
-three meeting NFR-4's exact-match floor of 0.85, the 1{,}100~ms decode allowance, the 1{,}350~ms
-combined stage allowance, the 20~tok/s throughput floor, NFR-9a and NFR-10 together. SmolLM2-360M
-is faster on every timing measure and misses NFR-4 by 9~pp; Llama-3.2-1B is the largest model and
-scores lower than the model it is eliminated in favour of, by a margin Section~\ref{sec:statistics}
-does not establish as real. Figure~\ref{fig:pareto} shows the
-frontier this leaves: Qwen2.5-0.5B and SmolLM2-360M are non-dominated, and Llama-3.2-1B is
-dominated on both axes simultaneously.
+No configuration is thus shown to satisfy both constraints. The memory ceiling can be confirmed for
+none of them, and the one end-to-end measurement misses the budget. Read literally, the rule would
+rule out Qwen2.5-0.5B because it was measured, while leaving SmolLM2-360M, which was not, in
+contention. The rule's failure clause (Section~\ref{sec:definitions-of-record}) applies instead.
+The end-to-end budget is re-baselined to the measured 3{,}122~ms, and the re-baselining is reported
+here rather than the budget treated as met. Against the re-baselined budget, Llama-3.2-1B remains
+ruled out, and Qwen2.5-0.5B and SmolLM2-360M are not.
 
-\paragraph{Three qualifications travel with this selection.} The margin over SmolLM2-360M is
-established statistically; the margin over Llama-3.2-1B is not, and the choice between them rests
-on the latency constraint rather than on the accuracy difference, which
-Section~\ref{sec:statistics} declines to call real. The selection is made against reference-text
-accuracy, and Section~\ref{sec:exp0} bounds how much of that accuracy the acoustic front end will
-consume. And the selected configuration, like every other one measured, misses NFR-9 and NFR-18:
-it is selected as the best available on the criteria the rule names, not as a configuration that
-satisfies every requirement placed on the system. Chapter~\ref{chap:discussion} takes up what
-that costs and what it would take to fix.
+\paragraph{Ranking and selection.} Among the configurations not ruled out, exact match on the
+golden split is 0.935 for Qwen2.5-0.5B and 0.760 for SmolLM2-360M, and the rule ranks on exact
+match without a tie to break: it selects Qwen2.5-0.5B at Q4\_K\_M. The Q8\_0 artefacts have no
+measurement on the board and cannot be checked against either constraint; none exceeds 0.935 on
+the golden split, so their exclusion does not change the ranking. The selected configuration is
+also the only one of the three meeting the 0.85 exact-match threshold, the 1{,}100~ms decode
+allowance, the 1{,}350~ms combined stage allowance under cached prefill, the 20~tok/s throughput
+floor and the throttling budget together, and it is not ruled out by the memory ceiling.
+SmolLM2-360M is faster on every timing measure and misses the exact-match threshold by 9~pp;
+Llama-3.2-1B is the largest model and scores lower than the selected one, by a margin
+Section~\ref{sec:statistics} does not establish as significant. Figure~\ref{fig:pareto} plots the
+frontier this leaves: Qwen2.5-0.5B and SmolLM2-360M are non-dominated, and Llama-3.2-1B is dominated
+on the point estimates. Its accuracy deficit is not significant, so its dominance rests on latency.
+
+\paragraph{Qualifications to the selection.} The margin over SmolLM2-360M is established
+statistically; the margin over Llama-3.2-1B is not, and the choice between them rests on the
+latency constraint rather than on the accuracy difference, which Section~\ref{sec:statistics} does
+not establish as significant. The selection is made against reference-text accuracy, and
+Section~\ref{sec:speaker-sensitivity} measures the recognition error that the deployed input will
+carry. It is made against a re-baselined end-to-end budget: the selected configuration misses the
+2{,}500~ms budget as specified. Like every other configuration measured, it also misses the
+safe-failure and false-command thresholds. It is selected as the best available on the criteria
+the rule names, not as a configuration that satisfies every requirement placed on the system.
+Chapter~\ref{chap:discussion} takes up the consequences of these shortfalls and what would address
+them.
