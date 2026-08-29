@@ -53,9 +53,10 @@ build/
 *.gls
 *.glsdefs
 *.ist
-# The theses build out-of-tree into thesis/build/ (see thesis/.latexmkrc), which
-# the build/ rule above already covers -- intermediates AND the two PDFs. They
-# are reproducible with `cd thesis && latexmk main_master.tex`.
+# The theses build out-of-tree, one folder each, into thesis/build/master/ and
+# thesis/build/ingenieur/ (see thesis/.latexmkrc), which the build/ rule above
+# already covers -- intermediates AND the two PDFs. They are reproducible with
+# `cd thesis && latexmk main_master.tex` (or main_ingenieur.tex).
 
 # ---------------------------------------------------------------------
 # Model artefacts -- approx. 6 GB. Rebuilt from train/ checkpoints
