@@ -149,7 +149,8 @@ trigger compare as newer than the trigger, and the stale command would override 
 exists to protect. The second action is an optimisation: the decode in progress is cancelled, so
 that the three inference cores are released at once rather than spent on a result that will be
 discarded. Correctness does not depend on the cancellation succeeding. What the cancellation
-governs is recovery, the time before Branch~B can accept the next utterance, which NFR-17 bounds
+governs is recovery, the time before Branch~B can accept the next utterance, which the
+preemption-recovery criterion bounds
 at 300~ms at p95 (Table~\ref{tab:nonfunctional-requirements}).
 
 \section{Branch A membership rule}
@@ -187,7 +188,7 @@ Neither test is sufficient alone. The first alone would admit any urgent movemen
 accept of an urgent movement is uncommanded motion with no stage behind it able to recognise the
 error. The second alone would admit commands that are harmless but gain nothing from the fast
 path, and each of them would enlarge the false-accept surface for no benefit, because the
-false-accept budget of NFR-15 is aggregated over every Branch~A class. Table~\ref{tab:membership}
+keyword false-accept budget is aggregated over every Branch~A class. Table~\ref{tab:membership}
 applies both tests to the ten intents of the schema. Exactly two pass.
 
 \begin{table}[htbp]
@@ -252,7 +253,8 @@ both tests, and the false accepts it adds fit within the aggregate budget measur
 place. The tests apply to the command a phrase publishes, not to the phrase, so a change of
 wording cannot admit a command the rule excludes, and they are applied again whenever the schema
 gains an intent. For the present vocabulary the rule yields exactly two classes; that result is
-contribution C4 (Section~\ref{sec:contributions}), and it is what makes the membership of
+the contribution of this document (Section~\ref{sec:contributions}), and it is what makes the
+membership of
 Branch~A checkable by a reader who did not choose it.
 
 \section{Three validation layers}

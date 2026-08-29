@@ -71,7 +71,7 @@ Chapter~\ref{chap:demonstration} returns to this as a limitation rather than lea
 \section{Engineering requirements}
 \label{sec:engineering-requirements}
 Every requirement in this work is stated with its verification method, so that each can be checked
-against a measurement. Twelve \glspl{fr} and twenty-one \gls{nfr} rows govern the system as a
+against a measurement. Twelve \glspl{fr} and twenty-one \glspl{nfr} govern the system as a
 whole, and they are shared between this document and the \emph{M\'emoire de Master}. The subset
 stated here is not a matter of editorial judgement: this document answers the second and third
 research questions of Section~\ref{sec:objectives}, on pipeline latency (RQ2) and on acoustic
@@ -79,9 +79,16 @@ robustness and control quality (RQ3), so it carries the requirements those two q
 to. The remainder are stated, verified and discussed by the \emph{M\'emoire de Master}, which
 answers the first question (RQ1), on the accuracy--efficiency trade-off across \glspl{slm} on the
 target device. Table~\ref{tab:functional-requirements} lists the \glspl{fr} this document carries
-and Table~\ref{tab:nonfunctional-requirements} the non-functional ones. Three experiments, reported
-in Chapter~\ref{chap:validation}, produce the measurements: the latency experiment, the
-acoustic-robustness experiment and the formation-control experiment. Every target below is a
+and Table~\ref{tab:nonfunctional-requirements} the non-functional ones, each under a short name
+that the later chapters use to refer to it; a criterion shared with the \emph{M\'emoire de Master}
+carries the same name there. Three experiments, reported in Chapter~\ref{chap:validation}, produce
+the measurements. The \emph{latency experiment} times every stage of both paths on the Raspberry
+Pi~5, measures the reflex path both idle and while the parse path is decoding, and trials the
+keyword spotter's false accepts and false rejects and the recovery after a preemption. The
+\emph{acoustic-robustness experiment} runs the full pipeline on the golden-set recordings with
+propeller noise mixed in at a falling \gls{snr}. The \emph{formation-control experiment}
+flies repeated simulated trials of the circle, line and wedge formations and records formation
+accuracy, collisions and every intervention of the separation clamp. Every target below is a
 commitment made before measurement, and no requirement is quoted here with a result attached to it.
 
 \begin{table}[htbp]
@@ -93,85 +100,88 @@ pipeline, the canonicaliser and the per-trial results record; the first five are
 \emph{M\'emoire de Master}, and the last is common to both documents
 (Section~\ref{sec:engineering-requirements}).}
 \label{tab:functional-requirements}
-\begin{tabularx}{\textwidth}{@{}l X X@{}}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.3cm} X X@{}}
 \toprule
-ID & Requirement & Verification \\
+Criterion & Requirement & Verification \\
 \midrule
-FR-5 & Speech recognition runs offline on-device via \texttt{whisper.cpp tiny.en}~\cite{whisper,whispercpp}, with no network access at any point in the pipeline & End-to-end run with networking disabled \\
-FR-6 & The reflex path provides two keyword classes whose unprompted execution only reduces motion, \texttt{swarm hold} $\rightarrow$ \texttt{hover} and \texttt{swarm abort} $\rightarrow$ \texttt{abort}, either of which preempts an in-flight parse-path inference through a sequence-number ordering rule (Chapter~\ref{chap:architecture}). No movement verb may be added to the reflex path & Preemption trials in the latency experiment; a $2 \times 2$ cross-trigger matrix \\
-FR-7 & The swarm controller implements vectorised flocking~\cite{reynolds1987}, formation slot assignment for the circle, line and wedge formations, artificial-potential-field separation with a hard geometric clamp at the integrator, and \acrlong{pid} (\acrshort{pid})\glsunset{pid} point navigation, for $N = 5$ at 50~Hz & Formation-control experiment \\
-FR-8 & Two interchangeable simulation backends sit behind one environment interface: PyFlyt, built on the Bullet physics engine~\cite{pyflyt}, and a kinematic simulator & Both pass a hover smoke test \\
-FR-9 & The full pipeline runs end to end from the live microphone for the demonstration & Demonstration video, networking disabled on camera \\
-FR-11 & The flight state machine is implemented as the third validation layer, including the explicit non-vocal recovery path out of \texttt{ABORTED} & Automated test of every (flight state, intent) cell of the legality table (Chapter~\ref{chap:architecture}) \\
+Offline speech recognition & Speech recognition runs offline on-device via \texttt{whisper.cpp tiny.en}~\cite{whisper,whispercpp}, with no network access at any point in the pipeline & End-to-end run with networking disabled \\
+Reflex path & The reflex path provides two keyword classes whose unprompted execution only reduces motion, \texttt{swarm hold} $\rightarrow$ \texttt{hover} and \texttt{swarm abort} $\rightarrow$ \texttt{abort}, either of which preempts an in-flight parse-path inference through a sequence-number ordering rule (Chapter~\ref{chap:architecture}). No movement verb may be added to the reflex path & Preemption trials in the latency experiment; a $2 \times 2$ cross-trigger matrix \\
+Swarm controller & The swarm controller implements vectorised flocking~\cite{reynolds1987}, formation slot assignment for the circle, line and wedge formations, artificial-potential-field separation with a hard geometric clamp at the integrator, and \acrlong{pid} (\acrshort{pid})\glsunset{pid} point navigation, for $N = 5$ at 50~Hz & Formation-control experiment \\
+Simulation backends & Two interchangeable simulation backends sit behind one environment interface: PyFlyt, built on the Bullet physics engine~\cite{pyflyt}, and a kinematic simulator & Both pass a hover smoke test \\
+Live demonstration & The full pipeline runs end to end from the live microphone for the demonstration & Demonstration video, networking disabled on camera \\
+Flight state machine & The flight state machine is implemented as the third validation layer, including the explicit non-vocal recovery path out of \texttt{ABORTED} & Automated test of every (flight state, intent) cell of the legality table (Chapter~\ref{chap:architecture}) \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-Table~\ref{tab:functional-requirements} divides into three commitments. FR-5 and FR-9 determine
-the deployment: every model executes locally, and the demonstration is performed from a live
-microphone with networking disabled on camera, so that offline operation is exercised rather than
-asserted. FR-7 and FR-8 specify the controller and the simulation interface it drives. FR-6 and
-FR-11 establish the two structural safety mechanisms this document owns --- a reflex path with a
-closed membership rule, and a state machine that is the last stage between a validated command and
-the vehicle. The final clause of FR-6 is a prohibition: no movement verb is admissible on the
-reflex path. Section~\ref{sec:safety-problem} gives the argument behind it, and
+Table~\ref{tab:functional-requirements} divides into three commitments. Offline speech
+recognition and the live demonstration determine the deployment: every model executes locally, and
+the demonstration is performed from a live microphone with networking disabled on camera, so that
+offline operation is exercised rather than asserted. The swarm-controller and simulation-backend
+requirements specify the controller and the simulation interface it drives. The reflex-path and
+flight-state-machine requirements establish the two structural safety mechanisms this document owns
+--- a reflex path with a closed membership rule, and a state machine that is the last stage between
+a validated command and the vehicle. The final clause of the reflex-path requirement is a
+prohibition: no movement verb is admissible on the reflex path. Section~\ref{sec:safety-problem} gives the argument behind it, and
 Chapter~\ref{chap:architecture} derives the membership rule that makes it checkable rather than a
 matter of restraint.
 
 \begin{table}[htbp]
 \centering
 \caption[Non-functional requirements driving this document]{Non-functional requirements driving
-this document, each stated as a threshold checkable against the logged measurements and attributed
-to the source that produces it: an experiment of Chapter~\ref{chap:validation}, or the requirement
-whose verification covers it. p50, p95 and p99 denote the 50th, 95th and 99th percentiles,
+this document, each stated as a threshold checkable against the logged measurements, with the
+measurement that verifies it. p50, p95 and p99 denote the 50th, 95th and 99th percentiles,
 computed by nearest rank on the sorted sample. \acrshort{crr}: \acrlong{crr} on the golden set
-(Section~\ref{sec:operational-context}); \acrshort{snr}: \acrlong{snr}. Identifiers are shared
-with the \emph{M\'emoire de Master}, which carries the rows not listed. The two keyword rows are
-one operating point on one curve and are quoted together throughout.}
+(Section~\ref{sec:operational-context}); \acrshort{snr}: \acrlong{snr}. A criterion shared with
+the \emph{M\'emoire de Master} has the same name there, and that document lists the criteria not
+shown here. The two keyword criteria are one operating point on one curve and are quoted together
+throughout.}
 \label{tab:nonfunctional-requirements}
-\begin{tabularx}{\textwidth}{@{}l X X l@{}}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.3cm} X X >{\raggedright\arraybackslash}p{2.4cm}@{}}
 \toprule
-ID & Requirement & Target & Source \\
+Criterion & Requirement & Budget & Measured by \\
 \midrule
-NFR-1 & Reflex-path latency, from keyword offset, measured both idle and during parse-path inference & p95 $\leq$ 150~ms & Latency \\
-NFR-2 & Parse-path latency, from end-of-speech & p95 $\leq$ 2{,}500~ms & Latency \\
-NFR-3 & Per-stage latency instrumented and reported against the per-stage budget of Chapter~\ref{chap:architecture} & Every stage, p50/p95/p99 & Latency \\
-NFR-17 & Preemption recovery: from a reflex-path trigger until the parse path can accept a new utterance & p95 $\leq$ 300~ms & Latency \\
-NFR-15 & Keyword false accepts, aggregated over both reflex-path classes, on ambient-speech negatives & $\leq$ 1 per hour & Latency \\
-NFR-16 & Keyword false rejects per class at the selected operating point & $\leq$ 0.10 & Latency \\
-NFR-7 & \gls{crr} on the golden set, clean audio & $\geq$ 0.80 & Acoustic robustness \\
-NFR-8 & \gls{crr} at 10~dB \gls{snr} under propeller-type noise & $\geq$ 0.65 & Acoustic robustness \\
-NFR-12 & Inter-drone collisions & Zero observed across all trials, with a hard geometric separation clamp at the integrator & Formation control \\
-NFR-13 & Formation accuracy: fraction of drones within $\tau = 0.5$~m of the assigned slot over the final 5~s of a 60~s trial & $\geq$ 0.85 & Formation control \\
-NFR-14 & Offline operation & 100\%, no network dependency & FR-5 \\
+Reflex latency & Reflex-path latency, from keyword offset, measured both idle and during parse-path inference & p95 $\leq$ 150~ms & Latency experiment \\
+End-to-end latency & Parse-path latency, from end-of-speech & p95 $\leq$ 2{,}500~ms & Latency experiment \\
+Per-stage attribution & Per-stage latency instrumented and reported against the per-stage budget of Chapter~\ref{chap:architecture} & Every stage, p50/p95/p99 & Latency experiment \\
+Preemption recovery & Time from a reflex-path trigger until the parse path can accept a new utterance & p95 $\leq$ 300~ms & Latency experiment \\
+Keyword false accepts & False accepts, aggregated over both reflex-path classes, on ambient-speech negatives & $\leq$ 1 per hour & Latency experiment \\
+Keyword false rejects & False rejects per class at the selected operating point & $\leq$ 0.10 & Latency experiment \\
+Clean-audio recognition & \gls{crr} on the golden set, clean audio & $\geq$ 0.80 & Acoustic-robustness experiment \\
+Recognition in noise & \gls{crr} at 10~dB \gls{snr} under propeller-type noise & $\geq$ 0.65 & Acoustic-robustness experiment \\
+Collisions & Inter-drone collisions & Zero observed across all trials, with a hard geometric separation clamp at the integrator & Formation-control experiment \\
+Formation accuracy & Fraction of drones within $\tau = 0.5$~m of the assigned slot over the final 5~s of a 60~s trial & $\geq$ 0.85 & Formation-control experiment \\
+Offline operation & Operation of the full pipeline without a network & 100\%, no network dependency & End-to-end run, networking disabled \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
 Table~\ref{tab:nonfunctional-requirements} contains one pair of budgets that determines the
 architecture before any component is chosen. The reflex budget and the parse budget are not one
-budget with two tolerances, and they are not anchored at the same instant: NFR-1 is measured from
-the keyword offset, NFR-2 from end-of-speech. A path that transcribes and parses a complete
+budget with two tolerances, and they are not anchored at the same instant: reflex latency is
+measured from the keyword offset, end-to-end latency from end-of-speech. A path that transcribes and parses a complete
 utterance cannot begin until the endpointer has confirmed that the operator has stopped speaking,
 a wait that alone exceeds 150~ms, and transcription and decoding then each take of the order of a
 second on this device (Chapter~\ref{chap:architecture}). A command that must act within 150~ms of
 its keyword offset therefore cannot travel on the parse path, however that path is tuned; it needs
-a path that neither transcribes nor parses. NFR-1 also carries a condition that makes it an
-architectural requirement rather than a benchmark: it must hold \emph{while} the parse path is
+a path that neither transcribes nor parses. The reflex-latency criterion also carries a condition
+that makes it an architectural requirement rather than a benchmark: it must hold \emph{while} the parse path is
 decoding, which is a statement about scheduling and core allocation on a four-core device, not
-about the spotter in isolation. NFR-17 closes the same loop from the other end: it bounds the time
-after a reflex before the parse path can accept a new utterance.
+about the spotter in isolation. Preemption recovery closes the same loop from the other end: it
+bounds the time after a reflex before the parse path can accept a new utterance.
 
-The keyword rows must be read as a pair. NFR-15 and NFR-16 are not two independent claims but a
-single operating point selected from one \gls{roc} curve, and a detection threshold trades false
+The two keyword criteria must be read as a pair. False accepts and false rejects are not two
+independent claims but a single operating point selected from one \gls{roc} curve, and a detection threshold trades false
 accepts against false rejects directly: a system quoting only its false-accept rate has not stated
 its operating point at all. Chapter~\ref{chap:validation} therefore reports the full per-class
 curve with the chosen threshold marked, and this document quotes the two numbers together wherever
-either appears. NFR-7 and NFR-8 bound the two ends of the acoustic curve that RQ3 asks about: the
+either appears. The two recognition criteria bound the two ends of the acoustic curve that RQ3
+asks about: the
 recognition rate on clean audio, and the rate at 10~dB \gls{snr} under propeller-type noise.
 
-NFR-12 is worded as an observation backed by a mechanism, not as a property of every reachable
-state; Section~\ref{sec:safety-problem} states it and gives the reason. NFR-13 pairs with it:
+The collision criterion is worded as an observation backed by a mechanism, not as a property of
+every reachable state; Section~\ref{sec:safety-problem} states it and gives the reason. Formation
+accuracy pairs with it:
 separation without formation quality would be satisfied by drones that simply keep away from one
 another.
 
@@ -248,7 +258,8 @@ arrest motion.
 The response is to give that utterance its own path. A two-class keyword spotter listens
 continuously and reacts to two phrases, \texttt{swarm hold} and \texttt{swarm abort}, without
 transcription and without invoking the language model at all, preempting an in-flight decode if
-one is running. The reflex is budgeted at 150~ms at p95 from the keyword offset (NFR-1), and the
+one is running. The reflex is budgeted at 150~ms at p95 from the keyword offset
+(Section~\ref{sec:engineering-requirements}), and the
 budget must hold \emph{while} the language model is decoding, which is what makes the dual path an
 argument about processor allocation rather than a second copy of the same pipeline. The design is
 the contribution this document claims (Section~\ref{sec:contributions}), and
@@ -339,7 +350,8 @@ The second clause of RQ2 carries as much weight as the first. A pipeline that me
 without an account of where the time went has demonstrated one configuration on one device. It
 establishes nothing about which stage would fail first under a longer utterance, a slower model or
 a warmer processor. Per-stage attribution is what makes a passing measurement transferable, and it
-is why NFR-3 instruments every stage rather than only the endpoints. RQ3 is similarly three
+is why the per-stage attribution criterion instruments every stage rather than only the
+endpoints. RQ3 is similarly three
 questions in one sentence, and the middle one is the one this document was built around.
 Degradation under noise is expected and is measured as a curve; what
 Section~\ref{sec:safety-problem} commits the architecture to is the \emph{direction} that curve
@@ -357,20 +369,19 @@ the runtime described here.
 
 \section{Contributions}
 \label{sec:contributions}
-Of the four claimed contributions, which span the two documents, one belongs to this document; it
-is numbered fourth because the first three, named at the end of this section, belong to the
-\emph{M\'emoire de Master}.
+Of the four contributions claimed across the two documents, one belongs to this document; the
+other three, named at the end of this section, belong to the \emph{M\'emoire de Master}.
 
-\begin{itemize}
-    \item \textbf{C4.} A dual-path runtime in which a two-class keyword spotter provides a bounded
-    safety reflex that preempts language-model inference, with the membership rule for that path
-    derived from a latency argument rather than chosen by preference.
-\end{itemize}
+\begin{quote}
+\textbf{Contribution.} A dual-path runtime in which a two-class keyword spotter provides a bounded
+safety reflex that preempts language-model inference, with the membership rule for that path
+derived from a latency argument rather than chosen by preference.
+\end{quote}
 
 % NOTE: the dual-attention wake-word transducer (arXiv:2304.01905) was checked and
 %       deliberately NOT cited here: it switches compute paths inside a single model
 %       rather than running two stages in parallel, so it does not support this claim.
-The transferable part of C4 is the second clause. Running a fast path beside a slower one is a
+The transferable part of this contribution is its second clause. Running a fast path beside a slower one is a
 familiar pattern: arrangements that pair a fast responsive path with a slower, higher-quality one,
 with a gate or a cancellable commitment between them, recur in real-time spoken
 dialogue~\cite{relays2s,mira}. What is easy to omit is a principled answer to which utterances may
