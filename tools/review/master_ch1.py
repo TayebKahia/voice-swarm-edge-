@@ -37,7 +37,10 @@ for metric, col in (("\\gls{em}", "exact_match"), ("intent and slot F1", "slot_m
                  f"C3 metric `{metric}` is a column the harness reports (results/surface_b.csv:{col})")
 
 # -- The throughput paragraph (§1.1): every number against results/thermal_headroom.md ----------
-th = {(row["Config"], row["Run"]): row for row in md_table(RESULTS / "thermal_headroom.md", "Config")}
+# The table writes "qwen2.5-0.5b-instruct Q4_K_M" since the Ch4 review (it wrote the artefact stem
+# "qwen2.5-0.5b-instruct-Q4_K_M"); keyed on the stem either way.
+th = {(row["Config"].replace(" ", "-"), row["Run"]): row
+      for row in md_table(RESULTS / "thermal_headroom.md", "Config")}
 qc = float(th[("qwen2.5-0.5b-instruct-Q4_K_M", "cooled")]["tok/s"])
 qu = float(th[("qwen2.5-0.5b-instruct-Q4_K_M", "uncooled")]["tok/s"])
 lc = float(th[("llama-3.2-1b-instruct-Q4_K_M", "cooled")]["tok/s"])
