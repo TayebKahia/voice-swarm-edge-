@@ -311,10 +311,10 @@ alongside the p-values.
 \label{sec:selection}
 
 The selection rule of Section~\ref{sec:definitions-of-record} deploys the configuration with the
-highest exact match among those not ruled out by the 2{,}500~ms end-to-end latency budget or the
-2.5~GiB memory ceiling, ties breaking toward lower p95 latency, and it fails openly when no
-configuration satisfies both constraints. Applying it requires the constraint set first and the
-ranking second. Figure~\ref{fig:pareto} places the three Q4\_K\_M configurations against both
+highest exact match among those satisfying both the 2{,}500~ms end-to-end latency budget and the
+2.5~GiB memory ceiling, ties breaking toward lower p95 latency. A partial measurement can show that
+a configuration misses a constraint but not that it satisfies it, and the rule fails openly when no
+configuration satisfies both. Applying it requires the constraint set first and the ranking second. Figure~\ref{fig:pareto} places the three Q4\_K\_M configurations against both
 constraints.
 
 \begin{figure}[htbp]
@@ -339,31 +339,38 @@ constraints.
 \end{figure}
 
 \paragraph{Memory constraint.} Peak resident memory of the language-model process is 0.55~GiB to
-1.63~GiB, against a 2.5~GiB ceiling that applies to the full stack. No configuration is ruled out.
-No full-stack measurement was made, so the ceiling is met for the language-model process only
-(Section~\ref{sec:definitions-of-record}).
+1.63~GiB, against a 2.5~GiB ceiling that applies to the full stack. No full-stack measurement was
+made, so no configuration is shown to satisfy the ceiling; none is shown to miss it either, the
+language-model process alone being at least 35\% clear of it.
 
 \paragraph{End-to-end latency constraint.} The end-to-end latency budget bounds latency from end
 of speech at 2{,}500~ms p95. The multi-model benchmark measures the \gls{slm} stages only. The
 latency experiment of the \emph{M\'emoire d'Ing\'enieur} measured the full parse path for the
 selected configuration alone: from end of speech, Qwen2.5-0.5B's p95 is 3{,}122~ms over 226
-segments, above the budget, and the shortest speech-recognition time it recorded is 1{,}063~ms.
+segments, 622~ms (25\%) above the budget, and the shortest speech-recognition time it recorded is 1{,}063~ms.
 Every trial's total is at least its language-model time plus that shortest recognition time.
 Llama-3.2-1B's language-model p95 of 2{,}282~ms, measured with the prompt cache enabled, which can
-only lower it, therefore implies an end-to-end p95 of at least 3{,}346~ms: it is ruled out on this
-evidence alone. SmolLM2-360M, at 894~ms, was not measured end to end and is not ruled out.
+only lower it, therefore implies an end-to-end p95 of at least 3{,}346~ms: it misses the budget on
+this evidence alone. SmolLM2-360M, at 894~ms, was not measured end to end, so it is shown neither to
+satisfy the budget nor to miss it.
 
-No configuration is thus shown to satisfy both constraints. The memory ceiling can be confirmed for
-none of them, and the one end-to-end measurement misses the budget. Read literally, the rule would
-rule out Qwen2.5-0.5B because it was measured, while leaving SmolLM2-360M, which was not, in
-contention. The rule's failure clause (Section~\ref{sec:definitions-of-record}) applies instead.
-The end-to-end budget is re-baselined to the measured 3{,}122~ms, and the re-baselining is reported
-here rather than the budget treated as met. Against the re-baselined budget, Llama-3.2-1B remains
-ruled out, and Qwen2.5-0.5B and SmolLM2-360M are not.
+No configuration therefore satisfies both constraints. None is shown to satisfy the memory ceiling,
+and the one configuration measured end to end misses the latency budget. The rule's failure clause
+applies, and each constraint is re-baselined against the figure measured. The memory ceiling is
+applied to the language-model process, the only part of the stack measured, and every
+configuration is within it. The end-to-end budget is re-baselined to the measured 3{,}122~ms.
+That figure is Qwen2.5-0.5B's own, so the re-baselined budget cannot test Qwen2.5-0.5B, which
+satisfies it by construction. It still tests Llama-3.2-1B, whose lower bound of 3{,}346~ms exceeds
+it, and SmolLM2-360M, not measured end to end, is shown neither to satisfy it nor to miss it.
 
-\paragraph{Ranking and selection.} Among the configurations not ruled out, exact match on the
-golden split is 0.935 for Qwen2.5-0.5B and 0.760 for SmolLM2-360M, and the rule ranks on exact
-match without a tie to break: it selects Qwen2.5-0.5B at Q4\_K\_M. The Q8\_0 artefacts have no
+\paragraph{Ranking and selection.} Qwen2.5-0.5B at Q4\_K\_M is the only configuration satisfying
+both re-baselined constraints, and the rule selects it. Because that outcome follows in part from
+Qwen2.5-0.5B being the only configuration measured end to end, it is checked under the reading
+most favourable to the others, which admits every configuration not shown to miss a constraint.
+That reading adds SmolLM2-360M and leaves the selection unchanged: exact match on the golden split
+is 0.935 for Qwen2.5-0.5B and 0.760 for SmolLM2-360M, a difference Section~\ref{sec:statistics}
+establishes as significant, with no tie to break. The selection therefore does not depend on
+whether SmolLM2-360M would have satisfied the budget. The Q8\_0 artefacts have no
 measurement on the board and cannot be checked against either constraint; none exceeds 0.935 on
 the golden split, so their exclusion does not change the ranking. The selected configuration is
 also the only one of the three meeting the 0.85 exact-match threshold, the 1{,}100~ms decode
@@ -380,8 +387,9 @@ statistically; the margin over Llama-3.2-1B is not, and the choice between them 
 latency constraint rather than on the accuracy difference, which Section~\ref{sec:statistics} does
 not establish as significant. The selection is made against reference-text accuracy, and
 Section~\ref{sec:speaker-sensitivity} measures the recognition error that the deployed input will
-carry. It is made against a re-baselined end-to-end budget: the selected configuration misses the
-2{,}500~ms budget as specified. Like every other configuration measured, it also misses the
+carry. It is made against re-baselined constraints: the selected configuration misses the
+2{,}500~ms end-to-end budget as specified by 622~ms, and its memory is confirmed for the
+language-model process only. Like every other configuration measured, it also misses the
 safe-failure and false-command thresholds. It is selected as the best available on the criteria
 the rule names, not as a configuration that satisfies every requirement placed on the system.
 Chapter~\ref{chap:discussion} takes up the consequences of these shortfalls and what would address

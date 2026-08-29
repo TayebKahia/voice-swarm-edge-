@@ -611,15 +611,15 @@ False commands & False-command rate on the out-of-domain set & $\leq$ 0.05 & Mul
 \end{table}
 
 \paragraph{Selection rule and statistical plan.} The deployed configuration is the one with the
-highest \gls{em} among configurations not ruled out by the 2{,}500~ms end-to-end latency budget or
-the 2.5~GiB memory ceiling, ties broken toward lower p95 latency. On the evidence available, each
-constraint can only rule a configuration out: the benchmark measures part of the stack, and a
-configuration is excluded when that part alone already exceeds the budget. If no configuration
-satisfies both constraints, the rule fails openly: the constraint is re-baselined against the
-measured figure, and the re-baselining is reported rather than the constraint treated as met.
-One case the rule did not anticipate arose in applying it: a constraint measured end to end for one
-configuration only. Chapter~\ref{chap:results} treats it under the failure clause, so that
-measuring a configuration cannot by itself rule that configuration out while unmeasured ones stand.
+highest \gls{em} among configurations satisfying both the 2{,}500~ms end-to-end latency budget and
+the 2.5~GiB memory ceiling, ties broken toward lower p95 latency. The rule was fixed in writing
+before any result existed. A configuration satisfies a constraint when the quantity the constraint
+bounds has been measured for it and is within the bound. A measurement of part of that quantity
+cannot show that a configuration satisfies the constraint, but it can show that it does not: the
+benchmark times the language-model stages only, and a configuration whose stages alone exceed the
+end-to-end budget misses it. If no configuration satisfies both constraints, the rule fails openly:
+each unmet constraint is re-baselined against the measured figure, and the re-baselining is
+reported rather than the constraint treated as met.
 Paired deployed-surface predictions, under the grammar, are compared by McNemar's
 test~\cite{mcnemar1947} in two confirmatory families of three, both on the golden split: model
 against model at Q4\_K\_M, and Q8\_0 against Q4\_K\_M within each model. Bonferroni correction within
