@@ -190,5 +190,5 @@ passes, and the build has 0 errors.
 
 Ch3's 41 Branch A/B uses have been renamed to the reflex/parse path of Section 1.1, on the author's
 request, including the heading "Reflex-path membership rule", the figure tags and the membership
-table. Still open for the Ch3 review: ch3 l.37-40 repeats the V3 non sequitur ("no single path can
-meet both").
+table. The ch3 l.37-40 repeat of the V3 non sequitur is fixed as well: the reason is now the
+endpointing wait, with pointers to 3.4 and Ch1 1.2.
