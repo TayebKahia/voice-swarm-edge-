@@ -114,6 +114,17 @@ variants = Counter(json.loads(l).get("variant") for l in (REPO / "data/train.jso
 asr = {k: v for k, v in variants.items() if k.startswith("asr_")}
 r.number("872 rows replace the transcript", sum(asr.values()), f"data/train.jsonl asr_* variants {asr}")
 r.number("and 88 carry injected text perturbations", variants["perturb"], "data/train.jsonl perturb variant")
+unk = [x for x in map(json.loads, (REPO / "data/train.jsonl").open()) if json.loads(x["target"])["intent"] == "unknown"]
+unk_src = Counter(x["source_variant"] for x in unk)
+r.number("is taught by 81 of", len(unk), "data/train.jsonl rows whose target is unknown")
+r.number("assistant-style queries, and 46", unk_src["hard_negative"], "unknown rows with source_variant hard_negative")
+r.number("35 authored assistant-style", unk_src["authored_unknown"], "unknown rows with source_variant authored_unknown")
+relab = [json.loads(x) for x in (REPO / "data/roundtrip_rejects.jsonl").open()
+         if "relabelled_unknown" in json.loads(x)["reason"]]
+r.text_claim("claim", "every one is \\texttt{unknown} in its\nclean form",
+             set(unk_src) == {"hard_negative", "authored_unknown"} and all(x["was"] == "unknown" for x in relab),
+             f"unknown training rows by source {dict(unk_src)}; the {len(relab)} destroyed-transcript relabel(s) "
+             "were already unknown, so no command became unknown")
 r.number("872 transcripts replaced", sum(asr.values()), "data/train.jsonl asr_* variants")
 r.text_claim("dataset", "mixed with noise at 20, 10 or 5~dB", sorted(int(k[4:-2]) for k in asr) == [5, 10, 20],
              f"round-trip SNR levels in data/train.jsonl: {sorted(asr)}")
