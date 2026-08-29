@@ -36,9 +36,11 @@ segments the stream into utterances, \texttt{whisper.cpp tiny.en}~\cite{whisper,
 \gls{stt} on each, a fine-tuned \gls{slm} parses the transcript into a structured command under a
 decoding grammar~\cite{llamacpp}, and a semantic validator checks the result before it is published.
 The two paths share nothing between the audio buffer and the bus. They are not a fast and a slow
-setting of one pipeline: the reflex budget and the parse budget are anchored at different instants
-of the utterance (Section~\ref{sec:engineering-requirements}), so no single path can meet both, and
-the decomposition follows from that constraint rather than from a preference for redundancy.
+setting of one pipeline. The parse path cannot begin transcribing until the endpointer has
+confirmed that the operator has stopped speaking, and that wait alone exceeds the 150~ms reflex
+budget (Section~\ref{sec:latency-budget}); a stopping command on the parse path therefore misses
+the reflex budget however the rest of the path is tuned (Section~\ref{sec:engineering-requirements}).
+The decomposition follows from that constraint rather than from a preference for redundancy.
 
 The language model on the parse path is Qwen2.5-0.5B~\cite{qwen25}, fine-tuned and quantised to
 Q4\_K\_M. The \emph{M\'emoire de Master} selects this configuration by comparing models and
