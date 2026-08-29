@@ -132,8 +132,10 @@ D9  LaTeX and build hygiene.
     b. Remaining \TODO{}, \CHECK{}, \figtodo{} -- list each with its line.
     c. Labels follow the chap:/sec:/fig:/tab: pattern and match what other chapters \ref.
     d. `~` before \cite, \ref and units.
-    e. Clean build: `rm -rf thesis/build && cd thesis && latexmk main_{{document}}.tex`, then
-       grep the log for `^!`, `Citation.*undefined`, `Float too large`.
+    e. Clean build: `rm -rf thesis/build/{{document}} && cd thesis && latexmk main_{{document}}.tex`
+       (each thesis has its own folder, so this never touches the other one's build), then grep
+       thesis/build/{{document}}/main_{{document}}.log for `^!`, `Citation.*undefined`,
+       `Float too large`.
 
 D11 Self-containment (SKILL §2 "A Self-Contained Document"). The reader holds only the thesis.
     a. Project-internal references (prd, project/hardware specification, spike, gate, D-numbers,
