@@ -8,7 +8,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 |---|---|---|---|
 | WARN | outline |  | sections beyond prd.md §3.1 item 2: ['Swarm control', 'Offline speech components', 'Gap'] -- SKILL §3: change prd.md first, then the scaffold |
 | WARN | ready |  | 0 words of prose -- scaffold only; run the review after the prose is drafted |
-| WARN | acronym | 9 | `UAV` typed by hand 1x (lines 9) -- \gls{uav}, \acrfull on first use |
+| WARN | acronym | 9 | `UAV` typed by hand 1x (lines 9) -- \gls{uav} (the first \gls expands itself) |
 | WARN | section | 9 | `Voice-controlled UAV systems` has no prose yet |
 | WARN | section | 21 | `Positioning against Lim et al.` has no prose yet |
 | WARN | section | 28 | `Swarm control` has no prose yet |
@@ -17,7 +17,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | PASS | check_tex |  | tools/check_tex.py: no problems beyond cross-chapter \ref (resolved below) |
 | PASS | ref |  | every \ref resolves within the document |
 | PASS | cite |  | no citations |
-| PASS | heading |  | chapter titles use one capitalisation style: [('ch1_introduction', 'Introduction'), ('ch2_state_of_the_art', 'State of the Art')] |
+| PASS | heading |  | chapter titles use one capitalisation style: [('ch1_introduction', 'Introduction'), ('ch2_state_of_the_art', 'State of the art'), ('ch3_architecture', 'Architecture and design')] |
 | PASS | outline |  | prd.md §3.1 item 2: State of the art in voice-controlled UAV systems; positioning against Lim et al. [1]. |
 | PASS | outline |  | prd topic `voice-controlled UAV systems` -> section `Voice-controlled UAV systems` |
 | PASS | outline |  | prd topic `positioning against Lim et al.` -> section `Positioning against Lim et al.` |
@@ -56,7 +56,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 
 | line | level | title | prose words |
 |---|---|---|---|
-| 6 | chapter | State of the Art | 0 |
+| 6 | chapter | State of the art | 0 |
 | 9 | section | Voice-controlled UAV systems | 0 |
 | 21 | section | Positioning against Lim et al. | 0 |
 | 28 | section | Swarm control | 0 |
