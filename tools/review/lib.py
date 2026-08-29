@@ -257,6 +257,11 @@ def prd_outline(doc: str) -> list[str]:
 def norm(s: str) -> str:
     """Compare prose across LaTeX and Markdown: drop markup, unify dashes and spacing."""
     s = re.sub(r"\\(?:texttt|emph|textbf)\{([^}]*)\}", r"\1", s)
+    # A glossary command compares as what it prints after first use: "\gls{vad}" is "VAD".
+    acr = acronyms()
+    s = re.sub(r"\\acrlong\{([^}]*)\}", lambda m: acr.get(m.group(1), ("", m.group(1)))[1], s)
+    s = re.sub(r"\\(?:gls|acrshort)\{([^}]*)\}", lambda m: acr.get(m.group(1), (m.group(1), ""))[0], s)
+    s = re.sub(r"\\glspl\{([^}]*)\}", lambda m: acr.get(m.group(1), (m.group(1), ""))[0] + "s", s)
     s = s.replace("~", " ").replace("{,}", ",").replace("\\_", "_").replace("$", "").replace("`", "")
     s = s.replace("\\leq", "≤").replace("\\geq", "≥").replace("--", "–").replace("*", "")
     return re.sub(r"\s+", " ", s).strip().lower()
@@ -414,8 +419,10 @@ class Review:
         for n, m in enumerate(re.finditer(r"\\cite(?:\[[^\]]*\])?\{([^}]*)\}", text), 1):
             keys = [k.strip() for k in m.group(1).split(",")]
             line = self.ch.line_of(m.start())
-            start = max(text.rfind(". ", 0, m.start()), text.rfind("\n\n", 0, m.start())) + 1
-            end_m = re.search(r"\.(\s|$)", text[m.end():])
+            # A tabular row has no full stop: bound it by its `\\`, or the sheet shows the row above.
+            start = max(text.rfind(". ", 0, m.start()), text.rfind("\n\n", 0, m.start()),
+                        text.rfind("\\\\", 0, m.start()) + 1) + 1
+            end_m = re.search(r"\.(\s|$)|\\\\", text[m.end():])
             end = m.end() + (end_m.end() if end_m else 200)
             sentence = re.sub(r"\s+", " ", text[start:end]).strip()[:320]
             sheet.append(f"| {n} | {line} | {', '.join(keys)} | {sentence.replace('|', '/')} |")
@@ -557,9 +564,12 @@ class Review:
                 k, pos = key(m.group()), (idx, c.line_of(m.start()))
                 first_use.setdefault(k, pos)
                 line_start = txt.rfind("\n", 0, m.start()) + 1
-                is_def = (txt[line_start:m.start()].strip() == "" and txt[m.end():m.end() + 3].strip().startswith("&")) \
-                    or txt[max(0, m.start() - 8):m.start()].endswith("\\textbf{") \
-                    or re.match(r"\s*(?:\(|:|---)", txt[m.end():m.end() + 5]) is not None
+                is_def = ((txt[line_start:m.start()].strip() == "" and txt[m.end():m.end() + 3].strip().startswith("&"))
+                          or txt[max(0, m.start() - 8):m.start()].endswith("\\textbf{")
+                          # "RQ2 (Section~\ref..." is a use; "RQ2 (Pipeline latency)" and "latency (RQ2)" define
+                          or re.match(r"\s*(?:\((?!Section|Chapter|Table|Figure|Appendix)|:|---)",
+                                      txt[m.end():m.end() + 16]) is not None
+                          or (txt[m.start() - 1:m.start()] == "(" and txt[m.end():m.end() + 1] == ")"))
                 if is_def:
                     defined.setdefault(k, pos)
         me = self._document().index(self.ch)
@@ -740,6 +750,7 @@ def requirement_table_check(r: Review, label: str, target_col: int, source_col: 
         # the chapter legitimately rewords "100% *by construction* -- reported as ..." to fit a cell.
         def gist(s: str) -> tuple:
             s = re.sub(CODES, " ", norm(s), flags=re.I)   # "an RQ1 result" carries no target number
+            s = re.sub(r"\btable \d+", " ", s)             # prd's own table number is a pointer, not a target
             return (sorted(re.findall(r"\d+(?:[.,]\d+)?", s)), "≤" in s, "≥" in s)
         ok = gist(cells[target_col - 1]) == gist(want[1])
         r.expect("requirements", ok, f"{rid} target `{cells[target_col - 1]}` vs prd `{want[1]}`", line, warn=not strict)

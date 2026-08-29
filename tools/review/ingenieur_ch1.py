@@ -19,7 +19,8 @@ r.common()
 text = r.ch.text
 
 outline_check(r, 0, {"operational context": r"operational context", "engineering requirements": r"requirements",
-                     "the safety problem": r"safety problem"})
+                     "the safety problem": r"safety problem", "objectives": r"objectives",
+                     "contribution": r"contribution", "structure of the document": r"structure"})
 r.expect("label", "\\label{chap:introduction}" in text, "carries \\label{chap:introduction}")
 
 # -- RQs and contribution against prd.md §2 -----------------------------------------------------
@@ -35,15 +36,18 @@ r.text_claim("claim", "four claimed contributions", n_contrib == 4, f"prd.md §2
 
 # -- Requirement tables and the counts quoted about them ----------------------------------------
 requirement_table_check(r, "tab:functional-requirements", target_col=2, source_col=None, strict=False)
-requirement_table_check(r, "tab:nonfunctional-requirements", target_col=2, source_col=3)
+# The Source column names experiments as issue 00 does; the map turns each name back into the
+# prd code, so the prd row is still what the cell is compared against.
+requirement_table_check(r, "tab:nonfunctional-requirements", target_col=2, source_col=3,
+                        source_names={"Latency": "Exp-2", "Acoustic robustness": "Exp-3",
+                                      "Formation control": "Exp-4"})
 reqs = prd_requirements()
 n_fr = sum(k.startswith("FR-") for k in reqs)
 n_nfr = sum(k.startswith("NFR-") for k in reqs)
-r.number("Twelve functional requirements", n_fr, "FR rows in prd.md Table 11")
-r.number("twenty-one non-functional rows", n_nfr, "NFR rows in prd.md Table 12 (9a and 9b included)")
+r.number("Twelve \\glspl{fr}", n_fr, "FR rows in prd.md Table 11")
+r.number("twenty-one \\gls{nfr} rows", n_nfr, "NFR rows in prd.md Table 12 (9a and 9b included)")
 fr_shown = len(re.findall(r"^FR-\d+ &", text, flags=re.M))
-r.number("The remaining six functional", n_fr - fr_shown, f"{n_fr} - {fr_shown} tabulated here")
-r.text_claim("claim", "more than sixteenfold", 16 < 2500 / 150 < 17, f"NFR-2 / NFR-1 = 2500 / 150 = {2500 / 150:.1f}")
+r.number("The remaining six of the twelve", n_fr - fr_shown, f"{n_fr} - {fr_shown} tabulated here")
 r.text_claim("claim", "Five chapters follow", len(main_order("ingenieur")) - 1 == 5,
              f"{len(main_order('ingenieur')) - 1} chapters after this one in main_ingenieur.tex")
 
