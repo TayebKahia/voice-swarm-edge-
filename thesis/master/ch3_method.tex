@@ -170,7 +170,12 @@ Split & Size & Source & Role \\
 explicitly rather than left to sampling temperature. The axes cover the ways a command is spoken:
 imperative and polite forms, unit variants (metres, m), numeric forms (five, 5, 5.0),
 drone subsetting (all drones, drone two, drones one and three), synonym sets per intent, filler
-words, self-corrections, and truncated utterances. Splits are assigned by \textbf{template family},
+words, self-corrections, and truncated utterances. The \texttt{unknown} intent is taught by 81 of
+the 1{,}940 training pairs: 35 authored assistant-style queries, and 46 near-miss requests that a
+drone could plausibly be given but the schema does not support, such as ``follow me''. Some of these
+pass through the recognition round trip described below, but every one is \texttt{unknown} in its
+clean form, so no training pair maps a supported command made unreadable by recognition error to
+\texttt{unknown}. Splits are assigned by \textbf{template family},
 not by row: every paraphrase descended from the same label lands in the same split, and the 120
 families divide 96/12/12 between training, validation and \texttt{test\_synth}. A row-wise split
 would place near-duplicate paraphrases of one label on both sides of the train/test boundary and
