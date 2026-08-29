@@ -296,6 +296,34 @@ errors, 0 overfull boxes, no undefined citations; only the pending `chap:conclus
 Not verified: the 1.5 GHz cap comes from `CLOCK_RATIO` in `eval/tables.py` (STATE.md). No clock
 column exists in `exp1.csv`, which is why the text now calls it a cap.
 
+### 2026-09-24 -- follow-up: selection rule restored to "satisfying" (option B)
+
+Raised after resolution: re-baselining the end-to-end budget to 3,122 ms, Qwen2.5-0.5B's own
+figure, lets Qwen pass by construction ("you moved the budget"). Checked against the declared
+rule: `docs/PRD.tex` at `13847fc` (2026-07-01, a month before the first tables on 2026-08-01)
+says "satisfying", with the failure clause. The "not ruled out" wording came from the Ch3 second
+pass and was what made Qwen exclude itself while unmeasured SmolLM2-360M stood.
+
+Options put to the author: A keep the text, B restore the declared wording and state the
+weakness, C no selection, D measure SmolLM2 end to end on the Pi. **Decided: B, as drafted; memory
+kept in the failure clause.**
+
+| Where | Change |
+|---|---|
+| Ch3 selection rule | "satisfying both"; "fixed in writing before any result existed"; partial measurement shows a miss, never a pass; failure clause re-baselines "each unmet constraint". "Did not anticipate" sentence deleted. |
+| Ch4 §4.7 opening | Rule restated as in Ch3. |
+| Ch4 memory | No configuration shown to satisfy the full-stack ceiling, none shown to miss it; LM process at least 35% clear. |
+| Ch4 end-to-end | Miss quantified (622 ms, 25%); SmolLM2 "shown neither to satisfy the budget nor to miss it". |
+| Ch4 failure clause | Both constraints re-baselined; says the re-baselined budget cannot test Qwen, still excludes Llama (3,346 ms), leaves SmolLM2 undecided. |
+| Ch4 ranking | Qwen is the only configuration satisfying both re-baselined constraints; re-checked under the permissive reading, still Qwen on a significant EM gap (p = 1.1e-7). |
+| Ch4 qualifications | "misses ... as specified by 622 ms, and its memory is confirmed for the language-model process only". |
+
+Script: claims added for 622, 25%, the second 3,346, the bound exceeding the re-baselined budget,
+and the Qwen-vs-SmolLM2 significance. Final: Ch4 0 FAIL, 2 WARN (unchanged), 208 PASS; Ch3 0 FAIL,
+4 WARN; selftest passed; build 0 errors, 0 overfull. Commits `fac6b8f` (thesis), `13ff146`
+(script). Open, not decided: option D, the SmolLM2 end-to-end run; and a sentence on the rule not
+filtering on the 0.85 EM threshold. For Ch5: it must use "satisfying" when it restates the rule.
+
 ### For issue 05 (Ch5) -- what Ch4 now says that Ch5 must match
 - Ch5 l.24 and l.27: "0.13 GB" and "0.95 GB" are GiB differences (0.68 - 0.55 and 1.63 - 0.68);
   write GiB. The ceiling is 2.5 GiB.

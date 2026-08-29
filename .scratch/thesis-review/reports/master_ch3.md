@@ -175,7 +175,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 33 | 427 | llamacppchat | First, \texttt{llama.cpp} omits the leading beginning-of-sequence piece from the rendered prompt, because it inserts that token at tokenisation time~\cite{llamacppchat}. |
 | 34 | 428 | llama32card | Second, Llama-3.2's chat template writes the current date into its system turn~\cite{llama32card}, so it renders the date of the check rather than the date of training. |
 | 35 | 491 | whisper | Speech recognition used \texttt{whisper.cpp} commit 52a939a with the \texttt{tiny.en} model~\cite{whisper}, prompted with a fixed 25-word command vocabulary (\texttt{data/asr.py}), both when the round-trip training rows were built and at run time. |
-| 36 | 624 | mcnemar1947 | Chapter~\ref{chap:results} treats it under the failure clause, so that measuring a configuration cannot by itself rule that configuration out while unmeasured ones stand. Paired deployed-surface predictions, under the grammar, are compared by McNemar's test~\cite{mcnemar1947} in two confirmatory families of three, both |
+| 36 | 624 | mcnemar1947 | If no configuration satisfies both constraints, the rule fails openly: each unmet constraint is re-baselined against the measured figure, and the re-baselining is reported rather than the constraint treated as met. Paired deployed-surface predictions, under the grammar, are compared by McNemar's test~\cite{mcnemar1947} |
 
 | key | title | year | identifier |
 |---|---|---|---|
@@ -218,7 +218,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 123 | section | Label-first dataset construction | 1758 |
 | 266 | section | The LoRA recipe | 1077 |
 | 364 | section | Quantisation procedure | 1058 |
-| 448 | section | Evaluation protocol and the definitions of record | 2656 |
+| 448 | section | Evaluation protocol and the definitions of record | 2651 |
 
 ### Codes used in this chapter (self-containment agent: is each one needed, or would a descriptive name read better?)
 
