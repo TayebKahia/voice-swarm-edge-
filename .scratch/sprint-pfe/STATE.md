@@ -1465,7 +1465,10 @@ What each section settles (Ch6 may rely on these readings; none is a verdict):
 Also changed this session: Ch4 sec:exp0 / sec:exp1 alias labels deleted (issue 04 hand-off;
 nothing else referenced them). Ch3 3.2 gained one sentence: unknown is taught by 81 of 1,940
 training pairs (35 assistant-style, 46 unsupported drone requests like "follow me"), none of them a
-supported command made unreadable.
+supported command made unreadable. **[Corrected Thu 24 Sep: that split was by source_variant and
+mislabelled. By family it is 20 assistant queries (F115), 21 unsupported capabilities (F116, e.g.
+"follow me") and 40 lexical near-misses (F117, e.g. "hold that thought"); Ch3 now says so -- see
+the Ch3 follow-up below.]**
 
 **Named, not started -- Block A (rule 1: not a B-session's to touch):**
   - results/limitation_abstention.md s3 says the single model `unknown` is "the only instance, in
@@ -1631,3 +1634,22 @@ executable command", which that edit kept. If the Ch5 revision changes 5.2's tax
 Stopped here: Master Ch 6 done; all six Master chapters written. Remaining Master briefs: B12
 (frontmatter, both documents -- the abstract must carry the 6.1 verdict at its strength) and B13
 (write-once read-through). Ingenieur B9-B11 are not this session's.
+
+## Ch3 follow-up from the Ch5 review (Thu 24 Sep) -- the unknown training pairs, and the ellipsis axis
+Two Ch3 errors found by issue 05's verifier and checked against data/ before fixing:
+- The 81 unknown training pairs were described by source_variant (35 authored / 46 hard-negative) and
+  labelled "assistant-style" / "drone near-miss requests". By template family (data/ood.py,
+  data/hard_negatives.py) they are 20 assistant queries (F115), 21 requests for unsupported
+  capabilities (F116: 15 authored + 6 from the hard-negative set, e.g. "follow me") and 40 lexical
+  near-misses (F117: a command word without a command, e.g. "hold that thought", "the swarm of bees
+  is back"). The counts were right; the kinds were wrong, and the Ch3 script only checked counts.
+- Ch3 listed "truncated utterances" as a training axis. The axis is ellipsis (data/surface_forms.py
+  axis 5): the verb is dropped and every slot kept, 268 training rows. Content-losing truncation
+  (F119, "form a") is in val_synth only, plus the OOD truncated_fragment source. Mattered because
+  Ch5 5.2 and Ch6 rely on "no training pair maps an unreadable supported command to unknown".
+- Ch4's prefill percentiles (38.5 / 328.8 ms, 8/60) were reported as having no generated artefact:
+  false alarm -- they come from results/exp1_cooled.csv, which the same section's table caption
+  names, and master_ch4.py recomputes them.
+Open, for the author: Ch5 l.161 calls all 81 pairs "a request the schema does not support"; the 40
+F117 near-misses are not requests. Ch6 only says "81 pairs, none a supported command made
+unreadable", which stays true.
