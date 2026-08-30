@@ -364,3 +364,31 @@ Not fixed here, for the author:
   torch 2.10.0+cu128, peft 0.19.1; Ch3 now states them. The control's session is still
   unlogged.
 - Ch1 C2 "gold labels are sealed" corrected to the annotation pass (author's decision).
+
+### 2026-09-24 -- follow-up from issue 05 (Ch5 review): two Ch3 descriptions corrected
+
+Issue 05's verifier found these two while checking Ch5. Each was checked against `data/` before fixing.
+- **ch3:173-176, the 81 `unknown` training pairs.** They were described as "35 authored
+  assistant-style queries, and 46 near-miss requests …". Those counts are by `source_variant`, and the
+  script checked only the counts, not the kinds. By template family the pairs are:
+  - 20 assistant queries (F115);
+  - 21 requests for capabilities the schema lacks (F116: 15 authored plus 6 from the hard-negative
+    set, e.g. "follow me");
+  - 40 lexical near-misses (F117: a command word without a command, e.g. "hold that thought").
+
+  Ch3 now says 20 / 21 / 40.
+- **ch3:172-173, "truncated utterances" as a training axis.** The axis is ellipsis
+  (`data/surface_forms.py` axis 5, 268 training rows): the verb is dropped and the slots are kept.
+  Content-losing fragments (F119) are in `val_synth` only. Ch3 now says "elliptical commands that drop
+  the verb and keep the slots (``grid, 3.7 spacing'')".
+  - The first example chosen, "ring, ten across", was rejected by the new quote check. Its training
+    row carries the round-trip transcript ", bring 10 across,", not the clean text, so it was
+    replaced by an example that appears in `train.jsonl` as written.
+
+Script `master_ch3.py`:
+- The 35/46 checks by `source_variant` are replaced by per-family checks (20/21/40), plus a check
+  that no other family teaches `unknown`.
+- A check that every quoted example on these lines is a `data/train.jsonl` transcript.
+
+No expected value was changed to match the prose. Final state: 0 FAIL, 4 WARN (the same four as
+before), 132 PASS. The self-test passes. The build has 0 errors.

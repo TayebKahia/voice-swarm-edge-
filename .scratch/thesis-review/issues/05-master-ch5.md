@@ -194,3 +194,14 @@ Ch6.
 
 Script: 0 FAIL, 1 WARN (l.203, justified), 96 PASS. The Master builds with 0 errors. The one Amiri
 font-shape warning comes from the Arabic front matter and is unrelated to this change.
+
+### 2026-09-24 -- the three hand-offs to other chapters, closed
+
+- The two Ch3 items are fixed. See issue 03's follow-up comment: the 81 pairs by family are
+  20 / 21 / 40, and "truncated utterances" became the ellipsis axis.
+- The Ch4 prefill percentiles were a **false alarm**. They come from `results/exp1_cooled.csv`, which
+  the section's model-comparison table caption names, and `master_ch4.py` l.193-197 recomputes them.
+- **New, left for the author:** Ch5 l.161 says all 81 pairs are "a request the schema does not
+  support". The 40 F117 lexical near-misses ("we landed that contract") are not requests. Proposed:
+  "…through 81 pairs, every one an utterance the schema does not support as a command, and through
+  none in which a supported command was made unreadable". Ch6 l.97 stays true.
