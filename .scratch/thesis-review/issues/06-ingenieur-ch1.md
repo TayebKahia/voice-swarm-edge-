@@ -1,6 +1,6 @@
 # Issue 06: ingenieur-ch1
 
-Status: resolved
+Status: ready-for-human
 Blocked by: 05
 Chapter: thesis/ingenieur/ch1_introduction.tex
 Script: tools/review/ingenieur_ch1.py
@@ -192,3 +192,43 @@ Ch3's 41 Branch A/B uses have been renamed to the reflex/parse path of Section 1
 request, including the heading "Reflex-path membership rule", the figure tags and the membership
 table. The ch3 l.37-40 repeat of the V3 non sequitur is fixed as well: the reason is now the
 endpointing wait, with pointers to 3.4 and Ch1 1.2.
+
+### 2026-09-24 -- second pass on the rewritten chapter (awaiting the author's decisions)
+
+The author asked whether Ch1 is ready and correct. About 550 lines had changed since the first
+pass, so it was re-reviewed as it now stands: an argument agent, a citation/presentation agent,
+and the verifier on BLOCKER/MAJOR. The script is still at 0 FAIL / 5 WARN, and the citations and
+the build are clean. The argument pass found factual errors, one of them missed by the first
+pass. Reports: `agents/06-ingenieur-ch1/pass2-*.md`.
+
+| # | Sev | Line | Finding | Verifier | Proposed fix (verifier-corrected) |
+|---|---|---|---|---|---|
+| W1 | BLOCKER | 44-46, 40-41, 61 | The swarm controller is listed as running on the Pi; the state machine, controller and simulation run on the workstation (ch3:110-111 and figure; runtime/bus.py:13-15). The validator does run on the Pi. | CONFIRMED | List only the spotter, VAD, STT, language model and validator on the Pi; say the state machine and controller run on the workstation; fix l.40-41 ("link to the vehicles") and l.61 to match |
+| W2 | MAJOR | 85-87, 148 | Keyword false accepts are credited to the latency experiment; they come from the spotter's held-out evaluation (train/train_wake.py -> results/wake_training.md; eval/exp2.py:34-37 excludes the ROC). The latency experiment measures false rejects and recovery. | CONFIRMED; prd Table 12 is out of date here, not the thesis | Name and describe a fourth measurement, the keyword-spotter evaluation; its row's "Measured by" cell changes, and ingenieur_ch1.py records that as a known deviation from prd |
+| W3 | MAJOR | 107, 111, 119, 154 | "no network access at any point in the pipeline" / "networking disabled" / "without a network" contradict the Wi-Fi bus, since l.333-335 put the controller inside "the pipeline". No run with networking disabled is recorded anywhere. | CONFIRMED | Table rows keep the prd wording; the prose after l.42 and both captions say what "networking disabled" means (external networks; the device-workstation link stays); l.119 corrected directly |
+| W4 | MAJOR | 217 | "A misheard command must not become motion" reads as a property. The design cannot deliver it: safe-failure rate is 0.014-0.039 (results/table20_end_to_end.md), and out-of-range values are clamped and executed, not rejected (schema/validate.py:5). | CONFIRMED; the reviewer's fix was itself wrong | State it as the objective; after l.244 name the two kinds of error that escape the safe exit (clamped out-of-range values; well-formed, in-range, state-legal wrong commands) and point to the safe-failure rate as the measure |
+| W5 | MAJOR | 299-300, 307-308 | The clamp is written back only on the kinematic simulator, and collisions (0.35 m) are counted after a clamp at 0.80 m, so zero collisions follows by construction there (closest approach 0.800 m) | CONFIRMED, worse than stated | Keep the locked wording; add one sentence: on the kinematic simulator the zero follows from the clamp, the intervention count is the informative figure, and a physics simulator or airframe has no position to rewrite (a Ch6 limitation) |
+
+**Decision the chapter cannot make: the live demonstration.** No live-microphone path exists:
+runtime/audio.py and runtime/main.py are missing, `run_pipeline.sh` stops at pre-flight, and
+nothing connects the state machine's output to the controller. STATE.md lists "A11 live capture"
+as a declared cut. If the demonstration does not happen, these become false: l.38-39, l.65-66,
+l.117-120, l.396-398, l.420-421. The Live demonstration and networking-disabled rows become unmet
+requirements. Either the demo is built, or Ch1 (and Ch6) describe what exists instead.
+
+**MINOR/NIT, not verified (spec step 4):** argument A6-A19 and presentation F1-F18 in the pass-2
+reports. Notable among them:
+- F2 / A16: the acoustic-robustness experiment runs the parse path from recorded audio, not "the full pipeline".
+- F1: 10 dB is not an "end" of the curve, which runs down to 5 dB.
+- F3: three experiments do not produce all the measurements.
+- F4: four new sentences of 61-68 words.
+- Terms never defined: abort (F5), keyword offset (F6), cross-trigger matrix (F7); canonicaliser is used in a caption before its definition (F8).
+- The membership paragraph omits set_param and unknown.
+- Ch1 and Ch3 define the parse path differently; the "latency argument" vs "latency plus false-accept cost" basis of the rule is inconsistent.
+- F18: the justification for the two caption-opening WARNs needs rewording.
+
+**Carried elsewhere:** the Master (the grammar admits leading zeros, so C1's "every completed decode
+is valid" is slightly false); Ch3 (membership table "reduces spacing"; which item is the
+contribution); code (the FSM's legality check runs on the raw intent, already a task chip).
+
+**Decisions:** _(author)_
