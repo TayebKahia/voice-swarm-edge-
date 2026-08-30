@@ -6,7 +6,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 
 | status | check | line | finding |
 |---|---|---|---|
-| WARN | absolute | 203 | `guaranteed` -- earned? ...rained in a separate session, and \gls{gpu} training is not guaranteed to be bit-reproducible across sessions~ . It exis... |
+| WARN | absolute | 204 | `guaranteed` -- earned? ...rained in a separate session, and \gls{gpu} training is not guaranteed to be bit-reproducible across sessions~ . It exis... |
 | PASS | check_tex |  | tools/check_tex.py: no problems beyond cross-chapter \ref (resolved below) |
 | PASS | ref |  | every \ref resolves within the document |
 | PASS | cite |  | 4 distinct keys cited, all resolved |
@@ -95,23 +95,23 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | PASS | claim | 147 | item 0036: reference -163.0, Qwen Q4_K_M +163.0 |
 | PASS | new-number | 147 | 163.0 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
 | PASS | new-number | 147 | 163.0 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
-| PASS | claim | 198 | six \paragraph lead-ins in the internal-validity subsection |
-| PASS | claim | 249 | log10(0.0167 / 1.1e-7) = 5.18 |
-| PASS | claim | 280 | exp3_pi_parity.csv text: n 200, raw differs 0 |
-| PASS | claim | 284 | `\gls{crr} is 0.690 on clean` -> written 0.690, source gives 0.690 (exp3_pi.csv clean CRR (Pi, of record)) |
-| PASS | claim | 284 | `and 0.590 at 10~dB` -> written 0.590, source gives 0.590 (exp3_pi.csv 10 dB CRR) |
-| PASS | new-number | 284 | 0.690 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
-| PASS | new-number | 284 | 0.590 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
-| PASS | claim | 285 | `against an \gls{em} of 0.935` -> written 0.935, source gives 0.935 (exp3_pi.csv EM on the same items) |
+| PASS | claim | 199 | six \paragraph lead-ins in the internal-validity subsection |
+| PASS | claim | 250 | log10(0.0167 / 1.1e-7) = 5.18 |
+| PASS | claim | 281 | exp3_pi_parity.csv text: n 200, raw differs 0 |
+| PASS | claim | 285 | `\gls{crr} is 0.690 on clean` -> written 0.690, source gives 0.690 (exp3_pi.csv clean CRR (Pi, of record)) |
+| PASS | claim | 285 | `and 0.590 at 10~dB` -> written 0.590, source gives 0.590 (exp3_pi.csv 10 dB CRR) |
+| PASS | new-number | 285 | 0.690 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
+| PASS | new-number | 285 | 0.590 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
+| PASS | claim | 286 | `against an \gls{em} of 0.935` -> written 0.935, source gives 0.935 (exp3_pi.csv EM on the same items) |
 
 ### Citation sheet (for the citation agent: open each identifier, judge SUPPORTS / PARTIAL / DOES NOT SUPPORT per row)
 
 | # | line | keys | sentence the citation must support |
 |---|---|---|---|
-| 1 | 204 | pytorchrepro | It was trained in a separate session, and \gls{gpu} training is not guaranteed to be bit-reproducible across sessions~\cite{pytorchrepro}. |
-| 2 | 303 | sbc2025 | Section~\ref{sec:tradeoff} argued that the latency axis depends on the board's thermal state, and a benchmark of language-model inference on \glspl{sbc} reports throughput differences of up to four times between two runtimes on the same board~\cite{sbc2025}. |
-| 3 | 316 | park2024 | The literature reports that constrained decoding can distort a model's distribution over outputs~\cite{park2024} and degrade multi-step reasoning while matching or improving classification~\cite{tam2024}; a task this close to classification sits where that cost is least expected, so its absence here does not predict it |
-| 4 | 317 | tam2024 | The literature reports that constrained decoding can distort a model's distribution over outputs~\cite{park2024} and degrade multi-step reasoning while matching or improving classification~\cite{tam2024}; a task this close to classification sits where that cost is least expected, so its absence here does not predict it |
+| 1 | 205 | pytorchrepro | It was trained in a separate session, and \gls{gpu} training is not guaranteed to be bit-reproducible across sessions~\cite{pytorchrepro}. |
+| 2 | 304 | sbc2025 | Section~\ref{sec:tradeoff} argued that the latency axis depends on the board's thermal state, and a benchmark of language-model inference on \glspl{sbc} reports throughput differences of up to four times between two runtimes on the same board~\cite{sbc2025}. |
+| 3 | 317 | park2024 | The literature reports that constrained decoding can distort a model's distribution over outputs~\cite{park2024} and degrade multi-step reasoning while matching or improving classification~\cite{tam2024}; a task this close to classification sits where that cost is least expected, so its absence here does not predict it |
+| 4 | 318 | tam2024 | The literature reports that constrained decoding can distort a model's distribution over outputs~\cite{park2024} and degrade multi-step reasoning while matching or improving classification~\cite{tam2024}; a task this close to classification sits where that cost is least expected, so its absence here does not predict it |
 
 | key | title | year | identifier |
 |---|---|---|---|
@@ -126,10 +126,10 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 |---|---|---|---|
 | 1 | chapter | Discussion and limitations | 137 |
 | 15 | section | The accuracy--efficiency trade-off | 1108 |
-| 102 | section | Failure-mode analysis | 974 |
-| 178 | section | Threats to validity | 48 |
-| 186 | subsection | Internal validity | 1092 |
-| 270 | subsection | External validity | 848 |
+| 102 | section | Failure-mode analysis | 977 |
+| 179 | section | Threats to validity | 48 |
+| 187 | subsection | Internal validity | 1092 |
+| 271 | subsection | External validity | 848 |
 
 ### Codes used in this chapter (self-containment agent: is each one needed, or would a descriptive name read better?)
 
@@ -204,24 +204,24 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 147 | 163.0 | recomputed by a claim on this line |
 | 159 | 3{,}540 | measured: results/table19_grammar_ablation.md:10, results/table19_grammar_ablation.md:11 |
 | 160 | 0.17 | measured: results/wake_training.md:22, results/exp3_pi_analysis.md:23 |
-| 205 | 6.5 | measured: results/table33_iso_parameter.md:16, thesis/generated/table33_iso_parameter.tex:19 |
-| 212 | 0.0023 | measured: results/table33_iso_parameter.md:16, results/mcnemar.md:70 |
-| 226 | 0.000 | measured: results/nfr18_false_command.md:11, results/nfr18_false_command.md:13 |
-| 237 | 1.5 | measured: results/table18_quantisation_delta.md:15, results/table18_quantisation_delta.md:19 |
-| 238 | 1.6 | measured: results/thermal_headroom.md:19, results/table17_model_comparison.md:17 |
-| 238 | 1.69 | measured: results/thermal_headroom.md:19, thesis/generated/thermal_headroom.tex:21 |
-| 239 | 1.42 | measured: results/thermal_headroom.md:19, thesis/generated/thermal_headroom.tex:21 |
-| 244 | 200 | measured: results/exp2_latency_budget.md:4, results/table18_quantisation_delta.md:3 |
-| 246 | 200 | measured: results/exp2_latency_budget.md:4, results/table18_quantisation_delta.md:3 |
-| 249 | 1.1 | recomputed by a claim on this line |
-| 254 | 200 | measured: results/exp2_latency_budget.md:4, results/table18_quantisation_delta.md:3 |
-| 255 | 67 | measured: results/wake_training.json:1530 x100, results/wake_training.json:2316 x100 |
-| 280 | 200 | recomputed by a claim on this line |
-| 284 | 0.690 | recomputed by a claim on this line |
-| 284 | 0.590 | recomputed by a claim on this line |
-| 284 | 10 | recomputed by a claim on this line |
-| 285 | 0.935 | recomputed by a claim on this line |
-| 292 | 23.1 | measured: results/table16_asr_speaker_sensitivity.md:26, results/table16_asr_speaker_sensitivity.md:30 |
-| 295 | 6.2 | measured: results/table16_asr_speaker_sensitivity.md:11, results/exp2_analysis.md:67 |
-| 295 | 49.5 | measured: results/table16_asr_speaker_sensitivity.md:25, thesis/generated/table16_asr_speaker_sensitivity.tex:26 |
-| 320 | 3{,}540 | measured: results/table19_grammar_ablation.md:10, results/table19_grammar_ablation.md:11 |
+| 206 | 6.5 | measured: results/table33_iso_parameter.md:16, thesis/generated/table33_iso_parameter.tex:19 |
+| 213 | 0.0023 | measured: results/table33_iso_parameter.md:16, results/mcnemar.md:70 |
+| 227 | 0.000 | measured: results/nfr18_false_command.md:11, results/nfr18_false_command.md:13 |
+| 238 | 1.5 | measured: results/table18_quantisation_delta.md:15, results/table18_quantisation_delta.md:19 |
+| 239 | 1.6 | measured: results/thermal_headroom.md:19, results/table17_model_comparison.md:17 |
+| 239 | 1.69 | measured: results/thermal_headroom.md:19, thesis/generated/thermal_headroom.tex:21 |
+| 240 | 1.42 | measured: results/thermal_headroom.md:19, thesis/generated/thermal_headroom.tex:21 |
+| 245 | 200 | measured: results/exp2_latency_budget.md:4, results/table18_quantisation_delta.md:3 |
+| 247 | 200 | measured: results/exp2_latency_budget.md:4, results/table18_quantisation_delta.md:3 |
+| 250 | 1.1 | recomputed by a claim on this line |
+| 255 | 200 | measured: results/exp2_latency_budget.md:4, results/table18_quantisation_delta.md:3 |
+| 256 | 67 | measured: results/wake_training.json:1530 x100, results/wake_training.json:2316 x100 |
+| 281 | 200 | recomputed by a claim on this line |
+| 285 | 0.690 | recomputed by a claim on this line |
+| 285 | 0.590 | recomputed by a claim on this line |
+| 285 | 10 | recomputed by a claim on this line |
+| 286 | 0.935 | recomputed by a claim on this line |
+| 293 | 23.1 | measured: results/table16_asr_speaker_sensitivity.md:26, results/table16_asr_speaker_sensitivity.md:30 |
+| 296 | 6.2 | measured: results/table16_asr_speaker_sensitivity.md:11, results/exp2_analysis.md:67 |
+| 296 | 49.5 | measured: results/table16_asr_speaker_sensitivity.md:25, thesis/generated/table16_asr_speaker_sensitivity.tex:26 |
+| 321 | 3{,}540 | measured: results/table19_grammar_ablation.md:10, results/table19_grammar_ablation.md:11 |

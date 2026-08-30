@@ -205,3 +205,5 @@ font-shape warning comes from the Arabic front matter and is unrelated to this c
   support". The 40 F117 lexical near-misses ("we landed that contract") are not requests. Proposed:
   "…through 81 pairs, every one an utterance the schema does not support as a command, and through
   none in which a supported command was made unreadable". Ch6 l.97 stays true.
+- **Ch5 l.161: done**, as proposed, with the author's approval. It now reads "every one an utterance the
+  schema does not support as a command". Script: 0 FAIL, 1 WARN (justified); build: 0 errors.
