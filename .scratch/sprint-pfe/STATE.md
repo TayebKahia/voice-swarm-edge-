@@ -1650,6 +1650,6 @@ Two Ch3 errors found by issue 05's verifier and checked against data/ before fix
 - Ch4's prefill percentiles (38.5 / 328.8 ms, 8/60) were reported as having no generated artefact:
   false alarm -- they come from results/exp1_cooled.csv, which the same section's table caption
   names, and master_ch4.py recomputes them.
-Open, for the author: Ch5 l.161 calls all 81 pairs "a request the schema does not support"; the 40
-F117 near-misses are not requests. Ch6 only says "81 pairs, none a supported command made
+Done (author-approved, same day): Ch5 l.161 called all 81 pairs "a request the schema does not support"; the 40
+F117 near-misses are not requests; it now says "an utterance the schema does not support as a command". Ch6 only says "81 pairs, none a supported command made
 unreadable", which stays true.
