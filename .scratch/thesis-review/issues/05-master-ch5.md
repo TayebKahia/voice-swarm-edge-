@@ -165,8 +165,7 @@ The author approved the recommendations. That meant fixing all the verified find
 **Kept as written, by the author's choice:**
 - C5-C14, M14-M16 and the NITs: the recommendation was to leave them unless a fuller polish pass is
   wanted.
-- **The closing hand-off to Ch6 (D1): open.** Ch6 is being drafted in another session, so the hand-off
-  is best written once Ch6's opening exists.
+- **The closing hand-off to Ch6 (D1): done** (see the follow-up below).
 
 **Final state.** Script: 0 FAIL, 1 WARN, 96 PASS.
 - The remaining WARN is l.203 "not guaranteed", which is negated and now cited.
@@ -180,3 +179,18 @@ The author approved the recommendations. That meant fixing all the verified find
 **Still open for other issues** (listed in round 1): the ch3:174-175 split of the 35 pairs (20 of
 them assistant queries, 15 F116 drone requests); ch3:172-173 "truncated utterances" appear only in
 `val_synth`; the Ch4 prefill percentiles have no generated artefact.
+
+### 2026-09-24 -- follow-up: closing hand-off to Ch6 (D1)
+
+Ch6 was committed by the other session (`c2da438`), so the hand-off was written against its actual
+opening and its "Prioritised next steps". It is one closing paragraph after §5.3.2's last paragraph.
+It says the chapter's readings set the strength at which the Ch4 results can be stated, and that Ch6
+"decides RQ1 at that strength". The wording echoes the lead-in's l.12 and gives no verdict. It names
+the three steps Ch6 lists, in Ch5's own wording: the confidence gate, training pairs mapping degraded
+commands to `unknown`, and SmolLM2-360M's end-to-end measurement. It adds no claim or number.
+
+The paragraph avoids the phrase "answers RQ1", because the script's register check reserves it for
+Ch6.
+
+Script: 0 FAIL, 1 WARN (l.203, justified), 96 PASS. The Master builds with 0 errors. The one Amiri
+font-shape warning comes from the Arabic front matter and is unrelated to this change.

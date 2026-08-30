@@ -129,13 +129,13 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 102 | section | Failure-mode analysis | 974 |
 | 178 | section | Threats to validity | 48 |
 | 186 | subsection | Internal validity | 1092 |
-| 270 | subsection | External validity | 755 |
+| 270 | subsection | External validity | 848 |
 
 ### Codes used in this chapter (self-containment agent: is each one needed, or would a descriptive name read better?)
 
 | code | uses | defined at |
 |---|---|---|
-| RQ1 | 4 | ch1_introduction l.93 |
+| RQ1 | 5 | ch1_introduction l.93 |
 
 ### For the argument agent
 
