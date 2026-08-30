@@ -711,7 +711,8 @@ def rq_check(r: Review, n: int) -> None:
 
 def requirement_table_check(r: Review, label: str, target_col: int, source_col: int | None,
                             strict: bool = True, row_ids: dict[str, str] | None = None,
-                            source_names: dict[str, str] | None = None) -> None:
+                            source_names: dict[str, str] | None = None,
+                            deviations: dict[str, tuple[str, str]] | None = None) -> None:
     """Rows of the chapter's requirement table against prd Tables 11-12, cell by cell.
 
     `strict=False` for FR tables, whose second column is a verification method the chapter may
@@ -719,7 +720,12 @@ def requirement_table_check(r: Review, label: str, target_col: int, source_col: 
     instead of printing IDs (the Master, issue 00) passes `row_ids`, first cell -> prd ID, and
     `source_names`, experiment name -> prd code, so the same prd row is still what is compared.
     A name mapped to None is a requirement derived from another prd table rather than listed in
-    Tables 11-12; the chapter script must check its derivation itself."""
+    Tables 11-12; the chapter script must check its derivation itself.
+
+    `deviations` maps a prd ID to (source the chapter must print, reason): for a row where prd
+    records the plan and the as-built measurement came from elsewhere. The cell is then checked
+    against the recorded source, and the reason is printed, so the departure is explicit rather than
+    a standing WARN or a wrong cell kept to satisfy prd."""
     m = re.search(rf"\\label\{{{label}\}}(.*?)\\end\{{tabularx\}}", r.ch.text, flags=re.S)
     if not m:
         r.add("FAIL", "requirements", f"table {label} not found")
@@ -754,7 +760,13 @@ def requirement_table_check(r: Review, label: str, target_col: int, source_col: 
             return (sorted(re.findall(r"\d+(?:[.,]\d+)?", s)), "≤" in s, "≥" in s)
         ok = gist(cells[target_col - 1]) == gist(want[1])
         r.expect("requirements", ok, f"{rid} target `{cells[target_col - 1]}` vs prd `{want[1]}`", line, warn=not strict)
-        if source_col is not None:
+        if source_col is not None and deviations and rid in deviations:
+            as_built, why = deviations[rid]
+            src_ok = norm(cells[source_col - 1]) == norm(as_built)
+            r.expect("requirements", src_ok, f"{rid} source `{cells[source_col - 1]}` (prd `{want[2]}`, deviation "
+                     f"by record: {why})" if src_ok else f"{rid} source `{cells[source_col - 1]}` is neither prd "
+                     f"`{want[2]}` nor the recorded as-built source `{as_built}`", line)
+        elif source_col is not None:
             src = cells[source_col - 1]
             for name, code in (source_names or {}).items():
                 src = re.sub(re.escape(name), code, src, flags=re.I)

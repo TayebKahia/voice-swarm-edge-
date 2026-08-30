@@ -49,8 +49,14 @@ EXPERIMENTS = {"Latency experiment": "Exp-2", "Acoustic-robustness experiment": 
                "Formation-control experiment": "Exp-4", "End-to-end run, networking disabled": "FR-5"}
 requirement_table_check(r, "tab:functional-requirements", target_col=2, source_col=None, strict=False,
                         row_ids=FR_NAMES)
+# prd Table 12 still records the plan to select the keyword operating point inside Exp-2. As built,
+# train/train_wake.py fixes it on the validation split and scores the ambient-speech stream;
+# eval/exp2.py quotes that result and never re-selects it (issue 06, pass 2, W2).
+DEVIATIONS = {"NFR-15": ("Keyword-spotter evaluation",
+                         "operating point and ambient false accepts come from train/train_wake.py "
+                         "(results/wake_training.md); eval/exp2.py only quotes them")}
 requirement_table_check(r, "tab:nonfunctional-requirements", target_col=2, source_col=3,
-                        row_ids=NFR_NAMES, source_names=EXPERIMENTS)
+                        row_ids=NFR_NAMES, source_names=EXPERIMENTS, deviations=DEVIATIONS)
 # "a criterion shared with the Memoire de Master carries the same name there": check it.
 master_rows = set(re.findall(r"^([^&\n\\]+?) & ", (THESIS / "master/ch3_method.tex").read_text(), flags=re.M))
 master_ids = {"NFR-2", "NFR-4", "NFR-5", "NFR-6", "NFR-7", "NFR-8", "NFR-9", "NFR-9a", "NFR-9b", "NFR-10",
