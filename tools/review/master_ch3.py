@@ -117,8 +117,19 @@ r.number("and 88 carry injected text perturbations", variants["perturb"], "data/
 unk = [x for x in map(json.loads, (REPO / "data/train.jsonl").open()) if json.loads(x["target"])["intent"] == "unknown"]
 unk_src = Counter(x["source_variant"] for x in unk)
 r.number("is taught by 81 of", len(unk), "data/train.jsonl rows whose target is unknown")
-r.number("assistant-style queries, and 46", unk_src["hard_negative"], "unknown rows with source_variant hard_negative")
-r.number("35 authored assistant-style", unk_src["authored_unknown"], "unknown rows with source_variant authored_unknown")
+# By family, not by source_variant: authored_unknown mixes F115 (assistant queries) with F116
+# (unsupported drone capabilities), and hard_negative mixes F117 (lexical near-misses) with F116, so
+# a count by source_variant checks the number and not the kind of request (data/ood.py).
+unk_fam = Counter(x["template_family"] for x in unk)
+r.number("pairs: 20 assistant-style queries", unk_fam["F115"], "unknown rows in F115 (assistant queries, data/ood.py)")
+r.number("21 requests for capabilities", unk_fam["F116"], "unknown rows in F116 (unsupported capabilities)")
+r.number("and 40 lexical near-misses", unk_fam["F117"], "unknown rows in F117 (lexical near-misses, data/hard_negatives.py)")
+train_text = {json.loads(x)["transcript"] for x in (REPO / "data/train.jsonl").open()}
+quoted = ("grid, 3.7 spacing", "follow me", "deploy the parachute", "hold that thought")
+r.text_claim("claim", "(``grid, 3.7\nspacing'')", all(q in train_text for q in quoted),
+             f"the quoted examples {quoted} are data/train.jsonl transcripts")
+r.expect("claim", set(unk_fam) == {"F115", "F116", "F117"},
+         f"unknown training rows by family {dict(unk_fam)}: no other family teaches unknown")
 relab = [json.loads(x) for x in (REPO / "data/roundtrip_rejects.jsonl").open()
          if "relabelled_unknown" in json.loads(x)["reason"]]
 r.text_claim("claim", "every one is \\texttt{unknown} in its\nclean form",
