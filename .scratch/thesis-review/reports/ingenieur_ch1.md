@@ -6,11 +6,11 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 
 | status | check | line | finding |
 |---|---|---|---|
-| WARN | ref | 68 | \ref{chap:validation} x9 (lines 68, 84, 176, 196, 198, 311, 315, 326, 416) -- chapter not written yet; its file must carry exactly this label |
-| WARN | ref | 69 | \ref{chap:demonstration} x3 (lines 69, 203, 420) -- chapter not written yet; its file must carry exactly this label |
-| WARN | acronym | 96 | long form `functional requirement` spelled out -- \gls{fr}? |
-| WARN | acronym | 131 | long form `non-functional requirement` spelled out -- \gls{nfr}? |
-| WARN | ref | 325 | \ref{chap:implementation} x2 (lines 325, 414) -- chapter not written yet; its file must carry exactly this label |
+| WARN | ref | 78 | \ref{chap:validation} x9 (lines 78, 100, 205, 223, 226, 346, 353, 364, 453) -- chapter not written yet; its file must carry exactly this label |
+| WARN | ref | 80 | \ref{chap:demonstration} x5 (lines 80, 144, 231, 352, 458) -- chapter not written yet; its file must carry exactly this label |
+| WARN | acronym | 116 | long form `functional requirement` spelled out -- \gls{fr}? |
+| WARN | acronym | 156 | long form `non-functional requirement` spelled out -- \gls{nfr}? |
+| WARN | ref | 363 | \ref{chap:implementation} x2 (lines 363, 451) -- chapter not written yet; its file must carry exactly this label |
 | PASS | check_tex |  | tools/check_tex.py: no problems beyond cross-chapter \ref (resolved below) |
 | PASS | cite |  | 10 distinct keys cited, all resolved |
 | PASS | heading |  | chapter titles use one capitalisation style: [('ch1_introduction', 'Introduction'), ('ch2_state_of_the_art', 'State of the art'), ('ch3_architecture', 'Architecture and design')] |
@@ -19,7 +19,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | PASS | outline |  | prd topic `engineering requirements` -> section `Engineering requirements` |
 | PASS | outline |  | prd topic `the safety problem` -> section `The safety problem` |
 | PASS | outline |  | prd topic `objectives` -> section `Objectives` |
-| PASS | outline |  | prd topic `contribution` -> section `Contributions` |
+| PASS | outline |  | prd topic `contribution` -> section `Contribution` |
 | PASS | outline |  | prd topic `structure of the document` -> section `Structure of this document` |
 | PASS | label |  | carries \label{chap:introduction} |
 | PASS | contribution |  | the contribution matches prd.md §2.1 C4 verbatim |
@@ -28,64 +28,64 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | PASS | promise |  | no measured result quoted (the chapter promises targets only) |
 | PASS | table3 |  | Lim et al. named as the baseline (Ch2 owns the positioning) |
 | PASS | numbers |  | 0 significant number(s) found in no source file -- see the number trace |
-| PASS | fact | 46 | `8 GB` stated in prd.md |
-| PASS | fact | 46 | `Cortex-A76` stated in prd.md |
-| PASS | fact | 62 | `50 Hz` stated in prd.md |
-| PASS | claim | 74 | `Twelve \glspl{fr}` -> written 12, source gives 12.00 (FR rows in prd.md Table 11) |
-| PASS | claim | 74 | `twenty-one \glspl{nfr}` -> written 21, source gives 21.00 (NFR rows in prd.md Table 12 (9a and 9b included)) |
-| PASS | claim | 98 | `The remaining six of the twelve` -> written 6, source gives 6.00 (12 - 6 tabulated here) |
-| PASS | float | 102 | tab:functional-requirements referenced before it appears (line 81) |
-| PASS | requirements | 107 | FR-5 target `End-to-end run with networking disabled` vs prd `End-to-end run with networking disabled` |
-| PASS | requirements | 108 | FR-6 target `Preemption trials in the latency experiment; a $2 \times 2$ cross-trigger matrix` vs prd `Exp-2 preemption trials; $2\times 2$ cross-trigger matrix` |
-| PASS | requirements | 109 | FR-7 target `Formation-control experiment` vs prd `Exp-4` |
-| PASS | requirements | 110 | FR-8 target `Both pass a hover smoke test` vs prd `Both pass a hover smoke test` |
-| PASS | requirements | 111 | FR-9 target `Demonstration video, networking disabled on camera` vs prd `Demo video, networking disabled on camera` |
-| PASS | requirements | 112 | FR-11 target `Automated test of every (flight state, intent) cell of the legality table (Chapter~\ref{chap:architecture})` vs prd ``test_fsm.py` covering every cell of Table 9` |
-| PASS | float | 139 | tab:nonfunctional-requirements referenced before it appears (line 82) |
-| PASS | requirements | 144 | NFR-1 target `p95 $\leq$ 150~ms` vs prd `p95 $\leq$ 150 ms` |
-| PASS | requirements | 144 | NFR-1 source `Latency experiment` vs prd `Exp-2` |
-| PASS | requirements | 145 | NFR-2 target `p95 $\leq$ 2{,}500~ms` vs prd `p95 $\leq$ 2,500 ms` |
-| PASS | requirements | 145 | NFR-2 source `Latency experiment` vs prd `Exp-2` |
-| PASS | requirements | 145 | shared criterion `End-to-end latency` (NFR-2) has the same name in Master tab:requirements |
-| PASS | requirements | 146 | NFR-3 target `Every stage, p50/p95/p99` vs prd `Every stage, p50/p95/p99` |
-| PASS | requirements | 146 | NFR-3 source `Latency experiment` vs prd `Exp-2` |
-| PASS | requirements | 147 | NFR-17 target `p95 $\leq$ 300~ms` vs prd `p95 $\leq$ 300 ms` |
-| PASS | requirements | 147 | NFR-17 source `Latency experiment` vs prd `Exp-2` |
-| PASS | requirements | 148 | NFR-15 target `$\leq$ 1 per hour` vs prd `$\leq$ 1 per hour` |
-| PASS | requirements | 148 | NFR-15 source `Latency experiment` vs prd `Exp-2` |
-| PASS | requirements | 149 | NFR-16 target `$\leq$ 0.10` vs prd `$\leq$ 0.10` |
-| PASS | requirements | 149 | NFR-16 source `Latency experiment` vs prd `Exp-2` |
-| PASS | requirements | 150 | NFR-7 target `$\geq$ 0.80` vs prd `$\geq$ 0.80` |
-| PASS | requirements | 150 | NFR-7 source `Acoustic-robustness experiment` vs prd `Exp-3` |
-| PASS | requirements | 150 | shared criterion `Clean-audio recognition` (NFR-7) has the same name in Master tab:requirements |
-| PASS | requirements | 151 | NFR-8 target `$\geq$ 0.65` vs prd `$\geq$ 0.65` |
-| PASS | requirements | 151 | NFR-8 source `Acoustic-robustness experiment` vs prd `Exp-3` |
-| PASS | requirements | 151 | shared criterion `Recognition in noise` (NFR-8) has the same name in Master tab:requirements |
-| PASS | requirements | 152 | NFR-12 target `Zero observed across all trials, with a hard geometric separation clamp at the integrator` vs prd `**zero observed** across all trials, with a hard geometric separation clamp at the integrator` |
-| PASS | requirements | 152 | NFR-12 source `Formation-control experiment` vs prd `Exp-4` |
-| PASS | requirements | 153 | NFR-13 target `$\geq$ 0.85` vs prd `$\geq$ 0.85` |
-| PASS | requirements | 153 | NFR-13 source `Formation-control experiment` vs prd `Exp-4` |
-| PASS | requirements | 154 | NFR-14 target `100\%, no network dependency` vs prd `100%, no network dependency` |
-| PASS | requirements | 154 | NFR-14 source `End-to-end run, networking disabled` vs prd `FR-5` |
-| PASS | rq | 338 | RQ2 matches prd.md §2 verbatim |
-| PASS | rq | 344 | RQ3 matches prd.md §2 verbatim |
-| PASS | claim | 372 | prd.md §2.1 lists 4 contributions |
-| PASS | claim | 408 | 5 chapters after this one in main_ingenieur.tex |
+| PASS | fact | 47 | `8 GB` stated in prd.md |
+| PASS | fact | 47 | `Cortex-A76` stated in prd.md |
+| PASS | fact | 69 | `50 Hz` stated in prd.md |
+| PASS | claim | 86 | `Twelve \glspl{fr}` -> written 12, source gives 12.00 (FR rows in prd.md Table 11) |
+| PASS | claim | 86 | `twenty-one \glspl{nfr}` -> written 21, source gives 21.00 (NFR rows in prd.md Table 12 (9a and 9b included)) |
+| PASS | claim | 118 | `The remaining six of the twelve` -> written 6, source gives 6.00 (12 - 6 tabulated here) |
+| PASS | float | 123 | tab:functional-requirements referenced before it appears (line 94) |
+| PASS | requirements | 128 | FR-5 target `End-to-end run with networking disabled` vs prd `End-to-end run with networking disabled` |
+| PASS | requirements | 129 | FR-6 target `Preemption trials in the latency experiment; a $2 \times 2$ matrix of which class fires for each spoken phrase` vs prd `Exp-2 preemption trials; $2\times 2$ cross-trigger matrix` |
+| PASS | requirements | 130 | FR-7 target `Formation-control experiment` vs prd `Exp-4` |
+| PASS | requirements | 131 | FR-8 target `Both pass a hover smoke test` vs prd `Both pass a hover smoke test` |
+| PASS | requirements | 132 | FR-9 target `Demonstration video, networking disabled on camera` vs prd `Demo video, networking disabled on camera` |
+| PASS | requirements | 133 | FR-11 target `Automated test of every (flight state, intent) cell of the legality table (Section~\ref{sec:validation-layers})` vs prd ``test_fsm.py` covering every cell of Table 9` |
+| PASS | float | 166 | tab:nonfunctional-requirements referenced before it appears (line 95) |
+| PASS | requirements | 171 | NFR-1 target `p95 $\leq$ 150~ms` vs prd `p95 $\leq$ 150 ms` |
+| PASS | requirements | 171 | NFR-1 source `Latency experiment` vs prd `Exp-2` |
+| PASS | requirements | 172 | NFR-2 target `p95 $\leq$ 2{,}500~ms` vs prd `p95 $\leq$ 2,500 ms` |
+| PASS | requirements | 172 | NFR-2 source `Latency experiment` vs prd `Exp-2` |
+| PASS | requirements | 172 | shared criterion `End-to-end latency` (NFR-2) has the same name in Master tab:requirements |
+| PASS | requirements | 173 | NFR-3 target `Every stage, p50/p95/p99` vs prd `Every stage, p50/p95/p99` |
+| PASS | requirements | 173 | NFR-3 source `Latency experiment` vs prd `Exp-2` |
+| PASS | requirements | 174 | NFR-17 target `p95 $\leq$ 300~ms` vs prd `p95 $\leq$ 300 ms` |
+| PASS | requirements | 174 | NFR-17 source `Latency experiment` vs prd `Exp-2` |
+| PASS | requirements | 175 | NFR-15 target `$\leq$ 1 per hour` vs prd `$\leq$ 1 per hour` |
+| PASS | requirements | 175 | NFR-15 source `Keyword-spotter evaluation` (prd `Exp-2`, deviation by record: operating point and ambient false accepts come from train/train_wake.py (results/wake_training.md); eval/exp2.py only quotes them) |
+| PASS | requirements | 176 | NFR-16 target `$\leq$ 0.10` vs prd `$\leq$ 0.10` |
+| PASS | requirements | 176 | NFR-16 source `Latency experiment` vs prd `Exp-2` |
+| PASS | requirements | 177 | NFR-7 target `$\geq$ 0.80` vs prd `$\geq$ 0.80` |
+| PASS | requirements | 177 | NFR-7 source `Acoustic-robustness experiment` vs prd `Exp-3` |
+| PASS | requirements | 177 | shared criterion `Clean-audio recognition` (NFR-7) has the same name in Master tab:requirements |
+| PASS | requirements | 178 | NFR-8 target `$\geq$ 0.65` vs prd `$\geq$ 0.65` |
+| PASS | requirements | 178 | NFR-8 source `Acoustic-robustness experiment` vs prd `Exp-3` |
+| PASS | requirements | 178 | shared criterion `Recognition in noise` (NFR-8) has the same name in Master tab:requirements |
+| PASS | requirements | 179 | NFR-12 target `Zero observed across all trials, with a hard geometric separation clamp at the integrator` vs prd `**zero observed** across all trials, with a hard geometric separation clamp at the integrator` |
+| PASS | requirements | 179 | NFR-12 source `Formation-control experiment` vs prd `Exp-4` |
+| PASS | requirements | 180 | NFR-13 target `$\geq$ 0.85` vs prd `$\geq$ 0.85` |
+| PASS | requirements | 180 | NFR-13 source `Formation-control experiment` vs prd `Exp-4` |
+| PASS | requirements | 181 | NFR-14 target `100\%, no network dependency` vs prd `100%, no network dependency` |
+| PASS | requirements | 181 | NFR-14 source `End-to-end run, networking disabled` vs prd `FR-5` |
+| PASS | rq | 376 | RQ2 matches prd.md §2 verbatim |
+| PASS | rq | 382 | RQ3 matches prd.md §2 verbatim |
+| PASS | claim | 409 | prd.md §2.1 lists 4 contributions |
+| PASS | claim | 445 | 5 chapters after this one in main_ingenieur.tex |
 
 ### Citation sheet (for the citation agent: open each identifier, judge SUPPORTS / PARTIAL / DOES NOT SUPPORT per row)
 
 | # | line | keys | sentence the citation must support |
 |---|---|---|---|
-| 1 | 63 | pyflyt | The controller drives a networked software-in-the-loop simulation of $N = 5$ vehicles at 50~Hz, through a single environment interface with two interchangeable backends, the PyFlyt simulator~\cite{pyflyt} and a kinematic simulator. |
-| 2 | 107 | whisper, whispercpp | \midrule Offline speech recognition & Speech recognition runs offline on-device via \texttt{whisper.cpp tiny.en}~\cite{whisper,whispercpp}, with no network access at any point in the pipeline & End-to-end run with networking disabled \\ |
-| 3 | 109 | reynolds1987 | Swarm controller & The swarm controller implements vectorised flocking~\cite{reynolds1987}, formation slot assignment for the circle, line and wedge formations, artificial-potential-field separation with a hard geometric clamp at the integrator, and \acrlong{pid} (\acrshort{pid})\glsunset{pid} point navigation, for $N  |
-| 4 | 110 | pyflyt | Simulation backends & Two interchangeable simulation backends sit behind one environment interface: PyFlyt, built on the Bullet physics engine~\cite{pyflyt}, and a kinematic simulator & Both pass a hover smoke test \\ |
-| 5 | 219 | avizienis2004 | Treating failure modes as unequal in consequence is built into the dependability taxonomy, which grades failures by severity from minor to catastrophic~\cite{avizienis2004}, and systems-theoretic hazard analysis designs against the worst-case loss rather than its estimated likelihood~\cite{stpa}. |
-| 6 | 220 | stpa | Treating failure modes as unequal in consequence is built into the dependability taxonomy, which grades failures by severity from minor to catastrophic~\cite{avizienis2004}, and systems-theoretic hazard analysis designs against the worst-case loss rather than its estimated likelihood~\cite{stpa}. |
-| 7 | 242 | avizienis2004 | The dependability taxonomy calls a system that fails only in such specified modes fail-controlled, and one whose failures are, to an acceptable extent, all minor, fail-safe~\cite{avizienis2004}; the hold and the no-op are how this architecture seeks the second property through the first, and what is specific to it is t |
-| 8 | 295 | koren1991 | Potential fields also have failure modes identified as inherent to the method~\cite{koren1991}: trap situations at local minima where attractive and repulsive terms cancel, oscillation near obstacles and in narrow passages, and --- the mode that bears most directly on a formation whose slots are close together --- no p |
-| 9 | 387 | relays2s, mira | Running a fast path beside a slower one is a familiar pattern: arrangements that pair a fast responsive path with a slower, higher-quality one, with a gate or a cancellable commitment between them, recur in real-time spoken dialogue~\cite{relays2s,mira}. |
-| 10 | 410 | lim2025 | Chapter~\ref{chap:state-of-the-art} reviews voice-controlled \gls{uav} systems and positions this work against the natural-language drone-control agent of Lim et al.~\cite{lim2025}, which is the baseline against which this work is compared. |
+| 1 | 70 | pyflyt | Commands from the device reach the workstation over the wireless link, where the swarm controller drives a software-in-the-loop simulation of $N = 5$ vehicles at 50~Hz through a single environment interface with two interchangeable backends, the PyFlyt simulator~\cite{pyflyt} and a kinematic simulator. |
+| 2 | 128 | whisper, whispercpp | \midrule Offline speech recognition & Speech recognition runs offline on-device via \texttt{whisper.cpp tiny.en}~\cite{whisper,whispercpp}, with no network access at any point in the pipeline & End-to-end run with networking disabled \\ |
+| 3 | 130 | reynolds1987 | Swarm controller & The swarm controller implements vectorised flocking~\cite{reynolds1987}, formation slot assignment for the circle, line and wedge formations, artificial-potential-field separation with a hard geometric clamp at the integrator, and \acrlong{pid} (\acrshort{pid})\glsunset{pid} point navigation, for $N  |
+| 4 | 131 | pyflyt | Simulation backends & Two interchangeable simulation backends sit behind one environment interface: PyFlyt, built on the Bullet physics engine~\cite{pyflyt}, and a kinematic simulator & Both pass a hover smoke test \\ |
+| 5 | 248 | avizienis2004 | Treating failure modes as unequal in consequence is built into the dependability taxonomy, which grades failures by severity from minor to catastrophic~\cite{avizienis2004}, and systems-theoretic hazard analysis examines hazards under worst-case conditions rather than weighting them by their likelihood~\cite{stpa}. |
+| 6 | 249 | stpa | Treating failure modes as unequal in consequence is built into the dependability taxonomy, which grades failures by severity from minor to catastrophic~\cite{avizienis2004}, and systems-theoretic hazard analysis examines hazards under worst-case conditions rather than weighting them by their likelihood~\cite{stpa}. |
+| 7 | 271 | avizienis2004 | The dependability taxonomy calls a system that fails only in such specified modes fail-controlled, and one whose failures are, to an acceptable extent, all minor, fail-safe~\cite{avizienis2004}. |
+| 8 | 330 | koren1991 | Potential fields also have failure modes identified as inherent to the method~\cite{koren1991}: trap situations at local minima where attractive and repulsive terms cancel, oscillation near obstacles and in narrow passages, and no passage between closely spaced obstacles. |
+| 9 | 424 | relays2s, mira | Running a fast path beside a slower one is a familiar pattern: arrangements that pair a fast responsive path with a slower, higher-quality one, with a gate or a cancellable commitment between them, recur in real-time spoken dialogue~\cite{relays2s,mira}. |
+| 10 | 447 | lim2025 | Chapter~\ref{chap:state-of-the-art} reviews voice-controlled \gls{uav} systems and positions this work against the natural-language drone-control agent of Lim et al.~\cite{lim2025}, which is the baseline against which this work is compared. |
 
 | key | title | year | identifier |
 |---|---|---|---|
@@ -105,47 +105,47 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | line | level | title | prose words |
 |---|---|---|---|
 | 7 | chapter | Introduction | 47 |
-| 13 | section | Operational context | 714 |
-| 71 | section | Engineering requirements | 1692 |
-| 205 | section | The safety problem | 1608 |
-| 328 | section | Objectives | 411 |
-| 370 | section | Contributions | 340 |
-| 406 | section | Structure of this document | 264 |
+| 13 | section | Operational context | 884 |
+| 83 | section | Engineering requirements | 1930 |
+| 233 | section | The safety problem | 1791 |
+| 366 | section | Objectives | 414 |
+| 407 | section | Contribution | 344 |
+| 443 | section | Structure of this document | 279 |
 
 ### Codes used in this chapter (self-containment agent: is each one needed, or would a descriptive name read better?)
 
 | code | uses | defined at |
 |---|---|---|
-| RQ1 | 3 | ch1_introduction l.80 |
-| RQ2 | 3 | ch1_introduction l.77 |
-| RQ3 | 5 | ch1_introduction l.78 |
+| RQ1 | 3 | ch1_introduction l.93 |
+| RQ2 | 3 | ch1_introduction l.90 |
+| RQ3 | 5 | ch1_introduction l.91 |
 
 ### Requirement wording, tab:functional-requirements vs prd.md (argument agent: a paraphrase may not change the requirement's scope)
 
 | line | id | chapter wording | prd wording |
 |---|---|---|---|
-| 107 | FR-5 | Speech recognition runs offline on-device via \texttt{whisper.cpp tiny.en}~\cite{whisper,w | Run STT offline on-device via `whisper.cpp tiny.en`; no network access at any point in the |
-| 108 | FR-6 | The reflex path provides two keyword classes whose unprompted execution only reduces motio | Implement Branch A: **two** fail-safe keyword classes — `swarm hold` $\rightarrow$ `hover` |
-| 109 | FR-7 | The swarm controller implements vectorised flocking~\cite{reynolds1987}, formation slot as | Implement the swarm controller: NumPy-vectorised Boids, formation slot assignment (circle, |
-| 110 | FR-8 | Two interchangeable simulation backends sit behind one environment interface: PyFlyt, buil | Provide two `SwarmEnv` backends: PyFlyt (primary) and a NumPy kinematic simulator (fast it |
-| 111 | FR-9 | The full pipeline runs end to end from the live microphone for the demonstration | Run the full pipeline end to end from the live microphone for the demonstration. |
-| 112 | FR-11 | The flight state machine is implemented as the third validation layer, including the expli | Implement the flight state machine as validation layer 3, including the explicit non-vocal |
+| 128 | FR-5 | Speech recognition runs offline on-device via \texttt{whisper.cpp tiny.en}~\cite{whisper,w | Run STT offline on-device via `whisper.cpp tiny.en`; no network access at any point in the |
+| 129 | FR-6 | The reflex path provides two keyword classes whose unprompted execution only removes energ | Implement Branch A: **two** fail-safe keyword classes — `swarm hold` $\rightarrow$ `hover` |
+| 130 | FR-7 | The swarm controller implements vectorised flocking~\cite{reynolds1987}, formation slot as | Implement the swarm controller: NumPy-vectorised Boids, formation slot assignment (circle, |
+| 131 | FR-8 | Two interchangeable simulation backends sit behind one environment interface: PyFlyt, buil | Provide two `SwarmEnv` backends: PyFlyt (primary) and a NumPy kinematic simulator (fast it |
+| 132 | FR-9 | The full pipeline runs end to end from the live microphone for the demonstration | Run the full pipeline end to end from the live microphone for the demonstration. |
+| 133 | FR-11 | The flight state machine is implemented as the third validation layer, including the expli | Implement the flight state machine as validation layer 3, including the explicit non-vocal |
 
 ### Requirement wording, tab:nonfunctional-requirements vs prd.md (argument agent: a paraphrase may not change the requirement's scope)
 
 | line | id | chapter wording | prd wording |
 |---|---|---|---|
-| 144 | NFR-1 | Reflex-path latency, from keyword offset, measured both idle and during parse-path inferen | Reflex latency (Branch A), from **keyword offset**, measured both idle and under active Br |
-| 145 | NFR-2 | Parse-path latency, from end-of-speech | Branch B latency, from end-of-speech |
-| 146 | NFR-3 | Per-stage latency instrumented and reported against the per-stage budget of Chapter~\ref{c | Per-stage latency instrumented and reported against Table 6 |
-| 147 | NFR-17 | Time from a reflex-path trigger until the parse path can accept a new utterance | Preemption recovery — time from a Branch A trigger until Branch B can accept a new utteran |
-| 148 | NFR-15 | False accepts, aggregated over both reflex-path classes, on ambient-speech negatives | Keyword false accepts, aggregate over both Branch A classes, on ambient-speech negatives |
-| 149 | NFR-16 | False rejects per class at the selected operating point | Keyword false rejects per class at the selected operating point |
-| 150 | NFR-7 | \gls{crr} on the golden set, clean audio | CRR on the golden set, clean audio |
-| 151 | NFR-8 | \gls{crr} at 10~dB \gls{snr} under propeller-type noise | CRR at 10 dB SNR |
-| 152 | NFR-12 | Inter-drone collisions | Inter-drone collisions |
-| 153 | NFR-13 | Fraction of drones within $\tau = 0.5$~m of the assigned slot over the final 5~s of a 60~s | Formation accuracy: fraction of drones within $\tau = 0.5$ m of the assigned slot over the |
-| 154 | NFR-14 | Operation of the full pipeline without a network | Offline operation |
+| 171 | NFR-1 | Reflex-path latency, from keyword offset, measured both idle and during parse-path inferen | Reflex latency (Branch A), from **keyword offset**, measured both idle and under active Br |
+| 172 | NFR-2 | Parse-path latency, from end-of-speech | Branch B latency, from end-of-speech |
+| 173 | NFR-3 | Per-stage latency instrumented and reported against the per-stage budget of Section~\ref{s | Per-stage latency instrumented and reported against Table 6 |
+| 174 | NFR-17 | Time from a reflex-path trigger until the parse path can accept a new utterance | Preemption recovery — time from a Branch A trigger until Branch B can accept a new utteran |
+| 175 | NFR-15 | False accepts, aggregated over both reflex-path classes, on ambient-speech negatives | Keyword false accepts, aggregate over both Branch A classes, on ambient-speech negatives |
+| 176 | NFR-16 | False rejects per class at the selected operating point | Keyword false rejects per class at the selected operating point |
+| 177 | NFR-7 | \gls{crr} on the golden set, clean audio | CRR on the golden set, clean audio |
+| 178 | NFR-8 | \gls{crr} at 10~dB \gls{snr} under propeller-type noise | CRR at 10 dB SNR |
+| 179 | NFR-12 | Inter-drone collisions | Inter-drone collisions |
+| 180 | NFR-13 | Fraction of drones within $\tau = 0.5$~m of the assigned slot over the final 5~s of a 60~s | Formation accuracy: fraction of drones within $\tau = 0.5$ m of the assigned slot over the |
+| 181 | NFR-14 | Operation without any infrastructure outside the system | Offline operation |
 
 ### For the argument agent
 
@@ -157,23 +157,28 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 
 | line | as written | trace |
 |---|---|---|
-| 46 | 8 | measured: results/nfr18_false_command.md:11, results/nfr18_false_command.md:13 |
-| 62 | 50 | measured: results/exp2_latency_budget.md:9, results/exp2_latency_budget.md:15 |
-| 108 | 2 | measured: results/nfr18_false_command.md:12, results/nfr18_false_command.md:13 |
-| 109 | 50 | measured: results/exp2_latency_budget.md:9, results/exp2_latency_budget.md:15 |
-| 144 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:19 |
-| 145 | 2{,}500 | measured: results/exp2_latency_budget.md:16, results/exp2_latency_budget.md:17 |
-| 147 | 300 | measured: results/exp2_latency_budget.md:27, results/table16_asr_speaker_sensitivity.md:3 |
-| 149 | 0.10 | measured: results/table16_asr_speaker_sensitivity.md:30, results/wake_training.md:25 |
-| 150 | 0.80 | measured: results/exp4_formation.md:11, results/exp4_formation.md:11 |
-| 151 | 10 | measured: results/table16_asr_speaker_sensitivity.md:11, results/table16_asr_speaker_sensitivity.md:13 |
-| 151 | 0.65 | measured: results/exp3_pi_analysis.md:50, results/exp3_pi_analysis.md:60 |
-| 153 | 0.5 | measured: results/nfr18_false_command.md:12, results/nfr18_false_command.md:13 |
-| 153 | 0.85 | measured: results/exp4_formation.md:13, results/table19_grammar_ablation.md:10 |
-| 154 | 100 | measured: results/thermal_headroom.md:13, results/thermal_headroom.md:15 |
-| 164 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:19 |
-| 165 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:19 |
-| 180 | 10 | measured: results/table16_asr_speaker_sensitivity.md:11, results/table16_asr_speaker_sensitivity.md:13 |
-| 252 | 2{,}500 | measured: results/exp2_latency_budget.md:16, results/exp2_latency_budget.md:17 |
-| 261 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:19 |
-| 345 | 5 | measured: results/exp2_latency_budget.md:3, results/exp2_latency_budget.md:21 |
+| 47 | 8 | measured: results/nfr18_false_command.md:11, results/nfr18_false_command.md:13 |
+| 69 | 50 | measured: results/exp2_latency_budget.md:9, results/exp2_latency_budget.md:15 |
+| 124 | 1.3 | measured: results/wire_format_tokens.md:16, results/mcnemar.csv:17 |
+| 124 | 0.7 | measured: results/table18_quantisation_delta.md:19, results/table33_iso_parameter.md:12 |
+| 129 | 2 | measured: results/nfr18_false_command.md:12, results/nfr18_false_command.md:13 |
+| 130 | 50 | measured: results/exp2_latency_budget.md:9, results/exp2_latency_budget.md:15 |
+| 167 | 1.35 | measured: results/table17_model_comparison.md:17 /1000, results/table17_model_comparison.md:18 /1000 |
+| 167 | 0.65 | measured: results/exp3_pi_analysis.md:50, results/exp3_pi_analysis.md:60 |
+| 171 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:19 |
+| 172 | 2{,}500 | measured: results/exp2_latency_budget.md:16, results/exp2_latency_budget.md:17 |
+| 174 | 300 | measured: results/exp2_latency_budget.md:27, results/table16_asr_speaker_sensitivity.md:3 |
+| 176 | 0.10 | measured: results/table16_asr_speaker_sensitivity.md:30, results/wake_training.md:25 |
+| 177 | 0.80 | measured: results/exp4_formation.md:11, results/exp4_formation.md:11 |
+| 178 | 10 | measured: results/table16_asr_speaker_sensitivity.md:11, results/table16_asr_speaker_sensitivity.md:13 |
+| 178 | 0.65 | measured: results/exp3_pi_analysis.md:50, results/exp3_pi_analysis.md:60 |
+| 180 | 0.5 | measured: results/nfr18_false_command.md:12, results/nfr18_false_command.md:13 |
+| 180 | 0.85 | measured: results/exp4_formation.md:13, results/table19_grammar_ablation.md:10 |
+| 181 | 100 | measured: results/thermal_headroom.md:13, results/thermal_headroom.md:15 |
+| 193 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:19 |
+| 194 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:19 |
+| 208 | 10 | measured: results/table16_asr_speaker_sensitivity.md:11, results/table16_asr_speaker_sensitivity.md:13 |
+| 209 | 5 | measured: results/exp2_latency_budget.md:3, results/exp2_latency_budget.md:21 |
+| 287 | 2{,}500 | measured: results/exp2_latency_budget.md:16, results/exp2_latency_budget.md:17 |
+| 296 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:19 |
+| 383 | 5 | measured: results/exp2_latency_budget.md:3, results/exp2_latency_budget.md:21 |

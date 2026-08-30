@@ -1,6 +1,6 @@
 # Issue 06: ingenieur-ch1
 
-Status: ready-for-human
+Status: resolved
 Blocked by: 05
 Chapter: thesis/ingenieur/ch1_introduction.tex
 Script: tools/review/ingenieur_ch1.py
@@ -231,4 +231,42 @@ reports. Notable among them:
 is valid" is slightly false); Ch3 (membership table "reduces spacing"; which item is the
 contribution); code (the FSM's legality check runs on the raw intent, already a task chip).
 
-**Decisions:** _(author)_
+**Decisions (author, 2026-09-24):** fix W1-W5 and every MINOR/NIT; describe what exists.
+
+### 2026-09-24 -- pass-2 fixes applied; script 0 FAIL, 5 WARN, 60 PASS
+
+- **W1-W5:** applied with the verifier's corrected text (commit 2cbd56c).
+- **Describe what exists:** Ch1 now says the following:
+  - Results come from recorded audio replayed from file; live capture is not part of the system.
+  - The speech experiments end at the validator or the state machine, on the device.
+  - The formation experiment drives the controller without speech.
+  - The live-demonstration requirement stands but is not met. Ch6 must state what stays undemonstrated.
+  - The offline-operation and networking-disabled rows remain as requirements, with no run claimed.
+- **MINOR/NIT:** all applied, from argument A6-A23 and presentation F1-F17. Adjustments:
+  - A12: the parse path's *measured* end point is the state machine applied on the Pi
+    (eval/exp2.py), not the bus publish. Ch1 states the requirement's end point, the hand-off to
+    the command bus; Ch5 must report the measured one.
+  - A16: softened to "on the deployed route"; the code fix is the FSM task chip.
+  - A17: the grammar sentence no longer claims validity. The leading-zero fix belongs to the Master.
+  - F10: the column widths were rebalanced, and "demonstration" is no longer hyphenated.
+  - Found in the rewrite: "a system that runs within a measured budget" became "measured stage by
+    stage against a budget", since the reflex path misses its budget.
+- **Ch3:** A14 (which clause is the contribution) and A13 (the figure caption says the state
+  machine validates every command) applied.
+- **Script:** requirement tables can now record an as-built source that departs from prd
+  (`deviations`); NFR-15 is recorded with its evidence (commit d23de91).
+- **Build:** the cold build first failed with "xelatex needed too many passes". Ch3's empty
+  sections 3.4 and 3.5 sit at a page foot, where the keep-on-one-page rule in shared/preamble.tex
+  flips between passes. The rule's own `\noautobreak` is on both stubs until they have prose. For
+  issue 08: the rule measures an empty section's height across a page break, and the
+  measurement then oscillates. After the fix: exit 0, 0 errors, 0 undefined citations, 0 overfull
+  boxes, 19 undefined references, all to the unwritten Ch4-Ch6.
+- **WARNs (5), justified:**
+  - Three references go to unwritten chapters.
+  - Two captions open with a long form (l.116, l.156). Per F18 the reason is now this: FR and NFR
+    are first used earlier in the text, so `\gls` would print "FRs driving this document". A
+    caption that opens with an acronym reads worse and is less self-contained. (The short captions
+    already keep the List of Tables clean.)
+- **Still the author's:** the contribution block (prd C4 verbatim) says "a bounded safety reflex"
+  and "derived from a latency argument". Ch1 now derives the rule from two arguments, and the
+  reflex misses its budget. Changing it means changing prd §2.1 first.
