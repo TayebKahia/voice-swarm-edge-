@@ -1593,3 +1593,41 @@ sign-off is not recorded here; the author took the decision in their own name.
    misses 2,500 ms as specified by 622 ms (25%). Master Ch4 4.7 and Ch5 5.1 already say this;
    the Ingenieur's validation chapter (B10) must state it the same way.
 
+
+## Writing progress -- Master Ch 6 (B5, Thu 24 Sep) -- DONE
+thesis/master/ch6_conclusion.tex complete, no \TODO; its \input is live in main_master.tex, so
+chap:conclusion now resolves and the Master has all six chapters. Commits 602447e (chapter),
+0b128d1 (tools/review/master_ch6.py: 0 FAIL, 0 WARN, 54 PASS). Clean build (build/master/): 0 errors,
+no undefined refs or citations, no Float too large. Every section approved by the author one at a time.
+
+What each section says (B12's abstract and B13's read-through should match these, not paraphrase
+them more strongly):
+  6.1 answer -- the quotable sentence: across 0.36-1.2 B the trade-off reduces to two
+      non-dominated configurations {SmolLM2-360M, Qwen2.5-0.5B}; the rule deploys Qwen2.5-0.5B
+      Q4_K_M at 0.935 EM golden. Price between them: 894 vs 1,072 ms SLM p95 (cooled), 0.760 vs
+      0.935, 17.5 pp, significant. Llama 0.910 / 2,282 ms, dominated on latency, accuracy gap not
+      established -- scoped to the golden split (synth/ood follow parameter count). Standing:
+      selected on accuracy against re-baselined constraints; 2,500 ms missed by 622 ms (25%),
+      re-baselined to 3,122 ms; memory confirmed for the LM process only (0.68 GiB); selection
+      independent of SmolLM2's unmeasured E2E latency (NOT "independent of the re-baselining" --
+      that is false). Abstention miss stated here (ranges 0.0000-0.1579 / 0.1867-0.3933).
+  6.2 established -- C1: validity is a decoder property; measurable contribution 1 decode in
+      3,540, 0.17 pp in the grammar's favour; reachability is not measured by a rate. C2: none of
+      the accuracy is available zero-shot; the baseline does not attribute the gain to fine-tune
+      or grammar (Ch5 5.3.1 wording). C3: pipeline delta -1.5..+1.5 pp, not separated from zero
+      (never "no cost"); latency holds for a cooled board. Family control 6.5 pp, exploratory,
+      its own paragraph (reference surface, not the C3 harness).
+  6.3 next steps -- 1 confidence gate (threshold on a calibration set, not golden); 2 training
+      pairs of supported commands made unreadable -> unknown (not "oversampling"); 3 SmolLM2 E2E +
+      full-stack memory (selection does not depend on it). None implemented.
+
+Concurrent-session note: at commit time the working tree held another session's uncommitted edits
+to ch5_discussion.tex, master_ch5.py, its report and issues/05-master-ch5.md (issue-05 revision:
+heading renames, 5.1 knee wording, 5.2 abstention wording). Not committed here, not touched. Ch6 was
+re-run against that working-tree Ch5 and still passes; 6.3 step 1 cites 5.2's "98.9% dispatch an
+executable command", which that edit kept. If the Ch5 revision changes 5.2's taxonomy paragraph or
+5.3.1's untuned-baseline paragraph, re-run tools/review/master_ch6.py and re-read 6.2 P2 / 6.3.
+
+Stopped here: Master Ch 6 done; all six Master chapters written. Remaining Master briefs: B12
+(frontmatter, both documents -- the abstract must carry the 6.1 verdict at its strength) and B13
+(write-once read-through). Ingenieur B9-B11 are not this session's.
