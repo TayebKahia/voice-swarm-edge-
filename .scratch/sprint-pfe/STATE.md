@@ -1428,20 +1428,60 @@ Tests: `eval/test_exp3.py` 9 passed; `python -m pytest -q` -> 803 passed.
 
 Stopped here: A7a done, accuracy columns final, Table 20 rendered with E2E pending.
 
-## Writing progress -- Master Ch 5 (Wed 23 Sep, Block B session, B4)
-thesis/master/ch5_discussion.tex created (\label{chap:discussion}), \input uncommented in
-main_master.tex. Scaffold: 5.1 trade-off / 5.2 failure modes / 5.3 threats (internal, external).
-  5.1 DRAFTED (sec:tradeoff) -- interprets fig:pareto, does not redraw it. Four readings, all
-      hedged: the frontier is two points, so a direction not a curve (Qwen->SmolLM2 saves 178 ms
-      SLM p95 for 17.5 pp EM; Qwen->Llama costs 1,210 ms / 0.95 GB for a non-significant gap);
-      the knee is Qwen2.5-0.5B, not "0.5B" (Danube -6.5 pp at matched size); the selection
-      rule met a feasibility cut, not a trade (NFR-4 removes the only faster point); the
-      frontier is conditional on the cooler (uncooled, no config meets the 1,350 ms stage
-      allowance; cooled decode margin is 67 ms / 6%). Q8_0 and end-to-end left open, unprojected.
-  5.2, 5.3.1, 5.3.2, chapter lead-in: \TODO{}, not started. Exp-3 is not yet mentioned anywhere
-      in the chapter -- its one reference belongs in 5.3.2.
-Build: clean from scratch, 0 errors; only chap:conclusion undefined (Ch 6 unwritten).
-Stopped after 5.1, awaiting author review.
+## Writing progress -- Master Ch 5 (B4, Wed 23 -> Thu 24 Sep) -- DONE
+thesis/master/ch5_discussion.tex complete, no \TODO. Commits ca1ed8c (5.1-5.3), 8a3980d (lead-in),
+1efbf29 (Ch3 sentence Ch5 depends on), 87ebad1 (review scripts). Every section reviewed and approved
+by the author one at a time. Review script: 0 FAIL, 4 WARN (chap:conclusion; negated "guaranteed";
+163.0 x2 = quoted item value), 91 PASS -- every 5.2/5.3.2 figure recomputed, not just traced. Clean
+build (build/master/): 0 errors, only chap:conclusion undefined.
+
+What each section settles (Ch6 may rely on these readings; none is a verdict):
+  5.1 trade-off -- frontier is two points {SmolLM2, Qwen}; knee is Qwen2.5-0.5B specifically, not
+      "0.5B" (Danube 6.5 pp below at FP16 = >1/3 of the 16.0 pp FP16 frontier distance; both terms
+      FP16 -- the seeded l.40 surface-mixing finding is fixed). The rule ranks on EM with latency
+      only as constraint/tie-break, so the trade-off never reaches the decision; SmolLM2 loses the
+      EM RANKING (0.935 vs 0.760), the 0.85 miss is "a second fact". Qwen remains only against the
+      re-baselined budget (misses 2,500 ms as specified by 622 ms, 25%). Stage allowances are budget
+      lines, not rule constraints. Enclosure reads as a term in the latency budget.
+  5.2 failure modes -- safe-failure 28/528 = 24 model hover + 3 validator + 1 unknown; abstention by
+      REQUEST TYPE (supported vs unsupported), not by uncertainty (OOD abstain 60.7-81.3%, in-domain
+      unknown once in 2,640, and wrong); 98.9% of in-domain errors executable, yaw sign flip 114/282;
+      HYPOTHESIS (labelled): one training effect gives both the near-redundant grammar and the
+      missing abstention; untestable on these data.
+  5.3.1 internal -- controlled by design: greedy, parity 10/10 prompts, checkpoints on val_synth.
+      Six threats: Danube's fold + separate session (reference-surface-only is a scope limit, not a
+      confound); three-epoch budget, none converged; zero-shot changes fine-tune AND grammar at
+      once, preds not retained; thermal gain attributable to thermal state, not clock (1.69x vs
+      >=1.6x); 200 items / 12 patterns, p optimistic (Qwen>SmolLM2 survives; Qwen~Llama is power,
+      not equivalence; 60-rep p95 makes the 67 ms margin fragile); labels generated not annotated,
+      test_synth and test_golden share the 12 families (not independent confirmations).
+  5.3.2 external -- the ONE reference to the acoustic-robustness experiment (Table 3), Ingenieur
+      named as owner: parser bit-identical board vs workstation 200/200 (Qwen Q4_K_M, one build);
+      CRR 0.690 clean / 0.590 at 10 dB vs EM 0.935 -> loss is at the speech stage; EM = the parser's
+      accuracy given a correct transcript. Then other speakers (6.2-49.5% WER spread), other
+      hardware/runtimes (sbc2025 4x), small schema (grammar cost/benefit may differ at scale),
+      four models / two quant schemes.
+
+Also changed this session: Ch4 sec:exp0 / sec:exp1 alias labels deleted (issue 04 hand-off;
+nothing else referenced them). Ch3 3.2 gained one sentence: unknown is taught by 81 of 1,940
+training pairs (35 assistant-style, 46 unsupported drone requests like "follow me"), none of them a
+supported command made unreadable.
+
+**Named, not started -- Block A (rule 1: not a B-session's to touch):**
+  - results/limitation_abstention.md s3 says the single model `unknown` is "the only instance, in
+    3,540 items, of the model declining to answer" -- false, it declines on 60.7-81.3% of test_ood;
+    it contradicts its own s4. s2/s7 "valid commands almost exclusively" is also loose (81 unknown
+    training rows). Generated by eval/abstention.py; fix there and regenerate. Ingenieur Ch6 (B11)
+    cites this file -- do not copy either sentence.
+  - 103 of the 114 yaw sign flips are reference-negative / model-positive (a dropped minus sign).
+    Supports 5.2's untested explanation, but is in no generated artefact, so it is NOT in the
+    thesis. Adding it to eval/abstention.py's taxonomy would make it citable.
+  - Ch3's false-command definition ("...that also survives the validator") vs eval/abstention.py
+    (dispatched != unknown, so a validator HOVER fallback counts as a false command): differs on
+    the one smollm2 OOD fallback per quant. Not reconciled; noticed while writing 5.2.
+
+Stopped here: Master Ch 5 done. Next brief: B5, Master Ch 6 (unhedged RQ1 answer). Ch6 must not
+add caveats -- a new limitation belongs in Ch5.
 
 ## Branch A real voice + Exp-3 error analysis (Wed 23 Sep, afternoon)
 
