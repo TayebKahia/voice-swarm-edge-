@@ -134,9 +134,10 @@ import json  # noqa: E402
 
 it = {x["id"]: x for x in map(json.loads, (RESULTS / "surface_b_preds/qwen2.5-0.5b-instruct-Q4_K_M_test_golden.jsonl")
                                   .read_text().splitlines())}["0036"]
-r.text_claim("claim", "heading 163.0 clockwise, number 1", it["transcript"] == "heading 163.0 clockwise, number 1"
-             and json.loads(it["gold"])["yaw"] == -163.0 and json.loads(it["raw"])["yaw"] == 163.0,
-             "item 0036: quoted transcript, reference -163.0, Qwen Q4_K_M +163.0")
+r.text_claim("claim", "heading 163.0 clockwise, number 1", it["transcript"] == "heading 163.0 clockwise, number 1",
+             "item 0036: quoted transcript")
+r.text_claim("claim", "reference yaw is $-163.0$", json.loads(it["gold"])["yaw"] == -163.0
+             and json.loads(it["raw"])["yaw"] == 163.0, "item 0036: reference -163.0, Qwen Q4_K_M +163.0")
 
 # -- §5.3.1 --------------------------------------------------------------------------------------
 import math  # noqa: E402
