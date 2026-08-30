@@ -103,7 +103,8 @@ the transcript into a command under the decoding grammar and validates the resul
 publish to one command bus. A reflex-path trigger cancels any decode in progress (dashed); the
 ordering rule at the bus's consumer discards any parse-path result older than the latest reflex-path
 command, whether or not the cancellation succeeded. The state machine, the swarm controller and the
-simulated vehicles run on a workstation joined to the Pi by Wi-Fi.}
+simulated vehicles run on a workstation joined to the Pi by Wi-Fi; the state machine validates every
+command, from either path, before it takes effect.}
 \label{fig:architecture}
 \end{figure}
 
@@ -254,9 +255,10 @@ The rule states the condition under which a third class could be admitted: its c
 both tests, and the false accepts it adds fit within the aggregate budget measured with it in
 place. The tests apply to the command a phrase publishes, not to the phrase, so a change of
 wording cannot admit a command the rule excludes, and they are applied again whenever the schema
-gains an intent. For the present vocabulary the rule yields exactly two classes; that result is
-the contribution of this document (Section~\ref{sec:contributions}), and it is what makes the
-membership of the reflex path checkable by a reader who did not choose it.
+gains an intent. For the present vocabulary the rule yields exactly two classes; that result, and the rule that
+yields it, are the second clause of the contribution of this document
+(Section~\ref{sec:contributions}), and they are what make the membership of the reflex path
+checkable by a reader who did not choose it.
 
 \section{Three validation layers}
 \label{sec:validation-layers}
@@ -277,6 +279,10 @@ membership of the reflex path checkable by a reader who did not choose it.
 %   flip). Named as a boundary of the design, measured in Ch 5 / discussed in Ch 6. No figure.
 \TODO{draft}
 
+% Stub layout: an empty section at a page foot makes the keep-on-one-page rule
+% (shared/preamble.tex) flip between passes, so latexmk never converges. Remove this
+% \noautobreak once the section has prose.
+\noautobreak
 \section{Latency budget}
 \label{sec:latency-budget}
 % Budget = DESIGN. No measured figure anywhere in this section; Chapter~\ref{chap:validation}.
@@ -297,6 +303,10 @@ membership of the reflex path checkable by a reader who did not choose it.
 %   constraint.
 \TODO{draft}
 
+% Stub layout: an empty section at a page foot makes the keep-on-one-page rule
+% (shared/preamble.tex) flip between passes, so latexmk never converges. Remove this
+% \noautobreak once the section has prose.
+\noautobreak
 \section{Resource allocation}
 \label{sec:resource-allocation}
 % - Table tab:core-allocation (Table 7): core 0 = capture, ring buffer, endpointer, keyword
