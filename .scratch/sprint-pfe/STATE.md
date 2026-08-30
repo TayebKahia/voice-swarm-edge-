@@ -1343,7 +1343,7 @@ voice-UAV candidates under verification (background agent) -- Ch2 waits on it; C
   (asserted by test). One keyword -> one command.
 - `runtime/vad.py`: Silero ONNX on onnxruntime (no torch), `Endpointer.feed()` -> `Utterance`
   with T0. Default min_silence 450 ms, derived from Table 6's 500 ms, not tuned.
-- **DECISION FOR THE AUTHOR:** at Table 6's 500 ms, 10.5% of golden utterances split into >1
+- **DECISION FOR THE AUTHOR (RESOLVED Thu 24 Sep: keep 450 ms, see end of file):** at Table 6's 500 ms, 10.5% of golden utterances split into >1
   segment (17.5% @400, 2.5% @700, 0% @1000). Keep 450 ms and report the split rate, or raise
   the VAD budget line. Affects Exp-2 E2E latency and Branch B accuracy on disfluent speech.
 - `data/wake_real_transcripts.txt`: 40 prompts for the author's real-voice Branch A takes.
@@ -1538,7 +1538,7 @@ pinned to the workstation's versions.
   It was the only configuration measured end to end; smollm2's SLM stages are ~180 ms
   faster (Exp-1), not enough to close a 622 ms gap, but that is inference, not measurement.
   The prd's own clause applies: the rule "fails loudly" and NFR-2 is re-baselined against
-  the measured figure, with the re-baselining reported. **DECISION FOR THE AUTHOR (and
+  the measured figure, with the re-baselining reported. **DECISION FOR THE AUTHOR (RESOLVED Thu 24 Sep: re-baseline accepted, see end of file) (and
   supervisor): accept the re-baseline to the measured 3.1 s, stated as such.**
 - FR-6: 78/78 triggers hit an in-flight decode, 78 aborted, 0 late results.
 - Cross-trigger 0/160. Hold misses 2/80 (w03 twice). One Branch A false accept on the
@@ -1580,3 +1580,16 @@ against A7a's per-item files. Commit d4f2ae8.
 
 Stopped here. Block A experiments are done except the declared cuts (A11 live capture, H2,
 A9). Next: writing sessions (B-blocks); A8 freeze at Thu 12:00.
+
+## Author decisions (Thu 24 Sep) -- the two open DECISION FOR THE AUTHOR items, closed
+Decided by the author as project owner ("you have my approval, it's my project"). Supervisor
+sign-off is not recorded here; the author took the decision in their own name.
+1. **VAD endpoint stays at 450 ms**; the 500 ms budget line is not raised. The split rate is
+   reported as measured -- 23/200 = 11.5% on the Pi, and all 23 split items fail CRR -- as a
+   limitation, not tuned away. Consistent with the earlier call that no fix may be chosen on the
+   golden set, which is the test set (the 700 ms run stays dropped).
+2. **End-to-end budget re-baselined to the measured 3,122 ms p95** (n = 226), under the selection
+   rule's failure clause. Reported as a re-baseline, never as the 2,500 ms requirement met: Qwen
+   misses 2,500 ms as specified by 622 ms (25%). Master Ch4 4.7 and Ch5 5.1 already say this;
+   the Ingenieur's validation chapter (B10) must state it the same way.
+
