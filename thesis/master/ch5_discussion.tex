@@ -16,11 +16,11 @@ Chapter~\ref{chap:conclusion}, not here.
 \label{sec:tradeoff}
 
 RQ1 was posed as a trade-off: across the 0.36--1.2~B range, how much task accuracy does a smaller
-model give up in exchange for latency and memory? Figure~\ref{fig:pareto} gives the measured
-answer for this task and this board. The answer turns out to have less of the shape of a
-trade-off than the question anticipated.
+model give up in exchange for latency and memory? Figure~\ref{fig:pareto} places the measured
+configurations for this task and this board, and this section examines how much of the trade-off
+on the figure reaches the deployment decision.
 
-\paragraph{A frontier of two points.} Only three configurations have both an accuracy and a
+\paragraph{Composition of the frontier.} Only three configurations have both an accuracy and a
 latency coordinate, and one of them, Llama-3.2-1B at Q4\_K\_M, is dominated. The frontier is
 therefore the pair \{SmolLM2-360M, Qwen2.5-0.5B\}, and a pair defines a direction, not a curve.
 Moving along it from Qwen2.5-0.5B to SmolLM2-360M saves 178~ms of combined \gls{slm} p95
@@ -28,11 +28,11 @@ Moving along it from Qwen2.5-0.5B to SmolLM2-360M saves 178~ms of combined \gls{
 golden split. That accuracy cost is one the paired tests establish as significant
 (Section~\ref{sec:statistics}), unlike the difference in the other direction. Moving the other way, from Qwen2.5-0.5B to
 Llama-3.2-1B, adds 1{,}210~ms and 0.95~GiB, and the accuracy difference it buys is not
-distinguishable from zero on this evidence. Read together, the two directions suggest that for
-this schema the useful part of the range ends at or below half a billion parameters. Below it,
-the one smaller model measured loses 17.5~pp. Above it, parameters appear to purchase latency and memory and
-little else. With three points on the latency axis this is a reading of the figure's shape, not a
-measured property of the size range, and it should be held at that strength.
+distinguishable from zero on this evidence. Read together, the two directions suggest that,
+among the models measured, accuracy stops rising at Qwen2.5-0.5B: the one smaller model loses
+17.5~pp, and the one larger costs latency and memory for no difference these tests can detect.
+With three points on the latency axis this is a reading of the figure's shape, not a measured
+property of the size range, and it should be held at that strength.
 
 \paragraph{Model-specific position of the knee.} It would be tempting to restate the
 previous paragraph as ``0.5~B parameters suffice''. The iso-parameter control of
@@ -72,7 +72,8 @@ Figure~\ref{fig:pareto} are measured on a cooled board, and Table~\ref{tab:therm
 how far they move without the cooler. Uncooled, the selected configuration's combined \gls{slm} p95
 is 1{,}771.5~ms. That is over the 1{,}350~ms stage allowance of Table~\ref{tab:latency-budget}, and
 so is SmolLM2-360M's 1{,}610.2~ms, so on the uncooled run no configuration fits the language-model
-stages inside their allowance. Cooled, the selected configuration fits them, with modest margins.
+stages inside their allowance. Cooled, the selected configuration fits the combined and decode
+allowances, with modest margins, but not the 250~ms prefill allowance (Section~\ref{sec:benchmark}).
 The combined stage is 278~ms inside its allowance, a margin that holds under cached prefill only,
 since the deployed parser's uncached prefill p95 is 751~ms; decode alone is 1{,}033~ms against
 1{,}100~ms, a margin of 67~ms or 6\%. The stage allowance is a line of the latency budget and not a
@@ -86,10 +87,10 @@ state may not be reproducible.
 \paragraph{Unmeasured points and axes.} Two gaps in the figure are known, and each limits what
 the frontier can be taken to mean. The first is quantisation. The Q8\_0 artefacts have no
 latency coordinate, and the paired tests found no significant accuracy difference between
-quantisations within any model. A Q8\_0 point could join the frontier only by matching or beating its
-Q4\_K\_M counterpart on latency. That was not measured, so the frontier is strictly a Q4\_K\_M
-frontier. The second is the horizontal axis itself, which covers the \gls{slm} stages only.
-For the selected configuration the full parse path was measured, and it misses the end-to-end
+quantisations within any model. Where a Q8\_0 point would sit depends on its latency,
+which was not measured, so the frontier is strictly a Q4\_K\_M frontier.
+The second is the horizontal axis itself, which covers the \gls{slm} stages only. For
+the selected configuration the full parse path was measured, and it misses the end-to-end
 budget (Section~\ref{sec:selection}); for the other two it was not. The remaining stages run the
 same software whichever model is loaded, which might suggest adding a common offset to all three
 points and keeping the ordering along the frontier. That inference is not safe. The stages share
@@ -108,7 +109,7 @@ analysis takes reference text as input, so it describes the parser and not the s
 pools the six quantised artefacts, so it characterises the approach rather than any one
 configuration.
 
-\paragraph{Structure without abstention.} The grammar bounds what an output can look like; it
+\paragraph{Composition of the safe failures.} The grammar bounds what an output can look like; it
 does not bound whether an output is given. The safe-failure rate of 0.0530 reported in
 Section~\ref{sec:benchmark} is 28 errors out of 528, and the 28 are three different events. Twenty-four
 are the model emitting \texttt{hover}, a command to hold position that is harmless here but is
@@ -120,7 +121,7 @@ stop. This breakdown supports a weaker reading: the system can be stopped by a l
 of its errors happen to be harmless. The metric cannot make the distinction itself, because it is
 defined over the dispatched action and not over where that action came from.
 
-\paragraph{Abstention by request type.} The parser does abstain, but apparently on a criterion other
+\paragraph{In-domain and out-of-domain abstention.} The parser does abstain, but apparently on a criterion other
 than uncertainty. On the out-of-domain set, where every reference is \texttt{unknown}, the quantised
 configurations abstain on 60.7\% to 81.3\% of items, the complement of the false-command rates
 of Table~\ref{tab:false-command}. On the two in-domain splits the same
@@ -128,18 +129,19 @@ configurations make 282 errors, and \texttt{unknown} appears on an item whose re
 command once in 2{,}640 decodes. That one case was itself an error: SmolLM2-360M declined a valid
 hold command whose transcript carried a disfluency (``freeze, units fo--- four through five'').
 The pattern suggests that what the models learned is closer to a classifier of request types than
-to a confidence estimate. They separate requests the schema supports from requests it does not; they
-do not separate commands they parsed correctly from commands they did not. The distinction matters
-in operation, because a misrecognised command still reads as a supported request, and it falls on
-the side of that boundary where abstention is absent. Nor does the pattern appear to
+to a confidence estimate. They separate off-topic
+requests from supported ones more reliably than they separate commands they parsed correctly from
+commands they did not. The distinction matters
+in operation, because a misrecognised command still reads as a supported request, and it falls on the side of that boundary where, on the in-domain splits,
+abstention is almost absent. Nor does the pattern appear to
 belong to one model. At FP16 the three models of the main comparison abstain on 62.0\% to 73.3\% of
 the out-of-domain set, and H2O-Danube3-500M, a fourth family trained under the same recipe, falls
 inside that spread at 72.0\% (Table~\ref{tab:iso-parameter}).
 
-\paragraph{Executable in-domain errors.} Nearly every in-domain error would have moved the swarm.
+\paragraph{Taxonomy of in-domain errors.} Nearly every in-domain error would have moved the swarm.
 Of the 282, 240 (85.1\%) carry the right intent with a wrong parameter, 39 (13.8\%) carry a wrong
 intent that is still actionable, and 3 (1.1\%) resolve to a safe action, so 98.9\% dispatch an
-executable command. The largest single family is a sign error on the yaw angle: 114 of the 282
+executable command (\texttt{results/limitation\_abstention.md}). The largest single family is a sign error on the yaw angle: 114 of the 282
 errors (40.4\%) turn the swarm through the requested angle in the opposite direction. One instance
 on the recorded golden set is the transcript ``heading 163.0 clockwise, number 1'', whose
 reference yaw is $-163.0$ and for which Qwen2.5-0.5B at Q4\_K\_M emits $+163.0$. An error of this
@@ -152,11 +154,11 @@ The example suggests a candidate. The schema encodes direction as the sign of th
 be copied from the transcript as spoken. That explanation is consistent with the quoted item and
 has not been tested.
 
-\paragraph{Training as a common cause.} The grammar ablation of Section~\ref{sec:grammar-ablation}
+\paragraph{A common-cause hypothesis.} The grammar ablation of Section~\ref{sec:grammar-ablation}
 and the abstention results admit a single reading, offered here as a hypothesis rather than a
 finding. With the grammar removed, the fine-tuned models left the format once in 3{,}540 decodes and
-\gls{em} moved by 0.17~pp, so supervised fine-tuning had made structurally valid output close to
-certain before any constraint was applied. The same training teaches \texttt{unknown} through 81 pairs, every one a request the
+\gls{em} moved by 0.17~pp, so the fine-tuned models already produced structurally valid output almost
+without exception when no constraint was applied. The same training teaches \texttt{unknown} through 81 pairs, every one a request the
 schema does not support, and through none in which a supported command was made unreadable
 (Section~\ref{sec:dataset}): through what an utterance asks for, not through whether it can be read.
 If the models learned both lessons with the
@@ -188,7 +190,7 @@ Internal validity asks whether each difference reported in Chapter~\ref{chap:res
 by the factor it is attributed to, a model, a quantisation level or the grammar, rather than by
 something else in how the configurations were produced or measured. Some threats of this kind are
 controlled by construction. Decoding is greedy, so a configuration returns the same output for the
-same input and no difference between configurations is run-to-run noise. The chat-template parity
+same input and no difference between configurations is decoding noise. The chat-template parity
 check of Section~\ref{sec:quantisation-procedure} passes the three deployed models on both the formatted text and the token identifiers, so a
 difference between a reference model and its quantised artefact is not explained by a training and
 serving tokenisation that disagree, on the ten audit prompts the check covers; that the same check fails H2O-Danube3-500M demonstrates that it can fail.
@@ -198,14 +200,16 @@ tuned on the items that score it. Six threats remain.
 \paragraph{The parameter-matched control.} Three declared differences separate H2O-Danube3-500M
 from the models it is compared with (Section~\ref{sec:iso-parameter}). Its system prompt is folded
 into the user turn, because its chat template has no system role. It was trained in a separate
-session, and \gls{gpu} training is not guaranteed to be bit-reproducible across sessions. It exists
+session, and \gls{gpu} training is not guaranteed to be bit-reproducible across
+sessions~\cite{pytorchrepro}. It exists
 on the reference surface only. The first two could contribute to the 6.5~pp family difference, and
 neither is known to act in a particular direction. The fold's effect may shrink over three epochs of
 training, since the folded prompt becomes a fixed prefix the model learns, but it changes the input
 the model was trained and evaluated on, and its effect was not measured. The third limits the
 comparison rather than confounding it: the family difference is measured on the reference surface
-for both models, not on the quantised artefacts that ship. The family difference is therefore a
-difference between two trained artefacts that also differ in the first two respects, established by an exploratory test ($p = 0.0023$), and it should be quoted with them.
+for both models, not on the quantised artefacts that ship. The family difference is therefore a difference between two trained artefacts that
+also differ in the first two respects, and it should be quoted with them. It was detected by an
+exploratory exact McNemar test (15 against 2 discordant items, $p = 0.0023$).
 
 \paragraph{Fixed training budget.} Every model was trained for three epochs, no model is shown to
 have converged, and the lower-scoring model of each contrast improved most in the final epoch
@@ -213,7 +217,9 @@ have converged, and the lower-scoring model of each contrast improved most in th
 therefore be convergence rather than capability, and a longer budget could narrow either. The
 comparison is valid for the condition it measures, an identical three-epoch allowance, which is the
 condition a practitioner with a fixed fine-tuning budget faces. It does not order the models by the
-accuracy each could reach. A related qualification concerns precision: all four were trained in
+accuracy each could reach. Each model was also trained once, from one seed (Table~\ref{tab:lora}).
+The paired tests account for the sampling of items, not for variation between training runs, which
+was not measured, so a model or family difference is a difference between single trained adapters. A related qualification concerns precision: all four were trained in
 fp16 although their checkpoints are released in bf16, and whether that substitution affected them
 unequally is not ruled out (Section~\ref{sec:lora}).
 
@@ -293,7 +299,7 @@ single session leaves the day-to-day variation of the author's own voice unmeasu
 
 \paragraph{Other hardware and runtimes.} Every timing figure comes from one Raspberry~Pi~5 with an
 active cooler and one \texttt{llama.cpp} build. Section~\ref{sec:tradeoff} argued that the latency
-axis depends on the board's thermal state, and a survey of single-board inference reports
+axis depends on the board's thermal state, and a benchmark of language-model inference on \glspl{sbc} reports
 throughput differences of up to four times between two runtimes on the same board~\cite{sbc2025}.
 The latency coordinates, and the frontier they define, may therefore not transfer to another board,
 another cooling arrangement or another runtime, and the margins of Section~\ref{sec:tradeoff} are
