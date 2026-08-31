@@ -1,0 +1,133 @@
+% Validation --- section structure from prd.md 3.1 item 5, ownership from Table 3.
+% Scaffold only: headings and planning notes, no prose. Delete each note as its section is filled.
+%
+% This chapter OWNS: the latency experiment, the keyword-spotter evaluation, the acoustic-
+% robustness experiment and the formation-control experiment, each with its statistical analysis
+% (Table 3: Exp-2, Exp-3, Exp-4). Every measured figure in this document is defined here; Ch 6
+% quotes it exactly.
+% It does NOT own: the targets (Ch 1 tables, Ch 3 budget -- quote, never restate differently), the
+% speaker-sensitivity WER (Memoire de Master; cite it as an input, one sentence), the model
+% comparison (Memoire de Master).
+%
+% Naming (issue 00): experiments in words (latency experiment, keyword-spotter evaluation,
+% acoustic-robustness experiment, formation-control experiment), never Exp-2/3/4; criteria by the
+% names in Ch 1's tables, never NFR numbers; reflex/parse path. The roadmap brief (START_SESSION.md
+% B10) and results/*.md still use the old names -- translate, do not copy.
+%
+% Framing already decided (STATE.md, "Exp-2 RESULT" and the Exp-3 entries): targets and verdicts
+% are kept as set before measurement; each miss is reported as a miss with its located cause, not
+% as a failure of the project and not softened. Discuss whether a target was realistic as
+% discussion, never as a changed verdict. The end-to-end re-baseline (ADR / STATE.md) is stated as
+% a re-baseline, never as a pass.
+%
+% Tables: \input the generated tables, never retype them --
+%   thesis/generated/exp2_latency_budget.tex (\label{tab:latency-budget}, budget vs measured);
+%   thesis/generated/table20_end_to_end.tex (\label{tab:end-to-end}; last column is a STAGE SUM,
+%   not end-to-end latency -- say so in the caption or text).
+% Before quoting any number, check it against the results/ file named below, not against this note.
+%
+% Promises made elsewhere that this chapter must keep (issue 06, agents/06-ingenieur-ch1/
+% argument.md P1-P31):
+%   - the full per-class curve of the keyword spotter with the chosen threshold marked (Ch 1,
+%     keyword-spotter paragraph of the safety problem);
+%   - the reflex path measured idle AND while the parse path decodes (Reflex latency criterion);
+%   - every stage instrumented and reported against Ch 3's per-stage budget (Per-stage
+%     attribution);
+%   - beside the zero collisions, the number of clamp interventions (Ch 1, collision paragraph);
+%   - formation quality measured on its own, not inside the acoustic trials;
+%   - the direction of the recognition curve as a separate measurement from the rate;
+%   - the per-trial CSV record and the single-command rerun, reported against (Ch 1, the
+%     requirements common to both documents);
+%   - the safe-failure rate, which Ch 6 returns to;
+%   - the WER on the author's voice cited from the Memoire de Master, not restated.
+
+\chapter{Validation}
+\label{chap:validation}
+% Lead-in and common setup (no section of its own; prd lists none): what is measured and against
+% what (Ch 1 tables, Ch 3 budget); the target device and its thermal state -- NO active cooler was
+% fitted during these runs, so every timing figure carries its thermal state (the Memoire de Master
+% owns the thermal-headroom result; one sentence and a cross-reference); pinned versions, fixed
+% seeds, one CSV row per trial, one command reruns everything (run_all.sh).
+\TODO{draft}
+
+\section{Latency experiment}
+\label{sec:latency-experiment}
+% Sources: results/exp2.csv; results/exp2_analysis.md (split rate, 2x2 cross-trigger matrix,
+% preemption outcomes, core-0 frame budget, SoC temperatures, caveats); tab:latency-budget.
+% - Protocol: recorded WAV replayed on the Pi -- why: identical audio across the idle and loaded
+%   conditions. The bus was loopback on the Pi; the Wi-Fi hop is not in the figures.
+% - Reflex latency, idle and loaded: missed. Located cause: the spotter's own detection delay,
+%   hardware-independent, while the Pi's compute per frame is a few milliseconds idle and loaded --
+%   so the core isolation of Ch 3 held. (Figures from exp2_analysis.md.)
+% - End-to-end latency: missed; located in speech recognition and in uncached prefill (Ch 4
+%   sec:runtime gives why the prefix is not cached); decode meets its allowance.
+% - Per-stage attribution: every stage against tab:stage-budget (Ch 3) -- which meet, which miss.
+% - Preemption recovery: missed; located cause: the language-model server notices a closed
+%   connection only on a once-per-second poll. In-flight decodes aborted: all of them (count from
+%   results).
+% - Keyword false rejects on the author's recorded keywords (results/wake_real_voice.md): quote
+%   the exact Clopper-Pearson interval; at this sample size it cannot demonstrate the target -- say
+%   so.
+% - Not measured: live-capture latency, the Wi-Fi hop -- declared, pointing to Ch 6.
+\TODO{draft}
+
+\section{Keyword-spotter evaluation}
+\label{sec:keyword-spotter-evaluation}
+% Sources: results/wake_training.md, .json (produced by train/train_wake.py; eval/exp2.py only
+% quotes them).
+% - Held-out recordings, operating point fixed on a validation split before the test recordings
+%   were scored.
+% - The per-class curve with the chosen threshold marked (promised by Ch 1) -- a figure; generate
+%   it from the recorded data, do not draw it by hand.
+% - False rejects per class on the synthetic test split.
+% - Keyword false accepts on the continuous ambient-speech stream: missed as measured, with a
+%   95% interval so wide the target is neither demonstrated nor excluded -- report both halves.
+% - This section is the one addition to prd.md 3.1 item 5's list: Ch 1 names this evaluation as
+%   a fourth source of measurements (the Keyword false accepts row), and Table 3 gives it here.
+\TODO{draft}
+
+\section{Acoustic-robustness experiment}
+\label{sec:acoustic-robustness}
+% Sources: results/exp3_pi.csv (the Pi run is of record); tab:end-to-end; results/
+% exp3_pi_analysis.md (ANOVA/Tukey, Cochran's Q + McNemar, operating range, split rate, error
+% analysis with one cause per failed utterance); results/exp3_pi_parity.csv.
+% - Protocol: golden-set recordings with propeller-type noise mixed at falling SNR, through the
+%   parse path from endpointing to the validator. A split utterance counts correct only if every
+%   segment is.
+% - Clean-audio recognition and recognition in noise: both missed, each with its measured cause.
+%   Read exact match minus CRR as the cost of speech recognition.
+% - Statistics: the pre-registered arcsine ANOVA with its two caveats (the transform on 0/1 data;
+%   the same items repeated across SNR, hence Cochran's Q and McNemar beside it). The 10 dB vs
+%   5 dB McNemar comparison is not significant, by a hair -- write it so (p and alpha from the
+%   analysis file).
+% - No tuning was attempted, and why: the golden set is the only real speech, so tuning on it
+%   would fit the test set. Candidate remedies go to Ch 6.
+% - Parity: the parser is bit-identical across the workstation and the Pi; speech recognition is
+%   not, so accuracy is not hardware-independent and the target's numbers are reported; no verdict
+%   or significant pair changed.
+% - The stage-sum column of tab:end-to-end shows noise barely moves latency; end-to-end latency is
+%   the latency experiment's, not this one's.
+% - Safe-failure rate (the Memoire de Master's Safe failure criterion, same name): far below its
+%   bound; how ADR-0006 re-baselined it. Ch 6 returns to it.
+% - Thermal: the soft-limit flag was set during the 5 dB condition, checked, no measurable effect.
+% - The WER on the author's voice: cite the Memoire de Master's speaker-sensitivity experiment.
+\TODO{draft}
+
+\section{Formation-control experiment}
+\label{sec:formation-control}
+% Sources: results/exp4.csv, results/exp4_formation.md; eval/exp4.py -> swarm/simulate.py
+% (kinematic backend).
+% - Protocol (fixed before measurement): circle, line, wedge; repeated 60 s trials, fixed seeds,
+%   timestep and initial spread (simulate.py TrialSpec).
+% - Collisions: zero observed across all trials, backed by a hard geometric separation clamp at
+%   the integrator (Ch 1's locked phrasing). Beside it, the number of clamp interventions -- the
+%   informative figure; zero follows from the clamp's convergence, since collisions are counted
+%   after the clamp at a distance below the clamp distance.
+% - Formation accuracy: saturated, and this was declared before, not discovered after;
+%   convergence time is the discriminating metric; the ANOVA on it.
+% - Scope: kinematic simulator without rotor dynamics; the clamp's scope is Ch 6's limitation.
+%
+% Decide (author): a closing criterion-by-criterion table (every Ch 1 row: target, measured,
+% verdict) would help Ch 6 and the reader, but it would need its own section, and prd.md 3.1 does
+% not list one -- change prd first if you want it.
+\TODO{draft}

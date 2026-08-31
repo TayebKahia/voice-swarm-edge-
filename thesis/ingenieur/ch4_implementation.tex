@@ -1,0 +1,127 @@
+% Implementation --- section structure from prd.md 3.1 item 4, ownership from Table 3.
+% Scaffold only: headings and planning notes, no prose. Delete each note as its section is filled.
+%
+% This chapter OWNS: what was built -- the audio chain from recorded input, the runtime and its
+% command bus, the flight state machine as code, the swarm controller with the separation clamp,
+% both simulation backends.
+% It does NOT own: the design (Ch 3 -- refer to it, do not restate the membership rule, the
+% legality table or the budget), any measured figure (Ch 5), dataset construction (Memoire de
+% Master Ch 3 -- ONE paragraph here naming the artefacts consumed, Table 3).
+%
+% Rule (issue 06 decision, "describe what exists"): never describe a module that does not exist.
+% Absent at the time of writing, and therefore NOT described as built: live microphone capture
+% (runtime/audio.py), an entry point (runtime/main.py -- run_pipeline.sh already expects it), and
+% any connection from the state machine to the swarm controller. Ch 6 lists them as prerequisites
+% of the demonstration; this chapter says they are not built, once, where the reader would expect
+% them. Check again before drafting: if one has landed since, describe it.
+%
+% Naming (issue 00): reflex path / parse path, never Branch A/B; criteria by the names in Ch 1's
+% tables, never FR/NFR numbers; experiments in words. The code and prd.md still use the old names.
+% The prose names components, not file paths; the paths below are where to read the facts.
+%
+% Promises made elsewhere that this chapter must keep:
+%   - Ch 1 (safety problem, last paragraph) and Ch 3 lead-in: the third mechanism, bounding
+%     execution where a command takes effect, is realised here as part of the swarm controller.
+%   - Ch 1 structure paragraph: audio chain from recorded input, runtime and command bus, flight
+%     state machine, swarm controller, both simulation backends -- in that order.
+%   - Ch 3 prompt-and-prefix paragraph: "the deployed parser departs from this assumption, for a
+%     reason given in Chapter implementation" -- the reason goes in sec:runtime.
+
+\chapter{Implementation}
+\label{chap:implementation}
+% Lead-in (3-4 sentences): what was built, in the order of the signal (audio in, command out,
+% swarm moves); that the chapter describes the code as it stands, and names what is not built.
+\TODO{draft}
+
+\section{Audio chain}
+\label{sec:audio-chain}
+% - Input as it exists: recorded WAV replayed into the stream at the frame rate; no live capture
+%   (see header). Why replay suffices for the experiments is Ch 5's to argue; say only what the
+%   code does.
+% - One stream, both paths: every 80 ms frame goes to the keyword spotter and to the endpointer on
+%   the calling thread (core 0); an endpointed utterance is handed to a worker thread (cores 1-3).
+%   Source: runtime/stream.py docstring.
+% - Endpointing: Silero VAD run on onnxruntime directly, not through its package, which imports
+%   torch (kept off the stack); 512-sample windows at 16 kHz. Source: runtime/vad.py. The 450 ms
+%   silence rule is Ch 3's (sec:latency-budget); cite it, do not re-derive it.
+% - Keyword spotter as built: two classes, threshold, per-class debounce of 1.0 s (why per class:
+%   an abort straight after a hold must not be silenced), publish on trigger. Source:
+%   runtime/branch_a.py. Training: synthetic positives, adversarial negatives weighted x5 in the
+%   loss only, threshold swept up to 0.999 and chosen on a validation split. Source:
+%   train/train_wake.py. The operating point and its rates are Ch 5's (keyword-spotter evaluation).
+\TODO{draft}
+
+\section{Runtime}
+\label{sec:runtime}
+% - The parse path as code: speech recognition (runtime/stt.py wraps the one whisper.cpp command
+%   line the augmentation pipeline also uses) then the parser (runtime/parser.py: apply the chat
+%   template, tokenise, complete under the grammar, greedy, llama-server).
+% - The departure Ch 3 announces: the parser sends cache_prompt=false, so the fixed prefix is
+%   re-processed on every request. Why: the runtime uses the exact request the accuracy
+%   measurement used (eval/surface_b.py), so the runtime and the scored accuracy never diverge
+%   (ff12c88 commit message; parser.py l.60-64). Say that it costs prefill time and that Ch 5
+%   reports the measured cost; the fix is Ch 6's.
+% - Preemption as built: the sequence number reserved when the utterance is accepted; the reflex
+%   trigger cancels an in-flight decode (abort -> transport error -> no command for that
+%   utterance). Source: runtime/parser.py parse()/abort(), runtime/pipeline.py.
+% - Core pinning: per-thread affinity; a child process inherits the spawning thread's mask
+%   (Ch 3 sec:resource-allocation designs it; state here how it is applied).
+% - ONE paragraph, artefacts consumed from the Memoire de Master: the fine-tuned, quantised model
+%   file, the grammar, the fixed system prompt. Name them; one fresh sentence with a
+%   cross-reference, no dataset construction.
+% - What is not built (header list), stated once, plainly, pointing to Ch 6's demonstration
+%   protocol.
+\TODO{draft}
+
+\section{Command bus}
+\label{sec:command-bus}
+% - Ch 3 (sec:dual-path, command-bus paragraph) already gives the design: policy-free, behind an
+%   interface, no distributed middleware. Do not repeat it.
+% - As built: publish/subscribe, monotonic sequence numbers, path tag, nothing else; the ordering
+%   rule (discard a parse-path message older than the last reflex) lives in the consumer, not in
+%   the bus. Source: runtime/bus.py docstring.
+% - The transport actually used in the experiments (loopback on the Pi in the latency experiment,
+%   per results/exp2_analysis.md) versus the designed Wi-Fi UDP link to the workstation. State
+%   which exists as code; the unmeasured hop is a Ch 6 limitation.
+\TODO{draft}
+
+\section{Flight state machine}
+\label{sec:state-machine}
+% - Ch 3 (sec:validation-layers) owns the states, transitions, legality table and the rejection
+%   rule. Refer to them; describe only how the code enforces them.
+% - Every command from either path reaches the validator and the state machine: reflex-path
+%   commands are validated too (swarm/fsm.py:165 via the dispatcher) -- the fast path skips
+%   transcription and parsing, not validation.
+% - Rejection handling as built: HOVER in TAKING_OFF/FLYING, logged no-op in LANDED/LANDING/
+%   ABORTED (ADR-0002); recovery out of ABORTED manual and non-vocal.
+% - Verification: the unit tests that cover the legality table (swarm/test_fsm.py) -- the Flight
+%   state machine criterion in Ch 1's functional table names its verification; match it.
+% - Not built: the state machine does not drive the swarm controller (header).
+% - Known defect, if still unfixed: legality is judged on the raw intent after the validator's
+%   fallback. Name it only if it bears on a claim; the limitation is Ch 6's.
+\TODO{draft}
+
+\section{Swarm controller}
+\label{sec:swarm-controller}
+% - Four terms in descending authority: PID to the assigned formation slot, APF separation, Boids
+%   cohesion and alignment; slot assignment for circle, line and wedge. Source: swarm/control.py
+%   docstring. \cite{reynolds1987} for flocking; gains as numbers, from the code.
+% - The separation clamp -- the third mechanism of Ch 1's safety problem: a hard geometric
+%   separation clamp at the integrator, writing positions back so no pair is closer than the clamp
+%   distance (0.80 m). It writes back only on the kinematic backend (swarm/simulate.py). Use Ch 1's
+%   locked phrasing for the collision criterion; the intervention count is Ch 5's.
+% - Envelope clamping of commanded values is the validator's (Ch 3), not the controller's.
+\TODO{draft}
+
+\section{Simulation backends}
+\label{sec:simulation-backends}
+% - One environment interface, two backends (swarm/env.py): the kinematic double integrator with
+%   the quadrotor's bounds (fast: a 60 s five-drone trial in under a second -- the formation
+%   experiment runs on it) and PyFlyt on Bullet \cite{pyflyt} (fidelity; its own attitude and
+%   rotor loops under the controller's velocity setpoint -- swarm/pyflyt_env.py).
+% - Say explicitly: the same controller with the same gains runs under both; a controller retuned
+%   per backend would prove nothing (roadmap B9). This is what the Simulation backends criterion
+%   rests on.
+% - Scope, honestly: the formation results come from the kinematic backend; PyFlyt is smoke-tested
+%   (swarm/test_pyflyt.py). No rotor dynamics in the results (Ch 1 scope paragraph).
+\TODO{draft}
