@@ -154,7 +154,7 @@ d'Ing\'enieur} builds its reflex path; every other row feeds an experiment of th
 \toprule
 Split & Size & Source & Role \\
 \midrule
-\texttt{train\_synth} & 1{,}940 pairs & Label-first generation; 872 transcripts replaced by round-trip recognition output & \acrshort{lora} fine-tuning \\
+\texttt{train\_synth} & 1{,}940 pairs & Label-first generation; 872 transcripts replaced by round-trip recognition output & \acrshort{lora} fine-tuning (Section~\ref{sec:lora}) \\
 \texttt{val\_synth} & 240 pairs & Held-out template families, clean text & Checkpoint selection on \acrshort{em} \\
 \texttt{test\_synth} & 240 pairs & Held-out template families, clean text & Second, descriptive split of the multi-model benchmark \\
 \texttt{test\_golden} & 200 audio files, 200 transcripts & Author, one recording session over two days; transcripts from the 12 \texttt{test\_synth} families & Multi-model benchmark accuracy of record and confirmatory paired tests; speaker-sensitivity experiment; acoustic-robustness experiment* \\
