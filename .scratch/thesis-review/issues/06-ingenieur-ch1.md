@@ -286,3 +286,10 @@ Script: 0 FAIL, 4 WARN (chap:demonstration now resolves to the scaffold).
 a latency argument" became "derived from the cost of a false accept and the value of the time
 saved", in prd.md 2.1 (C4) and Ch1 1.5 alike. The script's verbatim check passes. This closes the
 "Still the author's" item above.
+
+### 2026-09-24 -- Ch4 and Ch5 scaffolded; all six chapters built
+
+`ch4_implementation.tex` (\label{chap:implementation}) and `ch5_validation.tex`
+(\label{chap:validation}) now exist as scaffolds and every chapter is \input, so Ch6 numbers as
+Chapter 6. The two WARNs for Ch1's references to unwritten chapters are gone: 0 FAIL, 2 WARN
+(the two caption long forms justified above), 61 PASS. Cold build converges, 34 pages.
