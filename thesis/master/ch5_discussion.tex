@@ -84,8 +84,8 @@ behaves as a term in the latency budget, alongside the model. The figure is best
 frontier of a cooled Raspberry~Pi~5, and a latency or throughput figure quoted without its thermal
 state may not be reproducible.
 
-\paragraph{Unmeasured points and axes.} Two gaps in the figure are known, and each limits what
-the frontier can be taken to mean. The first is quantisation. The Q8\_0 artefacts have no
+\paragraph{Unmeasured points and axes.} Three gaps in the figure are known, and each limits what
+the figure can be taken to mean. The first is quantisation. The Q8\_0 artefacts have no
 latency coordinate, and the paired tests found no significant accuracy difference between
 quantisations within any model. Where a Q8\_0 point would sit depends on its latency,
 which was not measured, so the frontier is strictly a Q4\_K\_M frontier.
@@ -97,7 +97,10 @@ points and keeping the ordering along the frontier. That inference is not safe. 
 one board's processor, and a larger model could slow them through contention, so the end-to-end
 figures of SmolLM2-360M and Llama-3.2-1B cannot be read off their stage times beyond the lower
 bound Section~\ref{sec:selection} derives for Llama-3.2-1B. Whether the ordering survives end to
-end is plausible but unmeasured.
+end is plausible but unmeasured. The third is memory. Marker area encodes the peak resident memory
+of the language-model process, while the 2.5~GiB ceiling applies to the full stack, which was not
+measured for any configuration (Section~\ref{sec:selection}). The markers therefore show how far
+each model is from the ceiling on its own, not whether the deployed stack fits under it.
 
 \section{Failure-mode analysis}
 \label{sec:failure-modes}
@@ -334,6 +337,7 @@ The readings of this chapter set the strength at which the results of Chapter~\r
 can be stated; they do not change the results. Chapter~\ref{chap:conclusion} decides RQ1 at that
 strength and sets out, in order of priority, three steps that this chapter identified and did not
 take. Two are the interventions of Section~\ref{sec:failure-modes}, a confidence gate and training
-pairs that map degraded commands to \texttt{unknown}; the third is the end-to-end measurement of
-SmolLM2-360M that Section~\ref{sec:tradeoff} notes was not made.
+pairs that map degraded commands to \texttt{unknown}; the third is the measurement of
+SmolLM2-360M end to end, in latency and in full-stack memory, which Section~\ref{sec:tradeoff}
+notes was not made.
 

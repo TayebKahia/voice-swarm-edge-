@@ -90,16 +90,18 @@ not express it as a share of a size effect.
 \section{Prioritised next steps}
 \label{sec:next-steps}
 
-Three steps follow from these results, ordered by the requirement each addresses. None of them is
-implemented or measured in this document.
+Three steps follow from these results, in order of priority. The first two address the
+requirements the selected configuration misses by the widest margin, the one that needs no
+retraining first; the third completes the frontier and does not bear on the selection. None of
+them is implemented or measured in this document.
 
 \begin{enumerate}
   \item \textbf{A confidence gate.} The two abstention requirements are the ones the selected
   configuration misses by the widest margin (Section~\ref{sec:benchmark}), and a gate addresses
   them without retraining. It reads the decoder's token-level log-probabilities over the emitted
   command and routes any command below a threshold to \texttt{unknown} rather than to dispatch,
-  which targets the in-domain errors of Section~\ref{sec:failure-modes}: the parser dispatches them
-  as executable commands instead of declining. The threshold is placed on a held-out calibration
+  which targets the in-domain errors of Section~\ref{sec:failure-modes}: the parser dispatches nearly
+  all of them as executable commands instead of declining. The threshold is placed on a held-out calibration
   set, not on the golden split, and it trades safe-failure rate against \gls{em} along a curve that
   is the first measurement to make.
   \item \textbf{Training pairs for unreadable commands.} The corpus teaches \texttt{unknown}
