@@ -203,3 +203,27 @@ scope, so it is left for the author.
 
 Scripts: Ch5 0 FAIL, 1 WARN (the justified "not guaranteed", now l.207), 96 PASS; Ch6 0 FAIL, 0 WARN,
 54 PASS; `check_tex` clean on both. Build: 0 errors, no undefined references, no overfull boxes.
+
+### 2026-09-24 -- author's decision: step 3 keeps its scope
+
+The remaining half of MINOR-2 (step 3 measures full-stack memory for SmolLM2-360M only, not for
+the selected Qwen2.5-0.5B) is **kept as written, by the author's choice**. The Mémoire d'Ingénieur
+does not measure full-stack memory either.
+
+A wider step 3 was drafted and discarded without a commit. It would have added Qwen2.5-0.5B's
+full-stack memory, scoped "the selection does not depend on the outcome" to the SmolLM2 part, and
+reworded the priority sentence and Ch5's hand-off to match.
+
+The reasons for keeping the current scope:
+- The gap is stated in Ch4 §4.7, Ch5 §5.1 and Ch6 §6.1 ("confirmed for the language-model process
+  only"), so nothing is hidden or overclaimed.
+- Step 3 completes the frontier, which is the Master's question. The deployed system's memory is a
+  system-validation question.
+- Ch5's hand-off and Ch6 agree as committed.
+
+**For the defence.** Expect the question "why measure the rejected model's memory and not the
+deployed one's?". The answer: the Master's future work completes the trade-off, and the
+language-model process uses 0.68 of the 2.5 GiB ceiling. Do not claim that the rest of the stack
+fits, because no figure for it exists.
+
+Nothing is left open in this issue.
