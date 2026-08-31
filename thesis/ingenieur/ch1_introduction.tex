@@ -71,7 +71,8 @@ interchangeable backends, the PyFlyt simulator~\cite{pyflyt} and a kinematic sim
 path is not simulated, but it is recorded: the evaluation corpus, referred to below as the golden
 set, was recorded by one speaker through the deployed microphone in a real room, and every result
 in this document is obtained by replaying recorded audio from file. Live microphone capture is not
-part of the system reported here. The parts of the chain are also evaluated separately rather than
+part of the system reported here; it is planned for the live demonstration
+(Chapter~\ref{chap:demonstration}). The parts of the chain are also evaluated separately rather than
 in one run: the speech experiments end at the validator or at the state machine, both run on the
 device, and the formation experiment drives the controller directly, without speech. Results
 reported here therefore characterise the command pipeline and the controller, the latter on the
@@ -139,9 +140,10 @@ Table~\ref{tab:functional-requirements} divides into three commitments. Offline 
 and the live demonstration concern the deployment: every model executes locally, and the
 demonstration requirement asks for the full pipeline to run from a live microphone with every
 interface except the device--workstation link disabled on camera, so that offline operation is
-exercised rather than asserted. The system this document reports does not include live capture
-(Section~\ref{sec:operational-context}), so that requirement stands as a commitment the work has
-not met, and Chapter~\ref{chap:demonstration} states what remains undemonstrated as a result. The
+exercised rather than asserted. The system this document reports does not yet include live capture
+(Section~\ref{sec:operational-context}): the demonstration is planned for the defence, and
+Chapter~\ref{chap:demonstration} fixes its protocol in advance and states what the runs reported
+here leave undemonstrated. The
 swarm-controller and simulation-backend requirements specify the controller and the simulation
 interface it drives. The reflex-path and flight-state-machine requirements establish the two
 command-level safety mechanisms this document owns --- a reflex path with a closed membership rule,
@@ -455,8 +457,9 @@ experiments and the keyword-spotter evaluation that test the design against the 
 Section~\ref{sec:engineering-requirements}: the latency experiment, on preemption and latency under
 load; the acoustic-robustness experiment, on parse-path accuracy from audio as the \gls{snr} falls;
 and the formation-control experiment, on formation quality, each with its statistical analysis.
-Chapter~\ref{chap:demonstration} states what the system demonstrates end to end and what it does
-not, the limitations the measurements expose, and the work this system leaves to be done.
+Chapter~\ref{chap:demonstration} sets out the protocol of the live demonstration planned for the
+defence, states the limitations the measurements expose and the work this system leaves to be
+done, and answers the two research questions.
 
 The engineering problem is therefore to deliver a spoken command to five aircraft within the
 parse-path budget, to stop them by voice within the reflex-path budget, and to place every check

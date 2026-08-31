@@ -1,0 +1,131 @@
+% Demonstration, limitations, future work, conclusion --- ONE chapter (prd.md 3.1 item 6; SKILL
+% says do not split it the way the Master's was). Label is chap:demonstration: Ch1 \ref's it five
+% times under that name, never chap:conclusion.
+%
+% Status (author's decision, 2026-09-24): the live demonstration is PLANNED FOR THE DEFENCE, not
+% performed before submission. This chapter therefore fixes the demonstration's protocol in
+% advance and reports no result from it. Never write "the demonstration showed ...", a latency
+% figure from live capture, or a success verdict until the demonstration has been run; when it
+% has, the sentences to update are listed in .scratch/thesis-review/issues/06-ingenieur-ch1.md
+% (pass-2 verifier, live-demonstration check).
+%
+% Ownership: every measured figure here is Ch5's (chap:validation) and must be quoted exactly as
+% Ch5 gives it, with no stronger qualifier. No number that Ch1-Ch5 did not report. RQ1 and its
+% answer belong to the Memoire de Master; name it in words, one sentence.
+%
+% What Ch1 promises this chapter (issue 06; agents/06-ingenieur-ch1/argument.md P1-P31):
+%   - the protocol of the live demonstration, and what the reported runs leave undemonstrated
+%     (Ch1 l.74, l.144, l.460);
+%   - the scope limits of l.66-82 as limitations: simulated aircraft, kinematic simulator without
+%     rotor dynamics, recorded audio, chain evaluated in parts, no airframe behaviour in wind;
+%   - the clamp scope: a physics simulator or an airframe exposes no integrator to rewrite
+%     (Ch1 safety problem, collision paragraph);
+%   - "returns to what the measurement showed" for the safe-failure rate (Ch1 1.2, last paragraph);
+%   - "where they fall short of the targets set here" (Ch1 closing): every missed criterion named.
+
+\chapter{Demonstration, limitations and conclusion}
+\label{chap:demonstration}
+% Lead-in (3-4 sentences): what this chapter does -- fixes the protocol of the demonstration
+% planned for the defence, states the limitations the measurements expose, the work left, and
+% answers RQ2 and RQ3. No new result.
+\TODO{draft}
+
+\section{Demonstration protocol}
+\label{sec:demonstration-protocol}
+% Frame: planned for the defence; the protocol is fixed here, before it is run, so that what
+% counts as success is decided in advance. It is one run, not an experiment: it shows the chain
+% working end to end, it cannot measure a rate or a percentile.
+% - What it adds to Ch5: the only run in which (a) live microphone capture feeds the pipeline,
+%   (b) a spoken command is carried through the state machine to the swarm controller and the
+%   simulated swarm, (c) networking is disabled as Ch1 defines it. Ch5's runs replay recorded
+%   audio and evaluate the chain in parts (latency and acoustic experiments end at the state
+%   machine or validator on the Pi; the formation experiment drives the controller without speech).
+% - Setup: Raspberry Pi 5 with the deployed microphone; workstation running the state machine,
+%   swarm controller and simulation (decide: PyFlyt for the visual, or the kinematic simulator the
+%   results use -- say which and why); the device--workstation wireless link kept; every other
+%   interface disabled, shown on camera at the start (interface state on screen).
+% - Script of utterances, fixed in advance (decide the exact list; source: prd FR-9 and the D21
+%   plan, which includes the ABORTED recovery path):
+%     take-off; a formation command with a slot value (e.g. "form a circle with radius five
+%     metres", Ch1's example); a movement; "swarm hold" spoken WHILE a parse-path command is
+%     decoding (preemption: the older command must not take effect after the hold); a resumption
+%     through the parse path; landing; "swarm abort"; the non-vocal recovery out of ABORTED.
+% - Success criteria, decided now (author to fix): each command produces the expected state-
+%   machine transition and swarm behaviour; the hold preempts the in-flight command; no rejected
+%   or unrecognised utterance produces motion; the whole run is recorded on video with timestamps.
+%   Decide whether latency from live capture is reported (as a single observation, not judged
+%   against the p95 budgets) or not reported at all.
+% - What it cannot show: statistics (one run, one speaker, one room), real airframes, wind.
+% - Prerequisites not yet built (Ch4 lists them as work for the demonstration, not as built):
+%   live capture (runtime/audio.py), an entry point (runtime/main.py -- run_pipeline.sh already
+%   expects it), and the connection from the bus consumer / state machine to the swarm controller.
+%   Planning note only; the prose names components, not file paths.
+\TODO{draft}
+
+\section{Limitations}
+\label{sec:limitations}
+% One paragraph each; state the limitation, the evidence, and what it means for the claims.
+% Quote every figure from Ch5 exactly; the pointers below are where Ch5 takes them from.
+% - Simulated aircraft; the formation results come from the kinematic simulator, without rotor
+%   dynamics (eval/exp4.py -> swarm/simulate.py NumpyEnv); PyFlyt is only smoke-tested. No
+%   airframe behaviour in wind.
+% - The clamp: written back to position only on the kinematic simulator (swarm/simulate.py), and
+%   collisions are counted after it at a distance below the clamp distance, so zero collisions
+%   there follows from the clamp's convergence; the intervention count is the informative figure
+%   (results/exp4_formation.md). A physics simulator or an airframe exposes no position to
+%   rewrite: the mechanism would have to act on velocity or thrust instead (link to future work).
+% - Recorded audio only; no live capture; live-capture latency not measured. One speaker, one
+%   room, one recording session; speaker spread is the Memoire de Master's speaker-sensitivity
+%   experiment (name it in words).
+% - The chain evaluated in parts; no spoken command carried through to simulated flight. In the
+%   latency experiment the state machine ran on the Pi over loopback, not on the workstation, and
+%   the Wi-Fi hop is not in the latency figures (results/exp2_analysis.md, "the bus is loopback on
+%   the Pi"). Say what that leaves out of the end-to-end figure.
+% - No run with networking disabled has been made; the offline-operation criterion rests on
+%   construction (every model local, no external service called) until the demonstration.
+% - Criteria missed, each named with Ch5's figure (verify against results/ before quoting):
+%   reflex latency (results/exp2_analysis.md, idle and loaded); end-to-end latency; preemption
+%   recovery; keyword false accepts (results/wake_training.md, ambient-speech stream; wide
+%   interval); clean-audio recognition and recognition in noise (results/exp3_pi_analysis.md --
+%   check which acoustic file is of record); the Memoire de Master's Safe failure criterion
+%   (safe-failure rate far below its bound; ADR-0006 re-baselined it -- say how).
+%   Per-stage attribution: which stages miss their allowance (STT, prefill) -- the answer to
+%   RQ2's second clause.
+% - The two error classes no layer catches (Ch1 1.3): out-of-envelope values clamped and executed;
+%   well-formed, in-range, state-legal wrong commands. Tie to the safe-failure result.
+% - If still unfixed at submission: the state machine judges legality on the raw intent after the
+%   validator's fallback (code), and the grammar admits leading zeros (Memoire de Master) -- name
+%   only if they bear on a claim here.
+\TODO{draft}
+
+\section{Future work}
+\label{sec:future-work}
+% Each item follows from a limitation above; no item without one.
+% - Live capture and the full chain into the controller, run with networking disabled (the
+%   demonstration makes this one run; a measured version would repeat it as an experiment).
+% - The Wi-Fi hop measured and added to the end-to-end figure; the state machine on the workstation
+%   as designed.
+% - A physics simulator, then airframes: a separation mechanism that acts on commanded velocity
+%   or thrust rather than on position. Cite only from references.bib (closed set); add a key
+%   first if a method is named.
+% - Closing the latency gap where Ch5 locates it (STT and prefill), within the reflex-path
+%   membership rule, which does not change.
+% - More speakers and rooms for the acoustic results.
+% - A distributed transport in place of the minimal bus beyond simulation (Ch3 command bus
+%   paragraph already names this as a deliberate deferral).
+\TODO{draft}
+
+\section{Conclusion}
+\label{sec:conclusion}
+% Unhedged, per SKILL: answer each research question directly against Ch5's figures.
+% - RQ2 (pipeline latency): does the offline pipeline meet a p95 budget compatible with
+%   interactive control, and where does the time go? Answer with the end-to-end and reflex
+%   figures and the per-stage attribution; state plainly what was missed.
+% - RQ3 (acoustic robustness and control quality): how recognition degrades from clean to 5 dB;
+%   whether it degrades safely (the safe-failure result, stated without softening); whether the
+%   controller holds formation (formation accuracy and collisions, with the clamp's scope).
+% - The contribution: what the reflex path and its membership rule deliver as designed and as
+%   measured; the rule's transferable part (Ch1 contribution section).
+% - One sentence naming RQ1 as answered in the Memoire de Master, in words.
+% - Close on what the demonstration at the defence will add, without anticipating its outcome.
+\TODO{draft}
