@@ -3,9 +3,37 @@
 \vspace*{4cm}
 \begin{center}{\Huge\bfseries Résumé}\end{center}
 \vskip 1cm
-\TODO{résumé en français -- traduction fidèle de l'abstract, pas un résumé plus court}
+\noindent Un essaim de drones commandé à la voix a besoin d'un analyseur qui transforme un énoncé
+transcrit en une commande exécutable sur le matériel embarqué du véhicule, où chaque paramètre
+supplémentaire coûte de la latence et où une sortie erronée est une erreur de pilotage. Ce mémoire
+étudie le compromis entre précision et efficacité parmi de petits modèles de langage de 0,36 à
+1,2~milliard de paramètres, affinés pour l'analyse de commandes d'essaims de drones et quantifiés
+pour une exécution sur le seul processeur central d'un Raspberry~Pi~5.
+
+\vspace{0.3cm}
+\noindent Un schéma de commandes figé est associé à une grammaire qui lui correspond et contraint le
+décodage, de sorte que la validité structurelle est une propriété du décodeur. Une chaîne de
+constitution des données qui part des étiquettes produit les données d'entraînement et de test,
+avec des partitions attribuées par famille de gabarits et un jeu de test de référence de
+200~commandes enregistrées. Quatre modèles sont affinés selon une même recette~; trois sont
+quantifiés à deux niveaux et mesurés sur la carte, et le quatrième, de taille appariée à l'un
+d'eux, sépare l'effet de la famille de modèles de celui de la taille. Une règle de sélection fixée
+avant l'obtention de tout résultat désigne la configuration à déployer.
+
+\vspace{0.3cm}
+\noindent Le compromis se réduit à deux configurations non dominées, SmolLM2-360M et Qwen2.5-0.5B,
+et la règle déploie Qwen2.5-0.5B en Q4\_K\_M, avec une correspondance exacte de 0,935 sur le jeu de
+référence. SmolLM2-360M est plus rapide et moins précis de 17,5~points de pourcentage, une
+différence significative~; Llama-3.2-1B est plus lent, et sa précision inférieure sur le jeu de
+référence n'est pas statistiquement établie. La sélection se fait sur la précision, face à des
+contraintes redéfinies d'après les mesures~: la configuration retenue dépasse de 622~ms le budget
+de latence de bout en bout de 2\,500~ms, et ce budget est redéfini à la valeur mesurée de
+3\,122~ms. Aucune configuration ne satisfait les exigences de taux d'échec sûr et de taux de fausses
+commandes~: elles émettent une commande bien formée au lieu de s'abstenir~; un seuil de confiance
+appliqué à la sortie du décodeur est la première étape proposée.
 
 \vspace{1cm}
 \providecommand{\motscles}[1]{\textbf{\textit{Mots-clés---}} #1}
-\motscles{\TODO{6--8 mots-clés}}
+\motscles{petits modèles de langage~; inférence embarquée~; quantification~; décodage contraint
+par grammaire~; analyse de commandes~; Raspberry Pi~5~; essaim de drones~; front de Pareto.}
 \newpage
