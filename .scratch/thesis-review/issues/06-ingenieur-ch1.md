@@ -270,3 +270,12 @@ contribution); code (the FSM's legality check runs on the raw intent, already a 
 - **Still the author's:** the contribution block (prd C4 verbatim) says "a bounded safety reflex"
   and "derived from a latency argument". Ch1 now derives the rule from two arguments, and the
   reflex misses its budget. Changing it means changing prd §2.1 first.
+
+### 2026-09-24 -- the live demonstration is planned for the defence
+
+The author will run the live demonstration at the defence, after submission. Ch1 now says so in
+the three places that mention it (scope paragraph, demonstration-requirement commitment, structure
+paragraph). Ch6 is scaffolded with the demonstration protocol, fixed in advance, and reports no
+result from it. When the demonstration has been run, the sentences to update are the ones the
+pass-2 verifier listed (live-demonstration check above), plus these three and Ch6 section 6.1.
+Script: 0 FAIL, 4 WARN (chap:demonstration now resolves to the scaffold).
