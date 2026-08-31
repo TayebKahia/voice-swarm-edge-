@@ -174,3 +174,32 @@ whitespace-tolerant (`lib.py` l.94), so the rewrapped lines needed no other chan
 written and stay available:
 - MINOR-1 to MINOR-7 and NIT-1 to NIT-6;
 - MINOR-2's Ch5 edit, on full-stack memory in Ch5 §5.1 and its hand-off.
+
+### 2026-09-24 -- follow-up: MINOR-1, MINOR-2 (Ch5) and MINOR-5 applied
+
+Each was checked against its source first. The verifier had not checked MINOR-1 or MINOR-5.
+
+- **MINOR-2 (Ch5):** confirmed that nothing in `results/` measures full-stack memory, for any configuration.
+  - Ch5 §5.1 "Unmeasured points and axes" now lists three gaps. The third is memory: marker area
+    encodes the language-model process, while the 2.5~GiB ceiling applies to the full stack, which was
+    not measured (`sec:selection`). The markers therefore show each model's distance from the ceiling
+    on its own, not whether the deployed stack fits.
+  - The lead-in's "limits what the frontier can be taken to mean" became "the figure", because memory
+    is not a frontier axis.
+  - Ch5's hand-off now names the third step as SmolLM2-360M "end to end, in latency and in full-stack
+    memory". Ch6's step 3 therefore no longer introduces something Ch5 did not raise.
+- **MINOR-1 (Ch6 l.85):** l.8, the section title and Ch5's hand-off all say "priority", but the list
+  said "ordered by the requirement each addresses". It now says "in order of priority", and gives the
+  basis in the steps' own terms:
+  - the first two address the requirements missed by the widest margin, with the step that needs no
+    retraining first;
+  - the third completes the frontier and does not bear on the selection.
+- **MINOR-5 (Ch6 l.93):** "the parser dispatches nearly all of them". Ch5 l.141-144 says "nearly
+  every" (98.9%), and 1.1% resolve to a safe action.
+
+Not changed: the reviewer's other half of MINOR-2. Step 3 measures memory only for SmolLM2-360M,
+although the selected model's full-stack memory is also unmeasured. Widening the step changes its
+scope, so it is left for the author.
+
+Scripts: Ch5 0 FAIL, 1 WARN (the justified "not guaranteed", now l.207), 96 PASS; Ch6 0 FAIL, 0 WARN,
+54 PASS; `check_tex` clean on both. Build: 0 errors, no undefined references, no overfull boxes.

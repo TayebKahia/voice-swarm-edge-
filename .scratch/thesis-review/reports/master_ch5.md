@@ -6,7 +6,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 
 | status | check | line | finding |
 |---|---|---|---|
-| WARN | absolute | 204 | `guaranteed` -- earned? ...rained in a separate session, and \gls{gpu} training is not guaranteed to be bit-reproducible across sessions~ . It exis... |
+| WARN | absolute | 207 | `guaranteed` -- earned? ...rained in a separate session, and \gls{gpu} training is not guaranteed to be bit-reproducible across sessions~ . It exis... |
 | PASS | check_tex |  | tools/check_tex.py: no problems beyond cross-chapter \ref (resolved below) |
 | PASS | ref |  | every \ref resolves within the document |
 | PASS | cite |  | 4 distinct keys cited, all resolved |
@@ -52,66 +52,66 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | PASS | claim | 78 | `decode alone is 1{,}033~ms` -> written 1033, source gives 1033.16 (qwen decode p95) |
 | PASS | claim | 79 | `a margin of 67~ms` -> written 67, source gives 66.84 (1100 - qwen decode p95) |
 | PASS | claim | 79 | `or 6\%` -> written 6, source gives 6.08 (67 / 1100) |
-| PASS | claim | 113 | `rate of 0.0530 reported` -> written 0.0530, source gives 0.0530 (pooled safe failures / errors, all six artefacts) |
-| PASS | claim | 114 | `Section~\ref{sec:benchmark} is 28 errors` -> written 28, source gives 28.00 (safe failures, pooled) |
-| PASS | claim | 114 | `28 errors out of 528` -> written 528, source gives 528.00 (errors, pooled) |
-| PASS | claim | 114 | model hover = 24 |
-| PASS | claim | 116 | validator fallback = 3 |
-| PASS | claim | 117 | model unknown = 1 |
-| PASS | claim | 126 | `abstain on 60.7\% to` -> written 60.7, source gives 60.67 (1 - worst false-command rate) |
-| PASS | claim | 126 | `to 81.3\% of items` -> written 81.3, source gives 81.33 (1 - best false-command rate) |
-| PASS | new-number | 126 | 60.7 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
-| PASS | new-number | 126 | 81.3 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
-| PASS | claim | 128 | `configurations make 282 errors` -> written 282, source gives 282.00 (in-domain errors, pooled) |
-| PASS | new-number | 128 | 282 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
-| PASS | claim | 129 | volunteered unknown 1 in 2640 |
-| PASS | new-number | 129 | 2{,}640 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
-| PASS | claim | 137 | `abstain on 62.0\% to` -> written 62.0, source gives 62.00 (surface_a smollm2 test_ood) |
-| PASS | claim | 137 | `to 73.3\% of the out-of-domain` -> written 73.3, source gives 73.33 (surface_a llama test_ood) |
-| PASS | claim | 137 | 62.0 and 73.3 are the min and max of the three |
-| PASS | new-number | 137 | 62.0 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
-| PASS | new-number | 137 | 73.3 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
-| PASS | claim | 139 | `inside that spread at 72.0\%` -> written 72.0, source gives 72.00 (surface_a danube test_ood) |
-| PASS | new-number | 139 | 72.0 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
-| PASS | claim | 142 | `Of the 282, 240` -> written 282, source gives 282.00 (taxonomy total) |
-| PASS | claim | 142 | `Of the 282, 240` -> written 240, source gives 240.00 (right intent, wrong parameters) |
-| PASS | claim | 142 | `240 (85.1\%)` -> written 85.1, source gives 85.11 (share) |
-| PASS | claim | 142 | `39 (13.8\%)` -> written 39, source gives 39.00 (wrong intent, actionable) |
-| PASS | claim | 142 | `39 (13.8\%)` -> written 13.8, source gives 13.83 (share) |
-| PASS | new-number | 142 | 282 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
-| PASS | new-number | 142 | 13.8 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
-| PASS | claim | 143 | `3 (1.1\%) resolve` -> written 3, source gives 3.00 (safe) |
-| PASS | claim | 143 | `3 (1.1\%) resolve` -> written 1.1, source gives 1.06 (share) |
-| PASS | claim | 143 | `so 98.9\% dispatch` -> written 98.9, source gives 98.94 (executable share) |
-| PASS | new-number | 143 | 98.9 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
-| PASS | path | 144 | `results/limitation_abstention.md` exists in the repo |
-| PASS | claim | 144 | `yaw angle: 114 of the 282` -> written 114, source gives 114.00 (yaw sign flips) |
-| PASS | new-number | 144 | 114 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
-| PASS | new-number | 144 | 282 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
-| PASS | claim | 145 | `errors (40.4\%) turn` -> written 40.4, source gives 40.43 (yaw share) |
-| PASS | new-number | 145 | 40.4 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
-| PASS | claim | 146 | item 0036: quoted transcript |
-| PASS | new-number | 146 | 163.0 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
-| PASS | claim | 147 | item 0036: reference -163.0, Qwen Q4_K_M +163.0 |
-| PASS | new-number | 147 | 163.0 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
-| PASS | new-number | 147 | 163.0 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
-| PASS | claim | 199 | six \paragraph lead-ins in the internal-validity subsection |
-| PASS | claim | 250 | log10(0.0167 / 1.1e-7) = 5.18 |
-| PASS | claim | 281 | exp3_pi_parity.csv text: n 200, raw differs 0 |
-| PASS | claim | 285 | `\gls{crr} is 0.690 on clean` -> written 0.690, source gives 0.690 (exp3_pi.csv clean CRR (Pi, of record)) |
-| PASS | claim | 285 | `and 0.590 at 10~dB` -> written 0.590, source gives 0.590 (exp3_pi.csv 10 dB CRR) |
-| PASS | new-number | 285 | 0.690 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
-| PASS | new-number | 285 | 0.590 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
-| PASS | claim | 286 | `against an \gls{em} of 0.935` -> written 0.935, source gives 0.935 (exp3_pi.csv EM on the same items) |
+| PASS | claim | 116 | `rate of 0.0530 reported` -> written 0.0530, source gives 0.0530 (pooled safe failures / errors, all six artefacts) |
+| PASS | claim | 117 | `Section~\ref{sec:benchmark} is 28 errors` -> written 28, source gives 28.00 (safe failures, pooled) |
+| PASS | claim | 117 | `28 errors out of 528` -> written 528, source gives 528.00 (errors, pooled) |
+| PASS | claim | 117 | model hover = 24 |
+| PASS | claim | 119 | validator fallback = 3 |
+| PASS | claim | 120 | model unknown = 1 |
+| PASS | claim | 129 | `abstain on 60.7\% to` -> written 60.7, source gives 60.67 (1 - worst false-command rate) |
+| PASS | claim | 129 | `to 81.3\% of items` -> written 81.3, source gives 81.33 (1 - best false-command rate) |
+| PASS | new-number | 129 | 60.7 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
+| PASS | new-number | 129 | 81.3 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
+| PASS | claim | 131 | `configurations make 282 errors` -> written 282, source gives 282.00 (in-domain errors, pooled) |
+| PASS | new-number | 131 | 282 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
+| PASS | claim | 132 | volunteered unknown 1 in 2640 |
+| PASS | new-number | 132 | 2{,}640 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
+| PASS | claim | 140 | `abstain on 62.0\% to` -> written 62.0, source gives 62.00 (surface_a smollm2 test_ood) |
+| PASS | claim | 140 | `to 73.3\% of the out-of-domain` -> written 73.3, source gives 73.33 (surface_a llama test_ood) |
+| PASS | claim | 140 | 62.0 and 73.3 are the min and max of the three |
+| PASS | new-number | 140 | 62.0 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
+| PASS | new-number | 140 | 73.3 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
+| PASS | claim | 142 | `inside that spread at 72.0\%` -> written 72.0, source gives 72.00 (surface_a danube test_ood) |
+| PASS | new-number | 142 | 72.0 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
+| PASS | claim | 145 | `Of the 282, 240` -> written 282, source gives 282.00 (taxonomy total) |
+| PASS | claim | 145 | `Of the 282, 240` -> written 240, source gives 240.00 (right intent, wrong parameters) |
+| PASS | claim | 145 | `240 (85.1\%)` -> written 85.1, source gives 85.11 (share) |
+| PASS | claim | 145 | `39 (13.8\%)` -> written 39, source gives 39.00 (wrong intent, actionable) |
+| PASS | claim | 145 | `39 (13.8\%)` -> written 13.8, source gives 13.83 (share) |
+| PASS | new-number | 145 | 282 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
+| PASS | new-number | 145 | 13.8 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
+| PASS | claim | 146 | `3 (1.1\%) resolve` -> written 3, source gives 3.00 (safe) |
+| PASS | claim | 146 | `3 (1.1\%) resolve` -> written 1.1, source gives 1.06 (share) |
+| PASS | claim | 146 | `so 98.9\% dispatch` -> written 98.9, source gives 98.94 (executable share) |
+| PASS | new-number | 146 | 98.9 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
+| PASS | path | 147 | `results/limitation_abstention.md` exists in the repo |
+| PASS | claim | 147 | `yaw angle: 114 of the 282` -> written 114, source gives 114.00 (yaw sign flips) |
+| PASS | new-number | 147 | 114 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
+| PASS | new-number | 147 | 282 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
+| PASS | claim | 148 | `errors (40.4\%) turn` -> written 40.4, source gives 40.43 (yaw share) |
+| PASS | new-number | 148 | 40.4 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
+| PASS | claim | 149 | item 0036: quoted transcript |
+| PASS | new-number | 149 | 163.0 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
+| PASS | claim | 150 | item 0036: reference -163.0, Qwen Q4_K_M +163.0 |
+| PASS | new-number | 150 | 163.0 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
+| PASS | new-number | 150 | 163.0 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
+| PASS | claim | 202 | six \paragraph lead-ins in the internal-validity subsection |
+| PASS | claim | 253 | log10(0.0167 / 1.1e-7) = 5.18 |
+| PASS | claim | 284 | exp3_pi_parity.csv text: n 200, raw differs 0 |
+| PASS | claim | 288 | `\gls{crr} is 0.690 on clean` -> written 0.690, source gives 0.690 (exp3_pi.csv clean CRR (Pi, of record)) |
+| PASS | claim | 288 | `and 0.590 at 10~dB` -> written 0.590, source gives 0.590 (exp3_pi.csv 10 dB CRR) |
+| PASS | new-number | 288 | 0.690 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
+| PASS | new-number | 288 | 0.590 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
+| PASS | claim | 289 | `against an \gls{em} of 0.935` -> written 0.935, source gives 0.935 (exp3_pi.csv EM on the same items) |
 
 ### Citation sheet (for the citation agent: open each identifier, judge SUPPORTS / PARTIAL / DOES NOT SUPPORT per row)
 
 | # | line | keys | sentence the citation must support |
 |---|---|---|---|
-| 1 | 205 | pytorchrepro | It was trained in a separate session, and \gls{gpu} training is not guaranteed to be bit-reproducible across sessions~\cite{pytorchrepro}. |
-| 2 | 304 | sbc2025 | Section~\ref{sec:tradeoff} argued that the latency axis depends on the board's thermal state, and a benchmark of language-model inference on \glspl{sbc} reports throughput differences of up to four times between two runtimes on the same board~\cite{sbc2025}. |
-| 3 | 317 | park2024 | The literature reports that constrained decoding can distort a model's distribution over outputs~\cite{park2024} and degrade multi-step reasoning while matching or improving classification~\cite{tam2024}; a task this close to classification sits where that cost is least expected, so its absence here does not predict it |
-| 4 | 318 | tam2024 | The literature reports that constrained decoding can distort a model's distribution over outputs~\cite{park2024} and degrade multi-step reasoning while matching or improving classification~\cite{tam2024}; a task this close to classification sits where that cost is least expected, so its absence here does not predict it |
+| 1 | 208 | pytorchrepro | It was trained in a separate session, and \gls{gpu} training is not guaranteed to be bit-reproducible across sessions~\cite{pytorchrepro}. |
+| 2 | 307 | sbc2025 | Section~\ref{sec:tradeoff} argued that the latency axis depends on the board's thermal state, and a benchmark of language-model inference on \glspl{sbc} reports throughput differences of up to four times between two runtimes on the same board~\cite{sbc2025}. |
+| 3 | 320 | park2024 | The literature reports that constrained decoding can distort a model's distribution over outputs~\cite{park2024} and degrade multi-step reasoning while matching or improving classification~\cite{tam2024}; a task this close to classification sits where that cost is least expected, so its absence here does not predict it |
+| 4 | 321 | tam2024 | The literature reports that constrained decoding can distort a model's distribution over outputs~\cite{park2024} and degrade multi-step reasoning while matching or improving classification~\cite{tam2024}; a task this close to classification sits where that cost is least expected, so its absence here does not predict it |
 
 | key | title | year | identifier |
 |---|---|---|---|
@@ -125,11 +125,11 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | line | level | title | prose words |
 |---|---|---|---|
 | 1 | chapter | Discussion and limitations | 137 |
-| 15 | section | The accuracy--efficiency trade-off | 1108 |
-| 102 | section | Failure-mode analysis | 976 |
-| 179 | section | Threats to validity | 48 |
-| 187 | subsection | Internal validity | 1092 |
-| 271 | subsection | External validity | 848 |
+| 15 | section | The accuracy--efficiency trade-off | 1167 |
+| 105 | section | Failure-mode analysis | 976 |
+| 182 | section | Threats to validity | 48 |
+| 190 | subsection | Internal validity | 1092 |
+| 274 | subsection | External validity | 855 |
 
 ### Codes used in this chapter (self-containment agent: is each one needed, or would a descriptive name read better?)
 
@@ -180,48 +180,49 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 79 | 1{,}100 | recomputed by a claim on this line |
 | 79 | 67 | recomputed by a claim on this line |
 | 79 | 6 | recomputed by a claim on this line |
-| 113 | 0.0530 | recomputed by a claim on this line |
-| 114 | 528 | recomputed by a claim on this line |
-| 118 | 3{,}540 | measured: results/table19_grammar_ablation.md:10, results/table19_grammar_ablation.md:11 |
-| 126 | 60.7 | recomputed by a claim on this line |
-| 126 | 81.3 | recomputed by a claim on this line |
-| 128 | 282 | recomputed by a claim on this line |
-| 129 | 2{,}640 | recomputed by a claim on this line |
-| 137 | 62.0 | recomputed by a claim on this line |
-| 137 | 73.3 | recomputed by a claim on this line |
-| 139 | 72.0 | recomputed by a claim on this line |
-| 142 | 282 | recomputed by a claim on this line |
-| 142 | 240 | recomputed by a claim on this line |
-| 142 | 85.1 | recomputed by a claim on this line |
-| 142 | 13.8 | recomputed by a claim on this line |
-| 143 | 1.1 | recomputed by a claim on this line |
-| 143 | 98.9 | recomputed by a claim on this line |
-| 144 | 114 | recomputed by a claim on this line |
-| 144 | 282 | recomputed by a claim on this line |
-| 145 | 40.4 | recomputed by a claim on this line |
-| 146 | 163.0 | recomputed by a claim on this line |
-| 147 | 163.0 | recomputed by a claim on this line |
-| 147 | 163.0 | recomputed by a claim on this line |
-| 159 | 3{,}540 | measured: results/table19_grammar_ablation.md:10, results/table19_grammar_ablation.md:11 |
-| 160 | 0.17 | measured: results/wake_training.md:22, results/exp3_pi_analysis.md:23 |
-| 206 | 6.5 | measured: results/table33_iso_parameter.md:16, thesis/generated/table33_iso_parameter.tex:19 |
-| 213 | 0.0023 | measured: results/table33_iso_parameter.md:16, results/mcnemar.md:70 |
-| 227 | 0.000 | measured: results/nfr18_false_command.md:11, results/nfr18_false_command.md:13 |
-| 238 | 1.5 | measured: results/table18_quantisation_delta.md:15, results/table18_quantisation_delta.md:19 |
-| 239 | 1.6 | measured: results/thermal_headroom.md:19, results/table17_model_comparison.md:17 |
-| 239 | 1.69 | measured: results/thermal_headroom.md:19, thesis/generated/thermal_headroom.tex:21 |
-| 240 | 1.42 | measured: results/thermal_headroom.md:19, thesis/generated/thermal_headroom.tex:21 |
-| 245 | 200 | measured: results/exp2_latency_budget.md:4, results/table18_quantisation_delta.md:3 |
-| 247 | 200 | measured: results/exp2_latency_budget.md:4, results/table18_quantisation_delta.md:3 |
-| 250 | 1.1 | recomputed by a claim on this line |
-| 255 | 200 | measured: results/exp2_latency_budget.md:4, results/table18_quantisation_delta.md:3 |
-| 256 | 67 | measured: results/wake_training.json:1530 x100, results/wake_training.json:2316 x100 |
-| 281 | 200 | recomputed by a claim on this line |
-| 285 | 0.690 | recomputed by a claim on this line |
-| 285 | 0.590 | recomputed by a claim on this line |
-| 285 | 10 | recomputed by a claim on this line |
-| 286 | 0.935 | recomputed by a claim on this line |
-| 293 | 23.1 | measured: results/table16_asr_speaker_sensitivity.md:26, results/table16_asr_speaker_sensitivity.md:30 |
-| 296 | 6.2 | measured: results/table16_asr_speaker_sensitivity.md:11, results/exp2_analysis.md:67 |
-| 296 | 49.5 | measured: results/table16_asr_speaker_sensitivity.md:25, thesis/generated/table16_asr_speaker_sensitivity.tex:26 |
-| 321 | 3{,}540 | measured: results/table19_grammar_ablation.md:10, results/table19_grammar_ablation.md:11 |
+| 101 | 2.5 | measured: results/nfr18_false_command.md:12, results/nfr18_false_command.md:13 |
+| 116 | 0.0530 | recomputed by a claim on this line |
+| 117 | 528 | recomputed by a claim on this line |
+| 121 | 3{,}540 | measured: results/table19_grammar_ablation.md:10, results/table19_grammar_ablation.md:11 |
+| 129 | 60.7 | recomputed by a claim on this line |
+| 129 | 81.3 | recomputed by a claim on this line |
+| 131 | 282 | recomputed by a claim on this line |
+| 132 | 2{,}640 | recomputed by a claim on this line |
+| 140 | 62.0 | recomputed by a claim on this line |
+| 140 | 73.3 | recomputed by a claim on this line |
+| 142 | 72.0 | recomputed by a claim on this line |
+| 145 | 282 | recomputed by a claim on this line |
+| 145 | 240 | recomputed by a claim on this line |
+| 145 | 85.1 | recomputed by a claim on this line |
+| 145 | 13.8 | recomputed by a claim on this line |
+| 146 | 1.1 | recomputed by a claim on this line |
+| 146 | 98.9 | recomputed by a claim on this line |
+| 147 | 114 | recomputed by a claim on this line |
+| 147 | 282 | recomputed by a claim on this line |
+| 148 | 40.4 | recomputed by a claim on this line |
+| 149 | 163.0 | recomputed by a claim on this line |
+| 150 | 163.0 | recomputed by a claim on this line |
+| 150 | 163.0 | recomputed by a claim on this line |
+| 162 | 3{,}540 | measured: results/table19_grammar_ablation.md:10, results/table19_grammar_ablation.md:11 |
+| 163 | 0.17 | measured: results/wake_training.md:22, results/exp3_pi_analysis.md:23 |
+| 209 | 6.5 | measured: results/table33_iso_parameter.md:16, thesis/generated/table33_iso_parameter.tex:19 |
+| 216 | 0.0023 | measured: results/table33_iso_parameter.md:16, results/mcnemar.md:70 |
+| 230 | 0.000 | measured: results/nfr18_false_command.md:11, results/nfr18_false_command.md:13 |
+| 241 | 1.5 | measured: results/table18_quantisation_delta.md:15, results/table18_quantisation_delta.md:19 |
+| 242 | 1.6 | measured: results/thermal_headroom.md:19, results/table17_model_comparison.md:17 |
+| 242 | 1.69 | measured: results/thermal_headroom.md:19, thesis/generated/thermal_headroom.tex:21 |
+| 243 | 1.42 | measured: results/thermal_headroom.md:19, thesis/generated/thermal_headroom.tex:21 |
+| 248 | 200 | measured: results/exp2_latency_budget.md:4, results/table18_quantisation_delta.md:3 |
+| 250 | 200 | measured: results/exp2_latency_budget.md:4, results/table18_quantisation_delta.md:3 |
+| 253 | 1.1 | recomputed by a claim on this line |
+| 258 | 200 | measured: results/exp2_latency_budget.md:4, results/table18_quantisation_delta.md:3 |
+| 259 | 67 | measured: results/wake_training.json:1530 x100, results/wake_training.json:2316 x100 |
+| 284 | 200 | recomputed by a claim on this line |
+| 288 | 0.690 | recomputed by a claim on this line |
+| 288 | 0.590 | recomputed by a claim on this line |
+| 288 | 10 | recomputed by a claim on this line |
+| 289 | 0.935 | recomputed by a claim on this line |
+| 296 | 23.1 | measured: results/table16_asr_speaker_sensitivity.md:26, results/table16_asr_speaker_sensitivity.md:30 |
+| 299 | 6.2 | measured: results/table16_asr_speaker_sensitivity.md:11, results/exp2_analysis.md:67 |
+| 299 | 49.5 | measured: results/table16_asr_speaker_sensitivity.md:25, thesis/generated/table16_asr_speaker_sensitivity.tex:26 |
+| 324 | 3{,}540 | measured: results/table19_grammar_ablation.md:10, results/table19_grammar_ablation.md:11 |
