@@ -126,7 +126,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 |---|---|---|---|
 | 1 | chapter | Discussion and limitations | 137 |
 | 15 | section | The accuracy--efficiency trade-off | 1108 |
-| 102 | section | Failure-mode analysis | 977 |
+| 102 | section | Failure-mode analysis | 976 |
 | 179 | section | Threats to validity | 48 |
 | 187 | subsection | Internal validity | 1092 |
 | 271 | subsection | External validity | 848 |
