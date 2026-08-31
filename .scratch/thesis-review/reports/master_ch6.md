@@ -21,54 +21,54 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | PASS | register |  | `acoustic-robustness/Exp-\d` absent -- Table 3: the Master references the acoustic-robustness experiment once, in Ch5 |
 | PASS | register |  | `guarantee` absent -- no unearned absolutes |
 | PASS | numbers |  | 0 significant number(s) found in no source file -- see the number trace |
-| PASS | claim | 22 | `at 0.935 \gls{em} on the golden split` -> written 0.935, source gives 0.935 (surface_b qwen Q4_K_M golden) |
-| PASS | claim | 24 | `p95 of 894~ms against` -> written 894, source gives 894.25 (smollm2 total p95, cooled) |
-| PASS | claim | 24 | `Qwen2.5-0.5B's 1{,}072~ms` -> written 1072, source gives 1072.41 (qwen total p95, cooled) |
-| PASS | claim | 25 | `scores 0.760, 17.5~pp lower` -> written 0.760, source gives 0.760 (surface_b smollm2 golden) |
-| PASS | claim | 25 | `scores 0.760, 17.5~pp lower` -> written 17.5, source gives 17.50 (qwen - smollm2 EM) |
-| PASS | claim | 25 | mcnemar qwen-smollm2: p 1.09681e-07 against alpha 0.0167 |
-| PASS | claim | 27 | `at 1.24~B parameters` -> written 1.24, source gives 1.24 (table33 llama params) |
-| PASS | claim | 27 | `scores 0.910 there` -> written 0.910, source gives 0.910 (surface_b llama golden) |
-| PASS | claim | 27 | mcnemar llama-qwen: p 0.0625 against alpha 0.0167 |
-| PASS | claim | 28 | `and takes 2{,}282~ms` -> written 2282, source gives 2282.45 (llama total p95, cooled) |
-| PASS | claim | 32 | `as specified by 622~ms (25\%)` -> written 622, source gives 622.00 (exp2 E2E p95 - 2500, as Ch4 4.7) |
-| PASS | claim | 32 | `as specified by 622~ms (25\%)` -> written 25, source gives 24.88 (exp2 E2E p95 / 2500 - 1) |
-| PASS | claim | 32 | `measured p95 of 3{,}122~ms` -> written 3122, source gives 3122.00 (exp2 E2E p95 from end of speech) |
-| PASS | claim | 33 | `at 0.68~GiB against` -> written 0.68, source gives 0.68 (qwen peak RSS, cooled) |
-| PASS | claim | 38 | `rate is 0.0000--0.1579 against` -> written 0.0000, source gives 0.0000 (min per-row safe-failure rate) |
-| PASS | claim | 38 | `rate is 0.0000--0.1579 against` -> written 0.1579, source gives 0.1579 (max per-row safe-failure rate) |
-| PASS | claim | 39 | `input is 0.1867--0.3933 against` -> written 0.1867, source gives 0.1867 (min false-command rate) |
-| PASS | claim | 39 | `input is 0.1867--0.3933 against` -> written 0.3933, source gives 0.3933 (max false-command rate) |
-| PASS | claim | 48 | 18 Surface-B rows, all schema_validity 1.0 |
-| PASS | claim | 49 | `over 3{,}540 decodes without it` -> written 3540, source gives 3540.00 (sum of n, surface_b) |
-| PASS | claim | 49 | 1 invalid decodes, grammar off |
-| PASS | claim | 50 | `falls by 0.17~pp` -> written 0.17, source gives 0.17 (pooled EM difference, grammar on - off) |
-| PASS | claim | 55 | pooled EM higher with the grammar |
-| PASS | claim | 60 | `four models match none of the 590 items` -> written 590, source gives 590.00 (3540 / 6 artefacts) |
-| PASS | claim | 60 | 12 zero-shot rows over 4 models, all EM 0 |
-| PASS | claim | 68 | `moves by $-$1.5 to $+$1.5~pp` -> written 1.5, source gives 1.50 (min delta, negated) |
-| PASS | claim | 68 | `moves by $-$1.5 to $+$1.5~pp` -> written 1.5, source gives 1.50 (max delta) |
-| PASS | claim | 68 | every deployment row: significant = no |
-| PASS | claim | 69 | `whose smallest $p$ is 0.25` -> written 0.25, source gives 0.25 (min p, deployment family) |
-| PASS | claim | 72 | every uncooled trial has throttled_now == 1 |
-| PASS | claim | 72 | `decode p95 by 25.1\% to` -> written 25.1, source gives 25.07 (min decode-p95 reduction, uncooled base) |
-| PASS | claim | 73 | `to 41.3\%` -> written 41.3, source gives 41.34 (max decode-p95 reduction, uncooled base) |
-| PASS | claim | 75 | `moves \gls{em} by 6.5~pp` -> written 6.5, source gives 6.50 (surface_a qwen - danube golden) |
-| PASS | claim | 76 | `scores 0.935 against H2O-Danube3-500M's` -> written 0.935, source gives 0.935 (surface_a qwen golden) |
-| PASS | claim | 76 | `H2O-Danube3-500M's 0.870` -> written 0.870, source gives 0.870 (surface_a danube golden) |
-| PASS | claim | 76 | `on 15 against 2 discordant` -> written 15, source gives 15.00 (mcnemar family control, only qwen) |
-| PASS | claim | 76 | `on 15 against 2 discordant` -> written 2, source gives 2.00 (mcnemar family control, only danube) |
-| PASS | claim | 77 | `(exact $p = 0.0023$` -> written 0.0023, source gives 0.0023 (mcnemar family control p_exact) |
-| PASS | claim | 98 | `through 81 pairs` -> written 81, source gives 81.00 (rows of data/train.jsonl whose target is unknown) |
+| PASS | claim | 23 | `at 0.935 \gls{em} on the golden split` -> written 0.935, source gives 0.935 (surface_b qwen Q4_K_M golden) |
+| PASS | claim | 25 | `p95 of 894~ms against` -> written 894, source gives 894.25 (smollm2 total p95, cooled) |
+| PASS | claim | 25 | `Qwen2.5-0.5B's 1{,}072~ms` -> written 1072, source gives 1072.41 (qwen total p95, cooled) |
+| PASS | claim | 26 | `scores 0.760, 17.5~pp lower` -> written 0.760, source gives 0.760 (surface_b smollm2 golden) |
+| PASS | claim | 26 | `scores 0.760, 17.5~pp lower` -> written 17.5, source gives 17.50 (qwen - smollm2 EM) |
+| PASS | claim | 26 | mcnemar qwen-smollm2: p 1.09681e-07 against alpha 0.0167 |
+| PASS | claim | 28 | `at 1.24~B parameters` -> written 1.24, source gives 1.24 (table33 llama params) |
+| PASS | claim | 28 | `scores 0.910 there` -> written 0.910, source gives 0.910 (surface_b llama golden) |
+| PASS | claim | 28 | mcnemar llama-qwen: p 0.0625 against alpha 0.0167 |
+| PASS | claim | 29 | `and takes 2{,}282~ms` -> written 2282, source gives 2282.45 (llama total p95, cooled) |
+| PASS | claim | 33 | `as specified by 622~ms (25\%)` -> written 622, source gives 622.00 (exp2 E2E p95 - 2500, as Ch4 4.7) |
+| PASS | claim | 33 | `as specified by 622~ms (25\%)` -> written 25, source gives 24.88 (exp2 E2E p95 / 2500 - 1) |
+| PASS | claim | 33 | `measured p95 of 3{,}122~ms` -> written 3122, source gives 3122.00 (exp2 E2E p95 from end of speech) |
+| PASS | claim | 34 | `at 0.68~GiB against` -> written 0.68, source gives 0.68 (qwen peak RSS, cooled) |
+| PASS | claim | 39 | `rate is 0.0000--0.1579 against` -> written 0.0000, source gives 0.0000 (min per-row safe-failure rate) |
+| PASS | claim | 39 | `rate is 0.0000--0.1579 against` -> written 0.1579, source gives 0.1579 (max per-row safe-failure rate) |
+| PASS | claim | 40 | `input is 0.1867--0.3933 against` -> written 0.1867, source gives 0.1867 (min false-command rate) |
+| PASS | claim | 40 | `input is 0.1867--0.3933 against` -> written 0.3933, source gives 0.3933 (max false-command rate) |
+| PASS | claim | 50 | 18 Surface-B rows, all schema_validity 1.0 |
+| PASS | claim | 51 | `over 3{,}540 decodes without it` -> written 3540, source gives 3540.00 (sum of n, surface_b) |
+| PASS | claim | 51 | 1 invalid decodes, grammar off |
+| PASS | claim | 52 | `falls by 0.17~pp` -> written 0.17, source gives 0.17 (pooled EM difference, grammar on - off) |
+| PASS | claim | 57 | pooled EM higher with the grammar |
+| PASS | claim | 65 | `four models match none of the 590 items` -> written 590, source gives 590.00 (3540 / 6 artefacts) |
+| PASS | claim | 65 | 12 zero-shot rows over 4 models, all EM 0 |
+| PASS | claim | 73 | `moves by $-$1.5 to $+$1.5~pp` -> written 1.5, source gives 1.50 (min delta, negated) |
+| PASS | claim | 73 | `moves by $-$1.5 to $+$1.5~pp` -> written 1.5, source gives 1.50 (max delta) |
+| PASS | claim | 73 | every deployment row: significant = no |
+| PASS | claim | 74 | `whose smallest $p$ is 0.25` -> written 0.25, source gives 0.25 (min p, deployment family) |
+| PASS | claim | 77 | every uncooled trial has throttled_now == 1 |
+| PASS | claim | 77 | `decode p95 by 25.1\% to` -> written 25.1, source gives 25.07 (min decode-p95 reduction, uncooled base) |
+| PASS | claim | 78 | `to 41.3\%` -> written 41.3, source gives 41.34 (max decode-p95 reduction, uncooled base) |
+| PASS | claim | 80 | `on the reference surface is 6.5~pp` -> written 6.5, source gives 6.50 (surface_a qwen - danube golden) |
+| PASS | claim | 81 | `scores 0.935 against H2O-Danube3-500M's` -> written 0.935, source gives 0.935 (surface_a qwen golden) |
+| PASS | claim | 82 | `H2O-Danube3-500M's 0.870` -> written 0.870, source gives 0.870 (surface_a danube golden) |
+| PASS | claim | 82 | `on 15 against 2 discordant` -> written 15, source gives 15.00 (mcnemar family control, only qwen) |
+| PASS | claim | 82 | `on 15 against 2 discordant` -> written 2, source gives 2.00 (mcnemar family control, only danube) |
+| PASS | claim | 83 | `(exact $p = 0.0023$` -> written 0.0023, source gives 0.0023 (mcnemar family control p_exact) |
+| PASS | claim | 106 | `through 81 pairs` -> written 81, source gives 81.00 (rows of data/train.jsonl whose target is unknown) |
 
 ### Section map
 
 | line | level | title | prose words |
 |---|---|---|---|
 | 1 | chapter | Conclusion and future work | 74 |
-| 17 | section | Answer to the research question | 289 |
-| 44 | section | What the comparison establishes | 430 |
-| 82 | section | Prioritised next steps | 267 |
+| 17 | section | Answer to the research question | 307 |
+| 46 | section | What the comparison establishes | 515 |
+| 90 | section | Prioritised next steps | 271 |
 
 ### Codes used in this chapter (self-containment agent: is each one needed, or would a descriptive name read better?)
 
@@ -77,7 +77,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | C1 | 1 | ch1_introduction l.107 |
 | C2 | 1 | ch1_introduction l.112 |
 | C3 | 1 | ch1_introduction l.117 |
-| RQ1 | 1 | ch1_introduction l.93 |
+| RQ1 | 2 | ch1_introduction l.93 |
 
 ### For the argument agent
 
@@ -89,43 +89,43 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 
 | line | as written | trace |
 |---|---|---|
-| 20 | 0.36 | measured: results/wake_training.json:169, results/wake_training.json:813 |
-| 20 | 1.2 | measured: spikes/reports/S1_llama_throughput_thermals.md:40, results/exp2_latency_budget.md:12 /1024 |
-| 22 | 0.935 | recomputed by a claim on this line |
-| 24 | 894 | recomputed by a claim on this line |
-| 24 | 1{,}072 | recomputed by a claim on this line |
-| 25 | 0.760 | recomputed by a claim on this line |
-| 25 | 17.5 | recomputed by a claim on this line |
-| 27 | 1.24 | recomputed by a claim on this line |
-| 27 | 0.910 | recomputed by a claim on this line |
-| 28 | 2{,}282 | recomputed by a claim on this line |
-| 31 | 2{,}500 | measured: results/exp2_latency_budget.md:16, results/exp2_latency_budget.md:17 |
-| 32 | 622 | recomputed by a claim on this line |
-| 32 | 25 | recomputed by a claim on this line |
-| 32 | 3{,}122 | recomputed by a claim on this line |
-| 33 | 0.68 | recomputed by a claim on this line |
-| 33 | 2.5 | recomputed by a claim on this line |
-| 38 | 0.0000 | recomputed by a claim on this line |
-| 38 | 0.1579 | recomputed by a claim on this line |
-| 38 | 0.70 | recomputed by a claim on this line |
-| 39 | 0.1867 | recomputed by a claim on this line |
-| 39 | 0.3933 | recomputed by a claim on this line |
-| 39 | 0.05 | recomputed by a claim on this line |
-| 48 | 1.000 | recomputed by a claim on this line |
-| 49 | 3{,}540 | recomputed by a claim on this line |
-| 50 | 0.17 | recomputed by a claim on this line |
-| 51 | 3{,}540 | measured: results/table19_grammar_ablation.md:10, results/table19_grammar_ablation.md:11 |
-| 55 | 0.17 | recomputed by a claim on this line |
-| 60 | 590 | recomputed by a claim on this line |
-| 61 | 0.935 | measured: results/table18_quantisation_delta.md:17, results/table18_quantisation_delta.md:17 |
-| 65 | 200 | measured: results/exp2_latency_budget.md:4, results/table18_quantisation_delta.md:3 |
-| 68 | 1.5 | recomputed by a claim on this line |
-| 68 | 1.5 | recomputed by a claim on this line |
-| 69 | 0.25 | recomputed by a claim on this line |
-| 72 | 25.1 | recomputed by a claim on this line |
-| 73 | 41.3 | recomputed by a claim on this line |
-| 75 | 6.5 | recomputed by a claim on this line |
-| 75 | 0.5 | recomputed by a claim on this line |
-| 76 | 0.935 | recomputed by a claim on this line |
-| 76 | 0.870 | recomputed by a claim on this line |
-| 77 | 0.0023 | recomputed by a claim on this line |
+| 21 | 0.36 | measured: results/wake_training.json:169, results/wake_training.json:813 |
+| 21 | 1.2 | measured: spikes/reports/S1_llama_throughput_thermals.md:40, results/exp2_latency_budget.md:12 /1024 |
+| 23 | 0.935 | recomputed by a claim on this line |
+| 25 | 894 | recomputed by a claim on this line |
+| 25 | 1{,}072 | recomputed by a claim on this line |
+| 26 | 0.760 | recomputed by a claim on this line |
+| 26 | 17.5 | recomputed by a claim on this line |
+| 28 | 1.24 | recomputed by a claim on this line |
+| 28 | 0.910 | recomputed by a claim on this line |
+| 29 | 2{,}282 | recomputed by a claim on this line |
+| 32 | 2{,}500 | measured: results/exp2_latency_budget.md:16, results/exp2_latency_budget.md:17 |
+| 33 | 622 | recomputed by a claim on this line |
+| 33 | 25 | recomputed by a claim on this line |
+| 33 | 3{,}122 | recomputed by a claim on this line |
+| 34 | 0.68 | recomputed by a claim on this line |
+| 34 | 2.5 | recomputed by a claim on this line |
+| 39 | 0.0000 | recomputed by a claim on this line |
+| 39 | 0.1579 | recomputed by a claim on this line |
+| 39 | 0.70 | recomputed by a claim on this line |
+| 40 | 0.1867 | recomputed by a claim on this line |
+| 40 | 0.3933 | recomputed by a claim on this line |
+| 40 | 0.05 | recomputed by a claim on this line |
+| 50 | 1.000 | recomputed by a claim on this line |
+| 51 | 3{,}540 | recomputed by a claim on this line |
+| 52 | 0.17 | recomputed by a claim on this line |
+| 53 | 3{,}540 | measured: results/table19_grammar_ablation.md:10, results/table19_grammar_ablation.md:11 |
+| 57 | 0.17 | recomputed by a claim on this line |
+| 65 | 590 | recomputed by a claim on this line |
+| 66 | 0.935 | measured: results/table18_quantisation_delta.md:17, results/table18_quantisation_delta.md:17 |
+| 70 | 200 | measured: results/exp2_latency_budget.md:4, results/table18_quantisation_delta.md:3 |
+| 73 | 1.5 | recomputed by a claim on this line |
+| 73 | 1.5 | recomputed by a claim on this line |
+| 74 | 0.25 | recomputed by a claim on this line |
+| 77 | 25.1 | recomputed by a claim on this line |
+| 78 | 41.3 | recomputed by a claim on this line |
+| 80 | 6.5 | recomputed by a claim on this line |
+| 81 | 0.5 | recomputed by a claim on this line |
+| 81 | 0.935 | recomputed by a claim on this line |
+| 82 | 0.870 | recomputed by a claim on this line |
+| 83 | 0.0023 | recomputed by a claim on this line |

@@ -113,7 +113,7 @@ r.text_claim("claim", "every trial throttled", all(x["throttled_now"] == "1" for
              "every uncooled trial has throttled_now == 1")
 r.number("decode p95 by 25.1\\% to", min(dec.values()), "min decode-p95 reduction, uncooled base")
 r.number("to\n41.3\\%", max(dec.values()), "max decode-p95 reduction, uncooled base")
-r.number("moves \\gls{em} by 6.5~pp", 100 * (A[(Q, "test_golden")] - A[(D, "test_golden")]),
+r.number("on the reference surface is 6.5~pp", 100 * (A[(Q, "test_golden")] - A[(D, "test_golden")]),
          "surface_a qwen - danube golden", places=1)
 r.number("scores 0.935 against\nH2O-Danube3-500M's", A[(Q, "test_golden")], "surface_a qwen golden")
 r.number("H2O-Danube3-500M's 0.870", A[(D, "test_golden")], "surface_a danube golden")
