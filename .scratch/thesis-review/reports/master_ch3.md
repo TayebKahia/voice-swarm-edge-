@@ -222,7 +222,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 |---|---|---|---|
 | 1 | chapter | Method | 61 |
 | 10 | section | Command schema and grammar design | 988 |
-| 123 | section | Label-first dataset construction | 1850 |
+| 123 | section | Label-first dataset construction | 1854 |
 | 273 | section | The LoRA recipe | 1077 |
 | 371 | section | Quantisation procedure | 1058 |
 | 455 | section | Evaluation protocol and the definitions of record | 2651 |

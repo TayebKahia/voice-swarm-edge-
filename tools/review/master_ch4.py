@@ -117,7 +117,7 @@ r.number("from 23.1\\% to 23.0\\%", float(aup[1]), "table16 note, author unpromp
 r.number("to 23.0\\% ($-$0.1~pp)", float(aup[2]), "table16 note, author prompted")
 
 # §4.2 Exp-1 accuracy
-r.number("reaches\n0.935 exact match", em(Q), "surface_b qwen Q4 golden")
+r.number("reaches\n0.935 \\gls{em}", em(Q), "surface_b qwen Q4 golden")
 r.number("reaches 0.910, and", em(L), "surface_b llama Q4 golden")
 r.number("reaches 0.760. On this split", em(S), "surface_b smollm2 Q4 golden")
 r.number("1.24~B model", params[L] / 1000, "table33 llama params")
@@ -248,7 +248,7 @@ r.number("to 0.038 for\nH2O-Danube3-500M", gain[D], "danube epoch 2->3 val EM ga
 r.number("SmolLM2-360M by 0.025", gain[S], "smollm2 epoch 2->3 val EM gain")
 r.number("and H2O-Danube3-500M by 0.038", gain[D], "danube epoch 2->3 val EM gain")
 r.number("on all ten audit prompts", 10, "eval/fixed_audit_prompts.json (Ch3 script counts it)")
-r.text_claim("claim", "score an exact match of 0.000 on every split", all(float(x["exact_match"]) == 0 for x in A0)
+r.text_claim("claim", "score an \\gls{em} of 0.000 on every split", all(float(x["exact_match"]) == 0 for x in A0)
              and len({x["model"] for x in A0}) == 4, f"{len(A0)} zero-shot rows, all EM 0, {len({x['model'] for x in A0})} models")
 r.number("not one of the\n590 items", sum(int(x["n"]) for x in A0 if x["model"] == Q), "240 + 200 + 150", nth=1)
 
