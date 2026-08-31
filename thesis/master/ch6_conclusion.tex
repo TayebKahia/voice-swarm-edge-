@@ -17,10 +17,11 @@ support. Section~\ref{sec:next-steps} names the steps that follow from them, in 
 \section{Answer to the research question}
 \label{sec:rq1-answer}
 
-Across fine-tuned \glspl{slm} of 0.36--1.2~B parameters quantised for a Raspberry~Pi~5,
-the accuracy--efficiency trade-off reduces to two non-dominated configurations, SmolLM2-360M and
-Qwen2.5-0.5B, and the selection rule deploys Qwen2.5-0.5B at Q4\_K\_M, at 0.935 \gls{em} on the
-golden split. Between the two, the trade-off has a measured price. On the cooled board, SmolLM2-360M
+Across the three fine-tuned \glspl{slm} timed on the Raspberry~Pi~5, which span RQ1's
+0.36--1.2~B range, the accuracy--efficiency trade-off among their Q4\_K\_M artefacts reduces to two
+non-dominated configurations, SmolLM2-360M and Qwen2.5-0.5B, and the selection rule deploys
+Qwen2.5-0.5B at Q4\_K\_M, at 0.935 \gls{em} on the golden split, scored on reference text. Between
+the two, the trade-off has a measured price. On the cooled board, SmolLM2-360M
 completes the \gls{slm} stages at a p95 of 894~ms against Qwen2.5-0.5B's 1{,}072~ms, and it scores
 0.760, 17.5~pp lower, a gap significant at the corrected $\alpha$ (Section~\ref{sec:statistics}).
 On the split the rule ranks on, the largest model buys no established accuracy. Llama-3.2-1B, at
@@ -36,8 +37,9 @@ SmolLM2-360M leaves it unchanged, because Qwen2.5-0.5B's margin over it is signi
 over Llama-3.2-1B is not, and the choice between those two rests on latency. Like every
 configuration measured, Qwen2.5-0.5B misses both abstention requirements. Across the six
 configurations, the safe-failure rate is 0.0000--0.1579 against a budget of $\geq$~0.70, and the
-false-command rate on out-of-domain input is 0.1867--0.3933 against $\leq$~0.05: when wrong or out
-of domain, the parser emits a well-formed command rather than \texttt{unknown}. Qwen2.5-0.5B at
+false-command rate on out-of-domain input is 0.1867--0.3933 against $\leq$~0.05. Both misses reflect
+one tendency: when a configuration is wrong or out of domain, it emits a well-formed command rather
+than \texttt{unknown}. Qwen2.5-0.5B at
 Q4\_K\_M is the best configuration measured on the criteria the selection rule names; it does not
 meet every requirement placed on the system.
 
@@ -55,8 +57,11 @@ reachable under the constraint, for any input, and no rate on a finite test set 
 grammar also carries no measured accuracy cost on this schema, the 0.17~pp difference falling in
 its favour.
 
-None of the accuracy the comparison reports is available from the pretrained models as prompted
-(Contribution~C2). Prompted zero-shot at fp16, without fine-tuning and without the grammar, the
+The dataset that trains and evaluates every model of the comparison is the label-first corpus of
+Contribution~C2. Its splits are assigned by template family, so every in-domain accuracy figure is
+measured on families held out from training, and its leakage gate is clean on all four axes it
+checks (Section~\ref{sec:dataset}). None of the accuracy the comparison reports is available from
+the pretrained models as prompted. Prompted zero-shot at fp16, without fine-tuning and without the grammar, the
 four models match none of the 590 items on any split (Section~\ref{sec:iso-parameter}); fine-tuned
 on the label-first corpus and decoded under the grammar, the selected model reaches 0.935 on the
 golden split. The zero-shot rows remove the fine-tune and the grammar together, so they fix the
@@ -72,10 +77,13 @@ pipeline as a whole, not of quantisation. The latency results hold for a cooled 
 active cooling, every trial throttled, and fitting the cooler reduced decode p95 by 25.1\% to
 41.3\% (Section~\ref{sec:benchmark}).
 
-At matched size, model family moves \gls{em} by 6.5~pp: at about 0.5~B parameters, Qwen2.5-0.5B
-scores 0.935 against H2O-Danube3-500M's 0.870, on 15 against 2 discordant items (exact
-$p = 0.0023$, an exploratory test), under the identical three-epoch budget at which no model is
-shown to have converged (Section~\ref{sec:iso-parameter}). Among the three deployed models, size
+At matched size, the family difference in \gls{em} on the reference surface is 6.5~pp: at about
+0.5~B parameters, Qwen2.5-0.5B scores 0.935 against
+H2O-Danube3-500M's 0.870, on 15 against 2 discordant items (exact
+$p = 0.0023$, an exploratory test). It is a difference between single trained adapters that also
+differ in how the system prompt is rendered and in training session, under the identical
+three-epoch budget at which no model is shown to have converged (Sections~\ref{sec:iso-parameter}
+and~\ref{sec:threats-internal}). Among the three deployed models, size
 and family vary together, so the comparison measures a family difference at fixed size and does
 not express it as a share of a size effect.
 
@@ -96,9 +104,9 @@ implemented or measured in this document.
   is the first measurement to make.
   \item \textbf{Training pairs for unreadable commands.} The corpus teaches \texttt{unknown}
   through 81 pairs, none of them a supported command made unreadable by recognition error
-  (Section~\ref{sec:dataset}). Pairs of that kind change what the model treats as an available
-  answer on in-domain input, where the gate changes only what is dispatched, so the two steps are
-  complementary. This one requires retraining and a second run of the multi-model benchmark.
+  (Section~\ref{sec:dataset}). Pairs of that kind act on what the model is trained to output for
+  input that reads as a supported command, where the gate acts only on what is dispatched, so the
+  two steps are complementary. This one requires retraining and a second run of the multi-model benchmark.
   \item \textbf{An end-to-end measurement of SmolLM2-360M.} SmolLM2-360M is the one
   non-dominated configuration shown neither to satisfy the end-to-end budget nor to miss it, and
   no configuration's full-stack memory was measured. Measuring both for SmolLM2-360M completes the
