@@ -6,10 +6,10 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 
 | status | check | line | finding |
 |---|---|---|---|
-| WARN | ref | 79 | \ref{chap:validation} x9 (lines 79, 101, 207, 225, 228, 348, 355, 366, 455) -- chapter not written yet; its file must carry exactly this label |
+| WARN | ref | 79 | \ref{chap:validation} x9 (lines 79, 101, 207, 225, 228, 348, 355, 366, 456) -- chapter not written yet; its file must carry exactly this label |
 | WARN | acronym | 117 | long form `functional requirement` spelled out -- \gls{fr}? |
 | WARN | acronym | 158 | long form `non-functional requirement` spelled out -- \gls{nfr}? |
-| WARN | ref | 365 | \ref{chap:implementation} x2 (lines 365, 453) -- chapter not written yet; its file must carry exactly this label |
+| WARN | ref | 365 | \ref{chap:implementation} x2 (lines 365, 454) -- chapter not written yet; its file must carry exactly this label |
 | PASS | check_tex |  | tools/check_tex.py: no problems beyond cross-chapter \ref (resolved below) |
 | PASS | cite |  | 10 distinct keys cited, all resolved |
 | PASS | heading |  | chapter titles use one capitalisation style: [('ch1_introduction', 'Introduction'), ('ch2_state_of_the_art', 'State of the art'), ('ch3_architecture', 'Architecture and design'), ('ch6_conclusion', 'Demonstration, limitations and conclusion')] |
@@ -69,7 +69,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | PASS | rq | 378 | RQ2 matches prd.md §2 verbatim |
 | PASS | rq | 384 | RQ3 matches prd.md §2 verbatim |
 | PASS | claim | 411 | prd.md §2.1 lists 4 contributions |
-| PASS | claim | 447 | 5 chapters after this one in main_ingenieur.tex |
+| PASS | claim | 448 | 5 chapters after this one in main_ingenieur.tex |
 
 ### Citation sheet (for the citation agent: open each identifier, judge SUPPORTS / PARTIAL / DOES NOT SUPPORT per row)
 
@@ -83,8 +83,8 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 6 | 251 | stpa | Treating failure modes as unequal in consequence is built into the dependability taxonomy, which grades failures by severity from minor to catastrophic~\cite{avizienis2004}, and systems-theoretic hazard analysis examines hazards under worst-case conditions rather than weighting them by their likelihood~\cite{stpa}. |
 | 7 | 273 | avizienis2004 | The dependability taxonomy calls a system that fails only in such specified modes fail-controlled, and one whose failures are, to an acceptable extent, all minor, fail-safe~\cite{avizienis2004}. |
 | 8 | 332 | koren1991 | Potential fields also have failure modes identified as inherent to the method~\cite{koren1991}: trap situations at local minima where attractive and repulsive terms cancel, oscillation near obstacles and in narrow passages, and no passage between closely spaced obstacles. |
-| 9 | 426 | relays2s, mira | Running a fast path beside a slower one is a familiar pattern: arrangements that pair a fast responsive path with a slower, higher-quality one, with a gate or a cancellable commitment between them, recur in real-time spoken dialogue~\cite{relays2s,mira}. |
-| 10 | 449 | lim2025 | Chapter~\ref{chap:state-of-the-art} reviews voice-controlled \gls{uav} systems and positions this work against the natural-language drone-control agent of Lim et al.~\cite{lim2025}, which is the baseline against which this work is compared. |
+| 9 | 427 | relays2s, mira | Running a fast path beside a slower one is a familiar pattern: arrangements that pair a fast responsive path with a slower, higher-quality one, with a gate or a cancellable commitment between them, recur in real-time spoken dialogue~\cite{relays2s,mira}. |
+| 10 | 450 | lim2025 | Chapter~\ref{chap:state-of-the-art} reviews voice-controlled \gls{uav} systems and positions this work against the natural-language drone-control agent of Lim et al.~\cite{lim2025}, which is the baseline against which this work is compared. |
 
 | key | title | year | identifier |
 |---|---|---|---|
@@ -108,8 +108,8 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 84 | section | Engineering requirements | 1935 |
 | 235 | section | The safety problem | 1791 |
 | 368 | section | Objectives | 414 |
-| 409 | section | Contribution | 344 |
-| 445 | section | Structure of this document | 285 |
+| 409 | section | Contribution | 359 |
+| 446 | section | Structure of this document | 285 |
 
 ### Codes used in this chapter (self-containment agent: is each one needed, or would a descriptive name read better?)
 

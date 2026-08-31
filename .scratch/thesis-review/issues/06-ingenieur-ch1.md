@@ -279,3 +279,10 @@ paragraph). Ch6 is scaffolded with the demonstration protocol, fixed in advance,
 result from it. When the demonstration has been run, the sentences to update are the ones the
 pass-2 verifier listed (live-demonstration check above), plus these three and Ch6 section 6.1.
 Script: 0 FAIL, 4 WARN (chap:demonstration now resolves to the scaffold).
+
+### 2026-09-24 -- contribution reworded (author's decision, option B)
+
+"bounded safety reflex" became "safety reflex, with a latency budget of its own", and "derived from
+a latency argument" became "derived from the cost of a false accept and the value of the time
+saved", in prd.md 2.1 (C4) and Ch1 1.5 alike. The script's verbatim check passes. This closes the
+"Still the author's" item above.
