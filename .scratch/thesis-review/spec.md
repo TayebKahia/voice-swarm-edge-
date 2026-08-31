@@ -1,17 +1,21 @@
 # Thesis chapter review -- plan
 
 Review every written chapter of both theses, one chapter at a time, in reading order: Master Ch1
-to Ch5, then Ingénieur Ch1 and Ch2, then one whole-document pass per thesis. Each chapter gets a
+to Ch6, then Ingénieur Ch1 and Ch2, then one whole-document pass per thesis. Each chapter gets a
 deterministic script first, then review agents on what the script cannot judge, then a verifier.
 
-Issues: `issues/00` (a decision) then `issues/01` ... `issues/08`, one per chapter, each blocked by the one before so the order
-holds. Reports: `reports/<script>.md`, regenerated on every run.
+Issues: `issues/00` (a decision) then `issues/01` ... `issues/09`, one per chapter, each blocked by the one before so the order
+holds. Master Ch6 is `09`, not next to Ch5: it was written after 00-08 were numbered, and issues are
+never renumbered. It is blocked by 05, and the whole-document pass (08) is blocked by it.
+Reports: `reports/<script>.md`, regenerated on every run.
 
 ## Why this order
 
-- **Master first, whole.** Ch1 makes promises (C1-C3, "Chapter 4 reports ..."); reviewing Ch1-Ch5 in
+- **Master first, whole.** Ch1 makes promises (C1-C3, "Chapter 4 reports ..."); reviewing Ch1-Ch6 in
   sequence means each later review can check the earlier chapter's promises against what it finds,
-  with the Master's numbers still in context.
+  with the Master's numbers still in context. Ch6 comes last because it closes those promises: its
+  RQ1 verdict and "what the comparison establishes" are checked against Ch1's C1-C3, Ch4 §4.7 and
+  Ch5 as reviewed.
 - **Ingénieur second.** Its Ch1 depends on the Master only through Table 3 (who owns what), and its
   Ch2 has no prose yet -- its script exits 2 ("not reviewable") until it does.
 - **Whole-document passes last** (Template B in `docs/agents/thesis-chapter-review.md`): they check
@@ -69,10 +73,11 @@ script reports the new value against the source rather than "anchor not found".
 | 02 | Master Ch2 (192, 34 cites) | citation + argument + verifier | 34 papers to open |
 | 03 | Master Ch3 (540, 18 cites) | reproducibility + argument + citation + presentation + verifier | too long for one |
 | 04 | Master Ch4 (349, 11 cites) | argument/statistics + citation + presentation + verifier | numbers done by script |
-| 05 | Master Ch5 (§5.1 only) | 1 reviewer + verifier | short; re-run when §5.2-5.3 exist |
+| 05 | Master Ch5 (339, 4 cites) | 1 reviewer + verifier | whole chapter reviewed once §5.2-5.3 existed; resolved |
 | 06 | Ingénieur Ch1 (374, 12 cites) | argument + citation/presentation + verifier | requirement-heavy |
 | 07 | Ingénieur Ch2 | script only until prose exists | scaffold |
 | 08 | Whole-document, both | 1 reviewer + verifier per document | must see every chapter at once |
+| 09 | Master Ch6 (107, 0 cites) | 1 reviewer + verifier | short, and no papers to open; the script recomputes every figure (54 PASS), so the reviewer reads for qualifiers and consistency with Ch1, Ch4 and Ch5 |
 
 ## Self-containment and headings (D11, D12)
 

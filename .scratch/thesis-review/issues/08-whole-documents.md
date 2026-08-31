@@ -1,7 +1,7 @@
 # Issue 08: whole-documents
 
 Status: ready-for-agent
-Blocked by: 01, 02, 03, 04, 05, 06, 07
+Blocked by: 01, 02, 03, 04, 05, 06, 07, 09
 Documents: thesis/main_master.tex, thesis/main_ingenieur.tex
 
 ## What
