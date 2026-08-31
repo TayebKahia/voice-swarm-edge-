@@ -1635,6 +1635,15 @@ Stopped here: Master Ch 6 done; all six Master chapters written. Remaining Maste
 (frontmatter, both documents -- the abstract must carry the 6.1 verdict at its strength) and B13
 (write-once read-through). Ingenieur B9-B11 are not this session's.
 
+**[Revised Thu 24 Sep, issue 09 review: the 6.1 wording above is superseded.]** The frontier claim
+is scoped to the three models timed on the board, at Q4_K_M, because Q8_0 was never timed and
+SmolLM2 Q8_0 golden EM is 0.790 against 0.760 at Q4_K_M. The 0.935 is "scored on reference text".
+The abstention misses are "one tendency", not a rule, since 60.7-81.3% of OOD items do get unknown.
+6.2 now ties C2 to the corpus, not to the zero-shot baseline. The family difference is 6.5 pp "on the
+reference surface", between single adapters that also differ in system-prompt rendering and training
+session. All three Master abstracts were re-derived from the new 6.1. B13 should read 6.1 as it now
+stands, not this entry's summary of it.
+
 ## Ch3 follow-up from the Ch5 review (Thu 24 Sep) -- the unknown training pairs, and the ellipsis axis
 Two Ch3 errors found by issue 05's verifier and checked against data/ before fixing:
 - The 81 unknown training pairs were described by source_variant (35 authored / 46 hard-negative) and
