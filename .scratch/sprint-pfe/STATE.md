@@ -1662,3 +1662,29 @@ Two Ch3 errors found by issue 05's verifier and checked against data/ before fix
 Done (author-approved, same day): Ch5 l.161 called all 81 pairs "a request the schema does not support"; the 40
 F117 near-misses are not requests; it now says "an utterance the schema does not support as a command". Ch6 only says "81 pairs, none a supported command made
 unreadable", which stays true.
+
+## Writing progress -- Master frontmatter (B12, Master half, Thu 24 Sep) -- DONE
+B12 is blocked on B11 for the Ingenieur only; the Master half needed only Ch6. Page order kept
+as it was by the author (dedication, acknowledgements, abstracts), not the sample's.
+  - Abstracts EN/FR/AR (0e1421f; later aligned to the issue-09 Ch6 fixes by that session,
+    cfe5b32): three paragraphs + 8 keywords, drafted from Ch6. No \gls in the abstracts on
+    purpose (they precede Ch1 and would consume first-use expansions). FR uses decimal commas;
+    AR keeps Latin digits (numerals=maghrib), model names \mbox'ed against bidi line breaks.
+    The Arabic still wants a native reader's check.
+  - Title pages (1dc2667, 067fc85): heading "MASTER THESIS" (the one point both versions of the
+    sample agree on); specialty kept "IASD" and the Arabic ministry line kept, both by the author;
+    no co-supervisor, line deleted in BOTH title pages; jury "[President Name]" / "[Examiner
+    Name]" in both -- plain text now, nothing flags them: grep "Name]" before the depot.
+  - Acknowledgements + dedication (067fc85): thesis/shared/frontmatter/, printed by BOTH
+    documents, so written document-neutral; jury thanked without names (the two defences need
+    not share a jury). Content is the author's (Alhamdulillah, Prof. Khaldi, mother first,
+    sister, Yacine, Zineddine, Salah, Mohammed).
+  - Acronyms (ce9ea4a, 5d9bec2): all Master keys defined, no \acrfull; Ch4 now uses \gls{em};
+    LoRA cell points to 3.3; GGML listed via \glsadd in Master Ch1. Nothing pruned: PID, FR,
+    NFR, ROC are the Ingenieur's.
+thesis/sample_thesis/ is back in place (gitignored; source ~/Downloads/thesos/). Not done, the
+author's call: \setotherlanguage{french} in the shared preamble (the resume hyphenates with
+English patterns; no bad break today).
+
+Stopped here: Master is complete except the jury names. Remaining: Ingenieur B9 (Ch4) and B10
+(Ch5) unwritten; then the Ingenieur half of B12; then B13 over both documents.
