@@ -4,9 +4,12 @@ Review every written chapter of both theses, one chapter at a time, in reading o
 to Ch6, then Ingénieur Ch1 and Ch2, then one whole-document pass per thesis. Each chapter gets a
 deterministic script first, then review agents on what the script cannot judge, then a verifier.
 
-Issues: `issues/00` (a decision) then `issues/01` ... `issues/09`, one per chapter, each blocked by the one before so the order
-holds. Master Ch6 is `09`, not next to Ch5: it was written after 00-08 were numbered, and issues are
-never renumbered. It is blocked by 05, and the whole-document pass (08) is blocked by it.
+Issues: `issues/00` (a decision) then `issues/01` ... `issues/10`, one per chapter plus one
+whole-document pass per thesis, each blocked by the one before so the order holds. Master Ch6 is
+`09`, not next to Ch5: it was written after 00-08 were numbered, and issues are never renumbered.
+It is blocked by 05. The whole-document pass was one issue (08) for both theses until 2026-09-24.
+It was then split, so that the unfinished Ingénieur did not hold up the finished Master: `08` is now
+the Master pass, blocked by 01-05 and 09, and `10` is the Ingénieur pass.
 Reports: `reports/<script>.md`, regenerated on every run.
 
 ## Why this order
@@ -20,6 +23,9 @@ Reports: `reports/<script>.md`, regenerated on every run.
   Ch2 has no prose yet -- its script exits 2 ("not reviewable") until it does.
 - **Whole-document passes last** (Template B in `docs/agents/thesis-chapter-review.md`): they check
   what no single-chapter review can see, and they are only worth running on chapters already clean.
+  Each thesis's pass waits only on that thesis's own chapters, so the Master pass (08) runs as soon
+  as the Master is clean. The Ingénieur pass (10) comes after it. Write-once (Table 3) spans both
+  documents, so 08 checks it against the Ingénieur as it stands and 10 checks it again at the end.
 
 ## The loop, per chapter
 
@@ -76,8 +82,9 @@ script reports the new value against the source rather than "anchor not found".
 | 05 | Master Ch5 (339, 4 cites) | 1 reviewer + verifier | whole chapter reviewed once §5.2-5.3 existed; resolved |
 | 06 | Ingénieur Ch1 (374, 12 cites) | argument + citation/presentation + verifier | requirement-heavy |
 | 07 | Ingénieur Ch2 | script only until prose exists | scaffold |
-| 08 | Whole-document, both | 1 reviewer + verifier per document | must see every chapter at once |
+| 08 | Whole-document, Master | 1 reviewer + verifier | must see every chapter at once |
 | 09 | Master Ch6 (107, 0 cites) | 1 reviewer + verifier | short, and no papers to open; the script recomputes every figure (54 PASS), so the reviewer reads for qualifiers and consistency with Ch1, Ch4 and Ch5 |
+| 10 | Whole-document, Ingénieur | 1 reviewer + verifier | split from 08; waits on every Ingénieur chapter, including Ch3-Ch6 once they have issues |
 
 ## Self-containment and headings (D11, D12)
 
