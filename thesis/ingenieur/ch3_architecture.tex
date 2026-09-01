@@ -3,7 +3,7 @@
 % This chapter OWNS: the dual-path decomposition, the reflex-path membership rule, the
 % validator and state-machine layers, the latency budget and the core allocation.
 % It does NOT own: the schema and grammar (Master Ch 3, sec:schema -- one fresh sentence and a
-% one-page summary here), any measured latency (Ch 5, Exp-2), the model comparison (Master Ch 4;
+% one-page summary here), any measured latency (Ch 5, the latency experiment), the model comparison (Master Ch 4;
 % only the selected configuration is named here).
 %
 % Labels: tab:latency-budget is TAKEN in this document by thesis/generated/exp2_latency_budget.tex
@@ -440,20 +440,56 @@ publication, and it depends on the link rather than on the device. The state-mac
 the deployed placement puts on the far side of that hop is budgeted within the 50~ms row, but
 the end-to-end spans stop at the bus.
 
-% Stub layout: an empty section at a page foot makes the keep-on-one-page rule
-% (shared/preamble.tex) flip between passes, so latexmk never converges. Remove this
-% \noautobreak once the section has prose.
-\noautobreak
 \section{Resource allocation}
 \label{sec:resource-allocation}
-% - Table tab:core-allocation (Table 7): core 0 = capture, ring buffer, endpointer, keyword
-%   spotter (the 80 ms frame loop); cores 1--3 = whisper.cpp -t 3 and llama.cpp -t 3.
-% - Why three cores suffice for both: STT and SLM are sequential by construction.
-% - Why the frame loop must never wait on the parse path: reflex latency holds under load only if a decode
-%   cannot delay the next frame -- the design property the loaded condition of Exp-2 tests.
-%   That isolation held is Ch 5's to report; forward reference only.
-% - Per-thread pinning; a child process inherits the spawning thread's mask.
-% - Memory: worst-case arithmetic (largest configuration, full stack) as a bound, not a
-%   measurement -- OPEN QUESTION for the author: include here, or leave memory to the Master's
-%   requirements table?
-\TODO{draft}
+The reflex latency criterion must hold while the parse path is decoding
+(Table~\ref{tab:nonfunctional-requirements}), so the two paths cannot be left to compete for the
+processor. The Raspberry~Pi~5 has four Cortex-A76 cores, and the design divides them between the
+paths as Table~\ref{tab:core-allocation} sets out: one core for everything that must keep pace with
+the audio, and three for the work whose cost depends on the utterance.
+
+\begin{table}[htbp]
+\centering
+\footnotesize
+\caption[Core allocation]{Allocation of the Raspberry~Pi~5's four cores. Each path's work is
+pinned to its cores. The reflex path runs entirely on core~0, so no parse-path work is scheduled
+on the core that serves it.}
+\label{tab:core-allocation}
+\begin{tabularx}{\textwidth}{@{}l X X@{}}
+\toprule
+Cores & Assigned work & Constraint the assignment must meet \\
+\midrule
+0 & Audio frame loop: frame buffering, the endpointer, the keyword spotter and the reflex path's publication & The work for one 80~ms frame completes within 80~ms, on every frame \\
+1--3 & Parse-path worker: speech recognition and the language model, each on three threads, then validation and publication & Speech recognition and the language model never run at the same time \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\paragraph{Core 0.} The frame loop takes one 80~ms frame at a time and gives it to both the
+endpointer and the keyword spotter. It never waits for the parse path: an endpointed utterance is
+handed to the worker on cores~1--3, and the loop moves on to the next frame. This is the property
+the reflex latency criterion depends on. If the loop could wait for a transcription or a decode, a
+keyword spoken during one would be heard only after it finished, and the reflex would inherit the
+parse path's latency, which is the failure Section~\ref{sec:dual-path} exists to avoid. The
+constraint on core~0 is correspondingly strict. The work for each frame must complete within the
+frame's own duration, on every frame, or the loop falls behind the audio and every later keyword is
+heard late.
+
+\paragraph{Cores 1--3.} Speech recognition and the language model share three cores without
+contending for them, because they are sequential by construction: the parser cannot start before
+the transcript exists. Each therefore runs on all three cores in turn, and a three-core allocation
+serves both. These are also the cores that the cancellation of Section~\ref{sec:dual-path}
+releases: when the reflex path cancels a decode, they become free for the next utterance.
+
+\paragraph{What pinning cannot isolate.} Pinning separates the paths' computation, not everything
+the four cores share. Memory bandwidth, the shared cache and the device's temperature are common to
+all of them, so parse-path work can still slow core~0 without being scheduled on it. The
+allocation therefore reduces the interference between the paths to what these shared resources
+carry. Whether that remainder stays inside the reflex budget is not a design property, and the
+loaded condition of the latency experiment (Section~\ref{sec:latency-experiment}) measures it.
+
+\paragraph{Memory.} Memory is not divided between the paths. Every stage shares the device's
+8~GB, and the constraint that governs it is the 2.5~GiB ceiling on the full deployed stack, which
+the \emph{M\'emoire de Master} states and assesses for its model comparison. That document measured
+the memory of the language-model process only; the full stack was not measured for any
+configuration, and this design adds no estimate that would stand in for that measurement.
