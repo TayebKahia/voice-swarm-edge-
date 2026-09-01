@@ -85,10 +85,11 @@
 % - The per-class curve with the chosen threshold marked (promised by Ch 1) -- a figure; generate
 %   it from the recorded data, do not draw it by hand.
 % - False rejects per class on the synthetic test split.
-% - Keyword false accepts on the continuous ambient-speech stream: missed as measured, with a
-%   95% interval so wide the target is neither demonstrated nor excluded -- report both halves.
-% - This section is the one addition to prd.md 3.1 item 5's list: Ch 1 names this evaluation as
-%   a fourth source of measurements (the Keyword false accepts row), and Table 3 gives it here.
+% - Keyword false accepts on the continuous ambient-speech stream: point estimate above the
+%   budget, but the 95% interval contains it, so under the declared rule the verdict is NOT
+%   DEMONSTRATED (STATE.md l.1324) -- report the point, the interval and the verdict together.
+% - prd.md 3.1 item 5 lists this section: Ch 1 names this evaluation as a fourth source of
+%   measurements (the Keyword false accepts row), and Table 3 gives it here.
 \TODO{draft}
 
 \section{Acoustic-robustness experiment}
@@ -131,8 +132,19 @@
 % - Formation accuracy: saturated, and this was declared before, not discovered after;
 %   convergence time is the discriminating metric; the ANOVA on it.
 % - Scope: kinematic simulator without rotor dynamics; the clamp's scope is Ch 6's limitation.
-%
-% Decide (author): a closing criterion-by-criterion table (every Ch 1 row: target, measured,
-% verdict) would help Ch 6 and the reader, but it would need its own section, and prd.md 3.1 does
-% not list one -- change prd first if you want it.
+\TODO{draft}
+
+\section{Summary against the requirements}
+\label{sec:requirements-summary}
+% Author's decision (24 Sep): one closing table, every criterion of Ch 1's two requirement tables
+% with its target, measurement, verdict and section. prd.md 3.1 item 5 amended to list it.
+% - \input{generated/requirements_summary} (\label{tab:requirements-summary}, from
+%   eval/tables.py requirements_summary()). Never retype it; a wording change goes in the renderer.
+%   eval/test_tables.py fails if its rows stop matching Ch 1's criteria, in order.
+% - Prose, short: how many criteria are met, missed, not demonstrated, not yet run -- count them
+%   from the table, do not type the counts from this note. Name the misses in one sentence each
+%   with their located cause, pointing back to the section; no new figure, no new argument.
+% - The verdict vocabulary is defined in the caption: point estimate for Met/Missed; the declared
+%   interval rule for the two keyword criteria ("not demonstrated"). Use the same words in prose.
+% - This section is what Ch 6 refers to for every verdict; it does not interpret (Ch 6 does).
 \TODO{draft}
