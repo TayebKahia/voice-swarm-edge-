@@ -1,7 +1,7 @@
 # Issue 10: whole-document-ingenieur
 
 Status: ready-for-agent
-Blocked by: 06, 07
+Blocked by: 06, 07, 11
 Documents: thesis/main_ingenieur.tex
 
 ## What
@@ -14,9 +14,9 @@ This issue was split from issue 08 on 2026-09-24, so that the unwritten Ingénie
 blocked the finished Master. Issue 08's write-once check was made against the Ingénieur as it stood
 then; repeat it here against the complete document.
 
-**The Blocked-by line is incomplete.** Ingénieur Ch3 (`ch3_architecture.tex`) and Ch6
-(`ch6_conclusion.tex`) exist but have no review issues, and Ch4 and Ch5 are unwritten. Add each
-chapter's issue to Blocked-by when it is created.
+**The Blocked-by line is incomplete.** Ingénieur Ch3 has issue 11. Ch4, Ch5 and Ch6
+(`ch6_conclusion.tex`) have no review issues yet. Add each chapter's issue to Blocked-by when it is
+created.
 
 ## Agents
 

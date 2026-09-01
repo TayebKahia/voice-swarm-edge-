@@ -10,6 +10,8 @@ whole-document pass per thesis, each blocked by the one before so the order hold
 It is blocked by 05. The whole-document pass was one issue (08) for both theses until 2026-09-24.
 It was then split, so that the unfinished Ingénieur did not hold up the finished Master: `08` is now
 the Master pass, blocked by 01-05 and 09, and `10` is the Ingénieur pass.
+Ingénieur Ch3 is `11` for the same reason as Ch6: it was drafted after 00-10 existed. It is blocked
+by 06 (Ch1), and `10` is now blocked by it.
 Reports: `reports/<script>.md`, regenerated on every run.
 
 ## Why this order
@@ -85,6 +87,7 @@ script reports the new value against the source rather than "anchor not found".
 | 08 | Whole-document, Master | 1 reviewer + verifier | must see every chapter at once |
 | 09 | Master Ch6 (107, 0 cites) | 1 reviewer + verifier | short, and no papers to open; the script recomputes every figure (54 PASS), so the reviewer reads for qualifiers and consistency with Ch1, Ch4 and Ch5 |
 | 10 | Whole-document, Ingénieur | 1 reviewer + verifier | split from 08; waits on every Ingénieur chapter, including Ch3-Ch6 once they have issues |
+| 11 | Ingénieur Ch3 (497, 6 cites) | argument + citation/presentation + verifier | design chapter; the script checks every table against the code (100 PASS), so the agents read the argument and the promises to and from Ch1, Ch4 and Ch5 |
 
 ## Self-containment and headings (D11, D12)
 
