@@ -359,29 +359,86 @@ rather than relying on the layers to catch it. How often errors fall into these 
 than resolving to a hold is what the safe-failure rate measures, and
 Section~\ref{sec:acoustic-robustness} reports it.
 
-% Stub layout: an empty section at a page foot makes the keep-on-one-page rule
-% (shared/preamble.tex) flip between passes, so latexmk never converges. Remove this
-% \noautobreak once the section has prose.
-\noautobreak
 \section{Latency budget}
 \label{sec:latency-budget}
-% Budget = DESIGN. No measured figure anywhere in this section; Chapter~\ref{chap:validation}.
-% - Table tab:stage-budget: both paths, both anchors -- endpointing wait, STT, SLM prefill,
-%   SLM decode, validate+FSM+dispatch, E2E from end of speech, E2E from start of speech (3 s
-%   utterance), reflex from keyword offset, reflex from keyword onset (~700 ms phrase).
-%   Row wording fresh (Master's tab:latency-budget restates the parse rows).
-% - Anchors: T0 = last frame in the buffer when the endpointer declares end of speech; reflex
-%   anchored at keyword offset because an onset target of 150 ms is unsatisfiable by
-%   construction; onset reported as operator-perceived time.
-% - Endpointing line derived, not tuned: 450 ms of silence plus at most one 32 ms window
-%   = 482 ms worst case, inside the 500 ms allowance.
-% - Stage allowances are per-stage targets, not a decomposition: the E2E target is judged on the
-%   measured E2E, not the sum.
-% - Outside the budget, stated so it is not mistaken for an omission: capture/buffering latency
-%   before T0, and the Wi-Fi hop after dispatch.
-% - One fresh sentence: the Memoire de Master uses the parse-path rows as its deployment
-%   constraint.
-\TODO{draft}
+The latency budget gives every stage of both paths a target at the 95th percentile, so that a
+missed end-to-end figure can be traced to the stage that caused it; this is what the per-stage
+attribution criterion of Table~\ref{tab:nonfunctional-requirements} asks to be reported.
+Table~\ref{tab:stage-budget} lists the targets. They are design values, fixed before any
+measurement, and Section~\ref{sec:latency-experiment} measures the system against each of them.
+
+\begin{table}[htbp]
+\centering
+\footnotesize
+\caption[Latency budget by stage]{Latency budget by stage, as designed. Every target is a p95
+bound on wall-clock time. Parse-path figures start at the end of speech, $T_0$, the instant the
+endpointer declares the utterance over, except where the row states another anchor; the prefill
+target assumes the fixed prefix is already cached. Reflex-path figures start at the end or the
+start of the spoken keyword, a phrase of about 700~ms. Every span ends when the command is handed to the command
+bus on the device. The stage rows are ceilings for their stages, not a decomposition of the
+end-to-end target.}
+\label{tab:stage-budget}
+\begin{tabularx}{\textwidth}{@{}l X r@{}}
+\toprule
+Path & Stage or span & p95 target \\
+\midrule
+Parse & Endpointing wait & 500~ms \\
+      & Speech recognition (whisper \texttt{tiny.en}, 3 threads) & 1{,}200~ms \\
+      & Language-model prefill & 250~ms \\
+      & Language-model decode & 1{,}100~ms \\
+      & Validation, state-machine check and dispatch & 50~ms \\
+      & Language-model stages combined & 1{,}350~ms \\
+      & \textbf{End to end, from end of speech} & \textbf{2{,}500~ms} \\
+      & End to end, from start of speech (3~s utterance) & 5{,}500~ms \\
+\midrule
+Reflex & \textbf{Reflex path from keyword offset} & \textbf{150~ms} \\
+       & Reflex path from keyword onset & 850~ms \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\paragraph{Anchors.} Each path is measured from two instants, because either one alone misleads.
+On the parse path, $T_0$ is the time of the last audio frame in the buffer at the moment the
+endpointer declares the utterance over, and the headline target of 2{,}500~ms runs from it.
+Measured only from $T_0$, the system would appear to respond independently of how long the
+operator spoke; measured only from the start of speech, it would be charged for the length of
+the operator's sentence. Both are therefore reported. The reflex path's headline anchor is the
+keyword offset, the last frame of the spoken phrase. An onset-anchored target of 150~ms could not
+be met by any spotter, because a phrase of about 700~ms cannot be classified before it has been
+heard. The offset anchor isolates what the system adds: feature extraction, the classifier, the
+quantisation of audio into 80~ms frames, and publication on the bus. The onset figure is reported
+beside it as the time the operator perceives. Both spans end when the command is handed to the
+command bus on the device, which is the last point both paths have in common.
+
+\paragraph{Endpointing.} The first parse-path row is not a processing time but a wait: the
+endpointer declares an utterance over only after a run of silence, and the clock of the
+end-to-end target starts when that declaration is made. The wait is therefore budgeted as a row of
+its own, at 500~ms, and the endpointer's silence rule was derived from that row rather than tuned.
+Silence is counted in whole windows of 32~ms, so the wait is the silence threshold plus at most one
+window. The threshold is the largest round value for which that sum stays inside the allowance:
+450~ms, for a worst case of 482~ms. A shorter threshold answers sooner and splits more utterances
+at a pause; this one was set by the budget and not by that trade, and
+Section~\ref{sec:acoustic-robustness} reports what it costs in recognition.
+
+\paragraph{Stage allowances.} Transcription and decoding are each allowed about a second, and they
+dominate the parse path. The decode allowance is sized for the short wire format of the command
+schema, in which absent slots are omitted rather than written as nulls. The prefill allowance of
+250~ms assumes the cached fixed prefix of Section~\ref{sec:dual-path}, which reduces prefill to the
+transcript's own tokens. The two language-model rows together allow 1{,}350~ms, and the
+\emph{M\'emoire de Master} applies that combined figure as the deployment constraint of its model
+comparison. The allowances are ceilings, not shares of the end-to-end target. The four that follow
+$T_0$ sum to 2{,}600~ms, more than the 2{,}500~ms they sit inside, so a run in which every stage
+reaches its ceiling at once misses the end-to-end target. That target is judged on the measured
+end-to-end figure, never on the sum of the stage figures, and the stage rows serve to locate a
+miss, not to excuse one.
+
+\paragraph{Outside the budget.} Two delays fall outside the table by design. Capture and buffering
+sit before $T_0$: the time from sound reaching the microphone to its frame entering the buffer is a
+property of the audio hardware, not of the pipeline, and it is excluded so that the budget
+describes what the pipeline adds. The wireless hop from the device to the workstation sits after
+publication, and it depends on the link rather than on the device. The state-machine check that
+the deployed placement puts on the far side of that hop is budgeted within the 50~ms row, but
+the end-to-end spans stop at the bus.
 
 % Stub layout: an empty section at a page foot makes the keep-on-one-page rule
 % (shared/preamble.tex) flip between passes, so latexmk never converges. Remove this
