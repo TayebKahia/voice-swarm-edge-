@@ -28,6 +28,7 @@ MUTATIONS = {
     "master_ch4": ("master/ch4_results.tex", "SmolLM2-360M (785~ms)", "SmolLM2-360M (795~ms)", "claim"),
     "master_ch5": ("master/ch5_discussion.tex", "a margin of 67~ms", "a margin of 76~ms", "claim"),
     "ingenieur_ch1": ("ingenieur/ch1_introduction.tex", "& p95 $\\leq$ 150~ms &", "& p95 $\\leq$ 200~ms &", "requirements"),
+    "ingenieur_ch3": ("ingenieur/ch3_architecture.tex", "held within 50~m of the origin", "held within 60~m of the origin", "claim"),
     "ingenieur_ch2": ("ingenieur/ch2_state_of_the_art.tex", "\\section{Swarm control}",
                       "\\section{Swarm control}\nGrammars constrain decoding~\\cite{geng2023}.", "table3"),
 }
@@ -36,6 +37,8 @@ EXTRA = [
     ("master_ch2", "master/ch2_related_work.tex", "as part of Contribution~C3.", "as part of Contribution~C3, as prd.md fixes.", "internal"),
     ("master_ch5", "master/ch5_discussion.tex", "Only three configurations", "Under Exp-7, only three configurations", "code"),
     ("master_ch1", "master/ch1_introduction.tex", "\\gls{json}", "\\acrfull{json}", "acronym"),
+    ("ingenieur_ch3", "ingenieur/ch3_architecture.tex", "\\texttt{takeoff} & \\texttt{LANDED} &",
+     "\\texttt{takeoff} & \\texttt{LANDED}, \\texttt{FLYING} &", "legality"),
 ]
 
 
