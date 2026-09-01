@@ -1688,3 +1688,30 @@ English patterns; no bad break today).
 
 Stopped here: Master is complete except the jury names. Remaining: Ingenieur B9 (Ch4) and B10
 (Ch5) unwritten; then the Ingenieur half of B12; then B13 over both documents.
+
+## Writing progress -- Ingenieur Ch 3 (B8, Thu 24 Sep) -- DRAFTED, awaiting review
+thesis/ingenieur/ch3_architecture.tex, \label{chap:architecture}, all five sections drafted; no
+\TODO{}, no \noautobreak left. Commits: b954b36 (scaffold, lead-in, 3.1, 3.2), da5f625 (3.3),
+61eb810 (3.4), 113723a (3.5); other sessions' commits in between renamed Branch A/B to the reflex /
+parse path (cca879e) and rewrote 3.1's dual-path reason (a46a8d0).
+  3.1 sec:dual-path -- fig:architecture (TikZ), placement, policy-free bus, cached-prefix prompt,
+      preemption = ordering rule (correctness) + cancellation (optimisation).
+  3.2 sec:membership-rule -- tab:membership. Argued from what the reflex path skips (interpretation,
+      not validation): a false accept is well-formed and legal, so no layer can catch it.
+  3.3 sec:validation-layers -- tab:legality. Layer 1 one paragraph (write-once, Master owns it);
+      layer 2 envelope from schema/schema.py; layer 3 rejection per ADR-0002; both uncaught classes.
+  3.4 sec:latency-budget -- tab:stage-budget, row names identical to the generated Exp-2 table.
+      States that the four ceilings after T0 sum to 2,600 ms > 2,500. 5,500 ms left underived
+      (author's call: 3,000 + 500 + 2,500 = 6,000 is a known question, not fixed).
+  3.5 sec:resource-allocation -- tab:core-allocation. Memory WITHOUT the prd 4.6 arithmetic: it is
+      not a bound (Master measured 0.68 / 1.63 GiB for the LM process alone, above it).
+No measured figure anywhere in the chapter; every result is forwarded to Ch 5 by label.
+Build: clean from scratch (latexmk -xelatex main_ingenieur.tex), 0 errors, no Float too large.
+
+Waiting on other chapters, not on measurements:
+  - Ch 4 sec:runtime must give the cache_prompt=false reason 3.1 promises.
+  - Ch 5 must say where its parse-path span ends: eval/exp2.py:355 stops at the FSM having applied
+    the command (loopback on the Pi); Ch 1 and Ch 3 define the span as ending at the bus.
+Next: review issue + tools/review/ingenieur_ch3.py (Template A), then the review loop.
+
+Stopped here: B8 draft complete; nothing in the chapter waits on a measurement.
