@@ -244,3 +244,41 @@ def test_ingenieur_tables_carry_no_requirement_experiment_or_branch_codes():
         if path.is_file():
             text = render(_rows(path))
             assert not codes.findall(text), f"{path.name}: {sorted(set(codes.findall(text)))}"
+
+
+def test_interval_verdict_is_met_missed_or_not_demonstrated():
+    """The keyword criteria's declared rule: the whole 95% interval decides, not the point."""
+    from eval.tables import _interval_verdict
+
+    assert _interval_verdict(0.0, 0.08, 0.10) == "Met"
+    assert _interval_verdict(0.12, 0.30, 0.10) == "Missed"
+    assert _interval_verdict(0.0, 0.168, 0.10) == "Not demonstrated"   # 0/20: zero misses, unproven
+    assert _interval_verdict(0.06, 12.98, 1.0) == "Not demonstrated"   # 2.33/h over 0.43 h
+
+
+def test_requirements_summary_lists_every_ch1_criterion_in_order():
+    """The summary is only honest if no Ch1 criterion is missing from it: its rows must be the
+    first column of Ch1's two requirement tables, functional then non-functional, in order."""
+    import json
+    import re
+
+    from eval.tables import (EXP2, EXP2_ANALYSIS, EXP3, EXP4, REPO, WAKE_REAL_VOICE,
+                             WAKE_TRAINING, _rows, requirements_summary)
+
+    inputs = (EXP2, EXP2_ANALYSIS, EXP3, EXP4, WAKE_TRAINING, WAKE_REAL_VOICE)
+    if not all(p.is_file() for p in inputs):
+        pytest.skip("results not all written yet")
+    ch1 = (REPO / "thesis" / "ingenieur" / "ch1_introduction.tex").read_text(encoding="utf-8")
+    expected = []
+    for label in ("tab:functional-requirements", "tab:nonfunctional-requirements"):
+        body = ch1.split(r"\label{" + label + "}", 1)[1].split(r"\midrule", 1)[1]
+        body = body.split(r"\bottomrule", 1)[0]
+        expected += [line.split("&", 1)[0].strip() for line in body.splitlines() if "&" in line]
+    text = requirements_summary(_rows(EXP2), _rows(EXP3), _rows(EXP4),
+                                json.loads(WAKE_TRAINING.read_text(encoding="utf-8")),
+                                json.loads(WAKE_REAL_VOICE.read_text(encoding="utf-8")))
+    rows = [r for r in text.splitlines() if r.startswith("| ")][2:]   # header, rule
+    assert [r.split("|")[1].strip() for r in rows] == expected
+    verdicts = {r.split("|")[4].strip() for r in rows}
+    assert verdicts <= {"Met", "Missed", "Not demonstrated", "Not yet run", "Planned for the defence"}
+    assert not re.search(r"\b(?:N?FR-\d+|Exp-\d|Branch [AB]|C[1-4])\b", text)

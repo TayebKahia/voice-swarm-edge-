@@ -26,6 +26,7 @@ Usage:
 from __future__ import annotations
 
 import csv
+import json
 import re
 import sys
 from pathlib import Path
@@ -58,6 +59,10 @@ RESULTS = REPO / "results"
 EXP3_PI = REPO / "results" / "exp3_pi.csv"
 EXP3 = EXP3_PI if EXP3_PI.is_file() else REPO / "results" / "exp3.csv"
 EXP2 = REPO / "results" / "exp2.csv"
+EXP2_ANALYSIS = REPO / "results" / "exp2_analysis.md"
+EXP4 = REPO / "results" / "exp4.csv"
+WAKE_TRAINING = REPO / "results" / "wake_training.json"
+WAKE_REAL_VOICE = REPO / "results" / "wake_real_voice.json"
 
 SPLITS = ("test_synth", "test_golden", "test_ood")
 #: The headline split for Table 18. The golden set is real recorded speech through the real
@@ -440,6 +445,155 @@ def latency_budget(exp2: list[dict]) -> str:
     return "\n".join(lines) + "\n"
 
 
+#: Budgets of the Ingenieur's tab:nonfunctional-requirements that no results file carries
+#: itself (the latency budgets are in exp2.csv; the CRR budgets are NFR7/NFR8 above).
+KEYWORD_FA_PER_HOUR, KEYWORD_FRR, FORMATION_ACCURACY = 1.0, 0.10, 0.85
+
+
+def _interval_verdict(lo: float, hi: float, budget: float) -> str:
+    """The keyword criteria's declared rule (results/wake_real_voice.md, STATE.md): a rate
+    from a small event count meets its upper bound only if the whole 95% interval is below
+    it, misses only if the whole interval is above it, and is otherwise not demonstrated."""
+    if hi <= budget:
+        return "Met"
+    return "Missed" if lo > budget else "Not demonstrated"
+
+
+def _preemption_counts(path: Path = EXP2_ANALYSIS) -> tuple[int, int, int]:
+    """(decodes in flight at a trigger, triggers, decodes aborted), from the analysis file
+    eval/exp2.py writes -- the only record of the preemption outcomes."""
+    text = path.read_text(encoding="utf-8")
+    in_flight = re.search(r"decode in flight: (\d+)/(\d+)", text)
+    aborted = re.search(r"Decode aborted by the trigger: (\d+)", text)
+    if not (in_flight and aborted):
+        raise ValueError(f"{path.name}: preemption outcomes not found; eval/exp2.py changed?")
+    return int(in_flight[1]), int(in_flight[2]), int(aborted[1])
+
+
+def _cross_triggers(path: Path = EXP2_ANALYSIS) -> int:
+    """Takes of one class that fired the other class, summed over the idle and loaded
+    matrices of the same analysis file."""
+    text = path.read_text(encoding="utf-8")
+    hold = re.findall(r"\| `swarm_hold` \| \d+ \| \d+ \| (\d+) \| \d+ \|", text)
+    abort = re.findall(r"\| `swarm_abort` \| \d+ \| (\d+) \| \d+ \| \d+ \|", text)
+    if len(hold) != 2 or len(abort) != 2:
+        raise ValueError(f"{path.name}: expected an idle and a loaded cross-trigger matrix")
+    return sum(map(int, hold + abort))
+
+
+def requirements_summary(exp2: list[dict], exp3: list[dict], exp4: list[dict],
+                         wake_training: dict, wake_real: dict) -> str:
+    """Every criterion of the Ingenieur's two requirement tables, with the measurement that
+    answers it and one verdict. Every number is read from a results file. The only typed
+    evidence is for the criteria verified by a test suite (simulation backends, flight state
+    machine: swarm/test_pyflyt.py, swarm/test_fsm.py, 105 passed on 24 Sep) or not yet run."""
+    by2 = {(r["measure"], r["condition"]): r for r in exp2}
+    by3 = {r["condition"]: r for r in exp3}
+
+    def ms(measure: str, condition: str) -> tuple[str, str, str]:
+        row = by2[(measure, condition)]
+        return (f"{float(row['p95']):,.0f} ms", f"{float(row['budget_p95_ms']):,.0f} ms",
+                "Met" if row["verdict"] == "MEETS" else "Missed")
+
+    def crr(condition: str, budget: float) -> tuple[str, str]:
+        value = float(by3[condition]["crr"])
+        return f"{value:.3f}", "Met" if value >= budget else "Missed"
+
+    def sec(label: str) -> str:
+        return f"[ref](#{label})"
+
+    in_flight, triggers, aborted = _preemption_counts()
+    crossed = _cross_triggers()
+    n = len(exp4)
+    converged = sum(int(r["converged"]) for r in exp4)
+    collisions = sum(int(r["collisions"]) for r in exp4)
+    interventions = sum(int(r["clamp_activations"]) for r in exp4)
+    accuracies = [float(r["formation_accuracy"]) for r in exp4]
+    ambient = wake_training["test"]["ambient"]
+    fa_lo, fa_hi = ambient["per_hour_ci95"]
+    frr = {r["class"]: r for r in wake_real["rows"]}
+    frr_verdicts = {_interval_verdict(*r["frr_ci95"], KEYWORD_FRR) for r in frr.values()}
+    stages = [m for m in ("vad_wait", "stt", "prefill", "decode", "validate_fsm")
+              if (m, "branch_b") in by2]
+    idle, loaded = ms("a_offset", "idle"), ms("a_offset", "loaded")
+    e2e, recovery = ms("e2e_t0", "branch_b"), ms("recovery", "loaded")
+    clean, noise = crr("clean", NFR7_CLEAN_CRR), crr("10", NFR8_10DB_CRR)
+
+    rows = [
+        # Functional (tab:functional-requirements), in its order.
+        ("Offline speech recognition", "On the device, no network",
+         "No run with networking disabled", "Not yet run", sec("sec:demonstration-protocol")),
+        ("Reflex path", "Preempts the parse path",
+         f"{aborted}/{in_flight} decodes cancelled; {crossed} cross-triggers",
+         "Met" if aborted == in_flight == triggers and crossed == 0 else "Missed",
+         sec("sec:latency-experiment")),
+        ("Swarm controller", "Formation control, five drones",
+         f"{converged}/{n} trials converged", "Met" if converged == n else "Missed",
+         sec("sec:formation-control")),
+        ("Simulation backends", "Hover smoke test on both", "Passes on both, same gains", "Met",
+         sec("sec:simulation-backends")),
+        ("Live demonstration", "Live microphone, end to end", "--", "Planned for the defence",
+         sec("sec:demonstration-protocol")),
+        ("Flight state machine", "Every legality cell tested", "Every cell passes", "Met",
+         sec("sec:state-machine")),
+        # Non-functional (tab:nonfunctional-requirements), in its order.
+        ("Reflex latency", f"p95 \u2264 {idle[1]}", f"{idle[0]} idle, {loaded[0]} loaded",
+         "Met" if idle[2] == loaded[2] == "Met" else "Missed", sec("sec:latency-experiment")),
+        ("End-to-end latency", f"p95 \u2264 {e2e[1]}", e2e[0], e2e[2],
+         sec("sec:latency-experiment")),
+        ("Per-stage attribution", "Every stage, p50/p95/p99", f"All {len(stages)} stages",
+         "Met" if len(stages) == 5 else "Missed", sec("sec:latency-experiment")),
+        ("Preemption recovery", f"p95 \u2264 {recovery[1]}", recovery[0], recovery[2],
+         sec("sec:latency-experiment")),
+        ("Keyword false accepts", f"\u2264 {KEYWORD_FA_PER_HOUR:.0f} per hour",
+         f"{ambient['per_hour']:.2f}/h [{fa_lo:.2f}, {fa_hi:.2f}]",
+         _interval_verdict(fa_lo, fa_hi, KEYWORD_FA_PER_HOUR),
+         sec("sec:keyword-spotter-evaluation")),
+        ("Keyword false rejects", f"\u2264 {KEYWORD_FRR:.2f} per class",
+         "; ".join(f"{c.removeprefix('swarm_')} {r['frr']:.2f} [{r['frr_ci95'][0]:.2f}, "
+                   f"{r['frr_ci95'][1]:.2f}]" for c, r in frr.items()),
+         frr_verdicts.pop() if len(frr_verdicts) == 1 else "Not demonstrated",
+         sec("sec:latency-experiment")),
+        ("Clean-audio recognition", f"CRR \u2265 {NFR7_CLEAN_CRR:.2f}", *clean,
+         sec("sec:acoustic-robustness")),
+        ("Recognition in noise", f"CRR \u2265 {NFR8_10DB_CRR:.2f} at 10 dB", *noise,
+         sec("sec:acoustic-robustness")),
+        ("Collisions", "Zero observed", f"{collisions} in {n} trials",
+         "Met" if collisions == 0 else "Missed", sec("sec:formation-control")),
+        ("Formation accuracy", f"\u2265 {FORMATION_ACCURACY:.2f}",
+         f"{min(accuracies):.3f} in every trial" if min(accuracies) == max(accuracies)
+         else f"{min(accuracies):.3f} lowest trial",
+         "Met" if min(accuracies) >= FORMATION_ACCURACY else "Missed",
+         sec("sec:formation-control")),
+        ("Offline operation", "No network dependency", "No run with networking disabled",
+         "Not yet run", sec("sec:demonstration-protocol")),
+    ]
+    lines = [
+        "### Summary against the requirements",
+        "",
+        "Every criterion of [Table](#tab:functional-requirements) and",
+        "[Table](#tab:nonfunctional-requirements), in their order, with the measurement that",
+        "answers it and the section that reports it. *Met* and *Missed* are judged on the point",
+        "estimate, as in each experiment's own table. The two keyword criteria are rates from",
+        "small event counts and follow the rule declared before they were scored: met only if",
+        "the whole 95% interval (in brackets) is inside the budget, missed only if it is wholly",
+        "outside, and otherwise *not demonstrated*.",
+        "",
+        "| Criterion | Target | Measured | Verdict | Section |",
+        "| :--- | :--- | :--- | :--- | :--- |",
+    ]
+    lines += ["| " + " | ".join(row) + " |" for row in rows]
+    lines += [
+        "",
+        f"Collisions: zero observed across all {n} trials, backed by a hard geometric",
+        f"separation clamp at the integrator, which made {interventions:,} interventions (vehicle",
+        "pairs, summed over timesteps, that the potential field alone failed to keep apart).",
+        "Formation accuracy is saturated by the protocol; convergence time is the measure that",
+        "discriminates ([Section](#sec:formation-control)).",
+    ]
+    return "\n".join(lines) + "\n"
+
+
 def _model_meta() -> dict[str, dict]:
     """Per-model metadata (parameter count, family) from `train/configs/*.yaml`.
 
@@ -667,12 +821,12 @@ _TEX_ESCAPES = (("\\", r"\textbackslash{}"), ("&", r"\&"), ("%", r"\%"),
                 # above, so the backslashes they introduce are not escaped again. The
                 # chapter body is kept ASCII, and these reach it through \input.
                 ("\u2013", "--"), ("\u2014", "---"), ("\u2212", "$-$"),
-                ("\u00d7", r"$\times$"), ("\u2192", r"$\to$"), ("\u2264", r"$\leq$"),
+                ("\u00d7", r"$\times$"), ("\u2192", r"$\to$"), ("\u2264", r"$\leq$"), ("\u2265", r"$\geq$"),
                 ("\u00b0", r"\textdegree{}"), ("\u03b1", r"$\alpha$"))
 
 #: `[Table](#tab:x)` in the markdown -> `Table~\ref{tab:x}` in the PDF: the one place a
 #: caption may name another float, by label and never by a number typed in.
-_REF = re.compile(r"\[(Table|Figure|Section)\]\(#([A-Za-z0-9:-]+)\)")
+_REF = re.compile(r"\[(Table|Figure|Section|ref)\]\(#([A-Za-z0-9:-]+)\)")
 #: `[SLM](#acr:slm)` -> `\acrshort{slm}`: an acronym from shared/acronyms.tex, never typed
 #: by hand in the PDF. \acrshort, not \gls, because these land in float captions and table
 #: heads, where a first-use expansion would be spent before the prose reaches the term.
@@ -711,7 +865,8 @@ def _tex_cell(cell: str) -> str:
             text = re.sub("\x00acr([a-z0-9]+)\x00", r"\\acrshort{\1}", text)
             out.append(text)
             if step + 2 < len(pieces):
-                out.append(pieces[step + 1] + r"~\ref{" + pieces[step + 2] + "}")
+                word = pieces[step + 1]  # `[ref](#x)` is a bare number, for a table cell
+                out.append(("" if word == "ref" else word + "~") + r"\ref{" + pieces[step + 2] + "}")
     return "".join(out)
 
 
@@ -735,13 +890,17 @@ _TEX_ABBREVIATIONS = (("qwen2.5-0.5b-instruct", "Qwen2.5-0.5B"),
 
 
 def markdown_to_latex(markdown: str, label: str, size: str = r"\footnotesize",
-                      colsep_pt: int = 4, abbreviate: bool = False) -> str:
+                      colsep_pt: int = 4, abbreviate: bool = False,
+                      columns: str | None = None) -> str:
     """Render the single pipe-table in `markdown` as a LaTeX table float.
 
     The prose above the table becomes the caption, because the skill asks captions to be
     self-contained: a reader must be able to read the table without the body text. Prose
     below the table (Table 33's three-epoch caveat, Table 19's pooled note) becomes a
     note under the rule, where it stays attached to the numbers it qualifies.
+
+    `columns` replaces the spec derived from the markdown alignment row, for a table whose
+    cells are text and must wrap (p-columns); it must name as many columns as the header.
     """
     lines = markdown.splitlines()
     table = [l for l in lines if l.lstrip().startswith("|")]
@@ -760,7 +919,7 @@ def markdown_to_latex(markdown: str, label: str, size: str = r"\footnotesize",
         return _tex_cell(text)
 
     header = [cell(c) for c in table[0].strip().strip("|").split("|")]
-    column_spec = "".join(_align(c) for c in table[1].strip().strip("|").split("|"))
+    column_spec = columns or "".join(_align(c) for c in table[1].strip().strip("|").split("|"))
     body = [[cell(c) for c in row.strip().strip("|").split("|")] for row in table[2:]]
     for index, row in enumerate(body):
         if len(row) != len(header):
@@ -814,7 +973,16 @@ _TABLES = (
     ("thermal_headroom", "tab:thermal-headroom", r"\scriptsize", 3, True),
     ("table20_end_to_end", "tab:end-to-end", r"\scriptsize", 2, False),
     ("exp2_latency_budget", "tab:latency-budget", r"\footnotesize", 4, False),
+    ("requirements_summary", "tab:requirements-summary", r"\footnotesize", 4, False),
 )
+
+#: Column specs for tables whose cells are text and must wrap. The requirements summary is
+#: all words; as plain l-columns it ran 139pt past the text block (measured 24 Sep).
+_WRAP = r">{\raggedright\arraybackslash}p"
+_COLUMNS = {
+    "requirements_summary": "@{}" + _WRAP + "{3.5cm}" + _WRAP + "{3.6cm}" + _WRAP + "{4.6cm}"
+                            + _WRAP + "{2.5cm}r@{}",
+}
 
 #: Rendered to LaTeX here but computed elsewhere: `eval/exp0.py` owns Table 16 and writes
 #: its markdown. Converting it here rather than duplicating the emitter in exp0.py keeps
@@ -844,6 +1012,15 @@ def run() -> int:
         rendered["exp2_latency_budget"] = latency_budget(_rows(EXP2))
     else:
         print("  skipped exp2_latency_budget: results/exp2.csv not written yet (eval/exp2.py, Pi)")
+    summary_inputs = (EXP2, EXP2_ANALYSIS, EXP3, EXP4, WAKE_TRAINING, WAKE_REAL_VOICE)
+    if all(path.is_file() for path in summary_inputs):
+        rendered["requirements_summary"] = requirements_summary(
+            _rows(EXP2), _rows(EXP3), _rows(EXP4),
+            json.loads(WAKE_TRAINING.read_text(encoding="utf-8")),
+            json.loads(WAKE_REAL_VOICE.read_text(encoding="utf-8")))
+    else:
+        missing = [path.name for path in summary_inputs if not path.is_file()]
+        print(f"  skipped requirements_summary: {', '.join(missing)} not written yet")
     written = []
     for stem, text in rendered.items():
         (RESULTS / f"{stem}.md").write_text(text, encoding="utf-8")
@@ -854,7 +1031,7 @@ def run() -> int:
         if stem not in rendered:
             continue
         tex = markdown_to_latex(rendered[stem], label, size=size, colsep_pt=colsep,
-                                abbreviate=abbreviate)
+                                abbreviate=abbreviate, columns=_COLUMNS.get(stem))
         (GENERATED / f"{stem}.tex").write_text(tex, encoding="utf-8")
         written.append(f"thesis/generated/{stem}.tex")
 
