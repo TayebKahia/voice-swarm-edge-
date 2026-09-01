@@ -44,10 +44,15 @@
 \chapter{Validation}
 \label{chap:validation}
 % Lead-in and common setup (no section of its own; prd lists none): what is measured and against
-% what (Ch 1 tables, Ch 3 budget); the target device and its thermal state -- NO active cooler was
-% fitted during these runs, so every timing figure carries its thermal state (the Memoire de Master
-% owns the thermal-headroom result; one sentence and a cross-reference); pinned versions, fixed
-% seeds, one CSV row per trial, one command reruns everything (run_all.sh).
+% what (Ch 1 tables, Ch 3 budget); the target device and its thermal state -- the latency
+% experiment ran with the active cooler fitted, governor performance, throttle flag zero on every
+% trial (results/exp2_analysis.md, SoC temperatures; STATE.md l.1523). Check the acoustic run's
+% state in results/exp3_pi_analysis.md before writing it. Every timing figure carries its thermal
+% state (the Memoire de Master owns the thermal-headroom result -- uncooled, throttled -- one
+% sentence and a cross-reference); pinned versions, fixed seeds, one CSV row per trial, one command
+% reruns everything (run_all.sh).
+% The generated tables still use the old names in captions and rows (Exp-2, Branch A/B, NFR-n):
+% fix them in the renderer (eval/tables.py) and regenerate before \input -- never edit the .tex.
 \TODO{draft}
 
 \section{Latency experiment}
