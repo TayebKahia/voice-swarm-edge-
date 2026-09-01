@@ -224,8 +224,23 @@ def test_latency_budget_judges_each_measure_against_its_table_6_line():
          "p99": "3", "budget_p95_ms": "", "verdict": ""},
     ]
     text = latency_budget(rows)
-    assert "| **E2E from end of speech (T0; NFR-2)** | 300 | 2,100 | 3,122 | 3,500 | 2,500 | MISSES |" in text
-    assert "| **Branch A from keyword offset, loaded (NFR-1)** | 78 | 140 | 150 | 200 | 150 | MEETS |" in text
-    assert "| E2E from start of speech | 300 | 4,000 | 9,000 | 10,000 | -- | -- |" in text
+    assert "| **End to end, from end of speech** | 300 | 2,100 | 3,122 | 3,500 | 2,500 | MISSES |" in text
+    assert "| **Reflex path from keyword offset, loaded** | 78 | 140 | 150 | 200 | 150 | MEETS |" in text
+    assert "| End to end, from start of speech | 300 | 4,000 | 9,000 | 10,000 | -- | -- |" in text
     assert "queue" not in text.split("| Stage")[1]      # diagnostic rows stay in the analysis
     assert r"\label{tab:latency-budget}" in markdown_to_latex(text, "tab:latency-budget")
+
+
+def test_ingenieur_tables_carry_no_requirement_experiment_or_branch_codes():
+    """Issue 00: the thesis names criteria, experiments and paths in words. These two tables are
+    \\input by the Ingenieur's validation chapter, so a code in a row or caption would reach the
+    PDF undefined -- fixed here, in the renderer, never by hand-editing the generated .tex."""
+    import re
+
+    from eval.tables import EXP2, EXP3, _rows, latency_budget, table20
+
+    codes = re.compile(r"\b(?:N?FR-\d+|Exp-\d|Branch [AB]|C[1-4])\b")
+    for path, render in ((EXP2, latency_budget), (EXP3, table20)):
+        if path.is_file():
+            text = render(_rows(path))
+            assert not codes.findall(text), f"{path.name}: {sorted(set(codes.findall(text)))}"

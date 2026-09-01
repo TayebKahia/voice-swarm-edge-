@@ -326,11 +326,11 @@ def table20(exp3: list[dict]) -> str:
 
     def e2e(row: dict) -> str:
         if not row.get("e2e_p50_ms"):
-            return "pending (A7b, Pi)"
-        return f"{float(row['e2e_p50_ms']):.0f} / {float(row['e2e_p95_ms']):.0f} (n={row['e2e_n']})"
+            return "pending (Pi run)"
+        return f"{float(row['e2e_p50_ms']):.0f}/{float(row['e2e_p95_ms']):.0f} (n={row['e2e_n']})"
 
     lines = [
-        "### Table 20: End-to-end on the golden set (Exp-3)",
+        "### Table 20: Acoustic robustness on the golden set",
         "",
         "Golden-set audio through Silero endpointing (450 ms), whisper `tiny.en` and",
         "`qwen2.5-0.5b-instruct-Q4_K_M` under the grammar; rotor noise (DREGON, evaluation",
@@ -338,10 +338,11 @@ def table20(exp3: list[dict]) -> str:
         "text through the same parser, so EM - CRR is the cost of the speech stage. Intervals",
         "are 95% bootstrap over utterances; safe-failure is over failed items only.",
         f"Host: `{exp3[0].get('host', '')}`. The last column is per segment, nearest rank:",
-        "STT + prefill + decode + validate, replayed faster than real time (no queue, no",
-        "HTTP), so it shows how latency moves with noise; NFR-2 is judged on Exp-2.",
+        "speech recognition + prefill + decode + validation, replayed faster than real time",
+        "(no queue, no HTTP), so it shows how latency moves with noise; end-to-end latency is",
+        "judged in the latency experiment ([Table](#tab:latency-budget)).",
         "",
-        "| SNR | n | CRR | 95% CI | WER % | 95% CI | EM | EM - CRR | 95% CI | Safe-failure | Stage sum p50 / p95 (ms) |",
+        "| SNR | n | CRR | 95% CI | WER % | 95% CI | EM | EM - CRR | 95% CI | Safe-failure | Stage sum p50/p95 (ms) |",
         "| :--- | ---: | ---: | :--- | ---: | :--- | ---: | ---: | :--- | :--- | :--- |",
     ]
     for row in exp3:
@@ -365,36 +366,39 @@ def table20(exp3: list[dict]) -> str:
     worst = min((v for _, v in safe_rates if v is not None), default=None)
     lines += [
         "",
-        verdict("NFR-7 CRR", _f(by["clean"]["crr"]) if "clean" in by else None,
+        verdict("Clean-audio recognition, CRR", _f(by["clean"]["crr"]) if "clean" in by else None,
                 NFR7_CLEAN_CRR, "clean"),
-        verdict("NFR-8 CRR", _f(by["10"]["crr"]) if "10" in by else None,
+        verdict("Recognition in noise, CRR", _f(by["10"]["crr"]) if "10" in by else None,
                 NFR8_10DB_CRR, "10 dB"),
-        verdict("NFR-9 safe-failure", worst, NFR9_SAFE_FAILURE, "lowest across SNR"),
+        verdict("Safe failure, safe-failure rate", worst, NFR9_SAFE_FAILURE, "lowest across SNR"),
         "Tests across SNR, the operational envelope and the segmentation breakdown:",
         f"`results/{EXP3.stem}_analysis.md`.",
     ]
     return "\n".join(lines) + "\n"
 
 
-#: Which Table 6 line each Exp-2 measure is judged against, in Table 6's order.
+#: Which Table 6 line each Exp-2 measure is judged against, in Table 6's order. Row names
+#: follow the thesis naming (issue 00): stages as the Master's tab:latency-budget words them,
+#: the reflex/parse path, and no requirement or experiment codes. Bold marks a row that a
+#: criterion of the Ingenieur's tab:nonfunctional-requirements is judged on.
 _BUDGET_LINES = (
-    ("vad_wait", "branch_b", "VAD endpointing wait"),
-    ("stt", "branch_b", "STT (whisper tiny.en, -t 3)"),
-    ("prefill", "branch_b", "SLM prefill"),
-    ("decode", "branch_b", "SLM decode"),
-    ("validate_fsm", "branch_b", "Validate, FSM check, dispatch"),
-    ("e2e_t0", "branch_b", "**E2E from end of speech (T0; NFR-2)**"),
-    ("e2e_speech_end", "branch_b", "E2E incl. the VAD wait"),
-    ("e2e_speech_start", "branch_b", "E2E from start of speech"),
-    ("a_offset", "idle", "**Branch A from keyword offset, idle (NFR-1)**"),
-    ("a_algorithmic", "idle", "of which spotter delay + frame quantisation"),
-    ("a_system", "idle", "of which Pi compute + publish"),
-    ("a_offset", "loaded", "**Branch A from keyword offset, loaded (NFR-1)**"),
-    ("a_algorithmic", "loaded", "of which spotter delay + frame quantisation"),
-    ("a_system", "loaded", "of which Pi compute + publish"),
-    ("a_onset", "idle", "Branch A from keyword onset, idle"),
-    ("a_onset", "loaded", "Branch A from keyword onset, loaded"),
-    ("recovery", "loaded", "Pre-emption recovery (NFR-17)"),
+    ("vad_wait", "branch_b", "Endpointing wait"),
+    ("stt", "branch_b", "Speech recognition (whisper `tiny.en`, 3 threads)"),
+    ("prefill", "branch_b", "Language-model prefill"),
+    ("decode", "branch_b", "Language-model decode"),
+    ("validate_fsm", "branch_b", "Validation, state-machine check and dispatch"),
+    ("e2e_t0", "branch_b", "**End to end, from end of speech**"),
+    ("e2e_speech_end", "branch_b", "End to end, including the endpointing wait"),
+    ("e2e_speech_start", "branch_b", "End to end, from start of speech"),
+    ("a_offset", "idle", "**Reflex path from keyword offset, idle**"),
+    ("a_algorithmic", "idle", "of which spotter delay and frame quantisation"),
+    ("a_system", "idle", "of which Pi compute and publish"),
+    ("a_offset", "loaded", "**Reflex path from keyword offset, loaded**"),
+    ("a_algorithmic", "loaded", "of which spotter delay and frame quantisation"),
+    ("a_system", "loaded", "of which Pi compute and publish"),
+    ("a_onset", "idle", "Reflex path from keyword onset, idle"),
+    ("a_onset", "loaded", "Reflex path from keyword onset, loaded"),
+    ("recovery", "loaded", "**Preemption recovery**"),
 )
 
 
@@ -406,13 +410,15 @@ def latency_budget(exp2: list[dict]) -> str:
         return "--" if value in ("", None) else f"{float(value):,.0f}"
 
     lines = [
-        "### Latency budget versus measured (Exp-2)",
+        "### Latency budget versus measured",
         "",
         "Raspberry Pi 5, cooled, governor `performance`, cores pinned (frame loop on core 0;",
-        "STT and SLM on cores 1-3). Real-time WAV replay: Branch B on the 200 golden utterances",
-        "(clean), one sample per endpointed segment; Branch A on the author's 40 real takes,",
-        "twice, idle and during a Branch B decode. Nearest-rank percentiles; the verdict is on",
-        "the p95. The bus is loopback on the Pi; the Wi-Fi hop is outside the budget.",
+        "speech recognition and language model on cores 1-3). Real-time replay of recorded",
+        "audio: the parse path on the 200 golden utterances (clean), one sample per endpointed",
+        "segment; the reflex path on the author's 40 recorded keyword takes, twice, idle and",
+        "while the parse path decodes. Nearest-rank percentiles; the verdict is on the p95.",
+        "Rows in bold are judged against a criterion of [Table](#tab:nonfunctional-requirements).",
+        "The bus is loopback on the Pi; the Wi-Fi hop is outside the budget.",
         "",
         "| Stage | n | p50 | p95 | p99 | Target p95 | Verdict |",
         "| :--- | ---: | ---: | ---: | ---: | ---: | :--- |",
@@ -797,7 +803,8 @@ def markdown_to_latex(markdown: str, label: str, size: str = r"\footnotesize",
 
 
 #: stem -> (LaTeX label, font size, \tabcolsep, abbreviate labels). Table 17 carries eleven
-#: columns and needs both tighter settings; the rest are comfortable at footnotesize.
+#: columns and needs both tighter settings; so does Table 20, which ran 23.6pt past the text
+#: block at 3pt (measured 24 Sep); the rest are comfortable at footnotesize.
 _TABLES = (
     ("table17_model_comparison", "tab:model-comparison", r"\scriptsize", 2, True),
     ("table18_quantisation_delta", "tab:quantisation-delta", r"\footnotesize", 5, True),
@@ -805,7 +812,7 @@ _TABLES = (
     ("table19_grammar_ablation", "tab:grammar-ablation", r"\scriptsize", 3, True),
     ("table33_iso_parameter", "tab:iso-parameter", r"\footnotesize", 5, True),
     ("thermal_headroom", "tab:thermal-headroom", r"\scriptsize", 3, True),
-    ("table20_end_to_end", "tab:end-to-end", r"\scriptsize", 3, False),
+    ("table20_end_to_end", "tab:end-to-end", r"\scriptsize", 2, False),
     ("exp2_latency_budget", "tab:latency-budget", r"\footnotesize", 4, False),
 )
 
