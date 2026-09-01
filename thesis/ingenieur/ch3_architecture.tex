@@ -262,22 +262,102 @@ checkable by a reader who did not choose it.
 
 \section{Three validation layers}
 \label{sec:validation-layers}
-% - Layer 1 (one page, write-once): one fresh sentence naming the Memoire de Master as owner of
-%   the schema and grammar; then only what this document needs from it -- ten intents, bounded
-%   digits and identifier list, structure guaranteed, ranges not expressible. No grammar listing.
-% - Layer 2, semantic validator: required-slot matrix; envelope clamp-and-log, never reject
-%   (radius [1,10] m, spacing [1,5] m, z [0.5,15] m, speed [0.2,2.0] m/s, |pos| <= 50 m by
-%   vector scaling so direction survives, yaw wrapped into [-180,180] deg); identifiers filtered
-%   to {0..N-1}, deduplicated, sorted, empty -> all drones; any failure -> HOVER + log.
-%   Source of record: schema/schema.py ENVELOPE, schema/validate.py, ADR-0001.
-% - Layer 3, flight state machine: five states, transitions, Table tab:legality (Table 9).
-%   Rejection resolution per ADR-0002: HOVER where hover is legal (TAKING_OFF, FLYING), logged
-%   no-op where it is not (LANDED, LANDING, ABORTED) -- the one place the "every rejection is a
-%   hold" principle of Ch 1 needs its precise form. abort in LANDED/ABORTED is a logged no-op.
-%   Recovery out of ABORTED is manual and non-vocal: keeps the reflex one-directional.
-% - What no layer catches: a schema-valid, in-envelope, state-legal wrong command (the yaw sign
-%   flip). Named as a boundary of the design, measured in Ch 5 / discussed in Ch 6. No figure.
-\TODO{draft}
+Three layers stand between a decoded command and the vehicles, and each checks a property the one
+before it cannot: the grammar fixes the form of a command, the semantic validator its meaning and
+magnitude, and the flight state machine its legality in the swarm's current state. The second and
+third layers apply to every command from either path; the reflex path's commands are constants of
+the command language and pass through them like any other message. The first applies only to the
+parse path, because it acts on the decoder while the command is being produced.
+
+\paragraph{Layer 1: the decoding grammar.} The command schema and the grammar that enforces it are
+specified, with the grammar in full, in the \emph{M\'emoire de Master}; this document relies on
+three of their properties. The decoder can emit only strings of the command language: single-line
+\gls{json} with one of ten intents and a fixed key order, so a structurally invalid command is
+unreachable rather than improbable. The grammar bounds the length of every number, at three
+integer digits and one decimal place, and it restricts drone identifiers to the five that exist.
+It cannot bound a number's value: a context-free grammar can limit how many digits a number has,
+not whether that number is an admissible altitude. Every constraint on magnitude therefore falls to
+the second layer.
+
+\paragraph{Layer 2: the semantic validator.} The validator applies four rules, in order. The first
+enforces the slots each intent requires: a formation needs a shape, a circle a radius, and a line,
+grid or column a spacing; an altitude command needs a target height, a rotation an angle, and a
+movement either a position or a direction with a distance, never both. The second enforces the
+physical envelope by clamping and logging, never by rejecting. A radius is clamped to 1--10~m, a
+spacing to 1--5~m, a target height to 0.5--15~m, a speed to 0.2--2.0~m/s and a distance to at
+most 50~m. A target position is held within 50~m of the origin by scaling the whole vector, so
+that the commanded direction survives the clamp, where clamping each component separately would
+rotate it. A yaw angle is wrapped into $[-180^\circ, 180^\circ]$ rather than clamped, because
+angles are periodic and $270^\circ$ and $-90^\circ$ are the same heading. The third rule keeps only
+identifiers of drones that exist and removes duplicates. Under the grammar an identifier outside
+the swarm cannot be decoded, so on the parse path this rule only removes duplicates. The fourth
+rule is the fallback: a missing slot, output that does not parse, or a decode cut off at the token
+limit resolves to a hold with a structured log entry, and never to a substituted movement.
+An abort is never weakened by this rule: an abort carrying a superfluous slot has the slot dropped
+and remains an abort.
+
+Clamping rather than rejecting is a choice about which error to prefer. A command whose intent is
+right and whose magnitude is out of range, such as a climb to a height above the ceiling, is
+executed at the nearest admissible value instead of being replaced by a hold that the operator did
+not ask for. Its cost is the first class of error named at the end of this section.
+
+\paragraph{Layer 3: the flight state machine.} A command can be well-formed and within the
+envelope and still be wrong for the moment it arrives: a movement while the swarm is on the
+ground, or a take-off while it is already flying. The state machine tracks five states:
+\texttt{LANDED}, \texttt{TAKING\_OFF}, \texttt{FLYING}, \texttt{LANDING} and \texttt{ABORTED}. A
+take-off moves the swarm from \texttt{LANDED} to \texttt{TAKING\_OFF}, and reaching the target
+height moves it on to \texttt{FLYING}. A landing command moves it from either of those states to
+\texttt{LANDING}, and ground contact completes the landing. An abort moves it from any airborne
+state to \texttt{ABORTED}. Table~\ref{tab:legality} gives, for each intent, the states in which the
+state machine admits it.
+
+\begin{table}[htbp]
+\centering
+\footnotesize
+\caption[Command legality by flight state]{Command legality by flight state. A command is
+dispatched only in the states listed as legal. A rejection resolves to a hold, with a log entry,
+in \texttt{TAKING\_OFF} and \texttt{FLYING}, and to a logged no-op in \texttt{LANDED},
+\texttt{LANDING} and \texttt{ABORTED}, where a hold is itself not legal.}
+\label{tab:legality}
+\begin{tabularx}{\textwidth}{@{}l X X@{}}
+\toprule
+Intent & Legal in & Not legal in \\
+\midrule
+\texttt{takeoff} & \texttt{LANDED} & every other state \\
+\texttt{land} & \texttt{TAKING\_OFF}, \texttt{FLYING} & \texttt{LANDED}, \texttt{LANDING}, \texttt{ABORTED} \\
+\texttt{hover} & \texttt{TAKING\_OFF}, \texttt{FLYING} & \texttt{LANDED}, \texttt{LANDING}, \texttt{ABORTED} \\
+\texttt{abort} & \texttt{TAKING\_OFF}, \texttt{FLYING}, \texttt{LANDING} & \texttt{LANDED}, \texttt{ABORTED}: a logged no-op, never an error \\
+\texttt{move}, \texttt{altitude}, \texttt{rotate}, \texttt{formation} & \texttt{FLYING} & every other state \\
+\texttt{set\_param} & every state except \texttt{ABORTED} & \texttt{ABORTED} \\
+\texttt{unknown} & never dispatched & logged only \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+A rejection is resolved according to whether a hold is itself legal in the current state. While
+the swarm is taking off or flying, a rejected command becomes a hold with a log entry. On the
+ground, during a landing and after an abort, a hold is not legal either, and dispatching one would
+spin up grounded rotors, stop a descent at altitude or return an aborted swarm to flight; a
+rejection there is therefore a logged no-op. The same rule applies to the reflex path: a
+\emph{swarm hold} spoken while the swarm is landed is logged and has no effect. Recovery out of
+\texttt{ABORTED} is not a command at all. It is a manual reset, outside the voice interface,
+which returns the state machine to \texttt{LANDED} only once every drone reports ground contact
+and near-zero velocity, and it writes a record of the reset to the log. Because no utterance on
+either path can leave \texttt{ABORTED}, a misheard word on either path cannot undo an abort.
+
+\paragraph{What the layers do not catch.} Two classes of error pass the layers, and both follow
+from the design rather than from a defect in it. The first is a value outside the envelope. It is
+clamped to the envelope's bound and executed, so the motion it produces is bounded but not
+withheld: a misrecognised height above the ceiling becomes a climb to the ceiling. The second is a
+command that is well-formed, within the envelope and legal in the current state, yet not the
+command the operator gave. It passes all three layers unchanged, because each layer tests a
+property of the command and none can test whether it matches what was said. A rotation through the
+right angle in the wrong direction is one example; a slot value misheard within its range and a
+wrong intent that happens to be legal are others. A false accept on the reflex path belongs to the
+same class, which is why Section~\ref{sec:membership-rule} restricts what that path may carry
+rather than relying on the layers to catch it. How often errors fall into these classes rather
+than resolving to a hold is what the safe-failure rate measures, and
+Section~\ref{sec:acoustic-robustness} reports it.
 
 % Stub layout: an empty section at a page foot makes the keep-on-one-page rule
 % (shared/preamble.tex) flip between passes, so latexmk never converges. Remove this
