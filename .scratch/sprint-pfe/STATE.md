@@ -1715,3 +1715,57 @@ Waiting on other chapters, not on measurements:
 Next: review issue + tools/review/ingenieur_ch3.py (Template A), then the review loop.
 
 Stopped here: B8 draft complete; nothing in the chapter waits on a measurement.
+
+## Master REVIEW closed (Thu 24 Sep) -- issues 00-05, 08, 09 all resolved
+The review loop of .scratch/thesis-review/spec.md has run over the whole Master: one Template A pass
+per chapter (issues 01-05, 09), then the Template B whole-document pass (issue 08, split from the
+Ingenieur on 24 Sep so the finished Master did not wait on Ingenieur Ch2). Every Master script is at
+0 FAIL (Ch1 0/2/40, Ch2 0/1/46, Ch3 0/4/132, Ch4 0/1/208, Ch5 0/1/96, Ch6 0/0/54; FAIL/WARN/PASS), the
+self-test passes, and the clean build from scratch is 0 errors, 0 undefined, 0 overfull, 63 pages.
+The remaining WARNs are each justified in their issue (hand-typed CPU/LoRA/JSON inside quoted or
+verbatim text, the negated cited "not guaranteed", the 1,350 ms sum row, Ch2's three-plus-control note).
+
+Issue 08 (round 1: 02294b3; fixes 33f95d8, c688bd6; scripts bcda927, caa1c9b; closed 34171d5).
+What the pass established: RQ1 and C1-C3 traced through all six chapters with no empty cell; the 13
+headline numbers identical at every occurrence; all 44 \ref targets do what the text says; write-once
+clean against the Ingenieur as it stood at 5ed20ba; acronym list complete, 45 printed bib entries =
+45 cited keys. 0 BLOCKER, 1 MAJOR, 5 MINOR, 5 NIT.
+  - The MAJOR (M-1) was the same failure as issue 09's NEW-1: the abstracts' METHOD paragraph still
+    said the control "separates model family from size" (dropped from Ch1 under issue 03 V20;
+    negated by Ch3/Ch4/Ch6) because issue 09 re-derived only the verdict sentences. Now Ch1's
+    "measures a model-family difference at fixed size" in EN/FR/AR. Lesson, for the Ingenieur
+    abstracts (B12, Ingenieur half): check EVERY paragraph of an abstract against the chapter it
+    derives from, not only the verdict paragraph against Ch6.
+  - Applied: MIN-1 the three Ingenieur-sourced timing figures in Ch4 (751 / 3,122 / 1,063 ms) now say
+    "on the cooled board" (Ch1 promises a thermal state for every timing figure; exp2_latency_budget.md
+    header says cooled); MIN-2 Ch1's scope paragraph says the controller runs with the simulation on a
+    workstation linked to the board; MIN-3 p50/p95 defined in tab:metrics; MIN-4 golden set =
+    test_golden = "golden split" tied in one parenthesis (ch3 l.201); MIN-5 the Intent-F1 threshold
+    (>= 0.90) added to §4.7's list of thresholds only Qwen meets (all three clear it; master_ch4.py's
+    check now counts seven criteria from data); NIT-1 the unused `sha` acronym key deleted from
+    shared/acronyms.tex (used in neither thesis; SHA-256 stays hand-typed on purpose).
+  - Kept as written: NIT-2 (safe-failure rate in the C3 metric lists), NIT-3 (full checkpoint name at
+    first mention, short after -- deliberate), NIT-4 (FR/AR "référence" twice in one sentence; the
+    proposed fix would add "not on speech", which the English does not say), NIT-5 (build warnings:
+    Amiri small caps, biblatex arabic, xltabular duplicate anchor -- no action).
+  - Script error found on the way, fixed in tools/review (bcda927): 4d8d701 renamed the rows of
+    results/exp2_latency_budget.md ("SLM prefill" -> "Language-model prefill"); master_ch4/ch5.py
+    looked the row up by the old prefix and died with StopIteration on HEAD. Lookup now matches on
+    "prefill". Rule held: no expected value changed. If eval/ renames rows again, re-run the Master
+    scripts, not just the Ingenieur ones.
+
+Left on the Master -- none of it review work:
+  - Jury names: [President Name] / [Examiner Name] on the title page (grep "Name]" before the depot).
+  - Artefact location (repository / dataset / GGUF URLs) appears nowhere in the document; the GGUF
+    converter commit is unpinned and the control's training image unrecorded (ch3 ~l.502). Issue 03
+    "revisit before submission"; the reproducibility question a jury asks first.
+  - Arabic abstract: native-speaker read (numbers and qualifiers match the English).
+  - Waits on the Ingenieur (issue 10): Master cross-references into Ingenieur Ch5/Ch6 prose not yet
+    written (ch3 l.212-213, l.528; ch4 l.140, 348; ch5 l.281-282); the second write-once pass, which may
+    hand small Master edits back (issue 08 found Ingenieur Ch1 l.182 repeating tab:metrics' formation-
+    accuracy definition verbatim, and l.119-121 saying the Master "states" five FRs it carries as method).
+  - Optional polish only: the kept-as-written lists in issues 05, 08, 09 ("knee" undefined, "of record",
+    long sentences, metaphors).
+
+Stopped here: Master review closed. Ingenieur track: issue 07 (Ch2) ready-for-human, issue 11 (Ch3)
+ready-for-agent, issue 10 blocked on both.
