@@ -6,13 +6,13 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 
 | status | check | line | finding |
 |---|---|---|---|
-| WARN | heading | 272 | paragraph `Layer 1: the decoding grammar.` contains a number |
-| WARN | heading | 282 | paragraph `Layer 2: the semantic validator.` contains a number |
-| WARN | heading | 304 | paragraph `Layer 3: the flight state machine.` contains a number |
-| WARN | heading | 348 | paragraph `What the layers do not catch.` reads as a sentence or a claim, not a noun phrase |
-| WARN | heading | 468 | paragraph `Core 0.` contains a number |
-| WARN | heading | 478 | paragraph `Cores 1--3.` contains a number |
-| WARN | heading | 484 | paragraph `What pinning cannot isolate.` reads as a sentence or a claim, not a noun phrase |
+| WARN | heading | 277 | paragraph `Layer 1: the decoding grammar.` contains a number |
+| WARN | heading | 287 | paragraph `Layer 2: the semantic validator.` contains a number |
+| WARN | heading | 309 | paragraph `Layer 3: the flight state machine.` contains a number |
+| WARN | heading | 353 | paragraph `What the layers do not catch.` reads as a sentence or a claim, not a noun phrase |
+| WARN | heading | 473 | paragraph `Core 0.` contains a number |
+| WARN | heading | 483 | paragraph `Cores 1--3.` contains a number |
+| WARN | heading | 489 | paragraph `What pinning cannot isolate.` reads as a sentence or a claim, not a noun phrase |
 | PASS | check_tex |  | tools/check_tex.py: no problems beyond cross-chapter \ref (resolved below) |
 | PASS | ref |  | every \ref resolves within the document |
 | PASS | cite |  | 6 distinct keys cited, all resolved |
@@ -55,64 +55,64 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | PASS | budget |  | worst-case wait 482 ms fits the 500 ms row |
 | PASS | promise |  | no measured latency from the latency experiment appears (design targets only) |
 | PASS | numbers |  | 0 significant number(s) found in no source file -- see the number trace |
-| PASS | table3 | 45 | selected configuration named (Qwen2.5-0.5B, Q4_K_M), not derived (Table 3: Master Ch4 owns it) |
-| PASS | float | 108 | fig:architecture referenced before it appears (line 31) |
-| PASS | design | 138 | 15 vs 290 prefill tokens is prd.md §4 decision 3's design estimate (declared, not measured) |
-| PASS | claim | 140 | `512-token context window` -> written 512, source gives 512.00 (runtime/parser.py DEFAULT_CONTEXT) |
-| PASS | claim | 157 | `preemption-recovery criterion bounds at 300~ms` -> written 300, source gives 300.00 (Ch1 tab:nonfunctional-requirements Preemption recovery) |
-| PASS | claim | 176 | `$2{,}500 - 150 = 2{,}350$` -> written 2350, source gives 2350.00 (Ch1 end-to-end minus reflex target) |
-| PASS | claim | 177 | `speed ceiling of 2.0~m/s` -> written 2.0, source gives 2.00 (schema/schema.py ENVELOPE speed) |
-| PASS | claim | 177 | `that interval is 4.7~m of travel` -> written 4.7, source gives 4.70 (2.35 s x speed ceiling) |
-| PASS | claim | 178 | `the envelope admits (10~m)` -> written 10, source gives 10.00 (ENVELOPE radius) |
-| PASS | claim | 178 | `inter-drone spacing (1--5~m)` -> written 1, source gives 1.00 (ENVELOPE spacing) |
-| PASS | claim | 178 | `inter-drone spacing (1--5~m)` -> written 5, source gives 5.00 (ENVELOPE spacing) |
-| PASS | claim | 194 | `applies both tests to the ten intents of the schema` -> written 10, source gives 10.00 (schema/schema.py INTENTS) |
-| PASS | claim | 194 | `of the schema. Exactly two pass` -> written 2, source gives 2.00 (runtime/branch_a.py KEYWORD_TO_INTENT) |
-| PASS | float | 204 | tab:membership referenced before it appears (line 193) |
-| PASS | legality | 209 | `hover` legal in ['FLYING', 'TAKING_OFF'] = swarm/fsm.py ['FLYING', 'TAKING_OFF'] |
-| PASS | legality | 210 | `abort` legal in ['FLYING', 'LANDING', 'TAKING_OFF'] = swarm/fsm.py ['FLYING', 'LANDING', 'TAKING_OFF'] |
-| PASS | legality | 211 | `land` legal in ['FLYING', 'TAKING_OFF'] = swarm/fsm.py ['FLYING', 'TAKING_OFF'] |
-| PASS | legality | 212 | `set_param` legal in ['FLYING', 'LANDED', 'LANDING', 'TAKING_OFF'] = swarm/fsm.py ['FLYING', 'LANDED', 'LANDING', 'TAKING_OFF'] |
-| PASS | legality | 213 | `unknown` legal in [] = swarm/fsm.py [] |
-| PASS | legality | 214 | `takeoff` legal in ['LANDED'] = swarm/fsm.py ['LANDED'] |
-| PASS | claim | 231 | `an altitude envelope of 0.5--15~m` -> written 0.5, source gives 0.50 (ENVELOPE z) |
-| PASS | claim | 231 | `an altitude envelope of 0.5--15~m` -> written 15, source gives 15.00 (ENVELOPE z) |
-| PASS | claim | 250 | `where the added 2.35~s costs` -> written 2.35, source gives 2.35 (end-to-end minus reflex target, in s) |
-| PASS | table3 | 272 | layer 1 hands the schema and grammar to the \emph{Mémoire de Master} in one sentence |
-| PASS | claim | 275 | `with one of ten intents and a fixed key order` -> written 10, source gives 10.00 (intents in schema/cmd.gbnf) |
-| PASS | grammar | 276 | schema/cmd.gbnf num rule: at most three integer digits, one decimal |
-| PASS | grammar | 277 | cmd.gbnf idlist [0-4], N = 5 |
-| PASS | claim | 286 | `A radius is clamped to 1--10~m` -> written 1, source gives 1.00 (ENVELOPE radius[0]) |
-| PASS | claim | 286 | `A radius is clamped to 1--10~m` -> written 10, source gives 10.00 (ENVELOPE radius[1]) |
-| PASS | claim | 287 | `spacing to 1--5~m` -> written 1, source gives 1.00 (ENVELOPE spacing[0]) |
-| PASS | claim | 287 | `spacing to 1--5~m` -> written 5, source gives 5.00 (ENVELOPE spacing[1]) |
-| PASS | claim | 287 | `a target height to 0.5--15~m` -> written 0.5, source gives 0.50 (ENVELOPE z[0]) |
-| PASS | claim | 287 | `a target height to 0.5--15~m` -> written 15, source gives 15.00 (ENVELOPE z[1]) |
-| PASS | claim | 287 | `a speed to 0.2--2.0~m/s` -> written 0.2, source gives 0.20 (ENVELOPE speed[0]) |
-| PASS | claim | 287 | `a speed to 0.2--2.0~m/s` -> written 2.0, source gives 2.00 (ENVELOPE speed[1]) |
-| PASS | claim | 288 | `a distance to at most 50~m` -> written 50, source gives 50.00 (ENVELOPE dist (ADR-0001)) |
-| PASS | claim | 288 | `held within 50~m of the origin` -> written 50, source gives 50.00 (schema/schema.py POS_MAX_NORM) |
-| PASS | claim | 290 | `wrapped into $[-180^\circ, 180^\circ]$` -> written 180, source gives 180.00 (ENVELOPE yaw) |
-| PASS | legality | 319 | rejection -> hold exactly where hover is legal (ADR-0002) |
-| PASS | float | 321 | tab:legality referenced before it appears (line 311) |
-| PASS | legality | 330 | `move` legal in ['FLYING'] = swarm/fsm.py ['FLYING'] |
-| PASS | legality | 330 | `altitude` legal in ['FLYING'] = swarm/fsm.py ['FLYING'] |
-| PASS | legality | 330 | `rotate` legal in ['FLYING'] = swarm/fsm.py ['FLYING'] |
-| PASS | legality | 330 | `formation` legal in ['FLYING'] = swarm/fsm.py ['FLYING'] |
-| PASS | float | 380 | tab:stage-budget referenced before it appears (line 367) |
-| PASS | claim | 390 | `& Language-model stages combined & 1{,}350~ms` -> written 1350, source gives 1350.00 (prefill + decode rows) |
-| PASS | claim | 409 | `quantisation of audio into 80~ms frames` -> written 80, source gives 80.00 (runtime/stream.py FRAME / RATE) |
-| PASS | claim | 417 | `whole windows of 32~ms` -> written 32, source gives 32.00 (runtime/vad.py WINDOW / RATE) |
-| PASS | claim | 419 | `inside the allowance: 450~ms` -> written 450, source gives 450.00 (runtime/vad.py Endpointer min_silence_ms default) |
-| PASS | claim | 419 | `for a worst case of 482~ms` -> written 482, source gives 482.00 (min_silence_ms + one window) |
-| PASS | claim | 427 | `The two language-model rows together allow 1{,}350~ms` -> written 1350, source gives 1350.00 (prefill + decode rows) |
-| PASS | claim | 430 | `$T_0$ sum to 2{,}600~ms` -> written 2600, source gives 2600.00 (sum of the four stage rows after T0) |
-| PASS | claim | 447 | `The Raspberry~Pi~5 has four Cortex-A76 cores` -> written 4, source gives 4.00 (prd.md Table 1 / Ch1) |
-| PASS | float | 457 | tab:core-allocation referenced before it appears (line 448) |
-| PASS | cores | 463 | parser DEFAULT_THREADS = 3, PipelineRuntime stt_threads = 3 |
-| PASS | claim | 468 | `The frame loop takes one 80~ms frame` -> written 80, source gives 80.00 (runtime/stream.py FRAME / RATE) |
-| PASS | cores | 492 | 2.5 GiB full-stack ceiling as Master tab:requirements states it |
-| PASS | cores | 494 | agrees with Master Ch4: no full-stack memory measurement |
+| PASS | table3 | 50 | selected configuration named (Qwen2.5-0.5B, Q4_K_M), not derived (Table 3: Master Ch4 owns it) |
+| PASS | float | 113 | fig:architecture referenced before it appears (line 31) |
+| PASS | design | 143 | 15 vs 290 prefill tokens is prd.md §4 decision 3's design estimate (declared, not measured) |
+| PASS | claim | 145 | `512-token context window` -> written 512, source gives 512.00 (runtime/parser.py DEFAULT_CONTEXT) |
+| PASS | claim | 162 | `preemption-recovery criterion bounds at 300~ms` -> written 300, source gives 300.00 (Ch1 tab:nonfunctional-requirements Preemption recovery) |
+| PASS | claim | 181 | `$2{,}500 - 150 = 2{,}350$` -> written 2350, source gives 2350.00 (Ch1 end-to-end minus reflex target) |
+| PASS | claim | 182 | `speed ceiling of 2.0~m/s` -> written 2.0, source gives 2.00 (schema/schema.py ENVELOPE speed) |
+| PASS | claim | 182 | `that interval is 4.7~m of travel` -> written 4.7, source gives 4.70 (2.35 s x speed ceiling) |
+| PASS | claim | 183 | `the envelope admits (10~m)` -> written 10, source gives 10.00 (ENVELOPE radius) |
+| PASS | claim | 183 | `inter-drone spacing (1--5~m)` -> written 1, source gives 1.00 (ENVELOPE spacing) |
+| PASS | claim | 183 | `inter-drone spacing (1--5~m)` -> written 5, source gives 5.00 (ENVELOPE spacing) |
+| PASS | claim | 199 | `applies both tests to the ten intents of the schema` -> written 10, source gives 10.00 (schema/schema.py INTENTS) |
+| PASS | claim | 199 | `of the schema. Exactly two pass` -> written 2, source gives 2.00 (runtime/branch_a.py KEYWORD_TO_INTENT) |
+| PASS | float | 209 | tab:membership referenced before it appears (line 198) |
+| PASS | legality | 214 | `hover` legal in ['FLYING', 'TAKING_OFF'] = swarm/fsm.py ['FLYING', 'TAKING_OFF'] |
+| PASS | legality | 215 | `abort` legal in ['FLYING', 'LANDING', 'TAKING_OFF'] = swarm/fsm.py ['FLYING', 'LANDING', 'TAKING_OFF'] |
+| PASS | legality | 216 | `land` legal in ['FLYING', 'TAKING_OFF'] = swarm/fsm.py ['FLYING', 'TAKING_OFF'] |
+| PASS | legality | 217 | `set_param` legal in ['FLYING', 'LANDED', 'LANDING', 'TAKING_OFF'] = swarm/fsm.py ['FLYING', 'LANDED', 'LANDING', 'TAKING_OFF'] |
+| PASS | legality | 218 | `unknown` legal in [] = swarm/fsm.py [] |
+| PASS | legality | 219 | `takeoff` legal in ['LANDED'] = swarm/fsm.py ['LANDED'] |
+| PASS | claim | 236 | `an altitude envelope of 0.5--15~m` -> written 0.5, source gives 0.50 (ENVELOPE z) |
+| PASS | claim | 236 | `an altitude envelope of 0.5--15~m` -> written 15, source gives 15.00 (ENVELOPE z) |
+| PASS | claim | 255 | `where the added 2.35~s costs` -> written 2.35, source gives 2.35 (end-to-end minus reflex target, in s) |
+| PASS | table3 | 277 | layer 1 hands the schema and grammar to the \emph{Mémoire de Master} in one sentence |
+| PASS | claim | 280 | `with one of ten intents and a fixed key order` -> written 10, source gives 10.00 (intents in schema/cmd.gbnf) |
+| PASS | grammar | 281 | schema/cmd.gbnf num rule: at most three integer digits, one decimal |
+| PASS | grammar | 282 | cmd.gbnf idlist [0-4], N = 5 |
+| PASS | claim | 291 | `A radius is clamped to 1--10~m` -> written 1, source gives 1.00 (ENVELOPE radius[0]) |
+| PASS | claim | 291 | `A radius is clamped to 1--10~m` -> written 10, source gives 10.00 (ENVELOPE radius[1]) |
+| PASS | claim | 292 | `spacing to 1--5~m` -> written 1, source gives 1.00 (ENVELOPE spacing[0]) |
+| PASS | claim | 292 | `spacing to 1--5~m` -> written 5, source gives 5.00 (ENVELOPE spacing[1]) |
+| PASS | claim | 292 | `a target height to 0.5--15~m` -> written 0.5, source gives 0.50 (ENVELOPE z[0]) |
+| PASS | claim | 292 | `a target height to 0.5--15~m` -> written 15, source gives 15.00 (ENVELOPE z[1]) |
+| PASS | claim | 292 | `a speed to 0.2--2.0~m/s` -> written 0.2, source gives 0.20 (ENVELOPE speed[0]) |
+| PASS | claim | 292 | `a speed to 0.2--2.0~m/s` -> written 2.0, source gives 2.00 (ENVELOPE speed[1]) |
+| PASS | claim | 293 | `a distance to at most 50~m` -> written 50, source gives 50.00 (ENVELOPE dist (ADR-0001)) |
+| PASS | claim | 293 | `held within 50~m of the origin` -> written 50, source gives 50.00 (schema/schema.py POS_MAX_NORM) |
+| PASS | claim | 295 | `wrapped into $[-180^\circ, 180^\circ]$` -> written 180, source gives 180.00 (ENVELOPE yaw) |
+| PASS | legality | 324 | rejection -> hold exactly where hover is legal (ADR-0002) |
+| PASS | float | 326 | tab:legality referenced before it appears (line 316) |
+| PASS | legality | 335 | `move` legal in ['FLYING'] = swarm/fsm.py ['FLYING'] |
+| PASS | legality | 335 | `altitude` legal in ['FLYING'] = swarm/fsm.py ['FLYING'] |
+| PASS | legality | 335 | `rotate` legal in ['FLYING'] = swarm/fsm.py ['FLYING'] |
+| PASS | legality | 335 | `formation` legal in ['FLYING'] = swarm/fsm.py ['FLYING'] |
+| PASS | float | 385 | tab:stage-budget referenced before it appears (line 372) |
+| PASS | claim | 395 | `& Language-model stages combined & 1{,}350~ms` -> written 1350, source gives 1350.00 (prefill + decode rows) |
+| PASS | claim | 414 | `quantisation of audio into 80~ms frames` -> written 80, source gives 80.00 (runtime/stream.py FRAME / RATE) |
+| PASS | claim | 422 | `whole windows of 32~ms` -> written 32, source gives 32.00 (runtime/vad.py WINDOW / RATE) |
+| PASS | claim | 424 | `inside the allowance: 450~ms` -> written 450, source gives 450.00 (runtime/vad.py Endpointer min_silence_ms default) |
+| PASS | claim | 424 | `for a worst case of 482~ms` -> written 482, source gives 482.00 (min_silence_ms + one window) |
+| PASS | claim | 432 | `The two language-model rows together allow 1{,}350~ms` -> written 1350, source gives 1350.00 (prefill + decode rows) |
+| PASS | claim | 435 | `$T_0$ sum to 2{,}600~ms` -> written 2600, source gives 2600.00 (sum of the four stage rows after T0) |
+| PASS | claim | 452 | `The Raspberry~Pi~5 has four Cortex-A76 cores` -> written 4, source gives 4.00 (prd.md Table 1 / Ch1) |
+| PASS | float | 462 | tab:core-allocation referenced before it appears (line 453) |
+| PASS | cores | 468 | parser DEFAULT_THREADS = 3, PipelineRuntime stt_threads = 3 |
+| PASS | claim | 473 | `The frame loop takes one 80~ms frame` -> written 80, source gives 80.00 (runtime/stream.py FRAME / RATE) |
+| PASS | cores | 497 | 2.5 GiB full-stack ceiling as Master tab:requirements states it |
+| PASS | cores | 499 | agrees with Master Ch4: no full-stack memory measurement |
 
 ### Citation sheet (for the citation agent: open each identifier, judge SUPPORTS / PARTIAL / DOES NOT SUPPORT per row)
 
@@ -122,8 +122,8 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 2 | 34 | silero | The parse path is the general path: a \gls{vad} model~\cite{silero} segments the stream into utterances, \texttt{whisper.cpp tiny.en}~\cite{whisper,whispercpp} performs \gls{stt} on each, a fine-tuned \gls{slm} parses the transcript into a structured command under a decoding grammar~\cite{llamacpp}, and a semantic vali |
 | 3 | 35 | whisper, whispercpp | The parse path is the general path: a \gls{vad} model~\cite{silero} segments the stream into utterances, \texttt{whisper.cpp tiny.en}~\cite{whisper,whispercpp} performs \gls{stt} on each, a fine-tuned \gls{slm} parses the transcript into a structured command under a decoding grammar~\cite{llamacpp}, and a semantic vali |
 | 4 | 37 | llamacpp | The parse path is the general path: a \gls{vad} model~\cite{silero} segments the stream into utterances, \texttt{whisper.cpp tiny.en}~\cite{whisper,whispercpp} performs \gls{stt} on each, a fine-tuned \gls{slm} parses the transcript into a structured command under a decoding grammar~\cite{llamacpp}, and a semantic vali |
-| 5 | 45 | qwen25 | The language model on the parse path is Qwen2.5-0.5B~\cite{qwen25}, fine-tuned and quantised to Q4\_K\_M. |
-| 6 | 238 | oww | A keyword classifier scores a fixed window of audio~\cite{oww}, and a single short word fills little of it, so a one-word class gives the classifier less evidence and invites more false accepts on continuous speech. |
+| 5 | 50 | qwen25 | The language model on the parse path is Qwen2.5-0.5B~\cite{qwen25}, fine-tuned and quantised to Q4\_K\_M. |
+| 6 | 243 | oww | A keyword classifier scores a fixed window of audio~\cite{oww}, and a single short word fills little of it, so a one-word class gives the classifier less evidence and invites more false accepts on continuous speech. |
 
 | key | title | year | identifier |
 |---|---|---|---|
@@ -139,11 +139,11 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | line | level | title | prose words |
 |---|---|---|---|
 | 12 | chapter | Architecture and design | 171 |
-| 28 | section | Dual-path decomposition | 1294 |
-| 159 | section | Reflex-path membership rule | 1150 |
-| 263 | section | Three validation layers | 1144 |
-| 362 | section | Latency budget | 868 |
-| 443 | section | Resource allocation | 560 |
+| 28 | section | Dual-path decomposition | 1363 |
+| 164 | section | Reflex-path membership rule | 1150 |
+| 268 | section | Three validation layers | 1144 |
+| 367 | section | Latency budget | 868 |
+| 448 | section | Resource allocation | 560 |
 
 ### For the argument agent
 
@@ -173,70 +173,70 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | line | as written | trace |
 |---|---|---|
 | 40 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:21 |
-| 61 | 2.5 | measured: results/nfr18_false_command.md:12, results/nfr18_false_command.md:13 |
-| 62 | 5.3 | measured: results/limitation_abstention.md:15 x100, results/limitation_abstention.md:127 x100 |
-| 62 | 1.4 | measured: results/thermal_headroom.md:19, thesis/generated/thermal_headroom.tex:21 |
-| 63 | 5.3 | measured: results/limitation_abstention.md:15 x100, results/limitation_abstention.md:127 x100 |
-| 63 | 1.4 | measured: results/thermal_headroom.md:19, thesis/generated/thermal_headroom.tex:21 |
-| 64 | 7.8 | measured: results/wake_training.json:114 x100, results/wake_training.json:783 x100 |
-| 64 | 1.4 | measured: results/thermal_headroom.md:19, thesis/generated/thermal_headroom.tex:21 |
-| 65 | 10.3 | measured: results/wake_training.json:573 x100, results/wake_training.json:874 x100 |
-| 65 | 1.4 | measured: results/thermal_headroom.md:19, thesis/generated/thermal_headroom.tex:21 |
-| 66 | 12.8 | measured: results/wake_training.json:69 x100, results/wake_training.json:81 x100 |
-| 66 | 1.4 | measured: results/thermal_headroom.md:19, thesis/generated/thermal_headroom.tex:21 |
-| 67 | 15.4 | measured: results/wake_training.json:429 x100, results/wake_training.json:952 x100 |
-| 69 | 15.4 | measured: results/wake_training.json:429 x100, results/wake_training.json:952 x100 |
-| 69 | 4.0 | measured: results/nfr18_false_command.md:10, results/nfr18_false_command.md:12 |
-| 70 | 12.3 | measured: results/exp4.csv:102, results/exp4.csv:104 |
-| 70 | 4.0 | measured: results/nfr18_false_command.md:10, results/nfr18_false_command.md:12 |
-| 71 | 9.3 | measured: results/wake_training.json:2425, results/wake_training.json:2433 |
-| 71 | 4.0 | measured: results/nfr18_false_command.md:10, results/nfr18_false_command.md:12 |
-| 74 | 0.45 | measured: results/table20_end_to_end.md:19, results/wake_training.json:1354 |
-| 75 | 0.45 | measured: results/table20_end_to_end.md:19, results/wake_training.json:1354 |
-| 79 | 0.25 | measured: results/nfr18_false_command.md:12, results/table18_quantisation_delta.md:15 |
-| 81 | 0.95 | measured: results/table33_iso_parameter.md:12, results/table17_model_comparison.md:21 |
-| 81 | 0.25 | measured: results/nfr18_false_command.md:12, results/table18_quantisation_delta.md:15 |
-| 139 | 290 | DECLARED ONLY: prd.md:243, .scratch/sprint-pfe/STATE.md:985 |
-| 140 | 512 | recomputed by a claim on this line |
-| 157 | 300 | recomputed by a claim on this line |
-| 175 | 2{,}500 | measured: results/exp2_latency_budget.md:18, results/exp2_latency_budget.md:19 |
-| 175 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:21 |
-| 176 | 2{,}350 | recomputed by a claim on this line |
-| 177 | 2.0 | recomputed by a claim on this line |
-| 177 | 4.7 | recomputed by a claim on this line |
-| 231 | 0.5 | recomputed by a claim on this line |
-| 250 | 2.35 | recomputed by a claim on this line |
-| 287 | 0.5 | recomputed by a claim on this line |
-| 287 | 0.2 | recomputed by a claim on this line |
-| 287 | 2.0 | recomputed by a claim on this line |
-| 290 | 180 | recomputed by a claim on this line |
-| 290 | 180 | recomputed by a claim on this line |
-| 291 | 270 | DECLARED ONLY: docs/adr/0001_physical_envelope_analogies.md:36, .scratch/sprint-pfe/STATE.md:17 |
-| 377 | 700 | measured: results/table16_asr_speaker_sensitivity.md:21 x100, results/table16_asr_speaker_sensitivity.md:23 x100 |
-| 385 | 500 | measured: results/exp2_latency_budget.md:13, results/gate3_parity.md:21 |
-| 386 | 1{,}200 | measured: results/exp2_latency_budget.md:14, results/exp2_analysis.md:13 |
-| 387 | 250 | measured: results/exp2_latency_budget.md:15, results/exp2_analysis.md:14 |
-| 388 | 1{,}100 | measured: results/exp2_latency_budget.md:16, results/exp2_analysis.md:15 |
-| 389 | 50 | measured: results/exp2_latency_budget.md:11, results/exp2_latency_budget.md:17 |
-| 390 | 1{,}350 | recomputed by a claim on this line |
-| 391 | 2{,}500 | measured: results/exp2_latency_budget.md:18, results/exp2_latency_budget.md:19 |
-| 392 | 5{,}500 | measured: results/exp2_latency_budget.md:32, thesis/generated/exp2_latency_budget.tex:32 |
-| 395 | 850 | measured: results/exp2_latency_budget.md:27, results/exp2_latency_budget.md:28 |
-| 402 | 2{,}500 | measured: results/exp2_latency_budget.md:18, results/exp2_latency_budget.md:19 |
-| 406 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:21 |
-| 407 | 700 | measured: results/table16_asr_speaker_sensitivity.md:21 x100, results/table16_asr_speaker_sensitivity.md:23 x100 |
-| 409 | 80 | recomputed by a claim on this line |
-| 416 | 500 | measured: results/exp2_latency_budget.md:13, results/gate3_parity.md:21 |
-| 417 | 32 | recomputed by a claim on this line |
-| 419 | 450 | recomputed by a claim on this line |
-| 419 | 482 | recomputed by a claim on this line |
-| 426 | 250 | measured: results/exp2_latency_budget.md:15, results/exp2_analysis.md:14 |
-| 427 | 1{,}350 | recomputed by a claim on this line |
-| 430 | 2{,}600 | recomputed by a claim on this line |
-| 430 | 2{,}500 | recomputed by a claim on this line |
-| 440 | 50 | measured: results/exp2_latency_budget.md:11, results/exp2_latency_budget.md:17 |
-| 462 | 80 | measured: results/table16_asr_speaker_sensitivity.md:22, results/wake_training.md:7 |
-| 462 | 80 | measured: results/table16_asr_speaker_sensitivity.md:22, results/wake_training.md:7 |
-| 468 | 80 | recomputed by a claim on this line |
-| 492 | 8 | measured: results/nfr18_false_command.md:11, results/nfr18_false_command.md:13 |
-| 492 | 2.5 | measured: results/nfr18_false_command.md:12, results/nfr18_false_command.md:13 |
+| 66 | 2.5 | measured: results/nfr18_false_command.md:12, results/nfr18_false_command.md:13 |
+| 67 | 5.3 | measured: results/limitation_abstention.md:15 x100, results/limitation_abstention.md:127 x100 |
+| 67 | 1.4 | measured: results/thermal_headroom.md:19, thesis/generated/thermal_headroom.tex:21 |
+| 68 | 5.3 | measured: results/limitation_abstention.md:15 x100, results/limitation_abstention.md:127 x100 |
+| 68 | 1.4 | measured: results/thermal_headroom.md:19, thesis/generated/thermal_headroom.tex:21 |
+| 69 | 7.8 | measured: results/wake_training.json:114 x100, results/wake_training.json:783 x100 |
+| 69 | 1.4 | measured: results/thermal_headroom.md:19, thesis/generated/thermal_headroom.tex:21 |
+| 70 | 10.3 | measured: results/wake_training.json:573 x100, results/wake_training.json:874 x100 |
+| 70 | 1.4 | measured: results/thermal_headroom.md:19, thesis/generated/thermal_headroom.tex:21 |
+| 71 | 12.8 | measured: results/wake_training.json:69 x100, results/wake_training.json:81 x100 |
+| 71 | 1.4 | measured: results/thermal_headroom.md:19, thesis/generated/thermal_headroom.tex:21 |
+| 72 | 15.4 | measured: results/wake_training.json:429 x100, results/wake_training.json:952 x100 |
+| 74 | 15.4 | measured: results/wake_training.json:429 x100, results/wake_training.json:952 x100 |
+| 74 | 4.0 | measured: results/nfr18_false_command.md:10, results/nfr18_false_command.md:12 |
+| 75 | 12.3 | measured: results/exp4.csv:102, results/exp4.csv:104 |
+| 75 | 4.0 | measured: results/nfr18_false_command.md:10, results/nfr18_false_command.md:12 |
+| 76 | 9.3 | measured: results/wake_training.json:2425, results/wake_training.json:2433 |
+| 76 | 4.0 | measured: results/nfr18_false_command.md:10, results/nfr18_false_command.md:12 |
+| 79 | 0.45 | measured: results/table20_end_to_end.md:19, results/wake_training.json:1354 |
+| 80 | 0.45 | measured: results/table20_end_to_end.md:19, results/wake_training.json:1354 |
+| 84 | 0.25 | measured: results/nfr18_false_command.md:12, results/table18_quantisation_delta.md:15 |
+| 86 | 0.95 | measured: results/table33_iso_parameter.md:12, results/table17_model_comparison.md:21 |
+| 86 | 0.25 | measured: results/nfr18_false_command.md:12, results/table18_quantisation_delta.md:15 |
+| 144 | 290 | DECLARED ONLY: prd.md:243, .scratch/sprint-pfe/STATE.md:985 |
+| 145 | 512 | recomputed by a claim on this line |
+| 162 | 300 | recomputed by a claim on this line |
+| 180 | 2{,}500 | measured: results/exp2_latency_budget.md:18, results/exp2_latency_budget.md:19 |
+| 180 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:21 |
+| 181 | 2{,}350 | recomputed by a claim on this line |
+| 182 | 2.0 | recomputed by a claim on this line |
+| 182 | 4.7 | recomputed by a claim on this line |
+| 236 | 0.5 | recomputed by a claim on this line |
+| 255 | 2.35 | recomputed by a claim on this line |
+| 292 | 0.5 | recomputed by a claim on this line |
+| 292 | 0.2 | recomputed by a claim on this line |
+| 292 | 2.0 | recomputed by a claim on this line |
+| 295 | 180 | recomputed by a claim on this line |
+| 295 | 180 | recomputed by a claim on this line |
+| 296 | 270 | DECLARED ONLY: docs/adr/0001_physical_envelope_analogies.md:36, .scratch/sprint-pfe/STATE.md:17 |
+| 382 | 700 | measured: results/table16_asr_speaker_sensitivity.md:21 x100, results/table16_asr_speaker_sensitivity.md:23 x100 |
+| 390 | 500 | measured: results/exp2_latency_budget.md:13, results/gate3_parity.md:21 |
+| 391 | 1{,}200 | measured: results/exp2_latency_budget.md:14, results/exp2_analysis.md:13 |
+| 392 | 250 | measured: results/exp2_latency_budget.md:15, results/exp2_analysis.md:14 |
+| 393 | 1{,}100 | measured: results/exp2_latency_budget.md:16, results/exp2_analysis.md:15 |
+| 394 | 50 | measured: results/exp2_latency_budget.md:11, results/exp2_latency_budget.md:17 |
+| 395 | 1{,}350 | recomputed by a claim on this line |
+| 396 | 2{,}500 | measured: results/exp2_latency_budget.md:18, results/exp2_latency_budget.md:19 |
+| 397 | 5{,}500 | measured: results/exp2_latency_budget.md:32, thesis/generated/exp2_latency_budget.tex:32 |
+| 400 | 850 | measured: results/exp2_latency_budget.md:27, results/exp2_latency_budget.md:28 |
+| 407 | 2{,}500 | measured: results/exp2_latency_budget.md:18, results/exp2_latency_budget.md:19 |
+| 411 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:21 |
+| 412 | 700 | measured: results/table16_asr_speaker_sensitivity.md:21 x100, results/table16_asr_speaker_sensitivity.md:23 x100 |
+| 414 | 80 | recomputed by a claim on this line |
+| 421 | 500 | measured: results/exp2_latency_budget.md:13, results/gate3_parity.md:21 |
+| 422 | 32 | recomputed by a claim on this line |
+| 424 | 450 | recomputed by a claim on this line |
+| 424 | 482 | recomputed by a claim on this line |
+| 431 | 250 | measured: results/exp2_latency_budget.md:15, results/exp2_analysis.md:14 |
+| 432 | 1{,}350 | recomputed by a claim on this line |
+| 435 | 2{,}600 | recomputed by a claim on this line |
+| 435 | 2{,}500 | recomputed by a claim on this line |
+| 445 | 50 | measured: results/exp2_latency_budget.md:11, results/exp2_latency_budget.md:17 |
+| 467 | 80 | measured: results/table16_asr_speaker_sensitivity.md:22, results/wake_training.md:7 |
+| 467 | 80 | measured: results/table16_asr_speaker_sensitivity.md:22, results/wake_training.md:7 |
+| 473 | 80 | recomputed by a claim on this line |
+| 497 | 8 | measured: results/nfr18_false_command.md:11, results/nfr18_false_command.md:13 |
+| 497 | 2.5 | measured: results/nfr18_false_command.md:12, results/nfr18_false_command.md:13 |

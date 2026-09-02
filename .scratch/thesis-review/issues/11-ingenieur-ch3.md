@@ -95,3 +95,11 @@ Ch4 script and is not made here. The two Ch3 mutations were run through `selftes
 directly, and both were caught.
 
 ## Comments
+
+### 2026-09-24 -- one addition before the review (author's decision)
+
+Ch3 3.1 gains two sentences after "a preference for redundancy": the reflex/cortex analogy, and
+where it stops (the reflex path skips transcription and parsing only; its commands pass the
+validator and the state machine). Author's choice among three options; the term stays "parse
+path". Script unchanged at 0 FAIL, 7 WARN, 100 PASS; the report regenerated with lines +5 after
+l.43. The argument agent should read the two sentences against P17 (reflex path validated).
