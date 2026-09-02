@@ -76,7 +76,8 @@ This work is part of a system that converts spoken English commands into validat
 commands for a swarm of five drones, entirely on the Raspberry Pi 5. An operator says, for example,
 ``form a circle with radius five metres'': a \gls{stt} model transcribes the utterance, a fine-tuned
 \gls{slm} parses the transcript into a \gls{json} command under the grammar, a validator checks it,
-and the swarm controller executes it. Ten intents cover the vocabulary, from take-off and landing
+and the swarm controller, which runs with the simulation on a workstation linked to the board,
+executes it. Ten intents cover the vocabulary, from take-off and landing
 to formations and parameter changes. Two safety phrases, ``swarm hold'' and ``swarm abort'', are
 also recognised by a keyword spotter that runs no language model at all. The speech is real,
 recorded through the deployed microphone, but the aircraft are simulated: the controller drives a

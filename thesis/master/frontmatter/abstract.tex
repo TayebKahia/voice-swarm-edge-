@@ -16,8 +16,8 @@ quantised for CPU-only execution on a Raspberry~Pi~5.
 that structural validity is a property of the decoder. A label-first dataset pipeline produces the
 training and test data, with splits assigned by template family and a golden test set of 200
 recorded commands. Four models are fine-tuned under one recipe; three are quantised at two levels,
-their Q4\_K\_M artefacts are timed on the board, and the fourth, matched in size to one of them, separates model family
-from size. A selection rule fixed before any result existed chooses the configuration to deploy.
+their Q4\_K\_M artefacts are timed on the board, and the fourth, matched in size to one of them,
+measures a model-family difference at fixed size. A selection rule fixed before any result existed chooses the configuration to deploy.
 
 \vspace{0.3cm}
 \noindent Among the three models timed on the board, the trade-off at Q4\_K\_M reduces to two

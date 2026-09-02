@@ -138,7 +138,7 @@ Llama-3.2-1B's miss is of a different kind: a p50 of 267.7~ms already exceeds th
 of 60 trials do. Under cached prefill, the combined \gls{slm} stage allowance that both figures roll
 up into, 1{,}350~ms, is met by Qwen2.5-0.5B with 278~ms to spare. The deployed parser's uncached
 prefill, measured by the latency experiment of the \emph{M\'emoire d'Ing\'enieur}, has a p95 of
-751~ms, so this margin describes the cached condition only.
+751~ms on the cooled board, so this margin describes the cached condition only.
 
 \paragraph{Abstention.} Two requirements are missed here, and they are reported alongside the
 accuracy figures. The safe-failure rate has a budget of $\geq$~0.70 and measures between 0.0000 and
@@ -346,8 +346,9 @@ language-model process alone being at least 35\% clear of it.
 \paragraph{End-to-end latency constraint.} The end-to-end latency budget bounds latency from end
 of speech at 2{,}500~ms p95. The multi-model benchmark measures the \gls{slm} stages only. The
 latency experiment of the \emph{M\'emoire d'Ing\'enieur} measured the full parse path for the
-selected configuration alone: from end of speech, Qwen2.5-0.5B's p95 is 3{,}122~ms over 226
-segments, 622~ms (25\%) above the budget, and the shortest speech-recognition time it recorded is 1{,}063~ms.
+selected configuration alone, on the cooled board: from end of speech, Qwen2.5-0.5B's p95 is
+3{,}122~ms over 226 segments, 622~ms (25\%) above the budget, and the shortest speech-recognition
+time it recorded is 1{,}063~ms.
 Every trial's total is at least its language-model time plus that shortest recognition time.
 Llama-3.2-1B's language-model p95 of 2{,}282~ms, measured with the prompt cache enabled, which can
 only lower it, therefore implies an end-to-end p95 of at least 3{,}346~ms: it misses the budget on
