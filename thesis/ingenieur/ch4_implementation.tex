@@ -29,27 +29,112 @@
 
 \chapter{Implementation}
 \label{chap:implementation}
-% Lead-in (3-4 sentences): what was built, in the order of the signal (audio in, command out,
-% swarm moves); that the chapter describes the code as it stands, and names what is not built.
-\TODO{draft}
+This chapter describes the system as built, in the order a command travels through it: from
+audio to a command on the bus, and from the bus to the simulated vehicles.
+Section~\ref{sec:audio-chain} covers the audio stream both paths read, Section~\ref{sec:runtime}
+the parse path and the preemption of its decode, Section~\ref{sec:command-bus} the bus, and
+Section~\ref{sec:state-machine} the code that enforces the legality rules of
+Section~\ref{sec:validation-layers}. Section~\ref{sec:swarm-controller} describes the swarm
+controller and the separation clamp that realises the third mechanism of the safety problem
+(Section~\ref{sec:safety-problem}), and Section~\ref{sec:simulation-backends} the two simulators
+the controller runs under. The design of Chapter~\ref{chap:architecture} is referred to rather than
+restated, and every figure in this chapter is a parameter of the code, not a measurement. Three
+components the demonstration of Chapter~\ref{chap:demonstration} requires are not built: live
+microphone capture, an entry point that starts the runtime as one process, and the link from the
+state machine to the swarm controller. Each is named as absent in the section where it would sit.
 
 \section{Audio chain}
 \label{sec:audio-chain}
-% - Input as it exists: recorded WAV replayed into the stream at the frame rate; no live capture
-%   (see header). Why replay suffices for the experiments is Ch 5's to argue; say only what the
-%   code does.
-% - One stream, both paths: every 80 ms frame goes to the keyword spotter and to the endpointer on
-%   the calling thread (core 0); an endpointed utterance is handed to a worker thread (cores 1-3).
-%   Source: runtime/stream.py docstring.
-% - Endpointing: Silero VAD run on onnxruntime directly, not through its package, which imports
-%   torch (kept off the stack); 512-sample windows at 16 kHz. Source: runtime/vad.py. The 450 ms
-%   silence rule is Ch 3's (sec:latency-budget); cite it, do not re-derive it.
-% - Keyword spotter as built: two classes, threshold, per-class debounce of 1.0 s (why per class:
-%   an abort straight after a hold must not be silenced), publish on trigger. Source:
-%   runtime/branch_a.py. Training: synthetic positives, adversarial negatives weighted x5 in the
-%   loss only, threshold swept up to 0.999 and chosen on a validation split. Source:
-%   train/train_wake.py. The operating point and its rates are Ch 5's (keyword-spotter evaluation).
-\TODO{draft}
+The audio chain begins at a recorded file. The frame loop reads from a frame source, defined as
+any sequence of 80~ms frames of 1{,}280 samples at 16~kHz, each paired with the instant at which
+its last sample enters the buffer. The only source built replays a recorded 16~kHz file and
+releases each frame at its real-time due instant, so the stages downstream receive audio at the
+rate a live stream would deliver it. No microphone source exists. Live capture is the one stage of
+the chain that is not built, and the demonstration (Section~\ref{sec:demonstration-protocol}) is
+the first run that requires it. Because the loop consumes only frames and their due instants, a
+capture source would replace the replay without a change to any stage that follows it.
+
+\paragraph{One stream, two consumers.} The frame loop runs on one thread, pinned to core~0
+(Table~\ref{tab:core-allocation}). Each frame is passed to the keyword spotter and then to the
+endpointer, both on that thread. An utterance the endpointer closes is placed on a queue and taken
+by a worker thread pinned to cores~1--3, which writes it as a 16~kHz mono file and runs the parse
+path on it (Section~\ref{sec:runtime}). The queue is the only link between the two threads, and the
+loop never waits on the worker, which is the property Section~\ref{sec:resource-allocation}
+requires of core~0. For every frame the loop records how late it picked the frame up and how long
+the spotter and the endpointer took on it: the two quantities against which the core-0 constraint
+of Table~\ref{tab:core-allocation} is judged, and which Section~\ref{sec:latency-experiment}
+reports. Both paths are timestamped on the wall clock. A reflex-path trigger carries the due
+instant of the frame that fired it, so the quantisation of audio into 80~ms frames falls inside
+the reflex latency, as the offset anchor of Section~\ref{sec:latency-budget} requires. The
+endpointer reports $T_0$ in stream time, as the last sample it has passed through the \gls{vad}
+model; that sample can lie up to one 32~ms window short of the end of the current frame, and the
+loop subtracts the remainder when it converts $T_0$ to wall-clock time rather than taking the
+frame's due instant.
+
+\paragraph{Endpointing.} The endpointer runs the Silero \gls{vad} model~\cite{silero} on ONNX
+Runtime directly, not through the package's own wrapper, because that wrapper imports
+PyTorch~\cite{pytorch}, which is kept off the deployed stack. It reproduces the wrapper's
+processing exactly: windows of 512 samples (32~ms), each preceded by the last 64 samples of the
+window before it, with the model's recurrent state carried from one window to the next. A frame of
+1{,}280 samples is not a whole number of windows, so the remainder is held until the next frame
+completes it. The model runs on a single thread, since it shares core~0 with the spotter. Speech
+begins at the first window whose speech probability reaches 0.5. It ends once the probability has
+stayed below 0.35 for the silence threshold of 450~ms derived in Section~\ref{sec:latency-budget};
+the gap of 0.15 between the two thresholds is Silero's own hysteresis, and it keeps a probability
+that hovers near 0.5 from opening and closing utterances in quick succession. Each segment is
+padded by 200~ms at both ends, in place of Silero's default of 30~ms, so that the first consonant
+of an utterance is not cut before transcription. The padding costs no waiting time: both pads are
+taken from audio already in the buffer, since the trailing pad lies within the 450~ms of silence
+the endpointer has already received, and the endpointer refuses a pad longer than the silence
+threshold for that reason. An utterance still open after 15~s is closed by force and marked as
+such. The segments the threshold produces, including the utterances it splits at a pause, are
+reported with their cost in recognition in Section~\ref{sec:acoustic-robustness}.
+
+\paragraph{Keyword spotter.} The spotter consists of two classifier heads, one per class, over the
+frozen feature front end of openWakeWord~\cite{oww}. The front end converts audio into a
+mel spectrogram and then into one 96-dimensional speech embedding per 80~ms frame; each head scores
+the last 16 embeddings, which span about two seconds of audio. A class detects on a frame when its
+score reaches the operating threshold, which is common to both heads and fixed by training. A
+spoken phrase keeps its score above the threshold for several consecutive frames, so detection is
+debounced: a class fires only if its previous frame above the threshold lies more than 1.0~s
+earlier. Without the debounce, one \emph{swarm abort} would publish a burst of aborts, each
+cancelling the parse path's decode again, and each counted as a separate detection. The refractory
+interval is kept per class. An abort spoken immediately after a hold falls inside the hold's
+interval, and it must still be published, because it is the more conservative of the two commands.
+When both classes fire on the same frame, the higher score wins; neither class has priority,
+because either confusion between them is fail-safe (Section~\ref{sec:membership-rule}). A trigger
+cancels the decode in progress, if any, and publishes the fixed command of its class. The mapping
+from the two classes to \texttt{hover} and \texttt{abort} is a constant, checked when the module is
+loaded, so a third class cannot be added without changing that check. The heads are loaded only
+if their files match the hashes recorded when they were trained, because the operating threshold
+was selected for those weights and has no meaning for others.
+
+\paragraph{Training the spotter.} Only the two heads are trained; the front end is the published
+release, used unchanged. Each head is a multilayer perceptron with two hidden layers of 128
+rectified linear units and a sigmoid output. The upstream trainer requires PyTorch, which is kept
+out of this project's environment, so the heads are fitted with scikit-learn and their weights
+written into an ONNX graph directly. The corpus, synthetic positives rendered by three
+\gls{tts} voices~\cite{piper} and negatives of read speech, isolated command words and hand-written
+near-misses, is constructed in the \emph{M\'emoire de Master}. Training windows are labelled by
+where the phrase falls, not by the clip they come from: a window containing the whole phrase is a
+positive, a window containing none of it is a negative, and a window that cuts the phrase is
+discarded. A head therefore learns to fire once the phrase is complete, which places detection at
+the keyword offset, the anchor of the reflex budget. Each head treats the other class as a
+negative. The loss weights the classes to balance, and it weights the near-miss negatives, 14\% of
+the training negatives, five times more than other negatives; the corpus itself is unchanged. That
+weighting was introduced after a first fit whose false accepts on the validation split were all
+near-misses, so the held-out test split was scored twice, once for each fit.
+
+The operating point is a single threshold for both heads, since the false-accept and false-reject
+criteria describe one operating point (Table~\ref{tab:nonfunctional-requirements}). It is the
+highest value on a grid, from 0.05 to 0.99 in steps of 0.01 and then 0.995, 0.998 and 0.999, at
+which both classes keep a false-reject rate of at most 0.05 on the validation split: half the
+budget of 0.10, as a margin for a split of 150 clips per class. The rule selected 0.999, the top of
+the grid, and it was applied before the test split of the second fit was scored. The evaluation runs
+the exported heads through openWakeWord in 80~ms frames, as the runtime does, and counts detections
+with the same 1.0~s rule as the runtime's debounce. The rates it reports and the runtime's
+behaviour therefore concern the same events, and the evaluation also verifies the export.
+Section~\ref{sec:keyword-spotter-evaluation} reports those rates.
 
 \section{Runtime}
 \label{sec:runtime}
