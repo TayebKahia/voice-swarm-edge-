@@ -10,7 +10,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | PASS | check_tex |  | tools/check_tex.py: no problems beyond cross-chapter \ref (resolved below) |
 | PASS | ref |  | every \ref resolves within the document |
 | PASS | cite |  | 19 distinct keys cited, all resolved |
-| PASS | heading |  | chapter titles use one capitalisation style: [('ch1_introduction', 'Introduction'), ('ch2_related_work', 'Related work'), ('ch3_method', 'Method'), ('ch4_results', 'Results'), ('ch5_discussion', 'Discussion and limitations')] |
+| PASS | heading |  | chapter titles use one capitalisation style: [('ch1_introduction', 'Introduction'), ('ch2_related_work', 'Related work'), ('ch3_method', 'Method'), ('ch4_results', 'Results'), ('ch5_discussion', 'Discussion and limitations'), ('ch6_conclusion', 'Conclusion and future work')] |
 | PASS | outline |  | prd.md §3.1 item 2: Related work: edge LLM inference and single-board-computer benchmarking [3]; quantisation; constrained decoding; spoken-language understanding for robotics [12]. |
 | PASS | outline |  | prd topic `edge LLM inference and SBC benchmarking` -> section `Edge language-model inference and single-board-computer benchmarking` |
 | PASS | outline |  | prd topic `quantisation` -> section `Quantisation` |
@@ -183,8 +183,8 @@ utterances in 51 languages | massive (primary source, not the candidate notes) |
 
 | line | as written | trace |
 |---|---|---|
-| 15 | 1.5 | measured: results/table18_quantisation_delta.md:11, results/table18_quantisation_delta.md:15 |
-| 30 | 20 | measured: results/table16_asr_speaker_sensitivity.md:20, results/exp3_pi_analysis.md:15 |
+| 15 | 1.5 | measured: results/table18_quantisation_delta.md:15, results/table18_quantisation_delta.md:19 |
+| 30 | 20 | measured: results/table16_asr_speaker_sensitivity.md:26, results/exp3_pi_analysis.md:15 |
 | 51 | 8.5 | quoted from a paper (see "Numbers quoted from papers") |
 | 52 | 256 | quoted from a paper (see "Numbers quoted from papers") |
 | 53 | 4.5 | quoted from a paper (see "Numbers quoted from papers") |
@@ -199,4 +199,4 @@ utterances in 51 languages | massive (primary source, not the candidate notes) |
 | 140 | 76.8 | quoted from a paper (see "Numbers quoted from papers") |
 | 141 | 63.7 | quoted from a paper (see "Numbers quoted from papers") |
 | 141 | 66.6 | quoted from a paper (see "Numbers quoted from papers") |
-| 162 | 1.5 | measured: results/table18_quantisation_delta.md:11, results/table18_quantisation_delta.md:15 |
+| 162 | 1.5 | measured: results/table18_quantisation_delta.md:15, results/table18_quantisation_delta.md:19 |
