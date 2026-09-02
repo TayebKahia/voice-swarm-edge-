@@ -200,8 +200,8 @@ slow = {m: {x["item_id"] for x in rows if float(x["slm_prefill_ms"]) > 250} for 
 r.text_claim("claim", "nested across models", slow[S] <= slow[Q] <= slow[L] and (len(slow[S]), len(slow[Q])) == (3, 8),
              f"slow-prefill items: smollm2 {len(slow[S])} <= qwen {len(slow[Q])} <= llama {len(slow[L])}")
 e2e = {x["Stage"]: x for x in md_table(RESULTS / "exp2_latency_budget.md", "Stage")}
-prefill2 = next(v for k, v in e2e.items() if k.startswith("SLM prefill"))
-r.number("has a p95 of\n751~ms", float(prefill2["p95"].replace(",", "")), "exp2_latency_budget.md SLM prefill p95 (uncached)")
+prefill2 = next(v for k, v in e2e.items() if "prefill" in k)
+r.number("has a p95 of\n751~ms", float(prefill2["p95"].replace(",", "")), "exp2_latency_budget.md language-model prefill p95 (uncached)")
 
 # §4.2 abstention
 ab = csv_rows(RESULTS / "nfr9_nfr18_abstention.csv")

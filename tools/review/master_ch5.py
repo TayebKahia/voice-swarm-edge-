@@ -76,7 +76,7 @@ e2e = {x["Stage"]: x for x in md_table(RESULTS / "exp2_latency_budget.md", "Stag
 e2e_p95 = float(next(v for k, v in e2e.items() if "end of speech" in k)["p95"].replace(",", ""))
 r.number("Qwen2.5-0.5B misses by 622~ms", e2e_p95 - 2500, "exp2 E2E p95 - 2500, as Ch4 4.7")
 r.number("misses by 622~ms (25\\%)", 100 * (e2e_p95 / 2500 - 1), "exp2 E2E p95 / 2500 - 1", nth=1)
-prefill2 = next(v for k, v in e2e.items() if k.startswith("SLM prefill"))
+prefill2 = next(v for k, v in e2e.items() if "prefill" in k)
 r.number("uncached prefill p95 is 751~ms", float(prefill2["p95"].replace(",", "")), "exp2 uncached prefill p95, as Ch4")
 r.number("p95 is 1{,}771.5~ms", tot_hot[Q], "qwen uncooled total p95")
 r.number("SmolLM2-360M's 1{,}610.2~ms", tot_hot[S], "smollm2 uncooled total p95")
