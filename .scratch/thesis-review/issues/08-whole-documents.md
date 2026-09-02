@@ -1,6 +1,6 @@
 # Issue 08: whole-documents (Master)
 
-Status: ready-for-human
+Status: resolved
 Blocked by: 01, 02, 03, 04, 05, 09
 Documents: thesis/main_master.tex
 
@@ -193,3 +193,39 @@ unaffected, which is why `master_ch6.py` kept passing.
 MIN-4 (tie "golden split" to `test_golden`), MIN-5 (the Intent-F1 verdict; confirm `master_ch4.py`'s
 six-criteria check first), NIT-1 to NIT-5. Status stays ready-for-human until these are taken or
 kept as written.
+
+### 2026-09-24 -- follow-up: MIN-3, MIN-4, MIN-5 applied; NIT-1 checked; the rest kept as written
+
+Applied, with the author's approval of the recommendation:
+- **MIN-3** (`ch3_method.tex`, `tab:metrics` Percentiles row): "p50 and p95 denote the 50th and 95th
+  percentiles" added after the nearest-rank rule, so the notation is defined at its first use in the
+  document rather than at Ch4 §4.1. No `master_ch3.py` anchor on that row.
+- **MIN-4** (`ch3_method.tex` l.201-203): the golden set is introduced as "(\texttt{test\_golden} in
+  Table~\ref{tab:dataset}; the golden split of Chapter~\ref{chap:results})", tying the three names
+  together once. Both labels exist; `chap:results` had never been referenced before.
+- **MIN-5** (`ch4_results.tex` §4.7): "the 0.90 intent-F1 threshold" joins the list of thresholds the
+  selected configuration alone meets. All three Q4\_K\_M configurations clear it on the golden split
+  (`surface_b.csv` intent macro-F1 0.996 / 1.000 / 0.954), so "only one of the three meeting ...
+  together" stays true. `master_ch4.py`'s check counted its six criteria from data, not from the
+  sentence; it now also requires intent macro-F1 >= 0.90, so the claim is checked with the same
+  criteria the sentence lists. The anchor `only one of the\nthree meeting` is unchanged.
+- **NIT-1**: `\gls{sha}` is used nowhere in either thesis and "SHA-256" is typed by hand twice in the
+  Master only. The unused `sha` key is deleted from `shared/acronyms.tex`, so the printed list and the
+  text agree; the hand-typed algorithm name stays, because `\gls{sha}-256` would print "Secure Hash
+  Algorithm (SHA)-256" at first use. The Ingénieur is unaffected (no use of the key).
+
+**Kept as written, by the author's choice:** NIT-2 (safe-failure rate in the C3 metric lists: the
+rate is defined and used in Ch3, Ch4 and Ch6, and the Ch1 script would need a second data source);
+NIT-3 (full checkpoint name at first mention in Ch1 and the recipe, short name thereafter, is
+deliberate); NIT-4 (the French/Arabic rewording would add "not on speech", which the English abstract
+does not say, and the three abstracts must say the same thing); NIT-5 (no action).
+
+**Final state.** Scripts: Ch1 0 FAIL / 2 WARN / 40 PASS; Ch2 0 / 1 / 46; Ch3 0 / 4 / 132; Ch4 0 / 1 / 208;
+Ch5 0 / 1 / 96; Ch6 0 / 0 / 54. Self-test passes. `check_tex` on Ch3 and Ch4: cross-chapter `\ref`
+notes only. Build (incremental, no other latexmk running): 0 errors, 0 undefined citations or
+references, 0 dropped floats, 0 overfull boxes, 63 pages; "Secure Hash Algorithm" no longer appears
+in the PDF, and `tab:metrics`'s last row (Convergence) is still typeset.
+
+Nothing is left open in this issue. The two standing pre-submission items from issue 03 (no
+repository or artefact location in the document; the GGUF converter commit unpinned) are not
+findings of this pass and remain the author's decision before submission.

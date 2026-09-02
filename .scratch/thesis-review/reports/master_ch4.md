@@ -210,7 +210,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | PASS | claim | 364 | llama bound 3346 > re-baselined 3122 |
 | PASS | claim | 372 | qwen vs smollm2 golden Q4: p 1.09681e-07, significant = yes |
 | PASS | claim | 375 | every Q8_0 golden EM <= 0.935 |
-| PASS | claim | 377 | configs meeting all six: {'llama-3.2-1b-instruct': False, 'qwen2.5-0.5b-instruct': True, 'smollm2-360m-instruct': False} |
+| PASS | claim | 377 | configs meeting all seven: {'llama-3.2-1b-instruct': False, 'qwen2.5-0.5b-instruct': True, 'smollm2-360m-instruct': False} |
 | PASS | claim | 380 | `misses the exact-match threshold by 9~pp` -> written 9, source gives 9.00 (0.85 - smollm2 EM) |
 | PASS | claim | 380 | smollm2 beats qwen on decode p95, prefill p95, total p95 and tok/s |
 | PASS | claim | 383 | llama: lower EM and higher total p95 than qwen |
@@ -263,7 +263,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 208 | section | The quantisation delta | 296 |
 | 238 | section | The grammar ablation | 245 |
 | 266 | section | Statistical analysis | 485 |
-| 310 | section | The selection rule applied | 1029 |
+| 310 | section | The selection rule applied | 1032 |
 
 ### Codes used in this chapter (self-containment agent: is each one needed, or would a descriptive name read better?)
 
@@ -447,9 +447,10 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 372 | 0.760 | recomputed by a claim on this line |
 | 375 | 0.935 | recomputed by a claim on this line |
 | 377 | 0.85 | recomputed by a claim on this line |
-| 377 | 1{,}100 | recomputed by a claim on this line |
+| 377 | 0.90 | recomputed by a claim on this line |
+| 378 | 1{,}100 | measured: results/exp2_latency_budget.md:16, results/exp2_analysis.md:15 |
 | 378 | 1{,}350 | measured: results/exp2.csv:8 x100 |
-| 378 | 20 | measured: results/table16_asr_speaker_sensitivity.md:26, results/exp3_pi_analysis.md:15 |
+| 379 | 20 | measured: results/table16_asr_speaker_sensitivity.md:26, results/exp3_pi_analysis.md:15 |
 | 380 | 9 | recomputed by a claim on this line |
 | 392 | 2{,}500 | recomputed by a claim on this line |
 | 392 | 622 | recomputed by a claim on this line |
