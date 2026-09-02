@@ -103,7 +103,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | PASS | claim | 137 | `a p50 of 267.7~ms` -> written 267.7, source gives 267.65 (llama prefill p50) |
 | PASS | claim | 137 | `and 34 of 60 trials do` -> written 34, source gives 34.00 (llama trials > 250 ms) |
 | PASS | claim | 139 | `with 278~ms to spare` -> written 278, source gives 277.59 (1350 - qwen total p95) |
-| PASS | claim | 141 | `has a p95 of 751~ms` -> written 751, source gives 751.00 (exp2_latency_budget.md SLM prefill p95 (uncached)) |
+| PASS | claim | 141 | `has a p95 of 751~ms` -> written 751, source gives 751.00 (exp2_latency_budget.md language-model prefill p95 (uncached)) |
 | PASS | claim | 144 | `between 0.0000 and 0.1579` -> written 0.0000, source gives 0.0000 (min safe-failure rate over 18 rows) |
 | PASS | claim | 145 | `and 0.1579, pooling` -> written 0.1579, source gives 0.1579 (max safe-failure rate) |
 | PASS | claim | 145 | `pooling to 0.0530` -> written 0.0530, source gives 0.0530 (sum safe_failures / sum errors) |
@@ -199,22 +199,22 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | PASS | float | 338 | fig:pareto referenced before it appears (line 317) |
 | PASS | claim | 341 | `is 0.55~GiB to` -> written 0.55, source gives 0.55 (min peak RSS) |
 | PASS | claim | 344 | `at least 35\% clear of it` -> written 35, source gives 34.77 (1 - max peak RSS / 2.5) |
-| PASS | claim | 349 | `p95 is 3{,}122~ms over 226` -> written 3122, source gives 3122.00 (exp2_latency_budget.md E2E from end of speech p95) |
-| PASS | claim | 349 | `p95 is 3{,}122~ms over 226` -> written 226, source gives 226.00 (exp2_latency_budget.md E2E n) |
-| PASS | claim | 350 | `recorded is 1{,}063~ms` -> written 1063, source gives 1063.38 (min stt_ms over results/exp2_preds/clean.jsonl) |
+| PASS | claim | 350 | `p95 is 3{,}122~ms over 226` -> written 3122, source gives 3122.00 (exp2_latency_budget.md E2E from end of speech p95) |
+| PASS | claim | 350 | `p95 is 3{,}122~ms over 226` -> written 226, source gives 226.00 (exp2_latency_budget.md E2E n) |
 | PASS | claim | 350 | `segments, 622~ms (25\%) above` -> written 622, source gives 622.00 (exp2 E2E p95 - 2500) |
 | PASS | claim | 350 | `622~ms (25\%) above the budget` -> written 25, source gives 24.88 (exp2 E2E p95 / 2500 - 1) |
-| PASS | claim | 353 | `at least 3{,}346~ms` -> written 3346, source gives 3345.83 (llama total p95 + min STT) |
-| PASS | claim | 361 | `re-baselined to the measured 3{,}122~ms` -> written 3122, source gives 3122.00 (exp2 E2E p95) |
-| PASS | claim | 363 | `lower bound of 3{,}346~ms exceeds` -> written 3346, source gives 3345.83 (llama total p95 + min STT) |
-| PASS | claim | 363 | llama bound 3346 > re-baselined 3122 |
-| PASS | claim | 371 | qwen vs smollm2 golden Q4: p 1.09681e-07, significant = yes |
-| PASS | claim | 374 | every Q8_0 golden EM <= 0.935 |
-| PASS | claim | 376 | configs meeting all six: {'llama-3.2-1b-instruct': False, 'qwen2.5-0.5b-instruct': True, 'smollm2-360m-instruct': False} |
-| PASS | claim | 379 | `misses the exact-match threshold by 9~pp` -> written 9, source gives 9.00 (0.85 - smollm2 EM) |
-| PASS | claim | 379 | smollm2 beats qwen on decode p95, prefill p95, total p95 and tok/s |
-| PASS | claim | 382 | llama: lower EM and higher total p95 than qwen |
-| PASS | claim | 391 | `as specified by 622~ms` -> written 622, source gives 622.00 (exp2 E2E p95 - 2500) |
+| PASS | claim | 351 | `recorded is 1{,}063~ms` -> written 1063, source gives 1063.38 (min stt_ms over results/exp2_preds/clean.jsonl) |
+| PASS | claim | 354 | `at least 3{,}346~ms` -> written 3346, source gives 3345.83 (llama total p95 + min STT) |
+| PASS | claim | 362 | `re-baselined to the measured 3{,}122~ms` -> written 3122, source gives 3122.00 (exp2 E2E p95) |
+| PASS | claim | 364 | `lower bound of 3{,}346~ms exceeds` -> written 3346, source gives 3345.83 (llama total p95 + min STT) |
+| PASS | claim | 364 | llama bound 3346 > re-baselined 3122 |
+| PASS | claim | 372 | qwen vs smollm2 golden Q4: p 1.09681e-07, significant = yes |
+| PASS | claim | 375 | every Q8_0 golden EM <= 0.935 |
+| PASS | claim | 377 | configs meeting all six: {'llama-3.2-1b-instruct': False, 'qwen2.5-0.5b-instruct': True, 'smollm2-360m-instruct': False} |
+| PASS | claim | 380 | `misses the exact-match threshold by 9~pp` -> written 9, source gives 9.00 (0.85 - smollm2 EM) |
+| PASS | claim | 380 | smollm2 beats qwen on decode p95, prefill p95, total p95 and tok/s |
+| PASS | claim | 383 | llama: lower EM and higher total p95 than qwen |
+| PASS | claim | 392 | `as specified by 622~ms` -> written 622, source gives 622.00 (exp2 E2E p95 - 2500) |
 
 ### Citation sheet (for the citation agent: open each identifier, judge SUPPORTS / PARTIAL / DOES NOT SUPPORT per row)
 
@@ -258,19 +258,19 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 |---|---|---|---|
 | 1 | chapter | Results | 228 |
 | 23 | section | Speaker sensitivity at the acoustic front end | 431 |
-| 66 | section | The multi-model benchmark | 958 |
+| 66 | section | The multi-model benchmark | 962 |
 | 158 | section | A parameter-matched family control | 570 |
 | 208 | section | The quantisation delta | 296 |
 | 238 | section | The grammar ablation | 245 |
 | 266 | section | Statistical analysis | 485 |
-| 310 | section | The selection rule applied | 1025 |
+| 310 | section | The selection rule applied | 1029 |
 
 ### Codes used in this chapter (self-containment agent: is each one needed, or would a descriptive name read better?)
 
 | code | uses | defined at |
 |---|---|---|
-| C3 | 1 | ch1_introduction l.117 |
-| RQ1 | 1 | ch1_introduction l.93 |
+| C3 | 1 | ch1_introduction l.118 |
+| RQ1 | 1 | ch1_introduction l.94 |
 
 ### For the argument agent
 
@@ -281,7 +281,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 
 | line | as written | trace |
 |---|---|---|
-| 11 | 200 | measured: results/exp2_latency_budget.md:4, results/table18_quantisation_delta.md:3 |
+| 11 | 200 | measured: results/exp2_latency_budget.md:5, results/table18_quantisation_delta.md:3 |
 | 29 | 300 | recomputed by a claim on this line |
 | 30 | 200 | recomputed by a claim on this line |
 | 41 | 23.1 | recomputed by a claim on this line |
@@ -347,7 +347,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 126 | 1.63 | recomputed by a claim on this line |
 | 127 | 2.5 | recomputed by a claim on this line |
 | 127 | 35 | recomputed by a claim on this line |
-| 129 | 250 | measured: results/exp2_latency_budget.md:13, results/exp2_analysis.md:14 |
+| 129 | 250 | measured: results/exp2_latency_budget.md:15, results/exp2_analysis.md:14 |
 | 130 | 38.5 | recomputed by a claim on this line |
 | 130 | 328.8 | recomputed by a claim on this line |
 | 137 | 267.7 | recomputed by a claim on this line |
@@ -363,7 +363,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 146 | 0.1867 | recomputed by a claim on this line |
 | 146 | 0.3933 | recomputed by a claim on this line |
 | 161 | 0.49 | measured: results/exp3_pi_analysis.md:99, results/exp3_analysis.md:62 |
-| 161 | 1.24 | measured: results/exp2_latency_budget.md:25 /1024, results/exp2_latency_budget.md:25 /1024 |
+| 161 | 1.24 | measured: results/exp2_latency_budget.md:27 /1024, results/exp2_latency_budget.md:27 /1024 |
 | 165 | 514 | recomputed by a claim on this line |
 | 166 | 4.0 | recomputed by a claim on this line |
 | 166 | 494 | recomputed by a claim on this line |
@@ -405,7 +405,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 248 | 3{,}540 | measured: results/table19_grammar_ablation.md:10, results/table19_grammar_ablation.md:11 |
 | 249 | 3{,}540 | measured: results/table19_grammar_ablation.md:10, results/table19_grammar_ablation.md:11 |
 | 255 | 3{,}540 | measured: results/table19_grammar_ablation.md:10, results/table19_grammar_ablation.md:11 |
-| 261 | 0.17 | measured: results/wake_training.md:22, results/exp3_pi_analysis.md:23 |
+| 261 | 0.17 | measured: results/requirements_summary.md:24, results/wake_training.md:22 |
 | 275 | 0.0167 | recomputed by a claim on this line |
 | 275 | 0.05 | recomputed by a claim on this line |
 | 283 | 200 | recomputed by a claim on this line |
@@ -420,36 +420,36 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 294 | 200 | recomputed by a claim on this line |
 | 295 | 0.286 | recomputed by a claim on this line |
 | 300 | 1.0 | measured: results/nfr18_false_command.md:10, results/nfr18_false_command.md:11 |
-| 302 | 200 | measured: results/exp2_latency_budget.md:4, results/table18_quantisation_delta.md:3 |
+| 302 | 200 | measured: results/exp2_latency_budget.md:5, results/table18_quantisation_delta.md:3 |
 | 304 | 0.8125 | recomputed by a claim on this line |
-| 314 | 2{,}500 | measured: results/exp2_latency_budget.md:16, results/exp2_latency_budget.md:17 |
+| 314 | 2{,}500 | measured: results/exp2_latency_budget.md:18, results/exp2_latency_budget.md:19 |
 | 315 | 2.5 | measured: results/nfr18_false_command.md:12, results/nfr18_false_command.md:13 |
-| 326 | 200 | measured: results/exp2_latency_budget.md:4, results/table18_quantisation_delta.md:3 |
+| 326 | 200 | measured: results/exp2_latency_budget.md:5, results/table18_quantisation_delta.md:3 |
 | 331 | 1{,}350 | measured: results/exp2.csv:8 x100 |
-| 332 | 2{,}500 | measured: results/exp2_latency_budget.md:16, results/exp2_latency_budget.md:17 |
-| 333 | 0.85 | measured: results/exp4_formation.md:13, results/table19_grammar_ablation.md:10 |
+| 332 | 2{,}500 | measured: results/exp2_latency_budget.md:18, results/exp2_latency_budget.md:19 |
+| 333 | 0.85 | measured: results/requirements_summary.md:28, results/exp4_formation.md:13 |
 | 341 | 0.55 | recomputed by a claim on this line |
 | 342 | 1.63 | measured: results/table17_model_comparison.md:17, results/table17_model_comparison.md:18 |
 | 342 | 2.5 | measured: results/nfr18_false_command.md:12, results/nfr18_false_command.md:13 |
 | 344 | 35 | recomputed by a claim on this line |
-| 347 | 2{,}500 | measured: results/exp2_latency_budget.md:16, results/exp2_latency_budget.md:17 |
-| 349 | 3{,}122 | recomputed by a claim on this line |
-| 349 | 226 | recomputed by a claim on this line |
+| 347 | 2{,}500 | measured: results/exp2_latency_budget.md:18, results/exp2_latency_budget.md:19 |
+| 350 | 3{,}122 | recomputed by a claim on this line |
+| 350 | 226 | recomputed by a claim on this line |
 | 350 | 622 | recomputed by a claim on this line |
 | 350 | 25 | recomputed by a claim on this line |
-| 350 | 1{,}063 | recomputed by a claim on this line |
-| 352 | 2{,}282 | measured: results/thermal_headroom.md:12, results/table17_model_comparison.md:17 |
-| 353 | 3{,}346 | recomputed by a claim on this line |
-| 354 | 894 | measured: results/thermal_headroom.md:16, results/table17_model_comparison.md:29 |
-| 361 | 3{,}122 | recomputed by a claim on this line |
-| 363 | 3{,}346 | recomputed by a claim on this line |
-| 371 | 0.935 | recomputed by a claim on this line |
-| 371 | 0.760 | recomputed by a claim on this line |
-| 374 | 0.935 | recomputed by a claim on this line |
-| 376 | 0.85 | recomputed by a claim on this line |
-| 376 | 1{,}100 | recomputed by a claim on this line |
-| 377 | 1{,}350 | measured: results/exp2.csv:8 x100 |
-| 377 | 20 | measured: results/table16_asr_speaker_sensitivity.md:26, results/exp3_pi_analysis.md:15 |
-| 379 | 9 | recomputed by a claim on this line |
-| 391 | 2{,}500 | recomputed by a claim on this line |
-| 391 | 622 | recomputed by a claim on this line |
+| 351 | 1{,}063 | recomputed by a claim on this line |
+| 353 | 2{,}282 | measured: results/thermal_headroom.md:12, results/table17_model_comparison.md:17 |
+| 354 | 3{,}346 | recomputed by a claim on this line |
+| 355 | 894 | measured: results/thermal_headroom.md:16, results/table17_model_comparison.md:29 |
+| 362 | 3{,}122 | recomputed by a claim on this line |
+| 364 | 3{,}346 | recomputed by a claim on this line |
+| 372 | 0.935 | recomputed by a claim on this line |
+| 372 | 0.760 | recomputed by a claim on this line |
+| 375 | 0.935 | recomputed by a claim on this line |
+| 377 | 0.85 | recomputed by a claim on this line |
+| 377 | 1{,}100 | recomputed by a claim on this line |
+| 378 | 1{,}350 | measured: results/exp2.csv:8 x100 |
+| 378 | 20 | measured: results/table16_asr_speaker_sensitivity.md:26, results/exp3_pi_analysis.md:15 |
+| 380 | 9 | recomputed by a claim on this line |
+| 392 | 2{,}500 | recomputed by a claim on this line |
+| 392 | 622 | recomputed by a claim on this line |

@@ -231,10 +231,10 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 
 | code | uses | defined at |
 |---|---|---|
-| C1 | 1 | ch1_introduction l.107 |
-| C2 | 2 | ch1_introduction l.112 |
-| C3 | 2 | ch1_introduction l.117 |
-| RQ1 | 2 | ch1_introduction l.93 |
+| C1 | 1 | ch1_introduction l.108 |
+| C2 | 2 | ch1_introduction l.113 |
+| C3 | 2 | ch1_introduction l.118 |
+| RQ1 | 2 | ch1_introduction l.94 |
 
 ### Requirement wording, tab:requirements vs prd.md (argument agent: a paraphrase may not change the requirement's scope)
 
@@ -263,7 +263,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 
 | line | as written | trace |
 |---|---|---|
-| 39 | 200 | measured: results/exp2_latency_budget.md:4, results/table18_quantisation_delta.md:3 |
+| 39 | 200 | measured: results/exp2_latency_budget.md:5, results/table18_quantisation_delta.md:3 |
 | 40 | 16.0 | recomputed by a claim on this line |
 | 41 | 19.6 | recomputed by a claim on this line |
 | 41 | 53.3 | recomputed by a claim on this line |
@@ -286,27 +286,27 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 164 | 5{,}040 | recomputed by a claim on this line |
 | 164 | 3.50 | recomputed by a claim on this line |
 | 164 | 720 | recomputed by a claim on this line |
-| 171 | 5.0 | measured: results/exp2_latency_budget.md:3, results/exp2_latency_budget.md:21 |
+| 171 | 5.0 | measured: results/exp2_latency_budget.md:3, results/exp2_latency_budget.md:23 |
 | 173 | 3.7 | recomputed by a claim on this line |
 | 174 | 1{,}940 | recomputed by a claim on this line |
 | 181 | 120 | measured: results/wake_training.md:32, results/wake_training.json:20 |
 | 194 | 872 | recomputed by a claim on this line |
 | 196 | 5 | recomputed by a claim on this line |
-| 201 | 200 | measured: results/exp2_latency_budget.md:4, results/table18_quantisation_delta.md:3 |
-| 223 | 3.0 | measured: results/exp2_latency_budget.md:4, results/exp2_latency_budget.md:12 |
+| 201 | 200 | measured: results/exp2_latency_budget.md:5, results/table18_quantisation_delta.md:3 |
+| 223 | 3.0 | measured: results/exp2_latency_budget.md:4, results/exp2_latency_budget.md:14 |
 | 230 | 20 | measured: results/table16_asr_speaker_sensitivity.md:26, results/exp3_pi_analysis.md:15 |
 | 230 | 30 | measured: results/table16_asr_speaker_sensitivity.md:13, results/exp3_pi_analysis.md:83 |
 | 243 | 4.0 | recomputed by a claim on this line |
-| 266 | 300 | measured: results/exp2_latency_budget.md:27, results/table16_asr_speaker_sensitivity.md:3 |
-| 267 | 17.0 | measured: results/exp2_latency_budget.md:27, results/golden_error_intents.md:9 |
+| 266 | 300 | measured: results/exp2_latency_budget.md:29, results/table16_asr_speaker_sensitivity.md:3 |
+| 267 | 17.0 | measured: results/golden_error_intents.md:9, results/golden_error_intents.md:10 |
 | 268 | 263 | DECLARED ONLY: .scratch/sprint-pfe/STATE.md:101 |
 | 269 | 39 | measured: results/exp3_pi_analysis.md:68, results/exp3_analysis.md:68 |
 | 277 | 0.36 | measured: results/wake_training.json:169, results/wake_training.json:813 |
-| 277 | 1.2 | measured: spikes/reports/S1_llama_throughput_thermals.md:40, results/exp2_latency_budget.md:12 /1024 |
+| 277 | 1.2 | measured: spikes/reports/S1_llama_throughput_thermals.md:40, results/exp2_latency_budget.md:14 /1024 |
 | 284 | 514 | recomputed by a claim on this line |
 | 285 | 494 | recomputed by a claim on this line |
 | 285 | 4.0 | recomputed by a claim on this line |
-| 306 | 0.05 | measured: results/nfr18_false_command.md:5, results/wake_training.md:5 |
+| 306 | 0.05 | measured: results/nfr18_false_command.md:5, results/requirements_summary.md:24 |
 | 308 | 2 | measured: results/nfr18_false_command.md:12, results/nfr18_false_command.md:13 |
 | 308 | 0.03 | measured: results/table33_iso_parameter.md:18, results/wake_training.md:11 |
 | 310 | 256 | measured: results/gate3_parity.json:24, results/gate3_parity.json:37 |
@@ -317,50 +317,50 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 330 | 0.038 | measured: results/table33_iso_parameter.md:18, results/exp3_pi_analysis.md:41 |
 | 352 | 7.5 | measured: results/wake_training.md:23 x100, results/wake_training.json:158 x100 |
 | 353 | 8.0 | measured: results/nfr18_false_command.md:11, results/nfr18_false_command.md:13 |
-| 467 | 200 | measured: results/exp2_latency_budget.md:4, results/table18_quantisation_delta.md:3 |
-| 470 | 200 | measured: results/exp2_latency_budget.md:4, results/table18_quantisation_delta.md:3 |
-| 477 | 200 | measured: results/exp2_latency_budget.md:4, results/table18_quantisation_delta.md:3 |
-| 480 | 226 | measured: results/exp2_latency_budget.md:11, results/exp2_latency_budget.md:12 |
-| 480 | 200 | measured: results/exp2_latency_budget.md:4, results/table18_quantisation_delta.md:3 |
+| 467 | 200 | measured: results/exp2_latency_budget.md:5, results/table18_quantisation_delta.md:3 |
+| 470 | 200 | measured: results/exp2_latency_budget.md:5, results/table18_quantisation_delta.md:3 |
+| 477 | 200 | measured: results/exp2_latency_budget.md:5, results/table18_quantisation_delta.md:3 |
+| 480 | 226 | measured: results/exp2_latency_budget.md:13, results/exp2_latency_budget.md:14 |
+| 480 | 200 | measured: results/exp2_latency_budget.md:5, results/table18_quantisation_delta.md:3 |
 | 500 | 0.19 | measured: results/nfr18_false_command.md:10, results/exp3_pi_analysis.md:21 |
-| 501 | 5.0 | measured: results/exp2_latency_budget.md:3, results/exp2_latency_budget.md:21 |
+| 501 | 5.0 | measured: results/exp2_latency_budget.md:3, results/exp2_latency_budget.md:23 |
 | 502 | 2.10 | measured: results/wake_training.json:731 x100, results/exp0.csv:2 /1024 |
 | 502 | 12.8 | measured: results/wake_training.json:69 x100, results/wake_training.json:81 x100 |
 | 506 | 1{,}024 | measured: spikes/reports/S2_whisper_timing.md:45, spikes/reports/S0_audio_bringup.md:45 |
 | 507 | 512 | DECLARED ONLY: prd.md:243, prd.md:349 |
 | 565 | 1.0 | measured: results/nfr18_false_command.md:10, results/nfr18_false_command.md:11 |
 | 569 | 20 | measured: results/table16_asr_speaker_sensitivity.md:26, results/exp3_pi_analysis.md:15 |
-| 572 | 95 | measured: results/exp2_latency_budget.md:7, results/exp2_latency_budget.md:9 |
+| 572 | 95 | measured: results/exp2_latency_budget.md:7, results/exp2_latency_budget.md:11 |
 | 575 | 0.5 | measured: results/nfr18_false_command.md:12, results/nfr18_false_command.md:13 |
-| 576 | 0.85 | measured: results/exp4_formation.md:13, results/table19_grammar_ablation.md:10 |
+| 576 | 0.85 | measured: results/requirements_summary.md:28, results/exp4_formation.md:13 |
 | 585 | 16.0 | measured: results/table18_quantisation_delta.md:3, results/table16_asr_speaker_sensitivity.md:1 |
-| 585 | 1{,}100 | measured: results/exp2_latency_budget.md:14, results/exp2_analysis.md:15 |
-| 603 | 2{,}500 | measured: results/exp2_latency_budget.md:16, results/exp2_latency_budget.md:17 |
-| 604 | 0.85 | measured: results/exp4_formation.md:13, results/table19_grammar_ablation.md:10 |
+| 585 | 1{,}100 | measured: results/exp2_latency_budget.md:16, results/exp2_analysis.md:15 |
+| 603 | 2{,}500 | measured: results/exp2_latency_budget.md:18, results/exp2_latency_budget.md:19 |
+| 604 | 0.85 | measured: results/requirements_summary.md:28, results/exp4_formation.md:13 |
 | 605 | 1{,}100 | recomputed by a claim on this line |
 | 605 | 20 | recomputed by a claim on this line |
 | 606 | 0.90 | measured: results/table17_model_comparison.md:19, results/wake_training.json:1714 |
 | 607 | 100 | measured: results/thermal_headroom.md:13, results/thermal_headroom.md:15 |
-| 608 | 0.80 | measured: results/exp4_formation.md:11, results/exp4_formation.md:11 |
+| 608 | 0.80 | measured: results/requirements_summary.md:25, results/exp4_formation.md:11 |
 | 609 | 10 | measured: results/table16_asr_speaker_sensitivity.md:11, results/table16_asr_speaker_sensitivity.md:13 |
-| 609 | 0.65 | measured: results/exp3_pi_analysis.md:50, results/exp3_pi_analysis.md:60 |
-| 610 | 0.70 | measured: results/table20_end_to_end.md:22, results/limitation_abstention.md:15 |
+| 609 | 0.65 | measured: results/requirements_summary.md:26, results/exp3_pi_analysis.md:50 |
+| 610 | 0.70 | measured: results/table20_end_to_end.md:23, results/limitation_abstention.md:15 |
 | 611 | 2.5 | measured: results/nfr18_false_command.md:12, results/nfr18_false_command.md:13 |
-| 613 | 5 | measured: results/exp2_latency_budget.md:3, results/exp2_latency_budget.md:21 |
-| 614 | 95 | measured: results/exp2_latency_budget.md:7, results/exp2_latency_budget.md:9 |
-| 615 | 0.05 | measured: results/nfr18_false_command.md:5, results/wake_training.md:5 |
-| 621 | 2{,}500 | measured: results/exp2_latency_budget.md:16, results/exp2_latency_budget.md:17 |
+| 613 | 5 | measured: results/exp2_latency_budget.md:3, results/exp2_latency_budget.md:23 |
+| 614 | 95 | measured: results/exp2_latency_budget.md:7, results/exp2_latency_budget.md:11 |
+| 615 | 0.05 | measured: results/nfr18_false_command.md:5, results/requirements_summary.md:24 |
+| 621 | 2{,}500 | measured: results/exp2_latency_budget.md:18, results/exp2_latency_budget.md:19 |
 | 622 | 2.5 | measured: results/nfr18_false_command.md:12, results/nfr18_false_command.md:13 |
 | 633 | 0.0167 | measured: results/mcnemar.md:12, results/mcnemar.md:18 |
-| 633 | 0.05 | measured: results/nfr18_false_command.md:5, results/wake_training.md:5 |
-| 638 | 200 | measured: results/exp2_latency_budget.md:4, results/table18_quantisation_delta.md:3 |
-| 640 | 200 | measured: results/exp2_latency_budget.md:4, results/table18_quantisation_delta.md:3 |
+| 633 | 0.05 | measured: results/nfr18_false_command.md:5, results/requirements_summary.md:24 |
+| 638 | 200 | measured: results/exp2_latency_budget.md:5, results/table18_quantisation_delta.md:3 |
+| 640 | 200 | measured: results/exp2_latency_budget.md:5, results/table18_quantisation_delta.md:3 |
 | 649 | 1{,}350 | measured: results/exp2.csv:8 x100 |
-| 651 | 2{,}500 | measured: results/exp2_latency_budget.md:16, results/exp2_latency_budget.md:17 |
-| 666 | 500 | measured: results/exp2_latency_budget.md:11, results/gate3_parity.md:21 |
-| 667 | 1{,}200 | measured: results/exp2_latency_budget.md:12, results/exp2_analysis.md:13 |
-| 668 | 250 | measured: results/exp2_latency_budget.md:13, results/exp2_analysis.md:14 |
-| 669 | 1{,}100 | measured: results/exp2_latency_budget.md:14, results/exp2_analysis.md:15 |
-| 670 | 50 | measured: results/exp2_latency_budget.md:9, results/exp2_latency_budget.md:15 |
+| 651 | 2{,}500 | measured: results/exp2_latency_budget.md:18, results/exp2_latency_budget.md:19 |
+| 666 | 500 | measured: results/exp2_latency_budget.md:13, results/gate3_parity.md:21 |
+| 667 | 1{,}200 | measured: results/exp2_latency_budget.md:14, results/exp2_analysis.md:13 |
+| 668 | 250 | measured: results/exp2_latency_budget.md:15, results/exp2_analysis.md:14 |
+| 669 | 1{,}100 | measured: results/exp2_latency_budget.md:16, results/exp2_analysis.md:15 |
+| 670 | 50 | measured: results/exp2_latency_budget.md:11, results/exp2_latency_budget.md:17 |
 | 672 | 1{,}350 | recomputed by a claim on this line |
-| 673 | 2{,}500 | measured: results/exp2_latency_budget.md:16, results/exp2_latency_budget.md:17 |
+| 673 | 2{,}500 | measured: results/exp2_latency_budget.md:18, results/exp2_latency_budget.md:19 |

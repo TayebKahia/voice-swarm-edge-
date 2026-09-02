@@ -6,8 +6,8 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 
 | status | check | line | finding |
 |---|---|---|---|
-| WARN | acronym | 93 | long form `small language model` spelled out -- \gls{slm}? |
-| WARN | acronym | 95 | `CPU` typed by hand 1x (lines 95) -- \gls{cpu} (the first \gls expands itself) |
+| WARN | acronym | 94 | long form `small language model` spelled out -- \gls{slm}? |
+| WARN | acronym | 96 | `CPU` typed by hand 1x (lines 96) -- \gls{cpu} (the first \gls expands itself) |
 | PASS | check_tex |  | tools/check_tex.py: no problems beyond cross-chapter \ref (resolved below) |
 | PASS | ref |  | every \ref resolves within the document |
 | PASS | cite |  | 3 distinct keys cited, all resolved |
@@ -40,14 +40,14 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | PASS | spike-S3 | 60 | S3 report mentions `land` (the Ch1 story about `swarm land`) |
 | PASS | spike-S3 | 61 | S3 report mentions `trunc` (the Ch1 story about `truncated`) |
 | PASS | claim | 69 | schema/cmd.gbnf idlist: one id plus at most four more = five entries |
-| PASS | rq | 93 | RQ1 matches prd.md §2 verbatim |
-| PASS | claim | 94 | `0.36--1.2~B` -> written 0.36, source gives 0.36 (results/table33_iso_parameter.md smallest model, B) |
-| PASS | contribution | 117 | C3 metric `\gls{em}` is a column the harness reports (results/surface_b.csv:exact_match) |
-| PASS | contribution | 117 | C3 metric `intent and slot F1` is a column the harness reports (results/surface_b.csv:slot_micro_f1) |
-| PASS | contribution | 118 | C3 metric `schema validity` is a column the harness reports (results/surface_b.csv:schema_validity) |
-| PASS | contribution | 118 | C3 metric `false-command rate` is a column the harness reports (results/surface_b.csv:false_command_rate) |
-| PASS | outline | 132 | 'five chapters' = 5 chapters after this one in main_master.tex |
-| PASS | claim | 146 | `against the 20~tok/s floor` -> written 20, source gives 20.00 (22 tokens / 1.100 s (closing paragraph)) |
+| PASS | rq | 94 | RQ1 matches prd.md §2 verbatim |
+| PASS | claim | 95 | `0.36--1.2~B` -> written 0.36, source gives 0.36 (results/table33_iso_parameter.md smallest model, B) |
+| PASS | contribution | 118 | C3 metric `\gls{em}` is a column the harness reports (results/surface_b.csv:exact_match) |
+| PASS | contribution | 118 | C3 metric `intent and slot F1` is a column the harness reports (results/surface_b.csv:slot_micro_f1) |
+| PASS | contribution | 119 | C3 metric `schema validity` is a column the harness reports (results/surface_b.csv:schema_validity) |
+| PASS | contribution | 119 | C3 metric `false-command rate` is a column the harness reports (results/surface_b.csv:false_command_rate) |
+| PASS | outline | 133 | 'five chapters' = 5 chapters after this one in main_master.tex |
+| PASS | claim | 147 | `against the 20~tok/s floor` -> written 20, source gives 20.00 (22 tokens / 1.100 s (closing paragraph)) |
 
 ### Citation sheet (for the citation agent: open each identifier, judge SUPPORTS / PARTIAL / DOES NOT SUPPORT per row)
 
@@ -55,7 +55,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 |---|---|---|---|
 | 1 | 22 | sbc2025 | A recent benchmark of twenty-five quantised language models on three \glspl{sbc} finds that such boards reliably support models of up to about 1.5~billion parameters, with larger models dropping to a few tokens per second~\cite{sbc2025}; Chapter~\ref{chap:related-work} takes up that literature in full. |
 | 2 | 52 | dutta2024 | That an aggregate accuracy figure can conceal what a model actually does is a point the compression literature makes independently: a model and its compressed counterpart can score alike on a benchmark yet differ substantially in which individual answers they get right~\cite{dutta2024}. |
-| 3 | 108 | llamacpp | \begin{itemize} \item \textbf{C1.} A frozen command schema paired with a matched, bounded \gls{gbnf}\glsadd{ggml} grammar~\cite{llamacpp}, built so that structural validity is a property of the decoder rather than a rate measured against a test set. |
+| 3 | 109 | llamacpp | \begin{itemize} \item \textbf{C1.} A frozen command schema paired with a matched, bounded \gls{gbnf}\glsadd{ggml} grammar~\cite{llamacpp}, built so that structural validity is a property of the decoder rather than a rate measured against a test set. |
 
 | key | title | year | identifier |
 |---|---|---|---|
@@ -70,18 +70,18 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 1 | chapter | Introduction | 29 |
 | 7 | section | The edge-inference problem | 425 |
 | 43 | section | Why structured output matters for robot control | 396 |
-| 74 | section | Objectives | 280 |
-| 103 | section | Contributions | 279 |
-| 131 | section | Structure of this document | 180 |
+| 74 | section | Objectives | 291 |
+| 104 | section | Contributions | 279 |
+| 132 | section | Structure of this document | 180 |
 
 ### Codes used in this chapter (self-containment agent: is each one needed, or would a descriptive name read better?)
 
 | code | uses | defined at |
 |---|---|---|
-| C1 | 1 | ch1_introduction l.107 |
-| C2 | 1 | ch1_introduction l.112 |
-| C3 | 1 | ch1_introduction l.117 |
-| RQ1 | 2 | ch1_introduction l.93 |
+| C1 | 1 | ch1_introduction l.108 |
+| C2 | 1 | ch1_introduction l.113 |
+| C3 | 1 | ch1_introduction l.118 |
+| RQ1 | 2 | ch1_introduction l.94 |
 
 ### For the argument agent
 
@@ -98,6 +98,6 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 31 | 14.53 | recomputed by a claim on this line |
 | 33 | 18.13 | recomputed by a claim on this line |
 | 34 | 40 | recomputed by a claim on this line |
-| 94 | 0.36 | recomputed by a claim on this line |
-| 94 | 1.2 | recomputed by a claim on this line |
-| 146 | 20 | recomputed by a claim on this line |
+| 95 | 0.36 | recomputed by a claim on this line |
+| 95 | 1.2 | recomputed by a claim on this line |
+| 147 | 20 | recomputed by a claim on this line |

@@ -74,10 +74,10 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 
 | code | uses | defined at |
 |---|---|---|
-| C1 | 1 | ch1_introduction l.107 |
-| C2 | 1 | ch1_introduction l.112 |
-| C3 | 1 | ch1_introduction l.117 |
-| RQ1 | 2 | ch1_introduction l.93 |
+| C1 | 1 | ch1_introduction l.108 |
+| C2 | 1 | ch1_introduction l.113 |
+| C3 | 1 | ch1_introduction l.118 |
+| RQ1 | 2 | ch1_introduction l.94 |
 
 ### For the argument agent
 
@@ -90,7 +90,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | line | as written | trace |
 |---|---|---|
 | 21 | 0.36 | measured: results/wake_training.json:169, results/wake_training.json:813 |
-| 21 | 1.2 | measured: spikes/reports/S1_llama_throughput_thermals.md:40, results/exp2_latency_budget.md:12 /1024 |
+| 21 | 1.2 | measured: spikes/reports/S1_llama_throughput_thermals.md:40, results/exp2_latency_budget.md:14 /1024 |
 | 23 | 0.935 | recomputed by a claim on this line |
 | 25 | 894 | recomputed by a claim on this line |
 | 25 | 1{,}072 | recomputed by a claim on this line |
@@ -99,7 +99,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 28 | 1.24 | recomputed by a claim on this line |
 | 28 | 0.910 | recomputed by a claim on this line |
 | 29 | 2{,}282 | recomputed by a claim on this line |
-| 32 | 2{,}500 | measured: results/exp2_latency_budget.md:16, results/exp2_latency_budget.md:17 |
+| 32 | 2{,}500 | measured: results/exp2_latency_budget.md:18, results/exp2_latency_budget.md:19 |
 | 33 | 622 | recomputed by a claim on this line |
 | 33 | 25 | recomputed by a claim on this line |
 | 33 | 3{,}122 | recomputed by a claim on this line |
@@ -118,7 +118,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 57 | 0.17 | recomputed by a claim on this line |
 | 65 | 590 | recomputed by a claim on this line |
 | 66 | 0.935 | measured: results/table18_quantisation_delta.md:17, results/table18_quantisation_delta.md:17 |
-| 70 | 200 | measured: results/exp2_latency_budget.md:4, results/table18_quantisation_delta.md:3 |
+| 70 | 200 | measured: results/exp2_latency_budget.md:5, results/table18_quantisation_delta.md:3 |
 | 73 | 1.5 | recomputed by a claim on this line |
 | 73 | 1.5 | recomputed by a claim on this line |
 | 74 | 0.25 | recomputed by a claim on this line |

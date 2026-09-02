@@ -141,10 +141,10 @@ utterances in 51 languages` present |
 
 | code | uses | defined at |
 |---|---|---|
-| C1 | 1 | ch1_introduction l.107 |
-| C2 | 1 | ch1_introduction l.112 |
-| C3 | 3 | ch1_introduction l.117 |
-| RQ1 | 2 | ch1_introduction l.93 |
+| C1 | 1 | ch1_introduction l.108 |
+| C2 | 1 | ch1_introduction l.113 |
+| C3 | 3 | ch1_introduction l.118 |
+| RQ1 | 2 | ch1_introduction l.94 |
 
 ### Numbers quoted from papers (citation agent: find each in the paper)
 

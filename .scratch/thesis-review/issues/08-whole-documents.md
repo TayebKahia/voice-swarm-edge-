@@ -149,3 +149,47 @@ control's training image is unrecorded (ch3:502).
 - NIT-1 (use or delete the `sha` key), NIT-3 (whether the two naming conventions are deliberate).
 - Whether the artefact-location and converter-pin gaps from the examiner view are addressed before
   submission (a standing issue-03 decision, not a new finding).
+
+### 2026-09-24 -- author's decisions, and what was applied
+
+The author took **M-1 in all three abstracts, MIN-1 and MIN-2**, with the reviewer's wording as
+verified. Applied:
+- **M-1** (`frontmatter/abstract.tex`, `frabstract.tex`, `arabstract.tex`): the method paragraph now
+  says the fourth model "measures a model-family difference at fixed size" / "mesure une différence
+  entre familles de modèles à taille fixée" / "فيقيس فرقًا بين عائلات النماذج عند حجم ثابت". This is
+  Ch1 l.137-138's wording, the one issue 03 V20 put there. The overlong English and French source
+  lines were rewrapped; nothing anchors on the front matter.
+- **MIN-1** (`ch4_results.tex`): "has a p95 of 751~ms on the cooled board" (§4.1) and "measured the
+  full parse path for the selected configuration alone, on the cooled board: from end of speech, ..."
+  (§4.7), so the three Ingénieur-sourced timing figures (751, 3,122, 1,063 ms) now carry the thermal
+  state Ch1 promises. Source: `results/exp2_latency_budget.md` header, "Raspberry Pi 5, cooled". The
+  `master_ch4.py` anchors on both sentences are unchanged; one was rewrapped, which the
+  whitespace-tolerant matcher accepts.
+- **MIN-2** (`ch1_introduction.tex` l.78-80): "and the swarm controller, which runs with the
+  simulation on a workstation linked to the board, executes it." Matches Ingénieur Ch1 l.48-50.
+
+**Script error found while re-running, fixed in `tools/review`.** `master_ch4.py` and
+`master_ch5.py` stopped with `StopIteration` on HEAD as well as on the edited chapters: the other
+session's `4d8d701` renamed the rows of `results/exp2_latency_budget.md` ("SLM prefill" is now
+"Language-model prefill"; the end-to-end row lost its `(T0; NFR-2)` suffix), and both scripts looked
+the prefill row up by the old prefix. The lookup now matches on "prefill" (the only row containing
+it). No expected value changed. The end-to-end lookup already matched on "end of speech" and was
+unaffected, which is why `master_ch6.py` kept passing.
+
+**Final state.**
+- Scripts: Ch1 0 FAIL / 2 WARN / 40 PASS; Ch2 0 / 1 / 46; Ch3 0 / 4 / 132; Ch4 0 / 1 / 208;
+  Ch5 0 / 1 / 96; Ch6 0 / 0 / 54. The same counts as round 1. The self-test passes.
+- `check_tex`: clean on Ch1, Ch4 and the English abstract; on the French and Arabic abstracts it
+  reports non-ASCII notes only (30 and 27; one more in the French than before, from the rewrapped
+  line), all marked fine under XeLaTeX.
+- Build (`latexmk main_master.tex`, incremental on the clean round-1 build; no other latexmk or
+  xelatex was running): 0 errors, 0 undefined citations or references, 0 dropped floats, 0 overfull
+  boxes, 63 pages. The new English, French, Ch1 and Ch4 wording is in the PDF text; the Arabic line
+  compiles (pdftotext does not reproduce shaped Arabic reliably enough to grep it).
+- The six `reports/master_ch*.md` are regenerated; their line-number columns moved with the other
+  session's `results/` changes and with the rewrapped lines.
+
+**Left for the author** (not decided in this round): MIN-3 (p50/p95 expanded in `tab:metrics`),
+MIN-4 (tie "golden split" to `test_golden`), MIN-5 (the Intent-F1 verdict; confirm `master_ch4.py`'s
+six-criteria check first), NIT-1 to NIT-5. Status stays ready-for-human until these are taken or
+kept as written.

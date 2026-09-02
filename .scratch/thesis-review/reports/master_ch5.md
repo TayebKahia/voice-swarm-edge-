@@ -135,7 +135,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 
 | code | uses | defined at |
 |---|---|---|
-| RQ1 | 5 | ch1_introduction l.93 |
+| RQ1 | 5 | ch1_introduction l.94 |
 
 ### For the argument agent
 
@@ -148,7 +148,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | line | as written | trace |
 |---|---|---|
 | 18 | 0.36 | measured: results/wake_training.json:169, results/wake_training.json:813 |
-| 18 | 1.2 | measured: spikes/reports/S1_llama_throughput_thermals.md:40, results/exp2_latency_budget.md:12 /1024 |
+| 18 | 1.2 | measured: spikes/reports/S1_llama_throughput_thermals.md:40, results/exp2_latency_budget.md:14 /1024 |
 | 26 | 178 | recomputed by a claim on this line |
 | 27 | 1{,}072 | recomputed by a claim on this line |
 | 27 | 894 | recomputed by a claim on this line |
@@ -167,13 +167,13 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 59 | 0.760 | recomputed by a claim on this line |
 | 60 | 9 | recomputed by a claim on this line |
 | 60 | 0.85 | recomputed by a claim on this line |
-| 63 | 2{,}500 | measured: results/exp2_latency_budget.md:16, results/exp2_latency_budget.md:17 |
+| 63 | 2{,}500 | measured: results/exp2_latency_budget.md:18, results/exp2_latency_budget.md:19 |
 | 64 | 622 | recomputed by a claim on this line |
 | 64 | 25 | recomputed by a claim on this line |
 | 73 | 1{,}771.5 | recomputed by a claim on this line |
 | 73 | 1{,}350 | recomputed by a claim on this line |
 | 74 | 1{,}610.2 | recomputed by a claim on this line |
-| 76 | 250 | measured: results/exp2_latency_budget.md:13, results/exp2_analysis.md:14 |
+| 76 | 250 | measured: results/exp2_latency_budget.md:15, results/exp2_analysis.md:14 |
 | 77 | 278 | recomputed by a claim on this line |
 | 78 | 751 | recomputed by a claim on this line |
 | 78 | 1{,}033 | recomputed by a claim on this line |
@@ -204,7 +204,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 150 | 163.0 | recomputed by a claim on this line |
 | 150 | 163.0 | recomputed by a claim on this line |
 | 162 | 3{,}540 | measured: results/table19_grammar_ablation.md:10, results/table19_grammar_ablation.md:11 |
-| 163 | 0.17 | measured: results/wake_training.md:22, results/exp3_pi_analysis.md:23 |
+| 163 | 0.17 | measured: results/requirements_summary.md:24, results/wake_training.md:22 |
 | 209 | 6.5 | measured: results/table33_iso_parameter.md:16, thesis/generated/table33_iso_parameter.tex:19 |
 | 216 | 0.0023 | measured: results/table33_iso_parameter.md:16, results/mcnemar.md:70 |
 | 230 | 0.000 | measured: results/nfr18_false_command.md:11, results/nfr18_false_command.md:13 |
@@ -212,10 +212,10 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 242 | 1.6 | measured: results/thermal_headroom.md:19, results/table17_model_comparison.md:17 |
 | 242 | 1.69 | measured: results/thermal_headroom.md:19, thesis/generated/thermal_headroom.tex:21 |
 | 243 | 1.42 | measured: results/thermal_headroom.md:19, thesis/generated/thermal_headroom.tex:21 |
-| 248 | 200 | measured: results/exp2_latency_budget.md:4, results/table18_quantisation_delta.md:3 |
-| 250 | 200 | measured: results/exp2_latency_budget.md:4, results/table18_quantisation_delta.md:3 |
+| 248 | 200 | measured: results/exp2_latency_budget.md:5, results/table18_quantisation_delta.md:3 |
+| 250 | 200 | measured: results/exp2_latency_budget.md:5, results/table18_quantisation_delta.md:3 |
 | 253 | 1.1 | recomputed by a claim on this line |
-| 258 | 200 | measured: results/exp2_latency_budget.md:4, results/table18_quantisation_delta.md:3 |
+| 258 | 200 | measured: results/exp2_latency_budget.md:5, results/table18_quantisation_delta.md:3 |
 | 259 | 67 | measured: results/wake_training.json:1530 x100, results/wake_training.json:2316 x100 |
 | 284 | 200 | recomputed by a claim on this line |
 | 288 | 0.690 | recomputed by a claim on this line |
