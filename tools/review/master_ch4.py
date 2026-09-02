@@ -347,9 +347,9 @@ r.text_claim("claim", "a difference Section~\\ref{sec:statistics}\nestablishes a
 r.number("as specified by 622~ms", e2e_p95 - 2500, "exp2 E2E p95 - 2500")
 r.text_claim("claim", "none exceeds 0.935 on\nthe golden split", all(em(m, "Q8_0") <= em(Q) for m in (Q, L, S)), "every Q8_0 golden EM <= 0.935")
 r.number("misses the exact-match threshold by 9~pp", 100 * (0.85 - em(S)), "0.85 - smollm2 EM")
-meets = {m: em(m) >= 0.85 and p(cool[m], "slm_decode_ms") <= 1100 and p(cool[m], "total_ms") <= 1350
+meets = {m: em(m) >= 0.85 and float(B[(m, "Q4_K_M", "test_golden")]["intent_macro_f1"]) >= 0.90 and p(cool[m], "slm_decode_ms") <= 1100 and p(cool[m], "total_ms") <= 1350
          and tps(cool[m]) >= 20 and rss[m] <= 2.5 and not any(x["throttled_now"] == "1" for x in cool[m]) for m in cool}
-r.text_claim("claim", "only one of the\nthree meeting", sum(meets.values()) == 1 and meets[Q], f"configs meeting all six: {meets}")
+r.text_claim("claim", "only one of the\nthree meeting", sum(meets.values()) == 1 and meets[Q], f"configs meeting all seven: {meets}")
 r.text_claim("claim", "SmolLM2-360M\nis faster on every timing measure",
              all(p(cool[S], c) < p(cool[Q], c) for c in ("slm_decode_ms", "slm_prefill_ms", "total_ms")) and tps(cool[S]) > tps(cool[Q]),
              "smollm2 beats qwen on decode p95, prefill p95, total p95 and tok/s")
