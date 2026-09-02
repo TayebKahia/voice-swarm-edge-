@@ -374,9 +374,9 @@ establishes as significant, with no tie to break. The selection therefore does n
 whether SmolLM2-360M would have satisfied the budget. The Q8\_0 artefacts have no
 measurement on the board and cannot be checked against either constraint; none exceeds 0.935 on
 the golden split, so their exclusion does not change the ranking. The selected configuration is
-also the only one of the three meeting the 0.85 exact-match threshold, the 1{,}100~ms decode
-allowance, the 1{,}350~ms combined stage allowance under cached prefill, the 20~tok/s throughput
-floor and the throttling budget together, and it is not ruled out by the memory ceiling.
+also the only one of the three meeting the 0.85 exact-match threshold, the 0.90 intent-F1
+threshold, the 1{,}100~ms decode allowance, the 1{,}350~ms combined stage allowance under cached
+prefill, the 20~tok/s throughput floor and the throttling budget together, and it is not ruled out by the memory ceiling.
 SmolLM2-360M is faster on every timing measure and misses the exact-match threshold by 9~pp;
 Llama-3.2-1B is the largest model and scores lower than the selected one, by a margin
 Section~\ref{sec:statistics} does not establish as significant. Figure~\ref{fig:pareto} plots the

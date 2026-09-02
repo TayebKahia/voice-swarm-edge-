@@ -198,8 +198,9 @@ data therefore contains the recognition errors a model meets at inference rather
 text. The validation and \texttt{test\_synth} splits are clean text with no audio.
 
 The evaluation set of record differs in kind from the synthetic splits in its audio, not in its
-text. The single-speaker \textbf{golden set} is the author reading 200 utterances in a quiet room,
-in one session held over two consecutive days, never re-synthesised. Its transcripts were drawn by
+text. The single-speaker \textbf{golden set} (\texttt{test\_golden} in Table~\ref{tab:dataset}; the
+golden split of Chapter~\ref{chap:results}) is the author reading 200 utterances in a quiet room, in
+one session held over two consecutive days, never re-synthesised. Its transcripts were drawn by
 the same generator from the 12 template families held out for \texttt{test\_synth}, never from the
 validation families that select checkpoints. They cover all ten intents, but only 12 of the 34
 (intent, slot-set) combinations the generator produces, one family per combination; one of the 12,
@@ -571,7 +572,7 @@ Throttle proportion & Fraction of timed trials during which the board reports a 
 \Acrlong{wer} (\acrshort{wer}) & Word-level edits summed over utterances, divided by the total number of reference words (corpus \acrshort{wer}), after the fixed normalisation committed in \texttt{eval/norm.py} & \ref{sec:speaker-sensitivity}, \textdagger \\
 Speaker position & The author's \acrshort{wer}, with a bootstrap 95\% confidence interval, located within the distribution of per-bucket \acrshort{wer} over the Common Voice accent buckets & \ref{sec:speaker-sensitivity} \\
 Latency & Language-model decode and prefill latency, per trial as reported by the \texttt{llama.cpp} server, reported as p50/p95 alongside throughput. Parse path: $T_0$ = end of speech, $T_1$ = return of the publish call on the runtime's command bus; reflex path: $T_0$ = keyword offset, same $T_1$; both paths also report an onset-anchored figure & \ref{sec:benchmark}, \ref{sec:selection}, \textdagger \\
-Percentiles & Nearest-rank on the sorted sample, no interpolation; sample size $n$ stated in every cell & all \\
+Percentiles & Nearest-rank on the sorted sample, no interpolation; p50 and p95 denote the 50th and 95th percentiles; sample size $n$ stated in every cell & all \\
 Formation accuracy & Fraction of drones within $\tau = 0.5$~m of the assigned slot, averaged over the final 5~s of a 60~s trial & \textdagger \\
 Convergence & Rate of trials whose formation accuracy reaches 0.85 at all, plus median and interquartile range of convergence time over converged trials only & \textdagger \\
 \bottomrule
