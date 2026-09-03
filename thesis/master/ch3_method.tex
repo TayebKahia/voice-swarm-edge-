@@ -94,8 +94,10 @@ The \texttt{num} rule bounds every numeric field to three integer digits and one
 This makes \texttt{1e999}, a twenty-digit integer, or a bare trailing decimal point structurally
 unreachable rather than unlikely. No value of that shape is in the grammar's language, so the
 decoder cannot sample toward one, whatever the model's own distribution favours. \gls{gbnf} has no
-way to express a numeric \emph{range}: a grammar can bound how many digits a number has, not
-whether $16.0$ is a legal altitude. Range enforcement is therefore left to the semantic validator.
+construct for a numeric \emph{range}, and a range spelt out as digit patterns would make the
+decoder emit some admissible value in place of the one spoken, with no record that it had done so.
+Range enforcement is therefore left to the semantic validator, which clamps an out-of-range value
+and logs the change.
 The one-decimal limit fixed here is also why the canonical comparator of
 Section~\ref{sec:definitions-of-record} rounds every numeric slot to one decimal before comparison:
 the metric matches what the decoder can produce, not a precision the schema never promised.
