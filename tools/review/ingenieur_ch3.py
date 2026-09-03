@@ -24,6 +24,7 @@ from lib import INGENIEUR, REPO, THESIS, Review, numbers, outline_check, prd  # 
 
 sys.path.insert(0, str(REPO))
 from schema.schema import ENVELOPE, INTENTS, POS_MAX_NORM, SWARM_SIZE  # noqa: E402
+from schema.validate import _clamp_pos  # noqa: E402
 from swarm.fsm import TABLE_9_LEGALITY, FlightState  # noqa: E402
 
 r = Review("ingenieur_ch3", "ingenieur", INGENIEUR[2], [*INGENIEUR[:2], *INGENIEUR[3:]])
@@ -148,10 +149,18 @@ r.number("with one of ten intents and a fixed key order", len(re.findall(r'\\"in
 for anchor, slot, nth in (("A radius is clamped to 1--10~m", "radius", 0), ("A radius is clamped to 1--10~m", "radius", 1),
                           ("spacing to 1--5~m", "spacing", 0), ("spacing to 1--5~m", "spacing", 1),
                           ("a target height to 0.5--15~m", "z", 0), ("a target height to 0.5--15~m", "z", 1),
+                          ("its height clamped to 0.5--15~m", "z", 0), ("its height clamped to 0.5--15~m", "z", 1),
                           ("a speed to 0.2--2.0~m/s", "speed", 0), ("a speed to 0.2--2.0~m/s", "speed", 1)):
     r.number(anchor, ENVELOPE[slot][nth], f"ENVELOPE {slot}[{nth}]", nth=nth)
 r.number("a distance to at most 50~m", ENVELOPE["dist"][1], "ENVELOPE dist (ADR-0001)")
-r.number("held within 50~m of the origin", POS_MAX_NORM, "schema/schema.py POS_MAX_NORM")
+r.number("more than 50~m from the origin", POS_MAX_NORM, "schema/schema.py POS_MAX_NORM")
+# Height clamped on its own first, then only (x, y) scaled: [30,30,20] loses its bearing to the z
+# clamp alone (norm 46.9 < 50); [40,40,5] keeps it. The prose once said the whole vector is scaled.
+_hi, _far = _clamp_pos((30.0, 30.0, 20.0)), _clamp_pos((40.0, 40.0, 5.0))
+r.text_claim("claim", "its horizontal part alone is scaled down",
+             _hi == (30.0, 30.0, 15.0) and _far[2] == 5.0 and abs(_far[0] - _far[1]) < 1e-9
+             and abs(sum(v * v for v in _far) ** 0.5 - POS_MAX_NORM) < 0.1,
+             "schema/validate.py _clamp_pos: z clamped first, then only x, y scaled to the 50 m norm")
 r.number("wrapped into $[-180^\\circ, 180^\\circ]$", ENVELOPE["yaw"][1], "ENVELOPE yaw", nth=1)
 
 STATES = {s.value for s in FlightState}
