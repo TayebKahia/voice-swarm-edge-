@@ -197,7 +197,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 85 | 0.25 | measured: results/nfr18_false_command.md:12, results/table18_quantisation_delta.md:15 |
 | 87 | 0.95 | measured: results/table33_iso_parameter.md:12, results/table17_model_comparison.md:21 |
 | 87 | 0.25 | measured: results/nfr18_false_command.md:12, results/table18_quantisation_delta.md:15 |
-| 146 | 290 | DECLARED ONLY: prd.md:243, .scratch/sprint-pfe/STATE.md:985 |
+| 146 | 290 | DECLARED ONLY: prd.md:248, .scratch/sprint-pfe/STATE.md:985 |
 | 147 | 512 | recomputed by a claim on this line |
 | 169 | 300 | recomputed by a claim on this line |
 | 192 | 2{,}500 | measured: results/exp2_latency_budget.md:18, results/exp2_latency_budget.md:19 |
