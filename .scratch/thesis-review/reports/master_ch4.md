@@ -162,59 +162,59 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | PASS | claim | 247 | `to 0.8492, a difference` -> written 0.8492, source gives 0.8492 (pooled EM grammar off) |
 | PASS | claim | 247 | `a difference of 0.17~pp` -> written 0.17, source gives 0.17 (pooled EM difference) |
 | PASS | claim | 247 | `or six decodes in 3{,}540` -> written 6, source gives 6.00 (item-count difference) |
-| PASS | claim | 275 | `gives $\alpha = 0.0167$` -> written 0.0167, source gives 0.0167 (0.05 / 3) |
-| PASS | claim | 275 | `Below 25 discordant` -> written 25, source gives 25.00 (eval/stats.py EXACT_BELOW_DISCORDANT) |
-| PASS | path | 277 | `results/mcnemar.csv` exists in the repo |
-| PASS | claim | 277 | exact and chi-square verdicts agree on all 22 mcnemar.csv rows |
-| PASS | claim | 283 | `on 5 items out of 200` -> written 5, source gives 5.00 (mcnemar llama-qwen discordant) |
-| PASS | claim | 283 | only_qwen 5, only_llama 0 |
-| PASS | claim | 283 | `exact $p = 0.0625$` -> written 0.0625, source gives 0.0625 (mcnemar llama-qwen p_exact) |
-| PASS | claim | 284 | `smallest attainable exact $p$ is 0.0625` -> written 0.0625, source gives 0.0625 (2 x 0.5^5, two-sided exact) |
-| PASS | claim | 286 | `at least seven disagreements` -> written 7, source gives 7.00 (min n with 2 x 0.5^n < 0.0167) |
-| PASS | claim | 287 | `$p = 2.5 \times 10^{-6}$` -> written 2.5, source gives 2.55 (llama-smollm2 p x 1e6) |
-| PASS | claim | 288 | `$p = 1.1 \times 10^{-7}$` -> written 1.1, source gives 1.10 (qwen-smollm2 p x 1e7) |
-| PASS | claim | 288 | `on 38 and 41 discordant` -> written 38, source gives 38.00 (llama-smollm2 discordant) |
-| PASS | claim | 288 | `and 41 discordant` -> written 41, source gives 41.00 (qwen-smollm2 discordant) |
-| PASS | claim | 288 | `split 34 against 4` -> written 34, source gives 34.00 (llama-smollm2 only llama) |
-| PASS | claim | 289 | `split 34 against 4` -> written 4, source gives 4.00 (llama-smollm2 only smollm2) |
-| PASS | claim | 289 | `and 38 against 3.` -> written 38, source gives 38.00 (qwen-smollm2 only qwen) |
-| PASS | claim | 289 | `and 38 against 3.` -> written 3, source gives 3.00 (qwen-smollm2 only smollm2) |
-| PASS | claim | 290 | `gaps of 15.0 and 17.5~pp` -> written 15.0, source gives 15.00 (llama - smollm2) |
-| PASS | claim | 290 | `gaps of 15.0 and 17.5~pp` -> written 17.5, source gives 17.50 (qwen - smollm2) |
-| PASS | claim | 292 | every quantisation row: significant = no |
-| PASS | claim | 294 | llama-3.2-1b-instruct Q4 vs Q8 golden: discordant 1, p 1 (text: single item, p = 1) |
-| PASS | claim | 294 | qwen2.5-0.5b-instruct Q4 vs Q8 golden: discordant 1, p 1 (text: single item, p = 1) |
-| PASS | claim | 295 | `on 22 and returns` -> written 22, source gives 22.00 (smollm2 Q4 vs Q8 golden discordant) |
-| PASS | claim | 295 | `$p = 0.286$` -> written 0.286, source gives 0.286 (smollm2 Q4 vs Q8 golden p) |
-| PASS | claim | 304 | `scores 0.8125 at both` -> written 0.8125, source gives 0.8125 (smollm2 synth Q4 EM) |
-| PASS | claim | 304 | Q4 0.8125 = Q8 0.8125 |
-| PASS | claim | 306 | `disagree on 24 items` -> written 24, source gives 24.00 (smollm2 synth discordant) |
-| PASS | claim | 306 | 12--12 |
-| PASS | figure | 322 | ../results/figure2_pareto.pdf is vector |
-| PASS | figure | 322 | ../results/figure2_pareto.pdf exists |
-| PASS | claim | 327 | cooled n per config: [60, 60, 60] |
-| PASS | path | 336 | `eval/plots.py` exists in the repo |
-| PASS | path | 336 | `results/surface_b.csv` exists in the repo |
-| PASS | path | 337 | `results/exp1_cooled.csv` exists in the repo |
-| PASS | float | 338 | fig:pareto referenced before it appears (line 317) |
-| PASS | claim | 341 | `is 0.55~GiB to` -> written 0.55, source gives 0.55 (min peak RSS) |
-| PASS | claim | 344 | `at least 35\% clear of it` -> written 35, source gives 34.77 (1 - max peak RSS / 2.5) |
-| PASS | claim | 350 | `p95 is 3{,}122~ms over 226` -> written 3122, source gives 3122.00 (exp2_latency_budget.md E2E from end of speech p95) |
-| PASS | claim | 350 | `p95 is 3{,}122~ms over 226` -> written 226, source gives 226.00 (exp2_latency_budget.md E2E n) |
-| PASS | claim | 350 | `segments, 622~ms (25\%) above` -> written 622, source gives 622.00 (exp2 E2E p95 - 2500) |
-| PASS | claim | 350 | `622~ms (25\%) above the budget` -> written 25, source gives 24.88 (exp2 E2E p95 / 2500 - 1) |
-| PASS | claim | 351 | `recorded is 1{,}063~ms` -> written 1063, source gives 1063.38 (min stt_ms over results/exp2_preds/clean.jsonl) |
-| PASS | claim | 354 | `at least 3{,}346~ms` -> written 3346, source gives 3345.83 (llama total p95 + min STT) |
-| PASS | claim | 362 | `re-baselined to the measured 3{,}122~ms` -> written 3122, source gives 3122.00 (exp2 E2E p95) |
-| PASS | claim | 364 | `lower bound of 3{,}346~ms exceeds` -> written 3346, source gives 3345.83 (llama total p95 + min STT) |
-| PASS | claim | 364 | llama bound 3346 > re-baselined 3122 |
-| PASS | claim | 372 | qwen vs smollm2 golden Q4: p 1.09681e-07, significant = yes |
-| PASS | claim | 375 | every Q8_0 golden EM <= 0.935 |
-| PASS | claim | 377 | configs meeting all seven: {'llama-3.2-1b-instruct': False, 'qwen2.5-0.5b-instruct': True, 'smollm2-360m-instruct': False} |
-| PASS | claim | 380 | `misses the exact-match threshold by 9~pp` -> written 9, source gives 9.00 (0.85 - smollm2 EM) |
-| PASS | claim | 380 | smollm2 beats qwen on decode p95, prefill p95, total p95 and tok/s |
-| PASS | claim | 383 | llama: lower EM and higher total p95 than qwen |
-| PASS | claim | 392 | `as specified by 622~ms` -> written 622, source gives 622.00 (exp2 E2E p95 - 2500) |
+| PASS | claim | 276 | `gives $\alpha = 0.0167$` -> written 0.0167, source gives 0.0167 (0.05 / 3) |
+| PASS | claim | 276 | `Below 25 discordant` -> written 25, source gives 25.00 (eval/stats.py EXACT_BELOW_DISCORDANT) |
+| PASS | path | 278 | `results/mcnemar.csv` exists in the repo |
+| PASS | claim | 278 | exact and chi-square verdicts agree on all 22 mcnemar.csv rows |
+| PASS | claim | 284 | `on 5 items out of 200` -> written 5, source gives 5.00 (mcnemar llama-qwen discordant) |
+| PASS | claim | 284 | only_qwen 5, only_llama 0 |
+| PASS | claim | 284 | `exact $p = 0.0625$` -> written 0.0625, source gives 0.0625 (mcnemar llama-qwen p_exact) |
+| PASS | claim | 285 | `smallest attainable exact $p$ is 0.0625` -> written 0.0625, source gives 0.0625 (2 x 0.5^5, two-sided exact) |
+| PASS | claim | 287 | `at least seven disagreements` -> written 7, source gives 7.00 (min n with 2 x 0.5^n < 0.0167) |
+| PASS | claim | 288 | `$p = 2.5 \times 10^{-6}$` -> written 2.5, source gives 2.55 (llama-smollm2 p x 1e6) |
+| PASS | claim | 289 | `$p = 1.1 \times 10^{-7}$` -> written 1.1, source gives 1.10 (qwen-smollm2 p x 1e7) |
+| PASS | claim | 289 | `on 38 and 41 discordant` -> written 38, source gives 38.00 (llama-smollm2 discordant) |
+| PASS | claim | 289 | `and 41 discordant` -> written 41, source gives 41.00 (qwen-smollm2 discordant) |
+| PASS | claim | 289 | `split 34 against 4` -> written 34, source gives 34.00 (llama-smollm2 only llama) |
+| PASS | claim | 290 | `split 34 against 4` -> written 4, source gives 4.00 (llama-smollm2 only smollm2) |
+| PASS | claim | 290 | `and 38 against 3.` -> written 38, source gives 38.00 (qwen-smollm2 only qwen) |
+| PASS | claim | 290 | `and 38 against 3.` -> written 3, source gives 3.00 (qwen-smollm2 only smollm2) |
+| PASS | claim | 291 | `gaps of 15.0 and 17.5~pp` -> written 15.0, source gives 15.00 (llama - smollm2) |
+| PASS | claim | 291 | `gaps of 15.0 and 17.5~pp` -> written 17.5, source gives 17.50 (qwen - smollm2) |
+| PASS | claim | 293 | every quantisation row: significant = no |
+| PASS | claim | 295 | llama-3.2-1b-instruct Q4 vs Q8 golden: discordant 1, p 1 (text: single item, p = 1) |
+| PASS | claim | 295 | qwen2.5-0.5b-instruct Q4 vs Q8 golden: discordant 1, p 1 (text: single item, p = 1) |
+| PASS | claim | 296 | `on 22 and returns` -> written 22, source gives 22.00 (smollm2 Q4 vs Q8 golden discordant) |
+| PASS | claim | 296 | `$p = 0.286$` -> written 0.286, source gives 0.286 (smollm2 Q4 vs Q8 golden p) |
+| PASS | claim | 305 | `scores 0.8125 at both` -> written 0.8125, source gives 0.8125 (smollm2 synth Q4 EM) |
+| PASS | claim | 305 | Q4 0.8125 = Q8 0.8125 |
+| PASS | claim | 307 | `disagree on 24 items` -> written 24, source gives 24.00 (smollm2 synth discordant) |
+| PASS | claim | 307 | 12--12 |
+| PASS | figure | 323 | ../results/figure2_pareto.pdf is vector |
+| PASS | figure | 323 | ../results/figure2_pareto.pdf exists |
+| PASS | claim | 328 | cooled n per config: [60, 60, 60] |
+| PASS | path | 337 | `eval/plots.py` exists in the repo |
+| PASS | path | 337 | `results/surface_b.csv` exists in the repo |
+| PASS | path | 338 | `results/exp1_cooled.csv` exists in the repo |
+| PASS | float | 339 | fig:pareto referenced before it appears (line 318) |
+| PASS | claim | 342 | `is 0.55~GiB to` -> written 0.55, source gives 0.55 (min peak RSS) |
+| PASS | claim | 345 | `at least 35\% clear of it` -> written 35, source gives 34.77 (1 - max peak RSS / 2.5) |
+| PASS | claim | 351 | `p95 is 3{,}122~ms over 226` -> written 3122, source gives 3122.00 (exp2_latency_budget.md E2E from end of speech p95) |
+| PASS | claim | 351 | `p95 is 3{,}122~ms over 226` -> written 226, source gives 226.00 (exp2_latency_budget.md E2E n) |
+| PASS | claim | 351 | `segments, 622~ms (25\%) above` -> written 622, source gives 622.00 (exp2 E2E p95 - 2500) |
+| PASS | claim | 351 | `622~ms (25\%) above the budget` -> written 25, source gives 24.88 (exp2 E2E p95 / 2500 - 1) |
+| PASS | claim | 352 | `recorded is 1{,}063~ms` -> written 1063, source gives 1063.38 (min stt_ms over results/exp2_preds/clean.jsonl) |
+| PASS | claim | 355 | `at least 3{,}346~ms` -> written 3346, source gives 3345.83 (llama total p95 + min STT) |
+| PASS | claim | 363 | `re-baselined to the measured 3{,}122~ms` -> written 3122, source gives 3122.00 (exp2 E2E p95) |
+| PASS | claim | 365 | `lower bound of 3{,}346~ms exceeds` -> written 3346, source gives 3345.83 (llama total p95 + min STT) |
+| PASS | claim | 365 | llama bound 3346 > re-baselined 3122 |
+| PASS | claim | 373 | qwen vs smollm2 golden Q4: p 1.09681e-07, significant = yes |
+| PASS | claim | 376 | every Q8_0 golden EM <= 0.935 |
+| PASS | claim | 378 | configs meeting all seven: {'llama-3.2-1b-instruct': False, 'qwen2.5-0.5b-instruct': True, 'smollm2-360m-instruct': False} |
+| PASS | claim | 381 | `misses the exact-match threshold by 9~pp` -> written 9, source gives 9.00 (0.85 - smollm2 EM) |
+| PASS | claim | 381 | smollm2 beats qwen on decode p95, prefill p95, total p95 and tok/s |
+| PASS | claim | 384 | llama: lower EM and higher total p95 than qwen |
+| PASS | claim | 393 | `as specified by 622~ms` -> written 622, source gives 622.00 (exp2 E2E p95 - 2500) |
 
 ### Citation sheet (for the citation agent: open each identifier, judge SUPPORTS / PARTIAL / DOES NOT SUPPORT per row)
 
@@ -231,15 +231,15 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 9 | 232 | kurtic2025, kurt2026 | The literature measuring quantisation degradation on downstream tasks at larger scales~\cite{kurtic2025,kurt2026} reports the isolated effect; the number here is a different and coarser one, and the two should not be read against each other. |
 | 10 | 258 | park2024 | The literature reports that grammar-constrained decoding can distort the model's distribution over grammatical outputs~\cite{park2024}, and that format restrictions, most strongly \gls{json}-mode constrained decoding, degrade performance on multi-step reasoning tasks while matching or improving it on classification tas |
 | 11 | 260 | tam2024 | The literature reports that grammar-constrained decoding can distort the model's distribution over grammatical outputs~\cite{park2024}, and that format restrictions, most strongly \gls{json}-mode constrained decoding, degrade performance on multi-step reasoning tasks while matching or improving it on classification tas |
-| 12 | 271 | mcnemar1947 | Every configuration decodes the same items deterministically, so predictions are paired per item and McNemar's test~\cite{mcnemar1947} applies. |
-| 13 | 274 | dunn1961 | Bonferroni correction~\cite{dunn1961} within each family of three gives $\alpha = 0.0167$ against a family-wise $\alpha = 0.05$. |
+| 12 | 272 | mcnemar1947 | Every configuration decodes the same items deterministically, so predictions are paired per item and McNemar's test~\cite{mcnemar1947} applies. |
+| 13 | 275 | dunn1961 | Bonferroni correction~\cite{dunn1961} within each family of three gives $\alpha = 0.0167$ against a family-wise $\alpha = 0.05$. |
 
 | key | title | year | identifier |
 |---|---|---|---|
 | whisper | Robust Speech Recognition via Large-Scale Weak Supervision | 2023 | https://proceedings.mlr.press/v202/radford23a.html |
 | whispercpp | whisper.cpp: Port of OpenAI's Whisper Model in C/C++ | 2026 | https://github.com/ggml-org/whisper.cpp |
 | commonvoice | Common Voice: A Massively-Multilingual Speech Corpus | 2020 | https://aclanthology.org/2020.lrec-1.520/ |
-| llamacpp | llama.cpp: LLM Inference in C/C++ | ? | https://github.com/ggml-org/llama.cpp |
+| llamacpp | llama.cpp: LLM Inference in C/C++ | 2026 | https://github.com/ggml-org/llama.cpp |
 | qwen25 | Qwen2.5 Technical Report | 2024 | arXiv:2412.15115 |
 | llama32 | Llama 3.2: Revolutionizing Edge AI and Vision with Open, Customizable Models | 2024 | https://ai.meta.com/blog/llama-3-2-connect-2024-vision-edge-mobile-devices/ |
 | smollm2 | SmolLM2: When Smol Goes Big --- Data-Centric Training of a Small Language Model | 2025 | arXiv:2502.02737 |
@@ -261,16 +261,16 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 66 | section | The multi-model benchmark | 962 |
 | 158 | section | A parameter-matched family control | 570 |
 | 208 | section | The quantisation delta | 296 |
-| 238 | section | The grammar ablation | 245 |
-| 266 | section | Statistical analysis | 485 |
-| 310 | section | The selection rule applied | 1032 |
+| 238 | section | The grammar ablation | 246 |
+| 267 | section | Statistical analysis | 485 |
+| 311 | section | The selection rule applied | 1032 |
 
 ### Codes used in this chapter (self-containment agent: is each one needed, or would a descriptive name read better?)
 
 | code | uses | defined at |
 |---|---|---|
-| C3 | 1 | ch1_introduction l.118 |
-| RQ1 | 1 | ch1_introduction l.94 |
+| C3 | 1 | ch1_introduction l.120 |
+| RQ1 | 1 | ch1_introduction l.95 |
 
 ### For the argument agent
 
@@ -406,51 +406,51 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 249 | 3{,}540 | measured: results/table19_grammar_ablation.md:10, results/table19_grammar_ablation.md:11 |
 | 255 | 3{,}540 | measured: results/table19_grammar_ablation.md:10, results/table19_grammar_ablation.md:11 |
 | 261 | 0.17 | measured: results/requirements_summary.md:24, results/wake_training.md:22 |
-| 275 | 0.0167 | recomputed by a claim on this line |
-| 275 | 0.05 | recomputed by a claim on this line |
-| 283 | 200 | recomputed by a claim on this line |
-| 283 | 0.0625 | recomputed by a claim on this line |
-| 284 | 0.0167 | recomputed by a claim on this line |
+| 276 | 0.0167 | recomputed by a claim on this line |
+| 276 | 0.05 | recomputed by a claim on this line |
+| 284 | 200 | recomputed by a claim on this line |
 | 284 | 0.0625 | recomputed by a claim on this line |
-| 287 | 2.5 | recomputed by a claim on this line |
-| 288 | 1.1 | recomputed by a claim on this line |
-| 289 | 2.5 | recomputed by a claim on this line |
-| 290 | 15.0 | recomputed by a claim on this line |
-| 290 | 17.5 | recomputed by a claim on this line |
-| 294 | 200 | recomputed by a claim on this line |
-| 295 | 0.286 | recomputed by a claim on this line |
-| 300 | 1.0 | measured: results/nfr18_false_command.md:10, results/nfr18_false_command.md:11 |
-| 302 | 200 | measured: results/exp2_latency_budget.md:5, results/table18_quantisation_delta.md:3 |
-| 304 | 0.8125 | recomputed by a claim on this line |
-| 314 | 2{,}500 | measured: results/exp2_latency_budget.md:18, results/exp2_latency_budget.md:19 |
-| 315 | 2.5 | measured: results/nfr18_false_command.md:12, results/nfr18_false_command.md:13 |
-| 326 | 200 | measured: results/exp2_latency_budget.md:5, results/table18_quantisation_delta.md:3 |
-| 331 | 1{,}350 | measured: results/exp2.csv:8 x100 |
-| 332 | 2{,}500 | measured: results/exp2_latency_budget.md:18, results/exp2_latency_budget.md:19 |
-| 333 | 0.85 | measured: results/requirements_summary.md:28, results/exp4_formation.md:13 |
-| 341 | 0.55 | recomputed by a claim on this line |
-| 342 | 1.63 | measured: results/table17_model_comparison.md:17, results/table17_model_comparison.md:18 |
-| 342 | 2.5 | measured: results/nfr18_false_command.md:12, results/nfr18_false_command.md:13 |
-| 344 | 35 | recomputed by a claim on this line |
-| 347 | 2{,}500 | measured: results/exp2_latency_budget.md:18, results/exp2_latency_budget.md:19 |
-| 350 | 3{,}122 | recomputed by a claim on this line |
-| 350 | 226 | recomputed by a claim on this line |
-| 350 | 622 | recomputed by a claim on this line |
-| 350 | 25 | recomputed by a claim on this line |
-| 351 | 1{,}063 | recomputed by a claim on this line |
-| 353 | 2{,}282 | measured: results/thermal_headroom.md:12, results/table17_model_comparison.md:17 |
-| 354 | 3{,}346 | recomputed by a claim on this line |
-| 355 | 894 | measured: results/thermal_headroom.md:16, results/table17_model_comparison.md:29 |
-| 362 | 3{,}122 | recomputed by a claim on this line |
-| 364 | 3{,}346 | recomputed by a claim on this line |
-| 372 | 0.935 | recomputed by a claim on this line |
-| 372 | 0.760 | recomputed by a claim on this line |
-| 375 | 0.935 | recomputed by a claim on this line |
-| 377 | 0.85 | recomputed by a claim on this line |
-| 377 | 0.90 | recomputed by a claim on this line |
-| 378 | 1{,}100 | measured: results/exp2_latency_budget.md:16, results/exp2_analysis.md:15 |
-| 378 | 1{,}350 | measured: results/exp2.csv:8 x100 |
-| 379 | 20 | measured: results/table16_asr_speaker_sensitivity.md:26, results/exp3_pi_analysis.md:15 |
-| 380 | 9 | recomputed by a claim on this line |
-| 392 | 2{,}500 | recomputed by a claim on this line |
-| 392 | 622 | recomputed by a claim on this line |
+| 285 | 0.0167 | recomputed by a claim on this line |
+| 285 | 0.0625 | recomputed by a claim on this line |
+| 288 | 2.5 | recomputed by a claim on this line |
+| 289 | 1.1 | recomputed by a claim on this line |
+| 290 | 2.5 | recomputed by a claim on this line |
+| 291 | 15.0 | recomputed by a claim on this line |
+| 291 | 17.5 | recomputed by a claim on this line |
+| 295 | 200 | recomputed by a claim on this line |
+| 296 | 0.286 | recomputed by a claim on this line |
+| 301 | 1.0 | measured: results/nfr18_false_command.md:10, results/nfr18_false_command.md:11 |
+| 303 | 200 | measured: results/exp2_latency_budget.md:5, results/table18_quantisation_delta.md:3 |
+| 305 | 0.8125 | recomputed by a claim on this line |
+| 315 | 2{,}500 | measured: results/exp2_latency_budget.md:18, results/exp2_latency_budget.md:19 |
+| 316 | 2.5 | measured: results/nfr18_false_command.md:12, results/nfr18_false_command.md:13 |
+| 327 | 200 | measured: results/exp2_latency_budget.md:5, results/table18_quantisation_delta.md:3 |
+| 332 | 1{,}350 | measured: results/exp2.csv:8 x100 |
+| 333 | 2{,}500 | measured: results/exp2_latency_budget.md:18, results/exp2_latency_budget.md:19 |
+| 334 | 0.85 | measured: results/requirements_summary.md:28, results/exp4_formation.md:13 |
+| 342 | 0.55 | recomputed by a claim on this line |
+| 343 | 1.63 | measured: results/table17_model_comparison.md:17, results/table17_model_comparison.md:18 |
+| 343 | 2.5 | measured: results/nfr18_false_command.md:12, results/nfr18_false_command.md:13 |
+| 345 | 35 | recomputed by a claim on this line |
+| 348 | 2{,}500 | measured: results/exp2_latency_budget.md:18, results/exp2_latency_budget.md:19 |
+| 351 | 3{,}122 | recomputed by a claim on this line |
+| 351 | 226 | recomputed by a claim on this line |
+| 351 | 622 | recomputed by a claim on this line |
+| 351 | 25 | recomputed by a claim on this line |
+| 352 | 1{,}063 | recomputed by a claim on this line |
+| 354 | 2{,}282 | measured: results/thermal_headroom.md:12, results/table17_model_comparison.md:17 |
+| 355 | 3{,}346 | recomputed by a claim on this line |
+| 356 | 894 | measured: results/thermal_headroom.md:16, results/table17_model_comparison.md:29 |
+| 363 | 3{,}122 | recomputed by a claim on this line |
+| 365 | 3{,}346 | recomputed by a claim on this line |
+| 373 | 0.935 | recomputed by a claim on this line |
+| 373 | 0.760 | recomputed by a claim on this line |
+| 376 | 0.935 | recomputed by a claim on this line |
+| 378 | 0.85 | recomputed by a claim on this line |
+| 378 | 0.90 | recomputed by a claim on this line |
+| 379 | 1{,}100 | measured: results/exp2_latency_budget.md:16, results/exp2_analysis.md:15 |
+| 379 | 1{,}350 | measured: results/exp2.csv:8 x100 |
+| 380 | 20 | measured: results/table16_asr_speaker_sensitivity.md:26, results/exp3_pi_analysis.md:15 |
+| 381 | 9 | recomputed by a claim on this line |
+| 393 | 2{,}500 | recomputed by a claim on this line |
+| 393 | 622 | recomputed by a claim on this line |
