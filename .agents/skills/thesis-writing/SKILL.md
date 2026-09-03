@@ -143,7 +143,8 @@ first, then the scaffold, then the prose — never the prose alone.
 
 1. **Introduction** — operational context, engineering requirements, the safety problem.
 2. **State of the art** — voice-controlled UAV systems; positioning against Lim et al.
-   (`\cite{lim2025}`). This is the *only* document that discusses voice-UAV literature (Table 3).
+   (`\cite{lim2025}`); swarm control; offline speech components; the gap this document fills.
+   This is the *only* document that discusses voice-UAV literature (Table 3).
 3. **Architecture and design** — the dual-path decomposition, the Branch A membership rule, the
    three validation layers, the latency budget, resource allocation.
 4. **Implementation** — audio chain, runtime, command bus, state machine, swarm controller, both
