@@ -71,7 +71,7 @@ designs the runtime around it.
   \node[stage] (val) at (12.8,-1.4) {Validator\\(layer 2)};
   \node[stage, text width=21mm] (bus) at (15.4,0) {Command bus\\UDP, \acrshort{json}};
   % Workstation
-  \node[stage, text width=21mm] (fsm) at (15.4,-4.0) {State machine\\(layer 3),\\ordering rule};
+  \node[stage, text width=21mm] (fsm) at (15.4,-4.0) {Validator\\(layer 2),\\state machine\\(layer 3),\\ordering rule};
   \node[stage] (ctl) at (12.3,-4.0) {Swarm\\controller\\50~Hz};
   \node[stage] (sim) at (9.3,-4.0)  {Simulated\\swarm\\$N = 5$};
 
@@ -106,10 +106,11 @@ paths. The reflex path, the keyword spotter, publishes one of two fixed commands
 transcription and parsing entirely; the parse path endpoints the utterance, transcribes it, parses
 the transcript into a command under the decoding grammar and validates the result. Both paths
 publish to one command bus. A reflex-path trigger cancels any decode in progress (dashed); the
-ordering rule at the bus's consumer discards any parse-path result older than the latest reflex-path
-command, whether or not the cancellation succeeded. The state machine, the swarm controller and the
-simulated vehicles run on a workstation joined to the Pi by Wi-Fi; the state machine validates every
-command, from either path, before it takes effect.}
+ordering rule at the bus's consumer discards any parse-path result whose sequence number precedes the
+latest reflex-path command, whether or not the cancellation succeeded. The state machine, the swarm
+controller and the simulated vehicles run on a workstation joined to the Pi by Wi-Fi. The validator
+and the state machine check every command, from either path, before it takes effect; the validator
+also runs on the Pi before a parse-path command is published.}
 \label{fig:architecture}
 \end{figure}
 
@@ -155,11 +156,21 @@ decode was stopped. The rule depends on when a sequence number is assigned. A pa
 reserves its number when it is accepted for processing, before transcription begins, and not when
 its decode completes. A number assigned at completion would make a slow decode that finishes after a
 later trigger compare as newer than the trigger, and the stale command would override the stop the
-rule exists to protect. The second action is an optimisation: the decode in progress is cancelled,
-so that the three inference cores are released at once rather than spent on a result that will be
-discarded. Correctness does not depend on the cancellation succeeding. What the cancellation governs
-is recovery, the time before the parse path can accept the next utterance, which the
-preemption-recovery criterion bounds at 300~ms at p95 (Table~\ref{tab:nonfunctional-requirements}).
+rule exists to protect. The rule covers the utterance in progress when the trigger fires, not those
+waiting behind it. An utterance that has been endpointed but is queued behind the one in progress
+reserves its number only when the parse path takes it up, so it compares as newer than a trigger
+spoken after it. After an abort this has no effect, because the swarm has left flight and the state
+machine rejects any later motion; after a hold, which leaves the swarm flying, the queued command is
+legal and takes effect (Section~\ref{sec:limitations}). The second action is an optimisation: the
+decode in progress is cancelled, so that the three inference cores are released at once rather than
+spent on a result that will be discarded. Correctness does not depend on the cancellation
+succeeding. What the cancellation governs is recovery, the time before the parse path can accept
+the next utterance, which the preemption-recovery criterion bounds at 300~ms at p95
+(Table~\ref{tab:nonfunctional-requirements}). The cancellation reaches only a decode already in
+progress. A trigger that arrives while the utterance is still being transcribed leaves the
+transcription, and the decode that follows it, to run to completion before the ordering rule
+discards the result; in that case recovery is bounded by the remaining parse-path stages, not by
+the cancellation, and can exceed the criterion (Section~\ref{sec:limitations}).
 
 \section{Reflex-path membership rule}
 \label{sec:membership-rule}
@@ -240,11 +251,12 @@ motion, and it keeps the two classes distinct in effect: a hold stays airborne a
 down.
 
 Both phrases are two words with a common prefix rather than single words. A keyword classifier
-scores a fixed window of audio~\cite{oww}, and a single short word fills little of it, so a
-one-word class gives the classifier less evidence and invites more false accepts on continuous
-speech. The shared word \emph{swarm} supplies an onset that is uncommon in ordinary speech to
-both classes at once. It also brings the two classes closer acoustically, which raises the chance
-of one being heard as the other. That confusion is benign by construction: hearing \emph{abort}
+scores a fixed window of audio~\cite{oww}. The design assumes that a single short word, which
+fills little of that window, gives the classifier less evidence and so invites more false accepts
+on continuous speech. The assumption is not tested against a one-word alternative;
+Section~\ref{sec:keyword-spotter-evaluation} reports the false-accept rate of the two phrases as
+deployed. The shared word \emph{swarm} brings the two classes closer acoustically, which raises
+the chance of one being heard as the other. That confusion is benign by construction: hearing \emph{abort}
 for \emph{hold} is the more conservative error, and hearing \emph{hold} for \emph{abort} still
 stops the swarm. Because both classes passed the second test, an error between them stays within
 the set of fail-safe outcomes.
@@ -280,9 +292,10 @@ three of their properties. The decoder can emit only strings of the command lang
 \gls{json} with one of ten intents and a fixed key order, so a structurally invalid command is
 unreachable rather than improbable. The grammar bounds the length of every number, at three
 integer digits and one decimal place, and it restricts drone identifiers to the five that exist.
-It cannot bound a number's value: a context-free grammar can limit how many digits a number has,
-not whether that number is an admissible altitude. Every constraint on magnitude therefore falls to
-the second layer.
+It does not bound a number's value. \gls{gbnf} has no construct for a numeric range, and a range
+spelt out as digit patterns would make the decoder emit some admissible value in place of the one
+spoken, with no record that it had done so, where the second layer clamps an out-of-range value
+and logs the change. Every constraint on magnitude therefore falls to the second layer.
 
 \paragraph{Layer 2: the semantic validator.} The validator applies four rules, in order. The first
 enforces the slots each intent requires: a formation needs a shape, a circle a radius, and a line,
@@ -290,9 +303,10 @@ grid or column a spacing; an altitude command needs a target height, a rotation 
 movement either a position or a direction with a distance, never both. The second enforces the
 physical envelope by clamping and logging, never by rejecting. A radius is clamped to 1--10~m, a
 spacing to 1--5~m, a target height to 0.5--15~m, a speed to 0.2--2.0~m/s and a distance to at
-most 50~m. A target position is held within 50~m of the origin by scaling the whole vector, so
-that the commanded direction survives the clamp, where clamping each component separately would
-rotate it. A yaw angle is wrapped into $[-180^\circ, 180^\circ]$ rather than clamped, because
+most 50~m. A target position has its height clamped to 0.5--15~m, like a target height; if it
+then lies more than 50~m from the origin, its horizontal part alone is scaled down until it does,
+so that the commanded bearing survives the clamp, where clamping each horizontal component
+separately would rotate it. A yaw angle is wrapped into $[-180^\circ, 180^\circ]$ rather than clamped, because
 angles are periodic and $270^\circ$ and $-90^\circ$ are the same heading. The third rule keeps only
 identifiers of drones that exist and removes duplicates. Under the grammar an identifier outside
 the swarm cannot be decoded, so on the parse path this rule only removes duplicates. The fourth
@@ -366,7 +380,8 @@ Section~\ref{sec:acoustic-robustness} reports it.
 
 \section{Latency budget}
 \label{sec:latency-budget}
-The latency budget gives every stage of both paths a target at the 95th percentile, so that a
+The latency budget gives every stage of the parse path, and each span of the reflex path, a target
+at the 95th percentile, so that a
 missed end-to-end figure can be traced to the stage that caused it; this is what the per-stage
 attribution criterion of Table~\ref{tab:nonfunctional-requirements} asks to be reported.
 Table~\ref{tab:stage-budget} lists the targets. They are design values, fixed before any
@@ -411,7 +426,9 @@ the operator's sentence. Both are therefore reported. The reflex path's headline
 keyword offset, the last frame of the spoken phrase. An onset-anchored target of 150~ms could not
 be met by any spotter, because a phrase of about 700~ms cannot be classified before it has been
 heard. The offset anchor isolates what the system adds: feature extraction, the classifier, the
-quantisation of audio into 80~ms frames, and publication on the bus. The onset figure is reported
+spotter's decision delay (the frames after the offset before its score crosses the detection
+threshold), the quantisation of audio into 80~ms frames, and publication on the bus. These parts
+are not budgeted separately; the 150~ms span bounds their sum. The onset figure is reported
 beside it as the time the operator perceives. Both spans end when the command is handed to the
 command bus on the device, which is the last point both paths have in common.
 
@@ -456,9 +473,9 @@ the audio, and three for the work whose cost depends on the utterance.
 \begin{table}[htbp]
 \centering
 \footnotesize
-\caption[Core allocation]{Allocation of the Raspberry~Pi~5's four cores. Each path's work is
-pinned to its cores. The reflex path runs entirely on core~0, so no parse-path work is scheduled
-on the core that serves it.}
+\caption[Core allocation]{Allocation of the Raspberry~Pi~5's four cores. Core~0 runs the audio
+frame loop, which includes the reflex path and the parse path's endpointer. No work of the
+parse-path worker (speech recognition, decoding, validation) is scheduled on core~0.}
 \label{tab:core-allocation}
 \begin{tabularx}{\textwidth}{@{}l X X@{}}
 \toprule
