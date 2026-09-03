@@ -21,9 +21,9 @@ that read one audio stream. Section~\ref{sec:membership-rule} derives the rule d
 utterances may take the fast path, and Section~\ref{sec:validation-layers} specifies the three
 checks the slow path's output must pass. Sections~\ref{sec:latency-budget}
 and~\ref{sec:resource-allocation} then give each stage a latency target and each path its own
-processor cores, so that neither path can spend the time of the other. Every figure in this
-chapter is a design target, fixed before any measurement; Chapter~\ref{chap:validation} measures
-the system against them.
+processor cores, so that recognition and decoding are never scheduled on the core that serves the
+reflex path. Every figure in this chapter is a design target, fixed before any measurement;
+Chapter~\ref{chap:validation} measures the system against them.
 
 \section{Dual-path decomposition}
 \label{sec:dual-path}
@@ -33,8 +33,9 @@ Section~\ref{sec:operational-context}. The reflex path is a two-class keyword sp
 that listens continuously and, on detecting either stopping phrase, publishes a fixed command
 without transcribing anything. The parse path is the general path: a \gls{vad} model~\cite{silero}
 segments the stream into utterances, \texttt{whisper.cpp tiny.en}~\cite{whisper,whispercpp} performs
-\gls{stt} on each, a fine-tuned \gls{slm} parses the transcript into a structured command under a
-decoding grammar~\cite{llamacpp}, and a semantic validator checks the result before it is published.
+\gls{stt} on each, a fine-tuned \gls{slm} parses the transcript into a structured \gls{json} command
+under a decoding grammar~\cite{llamacpp}, and a semantic validator checks the result before it is
+published.
 The two paths share nothing between the audio buffer and the bus. They are not a fast and a slow
 setting of one pipeline. The parse path cannot begin transcribing until the endpointer has
 confirmed that the operator has stopped speaking, and that wait alone exceeds the 150~ms reflex
@@ -48,9 +49,9 @@ path skips only transcription and parsing: its commands are checked by the valid
 machine like any other (Section~\ref{sec:membership-rule}).
 
 The language model on the parse path is Qwen2.5-0.5B~\cite{qwen25}, fine-tuned and quantised to
-Q4\_K\_M. The \emph{M\'emoire de Master} selects this configuration by comparing models and
-quantisation levels on the same device; the present document treats the choice as fixed and
-designs the runtime around it.
+Q4\_K\_M, a mostly 4-bit weight format of \texttt{llama.cpp}. The \emph{M\'emoire de Master}
+selects this configuration by comparing models and quantisation levels on the same device; the
+present document treats the choice as fixed and designs the runtime around it.
 
 \begin{figure}[htbp]
 \centering
@@ -69,7 +70,7 @@ designs the runtime around it.
   \node[stage] (stt) at (7.8,-1.4) {\acrshort{stt}\\\texttt{tiny.en}};
   \node[stage] (slm) at (10.3,-1.4) {\acrshort{slm}\\under grammar};
   \node[stage] (val) at (12.8,-1.4) {Validator\\(layer 2)};
-  \node[stage, text width=21mm] (bus) at (15.4,0) {Command bus\\UDP, \acrshort{json}};
+  \node[stage, text width=21mm] (bus) at (15.4,0) {Command bus\\\acrshort{udp}, \acrshort{json}};
   % Workstation
   \node[stage, text width=21mm] (fsm) at (15.4,-4.0) {Validator\\(layer 2),\\state machine\\(layer 3),\\ordering rule};
   \node[stage] (ctl) at (12.3,-4.0) {Swarm\\controller\\50~Hz};
@@ -127,7 +128,7 @@ ground contact, are observations of the vehicles, and only the controller's side
 makes them.
 
 \paragraph{Command bus.} The two machines are joined by a minimal publish--subscribe bus
-carrying single-line \gls{json} messages over UDP. Each message carries a command, a tag naming
+carrying single-line \gls{json} messages over \gls{udp}. Each message carries a command, a tag naming
 the path that produced it, and a sequence number drawn from one monotonic counter shared by both
 paths. The bus implements nothing else. The rule deciding whether a message may take effect
 belongs to its consumer, beside the state machine, and messages from both paths reach the state
@@ -199,7 +200,7 @@ vehicles do.
 \paragraph{Fail-safe under false accept.} The second test asks what happens when the command is
 executed without having been spoken. A command passes only if its unprompted execution moves the
 swarm towards a safer state: the reflex path may make the swarm do less, never more. This is the
-test that answers the objection of the previous paragraph, since a false accept of a command that
+test that answers the problem stated at the opening of this section, since a false accept of a command that
 passes it costs an unnecessary stop and nothing else.
 
 Neither test is sufficient alone. The first alone would admit any urgent movement, and a false
@@ -225,7 +226,7 @@ Intent & Latency-decisive & Fail-safe under false accept & Path \\
 \texttt{hover}     & Yes & Yes: stops lateral motion & Reflex \\
 \texttt{abort}     & Yes & Yes: descends in place & Reflex \\
 \texttt{land}      & No: the descent itself is slow & Yes & Parse \\
-\texttt{set\_param} & No & Yes, for a value that reduces speed or spacing & Parse \\
+\texttt{set\_param} & No & Yes, for a value that reduces speed & Parse \\
 \texttt{unknown}   & No: nothing is dispatched & Yes & Parse \\
 \texttt{takeoff}   & -- & No: spins up the rotors & Parse only \\
 \texttt{move}      & -- & No: uncommanded translation & Parse only \\
@@ -288,16 +289,17 @@ parse path, because it acts on the decoder while the command is being produced.
 
 \paragraph{Layer 1: the decoding grammar.} The command schema and the grammar that enforces it are
 specified, with the grammar in full, in the \emph{M\'emoire de Master}; this document relies on
-three of their properties. The decoder can emit only strings of the command language: single-line
+three of their properties. Every complete decode is a string of the command language: single-line
 \gls{json} with one of ten intents and a fixed key order, so a structurally invalid command is
-unreachable rather than improbable. The grammar bounds the length of every number, at three
+unreachable rather than improbable; only a decode cut off at the token limit can be malformed, and
+the validator's fallback catches it. The grammar bounds the length of every number, at three
 integer digits and one decimal place, and it restricts drone identifiers to the five that exist.
 It does not bound a number's value. \gls{gbnf} has no construct for a numeric range, and a range
 spelt out as digit patterns would make the decoder emit some admissible value in place of the one
 spoken, with no record that it had done so, where the second layer clamps an out-of-range value
 and logs the change. Every constraint on magnitude therefore falls to the second layer.
 
-\paragraph{Layer 2: the semantic validator.} The validator applies four rules, in order. The first
+\paragraph{Layer 2: the semantic validator.} The validator applies four rules. The first
 enforces the slots each intent requires: a formation needs a shape, a circle a radius, and a line,
 grid or column a spacing; an altitude command needs a target height, a rotation an angle, and a
 movement either a position or a direction with a distance, never both. The second enforces the
@@ -362,9 +364,12 @@ rejection there is therefore a logged no-op. The same rule applies to the reflex
 \texttt{ABORTED} is not a command at all. It is a manual reset, outside the voice interface,
 which returns the state machine to \texttt{LANDED} only once every drone reports ground contact
 and near-zero velocity, and it writes a record of the reset to the log. Because no utterance on
-either path can leave \texttt{ABORTED}, a misheard word on either path cannot undo an abort.
+either path can leave \texttt{ABORTED}, a misheard word on either path cannot undo an abort. The hold the validator substitutes for output
+it cannot accept is itself a command and passes this layer, so on the ground, during a landing and
+after an abort it too becomes a logged no-op. A decode cancelled by the reflex path publishes
+nothing.
 
-\paragraph{What the layers do not catch.} Two classes of error pass the layers, and both follow
+\paragraph{Residual error classes.} Two classes of error pass the layers, and both follow
 from the design rather than from a defect in it. The first is a value outside the envelope. It is
 clamped to the envelope's bound and executed, so the motion it produces is bounded but not
 withheld: a misrecognised height above the ceiling becomes a climb to the ceiling. The second is a
@@ -391,8 +396,8 @@ measurement, and Section~\ref{sec:latency-experiment} measures the system agains
 \centering
 \footnotesize
 \caption[Latency budget by stage]{Latency budget by stage, as designed. Every target is a p95
-bound on wall-clock time. Parse-path figures start at the end of speech, $T_0$, the instant the
-endpointer declares the utterance over, except where the row states another anchor; the prefill
+bound on wall-clock time. Parse-path figures start at the end of speech, $T_0$, defined in the text; the
+endpointing wait ends at $T_0$, and a row that states another anchor starts there; the prefill
 target assumes the fixed prefix is already cached. Reflex-path figures start at the end or the
 start of the spoken keyword, a phrase of about 700~ms. Every span ends when the command is handed to the command
 bus on the device. The stage rows are ceilings for their stages, not a decomposition of the
@@ -503,7 +508,7 @@ the transcript exists. Each therefore runs on all three cores in turn, and a thr
 serves both. These are also the cores that the cancellation of Section~\ref{sec:dual-path}
 releases: when the reflex path cancels a decode, they become free for the next utterance.
 
-\paragraph{What pinning cannot isolate.} Pinning separates the paths' computation, not everything
+\paragraph{Limits of core pinning.} Pinning separates the paths' computation, not everything
 the four cores share. Memory bandwidth, the shared cache and the device's temperature are common to
 all of them, so parse-path work can still slow core~0 without being scheduled on it. The
 allocation therefore reduces the interference between the paths to what these shared resources
@@ -515,3 +520,8 @@ loaded condition of the latency experiment (Section~\ref{sec:latency-experiment}
 the \emph{M\'emoire de Master} states and assesses for its model comparison. That document measured
 the memory of the language-model process only; the full stack was not measured for any
 configuration, and this design adds no estimate that would stand in for that measurement.
+
+This chapter has fixed the two paths, the rule that bounds the reflex path, the three validation
+layers, the latency budget and the allocation of the processor.
+Chapter~\ref{chap:implementation} describes how each is built and where the built system departs
+from the design, including the parser's uncached prefix (Section~\ref{sec:runtime}).
