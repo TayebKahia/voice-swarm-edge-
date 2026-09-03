@@ -1,6 +1,6 @@
 # Issue 11: ingenieur-ch3
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 06
 Chapter: thesis/ingenieur/ch3_architecture.tex (497 lines, 6 distinct cites; drafted in b954b36,
 da5f625, 61eb810, 113723a, with cca879e and a46a8d0 from other sessions; STATE.md record b1b884b)
@@ -173,3 +173,67 @@ reports (A = argument.md, P = citation-presentation.md):
 - NIT: 14 sentences over 40 words (P18); "whisper tiny.en" vs `whisper.cpp tiny.en` (P19);
   l.19 and l.146 point at the whole of Ch4 where `sec:runtime` exists (A19, P24); no section names
   its RQ (A22).
+
+### 2026-09-24 -- author's decisions on V1-V9
+
+- **V1, V4, V5, V8, V9: accepted**, applied with the verifier's wording.
+- **V6, V7: the verifier's versions.** The cite now covers the fixed-window clause only. The
+  false-accept consequence is stated as a design assumption, "not tested against a one-word
+  alternative", with a pointer to `sec:keyword-spotter-evaluation`. The "uncommon onset" sentence
+  is cut, and the next sentence takes "the shared word \emph{swarm}" as its subject.
+- **V2, V3: stated as limitations, code unchanged.** The Exp-2 figures were measured on this code,
+  and changing it would leave the chapter describing an unmeasured system. §3.1 "Preemption and
+  ordering" now says: (V2) queued utterances number at dequeue, so after a hold a queued command
+  takes effect, while after an abort the state machine rejects it; (V3) the cancellation reaches
+  only a running decode, so a trigger during transcription can exceed the recovery criterion.
+  Both point to `sec:limitations`.
+- **New obligation for Ch6 `sec:limitations`** (scaffold, not yet in its bullet list): name both
+  limitations. For V3, also say that the latency experiment triggered only during decodes (78/78,
+  `results/exp2_analysis.md`), so its recovery figure does not cover the transcription case.
+- **Script.** V1 moved the anchor of the 50 m claim, and the script FAILed as it should. It is
+  re-anchored to "more than 50~m from the origin" with the same expected value (POS_MAX_NORM). New
+  checks: the height clamp 0.5--15 m, and a behavioural check of `_clamp_pos` (z first, then only
+  x, y scaled). The selftest mutation is re-anchored too; both Ch3 mutations are still caught
+  (run through `selftest.run()`; the full selftest still stops at master_ch4.py:203).
+- **After the fixes:** 0 FAIL, 7 WARN, 103 PASS. Clean build: 0 errors, 0 undefined
+  citations/references, no dropped float, no overfull box.
+- **Open:** the 7 heading WARNs. Five are justified (the numbers are identifiers). Two are
+  pending the author (l.367 "What the layers do not catch.", l.506 "What pinning cannot
+  isolate."). Also open: the MINOR/NIT list above.
+
+### 2026-09-24 -- MINOR/NIT decisions; issue resolved
+
+**Fixed** (chapter commit after fd426b1): both claim headings -> "Residual error classes.",
+"Limits of core pinning."; hand-off to Ch4 at the chapter end (A16, A23); $T_0$ given one
+definition (A10, P14); l.24 absolute (A5); "in order" (A12); truncated decode vs "only strings
+of the language" (A13); P15 stated in full in layer 3 (A9); `set_param` fail-safe for reduced
+speed only (A7); JSON expanded before the figure (P8); UDP acronym key (P9); Q4\_K\_M glossed
+(P10); the l.202 pointer (P13).
+
+**Kept, with the reason:**
+- Sentences over 40 words (P18), register NITs (P17 chiasmus, P20-P22), the analogy (P23), and
+  "whisper tiny.en" vs `whisper.cpp tiny.en` (P19): left for the final whole-document language
+  pass, so that one convention is applied once across all chapters.
+- Stop datagram with no acknowledgement over Wi-Fi (A15), and the 50 ms row whose state-machine
+  check lies past the bus (A11): these are limitations of the measured system, so they go to Ch6
+  `sec:limitations` and to Ch5's end-point statement (already a Ch5 obligation above), not into
+  the design chapter.
+- Missing bib years, `silero` 2024 (C6) and `llamacpp` 2026 (P7): bibliography entries are the
+  author's to verify against the primary page (SKILL §4); not touched here.
+- The Ch5 promise that every budget row is measured (A17): the generated table has no
+  "Language-model stages combined" row. This is a Ch5/`eval/tables.py` question, raised when Ch5
+  is drafted.
+- UDP prints in the figure before its expansion: a figure can only carry `\acrshort`, and the
+  first prose use is in the 3.1 "Command bus" paragraph.
+- Remaining items not in the fix list (A6, A8, A14 covered by V4, A18-A22, P11, P12, P24, and the
+  verifier's two unverified notes): judged not worth a change in this pass. The verifier's second
+  note (a spoken stopping phrase is also queued on the parse path and dispatched after the hold)
+  goes with V2 into Ch6 `sec:limitations`.
+
+**Ch6 `sec:limitations` now owes** (scaffold at ch6_conclusion.tex:66): V2 (queued utterance
+after a hold, including the spoken stopping phrase itself), V3 (trigger during transcription;
+recovery measured only during decodes, 78/78), A15 (unacknowledged stop datagram).
+
+**Final:** 0 FAIL, 5 WARN, 103 PASS. The 5 WARNs are the Layer/Core headings, justified as
+identifiers. Clean build: 0 errors, 0 undefined citations/references, 0 dropped floats,
+0 overfull boxes.
