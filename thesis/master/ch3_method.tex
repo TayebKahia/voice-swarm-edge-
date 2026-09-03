@@ -593,6 +593,29 @@ language-model process only.
 \begin{table}[htbp]
 \centering
 \footnotesize
+\caption[Stage latency allowances]{Stage allowances of the parse-path latency budget used as deployment constraints in this
+document (p95 targets; the end-to-end row is measured from end of speech). The full budget, including the reflex path,
+is derived in the \emph{M\'emoire d'Ing\'enieur}.}
+\label{tab:latency-budget}
+\begin{tabular}{@{}lr@{}}
+\toprule
+Stage & Target p95 \\
+\midrule
+Endpointing (wait to confirm end of speech) & 500~ms \\
+Speech recognition (\texttt{whisper.cpp tiny.en}) & 1{,}200~ms \\
+Language-model prefill (cached prefix) & 250~ms \\
+Language-model decode & 1{,}100~ms \\
+Validation, state-machine check and dispatch & 50~ms \\
+\midrule
+Language-model stages combined & 1{,}350~ms \\
+End to end, from end of speech & 2{,}500~ms \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\footnotesize
 \caption[Requirements of record]{Requirements of record used in this document, with budget and measuring experiment.
 Budgets were fixed before any result existed; a missed requirement is reported as missed, not
 adjusted. Experiments marked * are reported in the \emph{M\'emoire d'Ing\'enieur}.}
@@ -653,25 +676,3 @@ not their sum, is what the 2{,}500~ms budget is judged against. Chapter~\ref{cha
 these definitions, requirements and allowances to the measured configurations, in the order the
 selection rule needs them.
 
-\begin{table}[htbp]
-\centering
-\footnotesize
-\caption[Stage latency allowances]{Stage allowances of the parse-path latency budget used as deployment constraints in this
-document (p95 targets; the end-to-end row is measured from end of speech). The full budget, including the reflex path,
-is derived in the \emph{M\'emoire d'Ing\'enieur}.}
-\label{tab:latency-budget}
-\begin{tabular}{@{}lr@{}}
-\toprule
-Stage & Target p95 \\
-\midrule
-Endpointing (wait to confirm end of speech) & 500~ms \\
-Speech recognition (\texttt{whisper.cpp tiny.en}) & 1{,}200~ms \\
-Language-model prefill (cached prefix) & 250~ms \\
-Language-model decode & 1{,}100~ms \\
-Validation, state-machine check and dispatch & 50~ms \\
-\midrule
-Language-model stages combined & 1{,}350~ms \\
-End to end, from end of speech & 2{,}500~ms \\
-\bottomrule
-\end{tabular}
-\end{table}
