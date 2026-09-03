@@ -19,9 +19,12 @@ r = Review("ingenieur_ch2", "ingenieur", INGENIEUR[1], [INGENIEUR[0], *INGENIEUR
 r.common()
 text, raw = r.ch.text, r.ch.raw
 
-outline_check(r, 1, {"voice-controlled UAV systems": r"voice-controlled", "positioning against Lim et al.": r"lim"})
+TOPICS = {"voice-controlled UAV systems": r"voice-controlled", "positioning against Lim et al.": r"\blim\b",
+          "swarm control": r"swarm control", "offline speech components": r"offline speech",
+          "the gap this document fills": r"^gap$"}
+outline_check(r, 1, TOPICS)
 extra = [t for lvl, t, _ in r.ch.sections() if lvl == "section"
-         and not re.search(r"voice-controlled|lim", t, flags=re.I)]
+         and not any(re.search(p, t, flags=re.I) for p in TOPICS.values())]
 r.expect("outline", not extra, f"sections beyond prd.md §3.1 item 2: {extra} -- SKILL §3: change prd.md first, "
          "then the scaffold" if extra else "no sections beyond prd.md §3.1", warn=True)
 
