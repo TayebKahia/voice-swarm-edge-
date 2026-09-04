@@ -222,7 +222,7 @@ the only speaker-sensitive stage, by the speaker-sensitivity experiment
 \texttt{commonvoice}. The parser consumes text and does not see the speaker, but nothing in this
 document establishes that end-to-end accuracy transfers to other speakers.
 
-\paragraph{Noise and annotation.} The noise mixed into training and evaluation audio comes from
+\paragraph{Noise and annotation.} \enlargethispage{\baselineskip}\looseness=-1 The noise mixed into training and evaluation audio comes from
 ESC-50~\cite{esc50} (environmental sound classes, licensed CC BY-NC 3.0) and DREGON~\cite{dregon}
 (rotor noise recorded by microphones mounted on a \gls{uav}, free for personal, educational and
 academic use). All noise is mixed by one seeded path, \texttt{data/mix\_noise.py}: DREGON and the
@@ -234,7 +234,7 @@ by \texttt{data/wake\_corpus.py}; the parser's audio is not reverberated. The \g
 rather than over the whole file. Over the whole file, leading silence would set the level and make
 the nominal ratio depend on how promptly a speaker starts talking.
 
-Annotation quality is examined, not assumed. The author labelled 50 golden-set utterances, five
+\looseness=-1 Annotation quality is examined, not assumed. The author labelled 50 golden-set utterances, five
 per intent, and sealed that pass under SHA-256 on the day recording was completed. The same 50 items
 were relabelled after an interval, in a different random order, with neither the sealed pass nor the
 generated targets visible. No agreement rate is computed from this exercise: at a short interval, a matching
@@ -247,7 +247,7 @@ the count bounds the ambiguities found, not those present. Across the 50 items, 
 second reading and with an interval too short for recall to decay. It is reported because omitting
 an uninformative outcome would be selective reporting.
 
-\paragraph{The wake corpus.} \texttt{wake\_pos} and \texttt{wake\_neg} are built for the keyword
+\paragraph{The wake corpus.} \looseness=-1 \texttt{wake\_pos} and \texttt{wake\_neg} are built for the keyword
 spotter of the \emph{M\'emoire d'Ing\'enieur}'s reflex path. They are described here because
 dataset construction belongs to this document and they reuse its synthesis, noise partitions and
 leakage gate, not because this document's experiments consume them. Positive clips were rendered by
@@ -259,14 +259,14 @@ short command words from Speech Commands~\cite{speechcmd}, and forty near-miss p
 hand, since neither LibriSpeech nor Speech Commands supplies the confusions that matter to this
 spotter: short phrases beginning with ``swarm'' or ``hold''.
 
-Positives are split by base rendition (70/10/20), negatives by speaker, and near-misses by phrase,
+\looseness=-1 Positives are split by base rendition (70/10/20), negatives by speaker, and near-misses by phrase,
 so each held-out item differs from every training item along the axis a spotter could otherwise
 memorise. Held-out clips are mixed from a disjoint augmentation/evaluation partition, recorded per
 clip as \texttt{noise\_partition}: room impulse responses and DREGON split 70/30, and ESC-50 by
 fold (folds 1--4 against fold 5). A spotter is therefore never tested under the acoustic
 conditions it was augmented with.
 
-\paragraph{The multi-speaker baseline.} The speaker-sensitivity experiment draws 300 clips from the
+\paragraph{The multi-speaker baseline.} \looseness=-1 The speaker-sensitivity experiment draws 300 clips from the
 English test split of Mozilla Common Voice release 17.0~\cite{commonvoice,commonvoice17}, through an
 ungated mirror of that release. The clips are stratified across fifteen accent buckets spanning 263
 speakers rather than sampled uniformly. The accent-labelled clips of that split are 39\% United
@@ -334,7 +334,7 @@ by 0.008 (two of 240 items), SmolLM2-360M-Instruct by 0.025 and H2O-Danube3-500M
 model is shown to have converged, so a difference between models is a difference under an identical
 budget, not a difference between converged models.
 
-\paragraph{Completion-only masking.} The loss is computed only over the tokens the model is asked
+\paragraph{Completion-only masking.} \enlargethispage{\baselineskip}The loss is computed only over the tokens the model is asked
 to produce -- the \gls{json} command. The prompt tokens that precede it, the one-line instruction
 and the transcript alike, contribute no gradient. Training on the prompt as well would reward the
 model for reproducing input it is never asked to generate at inference time, diluting the gradient
@@ -362,7 +362,7 @@ reports is therefore obtained under one precision applied to all four. Uniform s
 not have a uniform effect, however. All four checkpoints are released in bf16, and fp16's narrower
 exponent range can affect them differently; this is not ruled out.
 
-\paragraph{Training sessions.} The parameter-matched control was trained in a separate session from
+\paragraph{Training sessions.} \looseness=-1 The parameter-matched control was trained in a separate session from
 the first three, on the same accelerator class and under the same fp16 substitution, but not in the
 same session instance. Training on a \gls{gpu} is not guaranteed to be bit-reproducible across
 session instances~\cite{pytorchrepro}, so its adapter is not an output of the run that produced the
@@ -455,6 +455,7 @@ never trained on -- the silent degradation the gate exists to detect -- so the m
 the reference surface only. The other three pass on all ten prompts, in rendered text and token
 identifiers, which is the evidence the quantised results of Chapter~\ref{chap:results} rest on.
 
+\clearpage
 \section{Evaluation protocol and the definitions of record}
 \label{sec:definitions-of-record}
 Every accuracy number in either document traces to the functions fixed in this section. The
@@ -677,4 +678,3 @@ decomposition of the end-to-end budget: they are set per stage, and the measured
 not their sum, is what the 2{,}500~ms budget is judged against. Chapter~\ref{chap:results} applies
 these definitions, requirements and allowances to the measured configurations, in the order the
 selection rule needs them.
-
