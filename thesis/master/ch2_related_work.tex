@@ -1,5 +1,6 @@
 \chapter{Related work}
 \label{chap:related-work}
+\enlargethispage{\baselineskip}
 
 This chapter reviews the four bodies of work this thesis draws on: benchmarks of language-model
 inference on \glspl{sbc}, post-training quantisation, grammar-constrained decoding, and
@@ -33,9 +34,9 @@ tokeniser it was trained under (Chapter~\ref{chap:method}). The accuracy cost of
 throughput budget on an \gls{sbc} is thus treated as a quantity to be measured, not
 assumed from a benchmark that reports throughput alone.
 
-The runtime that makes this measurement possible on the target hardware is llama.cpp, a C/C\,++
+The runtime that makes this measurement possible is llama.cpp, a C/C\,++
 inference engine for quantised language models that runs on a \gls{cpu} without external
-dependencies, and in particular without a \gls{gpu} driver~\cite{llamacpp}. Its \gls{gguf}
+dependencies, and without a \gls{gpu} driver~\cite{llamacpp}. Its \gls{gguf}
 weight format and its quantisation schemes shrink the weights a Raspberry~Pi~5 must read for every
 decoded token; Section~\ref{sec:quantisation} takes up what those schemes cost in accuracy.
 
