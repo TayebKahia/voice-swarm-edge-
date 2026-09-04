@@ -67,7 +67,7 @@ utterances in 51 languages` present |
 | 4 | 27 | smollm2 | This thesis narrows the scope to one task, one device, and four fine-tuned models (Qwen2.5-0.5B~\cite{qwen25}, SmolLM2-360M~\cite{smollm2}, Llama-3.2-1B~\cite{llama32}, and H2O-Danube3-500M~\cite{danube3}). |
 | 5 | 28 | llama32 | This thesis narrows the scope to one task, one device, and four fine-tuned models (Qwen2.5-0.5B~\cite{qwen25}, SmolLM2-360M~\cite{smollm2}, Llama-3.2-1B~\cite{llama32}, and H2O-Danube3-500M~\cite{danube3}). |
 | 6 | 28 | danube3 | This thesis narrows the scope to one task, one device, and four fine-tuned models (Qwen2.5-0.5B~\cite{qwen25}, SmolLM2-360M~\cite{smollm2}, Llama-3.2-1B~\cite{llama32}, and H2O-Danube3-500M~\cite{danube3}). |
-| 7 | 39 | llamacpp | \looseness=-1 The runtime that makes this measurement possible on the target hardware is llama.cpp, a C/C\,++ inference engine for quantised language models that runs on a \gls{cpu} without external dependencies, and in particular without a \gls{gpu} driver~\cite{llamacpp}. |
+| 7 | 39 | llamacpp | The runtime that makes this measurement possible is llama.cpp, a C/C\,++ inference engine for quantised language models that runs on a \gls{cpu} without external dependencies, and without a \gls{gpu} driver~\cite{llamacpp}. |
 | 8 | 50 | gptq | Post-training quantisation is the established route to reducing a trained model's memory footprint~\cite{gptq}, and on-device deployment is one of its stated motivations~\cite{awq}. |
 | 9 | 50 | awq | Post-training quantisation is the established route to reducing a trained model's memory footprint~\cite{gptq}, and on-device deployment is one of its stated motivations~\cite{awq}. |
 | 10 | 54 | llamacpp | Q4\_K\_M belongs to the K-quant family, which stores weights in super-blocks of 256 with quantised per-sub-block scales, 4.5~bits per weight at the four-bit level~\cite{llamacpp}. |
@@ -130,8 +130,8 @@ utterances in 51 languages` present |
 
 | line | level | title | prose words |
 |---|---|---|---|
-| 1 | chapter | Related work | 70 |
-| 11 | section | Edge language-model inference and single-board-computer benchmarking | 387 |
+| 1 | chapter | Related work | 69 |
+| 11 | section | Edge language-model inference and single-board-computer benchmarking | 378 |
 | 43 | section | Quantisation | 568 |
 | 92 | section | Constrained decoding | 499 |
 | 133 | section | Spoken-language understanding for robotics | 299 |
