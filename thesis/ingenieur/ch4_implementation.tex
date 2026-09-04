@@ -208,15 +208,43 @@ Section~\ref{sec:demonstration-protocol} requires such an entry point, and it is
 
 \section{Command bus}
 \label{sec:command-bus}
-% - Ch 3 (sec:dual-path, command-bus paragraph) already gives the design: policy-free, behind an
-%   interface, no distributed middleware. Do not repeat it.
-% - As built: publish/subscribe, monotonic sequence numbers, path tag, nothing else; the ordering
-%   rule (discard a parse-path message older than the last reflex) lives in the consumer, not in
-%   the bus. Source: runtime/bus.py docstring.
-% - The transport actually used in the experiments (loopback on the Pi in the latency experiment,
-%   per results/exp2_analysis.md) versus the designed Wi-Fi UDP link to the workstation. State
-%   which exists as code; the unmeasured hop is a Ch 6 limitation.
-\TODO{draft}
+The bus of Section~\ref{sec:dual-path} is built as one class with three operations: reserve a
+sequence number, publish a message, and receive one. No separate abstract type is declared: the
+interface through which Section~\ref{sec:dual-path} lets a middleware replace the bus consists of
+these three operations, and a replacement would provide the same three. Each message is a single \gls{json} object
+carrying the sequence number, a tag naming the path that produced it, the command's fields, and the
+time of publication, and it is sent as one UDP datagram. A message longer than 4{,}096 bytes is
+refused rather than split. The largest command of the schema is far shorter, so no message is ever
+reassembled from fragments. The receiving side rejects a message whose path tag is neither of the
+two paths. The time of publication is read from the publishing machine's monotonic clock; it is the
+instant at which both latency spans of Section~\ref{sec:latency-budget} end, and it is meaningful
+only on the machine that wrote it.
+
+\paragraph{Sequence numbers.} One counter serves both paths, and it is guarded by a lock, because
+the two paths publish from different threads: the reflex path from the frame loop, the parse path
+from the worker. The parse path reserves its number when it takes an utterance
+(Section~\ref{sec:runtime}) and passes it to the publish operation. The reflex path lets the
+publish operation draw the number, because detection, construction of the command and publication
+are one uninterrupted call on its side, with no interval in which a later message could be
+numbered first. Numbers drawn from one counter by both paths are therefore directly comparable,
+which is what the ordering rule requires.
+
+\paragraph{Consumer.} The ordering rule is implemented in the consumer, not in the bus. The consumer
+keeps the highest sequence number among the reflex-path messages it has applied. A parse-path
+message with a lower number is discarded and logged; every other message is passed to the state
+machine (Section~\ref{sec:state-machine}). The rule is kept out of the state machine as well as out
+of the bus. Legality does not depend on which path a command came from, and a staleness check
+inside the state machine would make it depend on the bus. Unit tests exercise the rule in both
+directions: a parse-path message numbered before a later reflex-path message is discarded, and one
+numbered after it is applied.
+
+\paragraph{Transport as run.} The bus addresses any host, but it has run only over the loopback
+interface of the Raspberry~Pi. In the latency experiment the consumer and the state machine run on
+the Pi, in the same process as the runtime, rather than on the workstation of
+Figure~\ref{fig:architecture}. The wireless link from the device to the workstation has therefore
+never carried a command. The latency budget already places that link outside its spans
+(Section~\ref{sec:latency-budget}), and Section~\ref{sec:limitations} treats its absence from the
+measurements as a limitation.
 
 \section{Flight state machine}
 \label{sec:state-machine}
