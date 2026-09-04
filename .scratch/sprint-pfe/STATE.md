@@ -1769,3 +1769,46 @@ Left on the Master -- none of it review work:
 
 Stopped here: Master review closed. Ingenieur track: issue 07 (Ch2) ready-for-human, issue 11 (Ch3)
 ready-for-agent, issue 10 blocked on both.
+
+## Master LAYOUT pass (Thu 24 Sep) -- page breaks tuned by hand, 63 -> 62 pages
+Done after the review closed, at the author's request, on the built PDF page by page (pdftotext
+line counts per page). Five commits: 5304a4b, 08fb8bf, ca0da0e, 2f83043, 2faf2fd. No number or claim
+changed; one prose cut (below). Every chapter script at its review counts; clean build 0 errors,
+0 overfull, 62 pages.
+
+What was wrong and what fixed it (printed page numbers):
+  - End of Ch3: the stage-allowance table sat alone on the chapter's last page. LaTeX places floats
+    of one kind in SOURCE order and the full-page requirements table was queued first, so the small
+    table could not take the free third of the page before. Its source now precedes the requirements
+    table (it is Table 3.4, requirements 3.5; no prose hardcodes either number).
+  - End of Ch4: four lines of the closing paragraph on a page of their own. Pareto figure at
+    0.8\textwidth absorbs them. Its in-plot labels are ~7pt in the source figure, so ~5pt on the page;
+    if too small in print, fix the font in eval/plots.py, not the width.
+  - 1.3, 1.4, 4.6 each started a fresh page under the keep-a-section-on-one-page rule (preamble,
+    23 Sep), leaving pages a third to a half empty. \noautobreak before each: they flow. 1.5 stays
+    whole (letting it flow would leave a 4-line orphan page).
+  - Two stranded lines above a heading (end of 3.2 -> 3.3, end of 3.3 -> 3.4, end of 2.1 -> 2.2):
+    pulled back by \enlargethispage{\baselineskip} on the page before (ONE line max: footskip is
+    30pt, two lines would run into the page number) plus \looseness=-1 on that page's paragraphs,
+    one of which sets a line shorter. In Ch2 no paragraph had slack, so the second line came from a
+    cut approved by the author: "on the target hardware" and "in particular" dropped from the
+    llama.cpp sentence at the end of 2.1. Meaning unchanged.
+  - 3.5, 5.3.2 and 6.3 start on a new page (\clearpage before the heading), author's request.
+    Cost accepted by the author (option 2): p.29 ends 14 lines short and Ch3's closing 9-line
+    paragraph sits alone on p.35 after the full-page requirements table. Tightening every paragraph
+    of 3.5 (\everypar{\looseness=-1} + 3 x \enlargethispage) recovered only 2 of the 9 lines and was
+    reverted; only cutting ~9 lines of 3.5 or shrinking the table would remove that page.
+  - The section rule does NOT act on \subsection (5.3.2 needed the explicit \clearpage).
+
+Fragility, for whoever edits the Master next: the markers (\enlargethispage, \looseness=-1,
+\noautobreak, \clearpage) in Ch1-Ch6 are tied to the current text. After editing a paragraph in
+2.1, 3.2, 3.3 or 3.5, rebuild FROM SCRATCH (rm -rf thesis/build/master; the rule measures section
+heights on one pass and applies them on the next) and re-check the tops of pp. 16, 26, 28, 30 and
+the last pages of Ch3 and Ch4. Quick check: per-page line counts via
+  for i in $(seq 1 N); do pdftotext -f $i -l $i -layout build/master/main_master.pdf - | grep -c '[^[:space:]]'; done
+Remaining short pages are chapter ends (Ch1 p.14, Ch2 p.19, Ch5 p.54, Ch6 p.57) plus the two
+accepted above. Front matter untouched: the contents spill 6 lines onto a second page and the list
+of figures has one entry; both left as is (tocdepth 1 would fit the contents on one page).
+
+Stopped here: Master layout done to the author's satisfaction; nothing open on the Master beyond
+the pre-submission items listed in the previous entry.
