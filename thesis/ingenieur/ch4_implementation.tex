@@ -248,19 +248,60 @@ measurements as a limitation.
 
 \section{Flight state machine}
 \label{sec:state-machine}
-% - Ch 3 (sec:validation-layers) owns the states, transitions, legality table and the rejection
-%   rule. Refer to them; describe only how the code enforces them.
-% - Every command from either path reaches the validator and the state machine: reflex-path
-%   commands are validated too (swarm/fsm.py:165 via the dispatcher) -- the fast path skips
-%   transcription and parsing, not validation.
-% - Rejection handling as built: HOVER in TAKING_OFF/FLYING, logged no-op in LANDED/LANDING/
-%   ABORTED (ADR-0002); recovery out of ABORTED manual and non-vocal.
-% - Verification: the unit tests that cover the legality table (swarm/test_fsm.py) -- the Flight
-%   state machine criterion in Ch 1's functional table names its verification; match it.
-% - Not built: the state machine does not drive the swarm controller (header).
-% - Known defect, if still unfixed: legality is judged on the raw intent after the validator's
-%   fallback. Name it only if it bears on a claim; the limitation is Ch 6's.
-\TODO{draft}
+The state machine is one class holding the current flight state. Its five states, its transitions
+and the legality of each intent are those of Section~\ref{sec:validation-layers}; the legality is
+encoded once, as a table from each intent to the set of states in which it is legal, and every
+decision reads that table. Every command the consumer passes on is first run through the semantic
+validator by the state machine itself. The reflex path's constants are therefore validated like any
+other command, and a parse-path command is validated twice, once on the device before publication
+and once here.
+
+\paragraph{Handling a command.} The state machine then applies four rules, in order. An
+\texttt{unknown} command is logged and never dispatched. An abort moves the swarm to
+\texttt{ABORTED} in the states where it is legal and is a logged no-op in the others. A legal
+command is dispatched, and a take-off or a landing makes its transition as it is dispatched. A
+command that is not legal is rejected: it becomes a hold if a hold is itself legal in the current
+state, and a logged no-op otherwise. The legality of the hold is read from the same table as every
+other intent's, not from a separate list of airborne states, so the rejection rule and the table
+cannot disagree. Every rejection is logged with the intent rejected and the state it arrived in. The
+two transitions that depend on the vehicles, reaching the take-off height and ground contact, are
+separate operations, which the side that observes the vehicles calls. The reset out of
+\texttt{ABORTED} is also an operation rather than a command: it receives two reports, that every
+drone is on the ground and that every drone is nearly at rest, refuses the reset unless both hold,
+and logs the outcome either way. No intent, from either path, reaches it.
+
+\paragraph{Verification.} The flight-state-machine criterion is verified by an automated test of
+every cell of the legality table (Table~\ref{tab:functional-requirements}). The 50 cells, five
+states by ten intents, are generated as a cross product rather than listed by hand, so that no cell
+can be left out. Each cell sends a complete command to a state machine in the given state and checks
+three things: what is dispatched, the state afterwards and the log entry. The expected outcomes come
+from a transcription of the legality table written separately from the state machine's own table,
+and a further test compares the two, so that the cell tests cannot pass by reading the table they
+test. A second test checks that all ten commands pass the validator unchanged, so that no cell
+passes because the validator had already replaced its command with a hold. The recovery path has
+its own test: all ten intents are sent to a state machine in \texttt{ABORTED}, none of them leaves
+it, and only the reset does. Before the tests were accepted, three faults were introduced into the
+state machine in turn, and each made tests fail.
+
+\paragraph{Legality of the original intent.} The state machine reads a command's intent before it
+runs the validator, keeps it for the log, and judges legality on it. When the validator replaces a
+command with a hold, legality is therefore judged on the command's original intent, not on the hold
+it became. On the deployed route the two never differ. The parse path validates before it publishes,
+so the state machine receives the hold itself, and the reflex path publishes constants that the
+validator leaves unchanged. A command that has not been validated and is handed to the state machine
+directly can differ: a \texttt{set\_param} carrying no value, received during a landing, is replaced
+by a hold and dispatched, although Table~\ref{tab:legality} makes a hold illegal in that state. This
+is why Section~\ref{sec:safety-problem} states that no rejection can produce motion for the
+deployed route only, and Section~\ref{sec:limitations} records the defect.
+
+\paragraph{Link to the swarm controller.} The state machine does not drive the swarm controller.
+Outside its tests, the only code that runs it is the consumer of the latency experiment, where it
+decides what would be dispatched and drives nothing: the commands it returns reach no controller,
+and the harness itself places each trial's state machine in \texttt{FLYING} before the trial starts.
+Nothing reports the vehicles' height, ground contact or velocity to it. The formation-control
+experiment drives the controller directly, without speech and without the state machine
+(Section~\ref{sec:swarm-controller}). The demonstration of
+Section~\ref{sec:demonstration-protocol} requires the link, and it is not built.
 
 \section{Swarm controller}
 \label{sec:swarm-controller}
