@@ -97,21 +97,21 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | PASS | new-number | 150 | 163.0 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
 | PASS | claim | 202 | six \paragraph lead-ins in the internal-validity subsection |
 | PASS | claim | 253 | log10(0.0167 / 1.1e-7) = 5.18 |
-| PASS | claim | 284 | exp3_pi_parity.csv text: n 200, raw differs 0 |
-| PASS | claim | 288 | `\gls{crr} is 0.690 on clean` -> written 0.690, source gives 0.690 (exp3_pi.csv clean CRR (Pi, of record)) |
-| PASS | claim | 288 | `and 0.590 at 10~dB` -> written 0.590, source gives 0.590 (exp3_pi.csv 10 dB CRR) |
-| PASS | new-number | 288 | 0.690 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
-| PASS | new-number | 288 | 0.590 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
-| PASS | claim | 289 | `against an \gls{em} of 0.935` -> written 0.935, source gives 0.935 (exp3_pi.csv EM on the same items) |
+| PASS | claim | 285 | exp3_pi_parity.csv text: n 200, raw differs 0 |
+| PASS | claim | 289 | `\gls{crr} is 0.690 on clean` -> written 0.690, source gives 0.690 (exp3_pi.csv clean CRR (Pi, of record)) |
+| PASS | claim | 289 | `and 0.590 at 10~dB` -> written 0.590, source gives 0.590 (exp3_pi.csv 10 dB CRR) |
+| PASS | new-number | 289 | 0.690 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
+| PASS | new-number | 289 | 0.590 does not appear in Ch1-Ch4 -- recomputed by a claim, so it is a derived figure |
+| PASS | claim | 290 | `against an \gls{em} of 0.935` -> written 0.935, source gives 0.935 (exp3_pi.csv EM on the same items) |
 
 ### Citation sheet (for the citation agent: open each identifier, judge SUPPORTS / PARTIAL / DOES NOT SUPPORT per row)
 
 | # | line | keys | sentence the citation must support |
 |---|---|---|---|
 | 1 | 208 | pytorchrepro | It was trained in a separate session, and \gls{gpu} training is not guaranteed to be bit-reproducible across sessions~\cite{pytorchrepro}. |
-| 2 | 307 | sbc2025 | Section~\ref{sec:tradeoff} argued that the latency axis depends on the board's thermal state, and a benchmark of language-model inference on \glspl{sbc} reports throughput differences of up to four times between two runtimes on the same board~\cite{sbc2025}. |
-| 3 | 320 | park2024 | The literature reports that constrained decoding can distort a model's distribution over outputs~\cite{park2024} and degrade multi-step reasoning while matching or improving classification~\cite{tam2024}; a task this close to classification sits where that cost is least expected, so its absence here does not predict it |
-| 4 | 321 | tam2024 | The literature reports that constrained decoding can distort a model's distribution over outputs~\cite{park2024} and degrade multi-step reasoning while matching or improving classification~\cite{tam2024}; a task this close to classification sits where that cost is least expected, so its absence here does not predict it |
+| 2 | 308 | sbc2025 | Section~\ref{sec:tradeoff} argued that the latency axis depends on the board's thermal state, and a benchmark of language-model inference on \glspl{sbc} reports throughput differences of up to four times between two runtimes on the same board~\cite{sbc2025}. |
+| 3 | 321 | park2024 | The literature reports that constrained decoding can distort a model's distribution over outputs~\cite{park2024} and degrade multi-step reasoning while matching or improving classification~\cite{tam2024}; a task this close to classification sits where that cost is least expected, so its absence here does not predict it |
+| 4 | 322 | tam2024 | The literature reports that constrained decoding can distort a model's distribution over outputs~\cite{park2024} and degrade multi-step reasoning while matching or improving classification~\cite{tam2024}; a task this close to classification sits where that cost is least expected, so its absence here does not predict it |
 
 | key | title | year | identifier |
 |---|---|---|---|
@@ -128,14 +128,14 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 15 | section | The accuracy--efficiency trade-off | 1167 |
 | 105 | section | Failure-mode analysis | 976 |
 | 182 | section | Threats to validity | 48 |
-| 190 | subsection | Internal validity | 1092 |
-| 274 | subsection | External validity | 855 |
+| 190 | subsection | Internal validity | 1093 |
+| 275 | subsection | External validity | 855 |
 
 ### Codes used in this chapter (self-containment agent: is each one needed, or would a descriptive name read better?)
 
 | code | uses | defined at |
 |---|---|---|
-| RQ1 | 5 | ch1_introduction l.94 |
+| RQ1 | 5 | ch1_introduction l.95 |
 
 ### For the argument agent
 
@@ -217,12 +217,12 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 253 | 1.1 | recomputed by a claim on this line |
 | 258 | 200 | measured: results/exp2_latency_budget.md:5, results/table18_quantisation_delta.md:3 |
 | 259 | 67 | measured: results/wake_training.json:1530 x100, results/wake_training.json:2316 x100 |
-| 284 | 200 | recomputed by a claim on this line |
-| 288 | 0.690 | recomputed by a claim on this line |
-| 288 | 0.590 | recomputed by a claim on this line |
-| 288 | 10 | recomputed by a claim on this line |
-| 289 | 0.935 | recomputed by a claim on this line |
-| 296 | 23.1 | measured: results/table16_asr_speaker_sensitivity.md:26, results/table16_asr_speaker_sensitivity.md:30 |
-| 299 | 6.2 | measured: results/table16_asr_speaker_sensitivity.md:11, results/exp2_analysis.md:67 |
-| 299 | 49.5 | measured: results/table16_asr_speaker_sensitivity.md:25, thesis/generated/table16_asr_speaker_sensitivity.tex:26 |
-| 324 | 3{,}540 | measured: results/table19_grammar_ablation.md:10, results/table19_grammar_ablation.md:11 |
+| 285 | 200 | recomputed by a claim on this line |
+| 289 | 0.690 | recomputed by a claim on this line |
+| 289 | 0.590 | recomputed by a claim on this line |
+| 289 | 10 | recomputed by a claim on this line |
+| 290 | 0.935 | recomputed by a claim on this line |
+| 297 | 23.1 | measured: results/table16_asr_speaker_sensitivity.md:26, results/table16_asr_speaker_sensitivity.md:30 |
+| 300 | 6.2 | measured: results/table16_asr_speaker_sensitivity.md:11, results/exp2_analysis.md:67 |
+| 300 | 49.5 | measured: results/table16_asr_speaker_sensitivity.md:25, thesis/generated/table16_asr_speaker_sensitivity.tex:26 |
+| 325 | 3{,}540 | measured: results/table19_grammar_ablation.md:10, results/table19_grammar_ablation.md:11 |

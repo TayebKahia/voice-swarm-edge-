@@ -59,7 +59,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | PASS | claim | 82 | `on 15 against 2 discordant` -> written 15, source gives 15.00 (mcnemar family control, only qwen) |
 | PASS | claim | 82 | `on 15 against 2 discordant` -> written 2, source gives 2.00 (mcnemar family control, only danube) |
 | PASS | claim | 83 | `(exact $p = 0.0023$` -> written 0.0023, source gives 0.0023 (mcnemar family control p_exact) |
-| PASS | claim | 108 | `through 81 pairs` -> written 81, source gives 81.00 (rows of data/train.jsonl whose target is unknown) |
+| PASS | claim | 109 | `through 81 pairs` -> written 81, source gives 81.00 (rows of data/train.jsonl whose target is unknown) |
 
 ### Section map
 
@@ -67,17 +67,17 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 |---|---|---|---|
 | 1 | chapter | Conclusion and future work | 74 |
 | 17 | section | Answer to the research question | 307 |
-| 46 | section | What the comparison establishes | 515 |
-| 90 | section | Prioritised next steps | 305 |
+| 46 | section | What the comparison establishes | 516 |
+| 91 | section | Prioritised next steps | 305 |
 
 ### Codes used in this chapter (self-containment agent: is each one needed, or would a descriptive name read better?)
 
 | code | uses | defined at |
 |---|---|---|
-| C1 | 1 | ch1_introduction l.108 |
-| C2 | 1 | ch1_introduction l.113 |
-| C3 | 1 | ch1_introduction l.118 |
-| RQ1 | 2 | ch1_introduction l.94 |
+| C1 | 1 | ch1_introduction l.110 |
+| C2 | 1 | ch1_introduction l.115 |
+| C3 | 1 | ch1_introduction l.120 |
+| RQ1 | 2 | ch1_introduction l.95 |
 
 ### For the argument agent
 
