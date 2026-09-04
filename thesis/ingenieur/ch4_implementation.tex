@@ -138,25 +138,73 @@ Section~\ref{sec:keyword-spotter-evaluation} reports those rates.
 
 \section{Runtime}
 \label{sec:runtime}
-% - The parse path as code: speech recognition (runtime/stt.py wraps the one whisper.cpp command
-%   line the augmentation pipeline also uses) then the parser (runtime/parser.py: apply the chat
-%   template, tokenise, complete under the grammar, greedy, llama-server).
-% - The departure Ch 3 announces: the parser sends cache_prompt=false, so the fixed prefix is
-%   re-processed on every request. Why: the runtime uses the exact request the accuracy
-%   measurement used (eval/surface_b.py), so the runtime and the scored accuracy never diverge
-%   (ff12c88 commit message; parser.py l.60-64). Say that it costs prefill time and that Ch 5
-%   reports the measured cost; the fix is Ch 6's.
-% - Preemption as built: the sequence number reserved when the utterance is accepted; the reflex
-%   trigger cancels an in-flight decode (abort -> transport error -> no command for that
-%   utterance). Source: runtime/parser.py parse()/abort(), runtime/pipeline.py.
-% - Core pinning: per-thread affinity; a child process inherits the spawning thread's mask
-%   (Ch 3 sec:resource-allocation designs it; state here how it is applied).
-% - ONE paragraph, artefacts consumed from the Memoire de Master: the fine-tuned, quantised model
-%   file, the grammar, the fixed system prompt. Name them; one fresh sentence with a
-%   cross-reference, no dataset construction.
-% - What is not built (header list), stated once, plainly, pointing to Ch 6's demonstration
-%   protocol.
-\TODO{draft}
+The parse path runs on the worker thread of Section~\ref{sec:audio-chain}, one utterance at a
+time. For each utterance the worker reserves a sequence number from the bus, transcribes the audio,
+parses the transcript, passes the result through the semantic validator and publishes it under the
+number it reserved. It records the time at which each stage ends, and these timestamps are the
+per-stage figures that Section~\ref{sec:latency-experiment} reports against the budget of
+Table~\ref{tab:stage-budget}.
+
+\paragraph{Speech recognition.} \texttt{whisper.cpp}~\cite{whispercpp} is run as a separate process
+for each utterance, with the \texttt{tiny.en} model, three threads, and an initial prompt that lists
+the command vocabulary. The invocation is defined once and shared with the dataset pipeline's
+round-trip transcription, so the recogniser configuration whose errors the parser was trained on is
+the one it receives transcripts from at run time. A recognition failure returns an empty
+transcript, which is passed to the parser like any other rather than handled as a separate case.
+
+\paragraph{Parser.} The language model is served by \texttt{llama-server}~\cite{llamacpp}, a
+persistent process started once, with the model loaded, a single decoding slot, three threads and a
+context of 512 tokens. Each parse makes three requests to it: the first renders the chat template
+around the fixed system instruction and the transcript, the second tokenises the rendered text
+without adding special tokens, since the template already contains them, and the third completes
+the prompt under the decoding grammar, greedily and with at most 96 tokens. This is the request
+sequence of the harness that measures the parser's accuracy, and the one whose tokenisation the
+\emph{M\'emoire de Master} verifies against the training tokeniser. Prefill and decode times are
+read from the server's own timing report rather than by timing the request, so they exclude the
+client's overhead; the wall-clock time of the whole request is recorded beside them, and the
+difference is the overhead of the three requests, for which the budget has no row. The validator
+then runs on the worker thread, and the command is published.
+
+\paragraph{Prompt cache.} Section~\ref{sec:dual-path} designs the fixed part of the prompt to stay
+in the model's key--value cache between requests. The deployed parser does not do this: each
+completion request disables the server's prompt cache, so the fixed system instruction is
+processed again for every command. The reason is parity with the measurement of accuracy. The
+\emph{M\'emoire de Master} scores the deployed parser with the cache disabled, and the runtime
+sends the same request, so the accuracy it reports describes the parser as it runs, without an
+assumption that caching leaves the decoded command unchanged; that assumption was not tested. The
+cost is prefill time, since every request processes the whole prompt rather than the transcript's
+tokens alone. Section~\ref{sec:latency-experiment} reports that cost as measured, against the
+prefill allowance of Table~\ref{tab:stage-budget}, which assumes the cache.
+
+\paragraph{Preemption.} A reflex-path trigger acts on the parse path from the frame-loop thread,
+before its own command is published: it closes the connection of the parser's request in flight,
+if there is one. The parser treats any failure of a request as an interrupted decode. It cannot
+tell a cancellation from a server fault and does not need to, because the outcome is the same:
+no command is published for that utterance, and the event is logged. The sequence number is
+reserved when the worker takes the utterance, before transcription starts, which is the timing the
+ordering rule of Section~\ref{sec:dual-path} depends on. A decode that completes despite the
+cancellation therefore carries a number older than the trigger's, and the consumer discards it
+(Section~\ref{sec:command-bus}). How quickly the server stops decoding after the connection closes
+bounds the preemption-recovery criterion, and Section~\ref{sec:latency-experiment} measures it.
+
+\paragraph{Core pinning.} The allocation of Table~\ref{tab:core-allocation} is applied per thread,
+through the Linux affinity call, which restricts only the thread that makes it; a process started
+by that thread inherits its restriction. The worker restricts itself to cores~1--3, so every
+recogniser process it starts runs there. The language-model server is started from a thread
+restricted to cores~1--3 for that purpose, and the same thread then restricts itself to core~0
+before it runs the frame loop. The latency experiment records the affinity of every thread of the
+server and of the runtime at the start of each run.
+
+\paragraph{Artefacts from the M\'emoire de Master.} Three artefacts of the parse path are produced
+by the \emph{M\'emoire de Master} and consumed here unchanged: the language-model file, Qwen2.5-0.5B
+fine-tuned and quantised to Q4\_K\_M in the \gls{gguf} format; the decoding grammar; and the
+one-line system instruction, identical to the one used in training and in the accuracy measurement.
+The runtime adds no prompt text and no grammar rule of its own.
+
+\paragraph{Entry point.} No entry point starts the runtime as one process. The components above,
+together with the bus, the endpointer and the trained spotter, are assembled only by the harness of
+the latency experiment, which builds them for its trials. The demonstration of
+Section~\ref{sec:demonstration-protocol} requires such an entry point, and it is not built.
 
 \section{Command bus}
 \label{sec:command-bus}
