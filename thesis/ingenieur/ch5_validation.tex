@@ -248,30 +248,107 @@ fail-safe (Section~\ref{sec:membership-rule}).
 
 \section{Acoustic-robustness experiment}
 \label{sec:acoustic-robustness}
-% Sources: results/exp3_pi.csv (the Pi run is of record); tab:end-to-end; results/
-% exp3_pi_analysis.md (ANOVA/Tukey, Cochran's Q + McNemar, operating range, split rate, error
-% analysis with one cause per failed utterance); results/exp3_pi_parity.csv.
-% - Protocol: golden-set recordings with propeller-type noise mixed at falling SNR, through the
-%   parse path from endpointing to the validator. A split utterance counts correct only if every
-%   segment is.
-% - Clean-audio recognition and recognition in noise: both missed, each with its measured cause.
-%   Read exact match minus CRR as the cost of speech recognition.
-% - Statistics: the pre-registered arcsine ANOVA with its two caveats (the transform on 0/1 data;
-%   the same items repeated across SNR, hence Cochran's Q and McNemar beside it). The 10 dB vs
-%   5 dB McNemar comparison is not significant, by a hair -- write it so (p and alpha from the
-%   analysis file).
-% - No tuning was attempted, and why: the golden set is the only real speech, so tuning on it
-%   would fit the test set. Candidate remedies go to Ch 6.
-% - Parity: the parser is bit-identical across the workstation and the Pi; speech recognition is
-%   not, so accuracy is not hardware-independent and the target's numbers are reported; no verdict
-%   or significant pair changed.
-% - The stage-sum column of tab:end-to-end shows noise barely moves latency; end-to-end latency is
-%   the latency experiment's, not this one's.
-% - Safe-failure rate (the Memoire de Master's Safe failure criterion, same name): far below its
-%   bound; how ADR-0006 re-baselined it. Ch 6 returns to it.
-% - Thermal: the soft-limit flag was set during the 5 dB condition, checked, no measurable effect.
-% - The WER on the author's voice: cite the Memoire de Master's speaker-sensitivity experiment.
-\TODO{draft}
+The acoustic-robustness experiment measures how accurately the parse path turns speech into
+commands as the \gls{snr} falls, and in which direction its errors go. It judges the
+clean-audio recognition and recognition-in-noise criteria of
+Table~\ref{tab:nonfunctional-requirements}, and it measures the safe-failure rate that
+Section~\ref{sec:engineering-requirements} defines. Table~\ref{tab:end-to-end} gives the results
+at each level.
+
+\paragraph{Protocol.} The 200 golden-set recordings, one speaker in one session, are passed through
+the parse path from endpointing to the validator: endpointing with the 450~ms silence threshold,
+speech recognition by whisper \texttt{tiny.en}, the parser under its grammar, and the semantic
+validator. They are passed once clean and once at each of 20, 15, 10 and 5~dB \gls{snr}, with
+rotor noise from the evaluation partition of the DREGON recordings~\cite{dregon} mixed digitally
+at a level set against the active speech. A sixth condition passes each utterance's reference
+transcript through the same parser. Its \gls{em} is the parser's accuracy on exactly these items,
+so \gls{em} minus \gls{crr} is the accuracy that the speech stage costs. An utterance the
+endpointer splits into several segments counts as recognised only if every command it dispatched
+is correct. The run of record is the board's; the audio is replayed faster than real time, one
+segment after another, so that the experiment measures accuracy rather than scheduling.
+
+\input{generated/table20_end_to_end}
+
+\paragraph{Clean-audio recognition.} The criterion is missed: the \gls{crr} in clean audio is
+0.690, with a 95\% interval of [0.625, 0.750], against at least 0.80. The parser alone, on the
+reference text of the same utterances, reaches an \gls{em} of 0.935, so the speech stage costs
+0.245 [0.185, 0.310] of accuracy. Each of the 62 failed utterances is assigned one cause, in a
+fixed order. The endpointer's splits account for 22 of them: 23 of the 200 utterances were split
+at a pause, all 23 failed, and one of them is counted under a cause earlier in the order. A recognition
+error that left the intent right but a slot wrong accounts for 23, a recognition error that
+changed the intent for 5, and a parser error already present on the reference text for 12; no
+utterance was transcribed perfectly and then misparsed. The miss does not depend on the scoring
+rule for split utterances: scored on the last segment alone, the clean \gls{crr} is 0.730, still
+below 0.80. The endpointing threshold stays at the 450~ms that the budget sets
+(Section~\ref{sec:latency-budget}), and the split rate is reported as measured, at 11.5\% of the
+golden set.
+
+\paragraph{Recognition in noise.} The criterion is missed: at 10~dB the \gls{crr} is 0.590
+[0.520, 0.660], against at least 0.65. Parser accuracy on reference text does not depend on the
+audio, so the whole fall from clean audio is the speech stage's: its cost rises from 0.245 clean
+to 0.345 [0.280, 0.410] at 10~dB and 0.450 [0.380, 0.520] at 5~dB. The \gls{wer} rises with it,
+from 23.3\% clean to 28.8\% at 10~dB and 36.0\% at 5~dB. At 10~dB, recognition errors that change
+the intent rise from 5 to 19 and those that corrupt a slot from 23 to 30, while the parser's own
+errors stay at 12 and the failures assigned to splits fall from 22 to 20. Taken over the whole curve, the \gls{crr}
+holds at 0.65 or above down to 15~dB on the point estimate (0.650 exactly), and at no level on
+the interval's lower bound; it reaches 0.80 at no level. The clean \gls{wer} matches, within a
+fraction of a point, the figure that the speaker-sensitivity experiment of the \emph{M\'emoire de
+Master} measured on the same recordings with the same decoding prompt, so cutting the audio into
+segments before recognition did not change the recogniser's error rate.
+
+\paragraph{Tests across the noise levels.} The test fixed before measurement, a one-way analysis of
+variance on the arcsine-transformed \gls{crr}, rejects equality across the five conditions:
+$F(4, 995) = 6.03$, $p = 8.6 \times 10^{-5}$. Tukey's pairwise comparison separates 5~dB from
+clean, 20 and 15~dB, and no other pair. Two properties of that test are reported with it. The unit
+is the utterance, whose outcome is 0 or 1, and on binary data the arcsine transform is only a
+rescaling. The same 200 utterances appear in every condition, so the groups are not independent,
+as the analysis of variance assumes. A paired analysis is therefore reported beside it. Cochran's
+$Q$ rejects equality across the five conditions ($Q = 61.05$, 4 degrees of freedom,
+$p = 1.7 \times 10^{-12}$). McNemar's test~\cite{mcnemar1947} on each of the ten pairs, at the
+Bonferroni-corrected level~\cite{dunn1961} of $\alpha = 0.0050$, separates clean from 10 and 5~dB,
+and 20 and 15~dB from 5~dB. The comparison of 10~dB with 5~dB is not significant, at
+$p = 0.0051$ against $\alpha = 0.0050$, and neither is 20~dB against 10~dB, at $p = 0.0053$. Both
+tests locate the significant loss at the lowest levels, and the paired test also separates 10~dB
+from clean audio.
+
+\paragraph{Direction of the errors.} The safe-failure rate is the share of failed utterances that
+resolve to \texttt{unknown} or to a hold rather than to another action. It is 0.032 in clean audio
+(2 of 62 failures) and lies between 0.014 and 0.039 at every level, against a bound of at least
+0.70 set by the \emph{M\'emoire de Master}, which defines the criterion. The criterion is missed
+at every level. The number of failures
+grows from 62 clean to 103 at 5~dB, and the safe failures stay between one and four: the
+utterances that noise adds to the failures dispatch an executable command, not a hold. The
+recognition rate falls as the \gls{snr} falls, and the errors do not move towards the safe exit
+of Section~\ref{sec:safety-problem} as it does so. The \emph{M\'emoire de Master} re-baselined the
+criterion to the rate its multi-model benchmark measured on text input, 0.053, as a record of where the system
+stands rather than as a lowered target. With recognition errors in the input, the rate measured
+here is below even that figure at every level. Chapter~\ref{chap:demonstration} returns to this
+result.
+
+\paragraph{No tuning.} No part of the parse path was adjusted to these results. Every candidate
+remedy --- a longer endpointing threshold, a larger recognition model, a different prompt --- would have to be chosen on the golden set. That set is the only real speech available, and
+it is the test set, so a remedy chosen on it would be fitted to the measurement that judges it.
+The candidates are listed in Section~\ref{sec:future-work}.
+
+\paragraph{Parity across hardware.} The parser gives bit-identical output on the workstation and
+the board: on the reference-text condition, none of the 200 raw outputs differs. Speech recognition
+does not. Between two and six transcripts differ per audio condition, and the differences carry
+through to the parser's output. They change the outcome of two utterances at 10~dB, one in each
+direction, and of two at 5~dB, both towards failure, so the 5~dB \gls{crr} is 0.485 on the board
+against 0.495 on the workstation. Accuracy measured from audio therefore depends on the hardware,
+and the board's figures are the ones of record. No verdict and no significant pair differs between
+the two runs.
+
+\paragraph{Latency across the noise levels.} The last column of Table~\ref{tab:end-to-end} is a
+stage sum, not an end-to-end latency: speech recognition, prefill, decode and validation, added per
+segment, on replay faster than real time, so it contains no waiting for the worker and no request
+overhead. It serves to show how latency moves with noise. At p95 it rises from 2{,}869~ms clean to
+2{,}977~ms at 5~dB, an increase of 108~ms. End-to-end latency is judged on the latency experiment's
+measurement (Section~\ref{sec:latency-experiment}). The processor's temperature stayed between 54.3
+and 80.1~$^{\circ}$C over the run. The sticky soft-temperature-limit flag was set from 17:45, during
+the last condition, 5~dB, and clear before it. The per-segment medians at 5~dB, compared by item
+position, track those at 10~dB, which ran with the flag clear. The flag had no measurable effect on these timings,
+and accuracy does not depend on the clock.
 
 \section{Formation-control experiment}
 \label{sec:formation-control}
