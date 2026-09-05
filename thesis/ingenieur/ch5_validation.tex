@@ -29,16 +29,16 @@ together with the stage or mechanism the measurement locates as its cause.
 
 \paragraph{Device and thermal state.} Every wall-clock figure in this chapter was measured on the
 Raspberry~Pi~5, with the \texttt{performance} frequency governor and the threads pinned as in
-Table~\ref{tab:core-allocation}. The latency experiment ran with an active cooler fitted and
-recorded the processor's temperature and throttle flag at the start of every trial: the temperature
-stayed between 50.5 and 77.9~$^{\circ}$C, and the flag was clear on all 360 trials. The
-acoustic-robustness experiment ran on the same board and logged the same two quantities every
-30~s; its thermal state is given with its figures in Section~\ref{sec:acoustic-robustness}. The
-\emph{M\'emoire de Master} measured the same board without active cooling and found it throttled on
-every trial, so a timing figure is interpretable only together with the thermal state it was
-measured in. The keyword-spotter evaluation and the formation-control experiment report no
-wall-clock time: the spotter's detection delay is counted in audio frames, and the formation
-trials run in simulated time.
+Table~\ref{tab:core-allocation}, and with an active cooler fitted. The latency experiment recorded
+the processor's temperature and throttle flag at the start of every trial: the temperature stayed
+between 50.5 and 77.9~$^{\circ}$C, and the flag was clear on all 360 trials. The acoustic-robustness
+experiment ran on the same cooled board and logged the same two quantities every 30~s; its thermal
+state is given with its figures in Section~\ref{sec:acoustic-robustness}. The \emph{M\'emoire de
+Master} measured the same board without active cooling and found it throttled on every trial, so a
+timing figure is interpretable only together with the thermal state it was measured in. The
+keyword-spotter evaluation and the formation-control experiment report no wall-clock time: the
+spotter's detection delay is counted in audio frames, and the formation trials run in simulated
+time.
 
 \paragraph{Records and reruns.} Every trial is kept as one record: a CSV row per trial for the
 formation-control experiment, and a line of \gls{json} per trial for the latency and
@@ -159,11 +159,11 @@ since the bus ran over loopback. Section~\ref{sec:limitations} treats both.
 The keyword-spotter evaluation scores the two trained heads on held-out recordings, with the
 operating threshold of 0.999 selected on the validation split before the test split was scored;
 the test split was scored once for each of the heads' two fits (Section~\ref{sec:audio-chain}).
-It judges the keyword false-accept criterion and gives the false-reject rates on synthetic speech that the author's recordings of
-Section~\ref{sec:latency-experiment} complement. The recordings are streamed through the
-spotter's front end in 80~ms frames, as the runtime streams them, and detections are counted with
-the runtime's 1.0~s debounce. Every rate below therefore counts the same events the runtime would
-publish.
+It judges the keyword false-accept criterion and gives the false-reject rates on synthetic speech
+that the author's recordings of Section~\ref{sec:latency-experiment} complement.
+The recordings are streamed through the spotter's front end in 80~ms frames, as the runtime
+streams them, and detections are counted with the runtime's 1.0~s debounce. Every rate below
+therefore counts the same events the runtime would publish.
 
 \paragraph{Operating curve.} Figure~\ref{fig:keyword-curve} gives, for each class, the false-reject
 rate on the test split against the false-accept rate on the ambient-speech stream, both classes
@@ -228,14 +228,14 @@ at each level.
 \paragraph{Protocol.} The 200 golden-set recordings, one speaker in one session, are passed through
 the parse path from endpointing to the validator: endpointing with the 450~ms silence threshold,
 speech recognition by whisper \texttt{tiny.en}, the parser under its grammar, and the semantic
-validator. They are passed once clean and once at each of 20, 15, 10 and 5~dB \gls{snr}, with
-rotor noise from the evaluation partition of the DREGON recordings~\cite{dregon} mixed digitally
-at a level set against the active speech. A sixth condition passes each utterance's reference
-transcript through the same parser. Its \gls{em} is the parser's accuracy on exactly these items,
-so \gls{em} minus \gls{crr} is the accuracy that the speech stage costs. An utterance the
-endpointer splits into several segments counts as recognised only if every command it dispatched
-is correct. The run of record is the board's; the audio is replayed faster than real time, one
-segment after another, so that the experiment measures accuracy rather than scheduling.
+validator. They are passed once clean and once at each of 20, 15, 10 and 5~dB \gls{snr}, with rotor
+noise from the evaluation partition of the DREGON recordings~\cite{dregon} mixed digitally at a
+level set against the active speech. A sixth condition passes each utterance's reference transcript
+through the same parser. Its \gls{em} is the parser's accuracy on exactly these items, so \gls{em}
+minus \gls{crr} is the accuracy that the speech stage costs. An utterance the endpointer splits into
+several segments counts as recognised only if every command it dispatched is correct. The run of
+record is the cooled board's; the audio is replayed faster than real time, one segment after
+another, so that the experiment measures accuracy rather than scheduling.
 
 \input{generated/table20_end_to_end}
 
