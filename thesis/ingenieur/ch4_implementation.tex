@@ -305,15 +305,74 @@ Section~\ref{sec:demonstration-protocol} requires the link, and it is not built.
 
 \section{Swarm controller}
 \label{sec:swarm-controller}
-% - Four terms in descending authority: PID to the assigned formation slot, APF separation, Boids
-%   cohesion and alignment; slot assignment for circle, line and wedge. Source: swarm/control.py
-%   docstring. \cite{reynolds1987} for flocking; gains as numbers, from the code.
-% - The separation clamp -- the third mechanism of Ch 1's safety problem: a hard geometric
-%   separation clamp at the integrator, writing positions back so no pair is closer than the clamp
-%   distance (0.80 m). It writes back only on the kinematic backend (swarm/simulate.py). Use Ch 1's
-%   locked phrasing for the collision criterion; the intervention count is Ch 5's.
-% - Envelope clamping of commanded values is the validator's (Ch 3), not the controller's.
-\TODO{draft}
+The swarm controller receives the positions and velocities of the five vehicles and returns one
+acceleration command per vehicle, every 20~ms (50~Hz). It is written against the environment
+interface of Section~\ref{sec:simulation-backends} and sees nothing of either simulator beyond it.
+Its only command is a formation: a shape, its size and heading, and a centre, which defaults to the
+swarm's current centroid. It implements three of the six shapes the schema admits, the circle, the
+line and the wedge; the other three are valid commands for which the controller has no slot
+generator. No code maps the other intents, a movement, a climb, a rotation, a take-off, a landing
+or a hold, onto the controller. That mapping belongs to the link from the state machine that
+Section~\ref{sec:state-machine} records as not built. Commanded values reach the controller already
+held inside the envelope by the validator (Section~\ref{sec:validation-layers}); the controller
+applies no envelope of its own.
+
+\paragraph{Formation slots.} Each shape is generated as a set of offsets about the origin, then
+rotated by the commanded heading and translated to the centre, so that a heading means the same
+thing for every shape. The circle places the vehicles at equal angles on the commanded radius, and
+the line spaces them evenly about the middle vehicle. The wedge puts one vehicle at the apex and the
+others on two arms trailing at $30^\circ$ either side, alternating between the arms. It is then
+re-centred on its own centroid: left centred on the apex, its mean position would lie behind the
+commanded centre while the circle's and the line's lie on it, and the wedge would be given a longer
+approach than the other two shapes for a reason unrelated to its geometry. Vehicles are assigned to
+slots by minimising the total squared distance between each vehicle and its slot. A greedy
+assignment, each vehicle to its nearest free slot, routinely produces crossing paths, which sends
+two vehicles through the same volume. The assignment is computed once, when the formation is
+commanded, and then held. Recomputed at every tick, it would let two vehicles exchange targets
+whenever noise made the exchange marginally cheaper, and the pair would fly through each other.
+
+\paragraph{Control terms.} The acceleration is the sum of three terms, in decreasing order of
+authority. The first is a \gls{pid} law on the error between each vehicle and its slot, with
+gains $k_p = 2.0$, $k_i = 0.05$ and $k_d = 3.0$; the derivative term acts on the vehicle's
+velocity, and the integral is limited to $\pm 2.0$~m\,s against wind-up. The value of $k_d$ is
+slightly above critical damping for $k_p$, which is $2\sqrt{k_p} \approx 2.83$. A formation that
+overshoots its slot oscillates across the 0.5~m tolerance of the formation-accuracy criterion
+during the final 5~s of a trial, the window over which that criterion is measured
+(Table~\ref{tab:nonfunctional-requirements}). The second term is an artificial potential field
+that repels each pair of vehicles closer than 1.5~m, with a magnitude of
+$6.0\,(1/d - 1/d_0)/d^2$ for a separation $d$ and an influence distance $d_0 = 1.5$~m, and no force
+beyond it. The third is the cohesion and alignment of flocking~\cite{reynolds1987}, weighted at
+0.15 towards the swarm's centroid and 0.25 towards its mean velocity. Flocking keeps the group
+together on the approach, before the slots dominate; its separation rule is replaced by the
+potential field. Once the vehicles are near their slots, the formation term determines the
+trajectory and flocking contributes little. Its terms are therefore weighted low rather than
+removed.
+
+\paragraph{Separation clamp.} The potential field is a force, and a force can be outrun: with a
+bounded acceleration and a finite timestep, there is a closing speed from which no force stops a
+pair in time. The third mechanism of the safety problem (Section~\ref{sec:safety-problem}) is
+therefore not a force but a correction of the state. After the integrator has written the new
+positions, the clamp finds every pair closer than 0.80~m and moves both vehicles apart along the
+line joining them, each by half the shortfall. Separating one pair can bring another pair too
+close, as in a chain of three, so the clamp repeats the pass, up to 64 times, until no pair is
+closer than the clamp distance. It also removes the approaching component of each such pair's
+relative velocity. Without that, the pair would close again on the next tick and the clamp would
+act on every tick after, which would record a resolved approach as a permanent one. Two vehicles at
+exactly the same position are separated along an axis chosen from their indices, so that a trial
+remains reproducible. The controller then receives the corrected state, never the uncorrected one.
+
+The clamp distance of 0.80~m is a choice of this work: roughly twice the rotor-tip diameter of a
+small quadrotor, so that the clamp acts while there is still space between the airframes. A
+collision, in the collision criterion, is a pair closer than 0.35~m, strictly less than the clamp
+distance, so a counted collision would mean that the clamp itself had failed. Two figures are
+recorded per trial. The clamp interventions are the pairs found too close when the clamp is
+entered, counted on its first pass only, so that the figure depends on the dynamics and not on how
+many passes the correction takes. The collisions are counted after the clamp. This is the
+mechanism the collision criterion names, zero collisions observed across all trials, backed by a
+hard geometric separation clamp at the integrator, and Section~\ref{sec:formation-control}
+reports both figures. The clamp rewrites the vehicles' state only on the kinematic backend, the one
+that exposes its integrator; the physics simulator does not, and its runs do not apply the clamp
+(Section~\ref{sec:simulation-backends}).
 
 \section{Simulation backends}
 \label{sec:simulation-backends}
