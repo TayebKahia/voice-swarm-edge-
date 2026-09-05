@@ -57,8 +57,16 @@
 \makeatother
 \tableofcontents
 \endgroup
+% One figure and seven tables: the two lists share a page. Each \chapter* starts with
+% \clearpage, which is disabled for these two lines only; the page break before the
+% acronyms below is the explicit \clearpage after \printglossary. The break before the
+% lists must then be explicit too, or the contents' last entry drifts onto their page.
+\clearpage
+\begingroup
+\let\clearpage\relax
 \listoffigures
 \listoftables
+\endgroup
 
 % -- Acronyms -----------------------------------------------------------------
 \input{shared/acronyms}
