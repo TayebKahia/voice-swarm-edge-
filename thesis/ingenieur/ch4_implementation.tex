@@ -1,5 +1,5 @@
 % Implementation --- section structure from prd.md 3.1 item 4, ownership from Table 3.
-% Scaffold only: headings and planning notes, no prose. Delete each note as its section is filled.
+% Drafted section by section (Thu 24 Sep). The header below was the brief; the per-section notes are deleted.
 %
 % This chapter OWNS: what was built -- the audio chain from recorded input, the runtime and its
 % command bus, the flight state machine as code, the swarm controller with the separation clamp,
@@ -376,13 +376,57 @@ that exposes its integrator; the physics simulator does not, and its runs do not
 
 \section{Simulation backends}
 \label{sec:simulation-backends}
-% - One environment interface, two backends (swarm/env.py): the kinematic double integrator with
-%   the quadrotor's bounds (fast: a 60 s five-drone trial in under a second -- the formation
-%   experiment runs on it) and PyFlyt on Bullet \cite{pyflyt} (fidelity; its own attitude and
-%   rotor loops under the controller's velocity setpoint -- swarm/pyflyt_env.py).
-% - Say explicitly: the same controller with the same gains runs under both; a controller retuned
-%   per backend would prove nothing (roadmap B9). This is what the Simulation backends criterion
-%   rests on.
-% - Scope, honestly: the formation results come from the kinematic backend; PyFlyt is smoke-tested
-%   (swarm/test_pyflyt.py). No rotor dynamics in the results (Ch 1 scope paragraph).
-\TODO{draft}
+The controller is written against one environment interface, and two backends implement it. The
+interface has two operations. The first places the five vehicles for a given seed and returns their
+positions and velocities; the second takes one acceleration command per vehicle, advances the
+simulation by one control tick of 20~ms, and returns the new state. Positions are in metres and
+velocities in metres per second, in a world frame with the vertical axis pointing up. The two
+backends exist because speed and fidelity are different needs, and neither backend serves both.
+
+\paragraph{Kinematic backend.} The kinematic backend treats each vehicle as a point mass whose
+acceleration is commanded directly. It limits the commanded acceleration to 4~m/s$^2$ and the
+speed to 3~m/s, and it treats the ground plane as impenetrable. Both limits scale the whole vector
+rather than each component, so a limited command keeps its direction. The integration is
+semi-implicit: the velocity is updated first, and the new velocity moves the position. Explicit
+integration adds energy on every tick, and in a formation controller that energy appears as a slow
+oscillation about the slot, which resembles an under-damped gain and could be mistaken for one.
+The vehicles start at positions drawn, from the trial's seed, from a normal distribution of
+standard deviation 0.5~m about the point $(0, 0, 2)$~m. The backend runs a 60~s trial of five
+vehicles in under a second, which is what makes the formation-control experiment's sweep of trials
+practical, and the experiment runs on it. It is also the backend whose state the separation clamp
+may overwrite (Section~\ref{sec:swarm-controller}).
+
+\paragraph{Physics backend.} The second backend runs five quadrotors in PyFlyt, on the Bullet
+physics engine~\cite{pyflyt}, with rigid-body dynamics, rotor dynamics and PyFlyt's own attitude
+control. The controller's acceleration does not reach the rotors directly. It is integrated into a
+commanded velocity, subject to the same two limits as the kinematic backend, and that velocity is
+sent to PyFlyt as a world-frame setpoint, which PyFlyt's inner loops then track; yaw is not
+commanded. PyFlyt also accepts a position setpoint, but using it would have measured PyFlyt's own
+position controller rather than the controller of Section~\ref{sec:swarm-controller}. The commanded
+velocity is held by the backend rather than read back from the vehicle. PyFlyt's inner loop leaves a
+small steady error in altitude, and a setpoint built on the measured velocity would feed that error
+back as the next command, so that a vehicle told to hold station descends to the ground within
+about two seconds; a test guards against that behaviour. The physics runs at 240~Hz. A control tick
+is rounded to a whole number of physics steps, five, with the setpoint held between them, so the
+control rate on this backend is 48~Hz rather than 50~Hz. The backend runs at about the speed of
+simulated time, and it serves to test whether the controller relies on the simplicity of the point
+mass.
+
+\paragraph{One controller, one set of gains.} The same controller, with the same gains, runs under
+both backends; nothing in it is selected per backend. That is the condition the simulation-backends
+criterion rests on (Table~\ref{tab:functional-requirements}). The formation-control results come
+from the kinematic backend alone, and the physics backend is what shows that those results
+describe a controller that also flies against rigid-body dynamics. A controller retuned for each
+backend would prove nothing: the kinematic results would then describe a controller that runs
+nowhere else, and a success on the physics backend would describe a different controller. The
+tests of the physics backend are written to that condition. Each of the three formations is flown
+for 12~s and must end with at least 85\% of the vehicles within 0.5~m of their slots, a line
+formation must not sink, and one test flies the same line with the default controller on both
+backends and applies the same criterion to each. All five tests pass.
+
+\paragraph{Scope of the physics backend.} The physics backend is exercised by these tests only. It
+carries no experiment, so no result reported in Chapter~\ref{chap:validation} includes rotor
+dynamics. Its runs apply no separation clamp: PyFlyt owns the vehicles' state and exposes no
+integrator for the clamp to correct, so on this backend only the potential field keeps the vehicles
+apart. The collision criterion is therefore measured on the kinematic backend alone, and no
+collision result is claimed for the physics backend.
