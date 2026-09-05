@@ -1807,8 +1807,11 @@ heights on one pass and applies them on the next) and re-check the tops of pp. 1
 the last pages of Ch3 and Ch4. Quick check: per-page line counts via
   for i in $(seq 1 N); do pdftotext -f $i -l $i -layout build/master/main_master.pdf - | grep -c '[^[:space:]]'; done
 Remaining short pages are chapter ends (Ch1 p.14, Ch2 p.19, Ch5 p.54, Ch6 p.57) plus the two
-accepted above. Front matter untouched: the contents spill 6 lines onto a second page and the list
-of figures has one entry; both left as is (tocdepth 1 would fit the contents on one page).
+accepted above. Front matter: the contents spilled 5 lines onto a second page; now one page (commit after
+cbd844f): entries set \small via \addtocontents and the class's 1em gap before each chapter entry
+patched to 0.3em inside a group around \tableofcontents (main_master.tex), so the lists of figures
+and tables keep the defaults. tocdepth 1 alone would have saved only the 2 subsection lines. The
+list of figures still has one entry on its own page; left as is.
 
 Stopped here: Master layout done to the author's satisfaction; nothing open on the Master beyond
 the pre-submission items listed in the previous entry.
