@@ -43,54 +43,208 @@
 
 \chapter{Validation}
 \label{chap:validation}
-% Lead-in and common setup (no section of its own; prd lists none): what is measured and against
-% what (Ch 1 tables, Ch 3 budget); the target device and its thermal state -- the latency
-% experiment ran with the active cooler fitted, governor performance, throttle flag zero on every
-% trial (results/exp2_analysis.md, SoC temperatures; STATE.md l.1523). Check the acoustic run's
-% state in results/exp3_pi_analysis.md before writing it. Every timing figure carries its thermal
-% state (the Memoire de Master owns the thermal-headroom result -- uncooled, throttled -- one
-% sentence and a cross-reference); pinned versions, fixed seeds, one CSV row per trial, one command
-% reruns everything (run_all.sh).
-% The generated tables carry no codes (eval/tables.py, 4d8d701); any wording change to them goes
-% in the renderer and is regenerated -- never edit the .tex.
-\TODO{draft}
+This chapter measures the system of Chapter~\ref{chap:implementation} against the requirements of
+Section~\ref{sec:engineering-requirements}. Every criterion is taken from
+Table~\ref{tab:functional-requirements} or Table~\ref{tab:nonfunctional-requirements}, and every
+stage of both paths is judged against the budget of Table~\ref{tab:stage-budget}; each target was
+fixed before the measurement that answers it and is quoted here unchanged.
+Section~\ref{sec:latency-experiment} reports the latency experiment,
+Section~\ref{sec:keyword-spotter-evaluation} the keyword-spotter evaluation,
+Section~\ref{sec:acoustic-robustness} the acoustic-robustness experiment and
+Section~\ref{sec:formation-control} the formation-control experiment, each with its statistical
+analysis. Section~\ref{sec:requirements-summary} collects every verdict in one table. A criterion
+is met or missed on the point estimate of the statistic its budget names, with one exception: the
+two keyword criteria are rates estimated from few events, and they follow an interval rule declared
+before they were scored, stated where they are reported. A missed criterion is reported as missed,
+together with the stage or mechanism the measurement locates as its cause.
+
+\paragraph{Device and thermal state.} Every wall-clock figure in this chapter was measured on the
+Raspberry~Pi~5, with the \texttt{performance} frequency governor and the threads pinned as in
+Table~\ref{tab:core-allocation}. The latency experiment ran with an active cooler fitted and
+recorded the processor's temperature and throttle flag at the start of every trial: the temperature
+stayed between 50.5 and 77.9~$^{\circ}$C, and the flag was clear on all 360 trials. The
+acoustic-robustness experiment ran on the same board and logged the same two quantities every
+30~s; its thermal state is given with its figures in Section~\ref{sec:acoustic-robustness}. The
+\emph{M\'emoire de Master} measured the same board without active cooling and found it throttled on
+every trial, so a timing figure is interpretable only together with the thermal state it was
+measured in. The keyword-spotter evaluation and the formation-control experiment report no
+wall-clock time: the spotter's detection delay is counted in audio frames, and the formation
+trials run in simulated time.
+
+\paragraph{Records and reruns.} Every trial is kept as one record: a CSV row per trial for the
+formation-control experiment, and a line of \gls{json} per trial for the latency and
+acoustic-robustness experiments, which also carries each segment's transcript, raw model output
+and stage timings. Every summary and every table in this chapter is computed from those records
+by script; none is typed by hand. The speech recogniser is built from a fixed commit of
+\texttt{whisper.cpp}, the model files are identified by their SHA-256 hashes, and the Python
+environment on the board is pinned to the workstation's versions. Every random draw --- the noise
+excerpt mixed into each recording, the bootstrap resamples, the initial positions of each
+formation trial --- comes from a fixed seed, and decoding is greedy. Each experiment is rerun by
+one command on the host that produced its records, and one further command regenerates every table
+from them. The single-command rerun of Section~\ref{sec:engineering-requirements} therefore holds
+per experiment rather than for the chapter as a whole.
 
 \section{Latency experiment}
 \label{sec:latency-experiment}
-% Sources: results/exp2.csv; results/exp2_analysis.md (split rate, 2x2 cross-trigger matrix,
-% preemption outcomes, core-0 frame budget, SoC temperatures, caveats); tab:latency-budget.
-% - Protocol: recorded WAV replayed on the Pi -- why: identical audio across the idle and loaded
-%   conditions. The bus was loopback on the Pi; the Wi-Fi hop is not in the figures.
-% - Reflex latency, idle and loaded: missed. Located cause: the spotter's own detection delay,
-%   hardware-independent, while the Pi's compute per frame is a few milliseconds idle and loaded --
-%   so the core isolation of Ch 3 held. (Figures from exp2_analysis.md.)
-% - End-to-end latency: missed; located in speech recognition and in uncached prefill (Ch 4
-%   sec:runtime gives why the prefix is not cached); decode meets its allowance.
-% - Per-stage attribution: every stage against tab:stage-budget (Ch 3) -- which meet, which miss.
-% - Preemption recovery: missed; located cause: the language-model server notices a closed
-%   connection only on a once-per-second poll. In-flight decodes aborted: all of them (count from
-%   results).
-% - Keyword false rejects on the author's recorded keywords (results/wake_real_voice.md): quote
-%   the exact Clopper-Pearson interval; at this sample size it cannot demonstrate the target -- say
-%   so.
-% - Not measured: live-capture latency, the Wi-Fi hop -- declared, pointing to Ch 6.
-\TODO{draft}
+The latency experiment times both paths on the board and judges four criteria of
+Table~\ref{tab:nonfunctional-requirements} on the result: reflex latency, end-to-end latency,
+per-stage attribution and preemption recovery. It also supplies the preemption trials and the
+matrix of detected classes on which the reflex-path requirement of
+Table~\ref{tab:functional-requirements} is verified, and the keyword false rejects on the author's
+voice. Table~\ref{tab:latency-budget} sets every measured stage beside its target.
+
+\paragraph{Protocol.} Recorded audio is replayed through the runtime on the cooled board, in real
+time, through the frame source of Section~\ref{sec:audio-chain}, rather than captured from a
+microphone. Replay gives the idle and loaded conditions identical audio, and it makes every trial repeatable. The parse path
+is measured on the 200 golden-set utterances in clean audio, one latency sample per endpointed
+segment, with the reflex path listening as deployed. The reflex path is measured on the author's 40
+recorded keyword takes, 20 per class, each replayed twice in each of two conditions, for 80
+trials per condition: idle, with the parse path resident but given no work, and loaded, with a load
+thread on cores~1--3 running the deployed parse path back to back on golden-set transcripts, so
+that a trigger meets a decode in progress. The loaded condition is preceded by 300~s of the same
+load, after which the processor was at 73.0~$^{\circ}$C. The bus runs
+over the board's loopback interface, with the consumer and the state machine on the board
+(Section~\ref{sec:command-bus}). The reflex-path span ends at publication, as
+Table~\ref{tab:stage-budget} defines it. The parse-path span ends later, when the state machine on
+the board has applied the command, so it includes the bus and the state-machine check. Both fall
+within the validation row of Table~\ref{tab:latency-budget}, whose p95 is under 1~ms, and the
+measured span therefore exceeds the defined one by at most that row. The keyword offset is the end
+of speech as the capture tool recorded it from the signal's energy, not a forced alignment.
+
+\input{generated/exp2_latency_budget}
+
+\paragraph{Reflex latency.} The criterion is missed in both conditions: the reflex path's p95 from
+the keyword offset is 545~ms idle and 547~ms loaded, against 150~ms. The two sub-rows of
+Table~\ref{tab:latency-budget} locate the miss. The spotter's delay and the quantisation of audio
+into 80~ms frames account for 540~ms at p95 in both conditions, while the board's computation and
+publication account for 6~ms idle and 18~ms loaded. The miss therefore lies in how long the
+spotter's score takes to cross the threshold after the keyword ends, a property of the classifier
+and its operating point, not of the board. On the synthetic test recordings the same delay is
+shorter (Section~\ref{sec:keyword-spotter-evaluation}), so the figure measured here on the author's
+voice is the one the criterion is judged on. Loading the parse path raised the reflex path's p95 by
+2~ms, and no frame in any condition took longer than the 80~ms frame period to process: in the
+loaded condition the frame loop's computation was 14.2~ms at the median, 22.9~ms at p99 and
+45.5~ms at most. The core allocation of Section~\ref{sec:resource-allocation} kept the parse path's
+load off the reflex path. The onset-anchored figures, 1{,}265~ms idle and 1{,}266~ms loaded against
+850~ms, also miss.
+
+\paragraph{Preemption and the matrix of classes.} Of the 80 loaded trials, 78 produced a
+detection, and every one of the 78 found a parse-path decode in progress and cancelled it. No
+cancelled decode completed despite the cancellation, so the ordering rule of
+Section~\ref{sec:command-bus} never had to discard a late result. In both conditions, the 40
+\emph{swarm abort} takes all fired the abort class, and 38 of the 40 \emph{swarm hold} takes fired
+the hold class. The two misses are one take, missed on both of its replays. No take fired the other
+class, in either condition. The preemption behaviour and the class matrix together satisfy the
+verification that the reflex-path requirement names. While listening to the 200 golden-set
+utterances, the reflex path fired once, a \texttt{hover} during an utterance commanding a landing.
+That error is on the fail-safe side of Section~\ref{sec:membership-rule}. The spotter scored the
+same recordings without a false accept in the keyword-spotter evaluation, and the records do not
+explain the difference.
+
+\paragraph{Preemption recovery.} The criterion is missed: the time from a trigger until the parse
+path can accept a new utterance is 1{,}195~ms at p95, against 300~ms. The client's part of the
+cancellation is fast, since the cancelled request returns within 6~ms of the trigger at p95. The
+remainder is the language-model server's. The server accepts a new request only after it has
+registered the closed connection, which it checks once per second. That check, not the
+cancellation, sets the recovery time, whose median is 601~ms.
+
+\paragraph{End-to-end latency.} The criterion is missed: the parse path's p95 from the end of
+speech is 3{,}122~ms over 226 segments, against 2{,}500~ms, a shortfall of 622~ms (25\%). With the
+endpointing wait included, the p95 is 3{,}602~ms. The per-stage rows locate the shortfall in two
+stages. Speech recognition reaches 1{,}449~ms at p95 against its 1{,}200~ms allowance. Prefill
+reaches 751~ms against 250~ms, because the deployed parser processes the whole prompt for every
+command (Section~\ref{sec:runtime}), whereas the allowance assumes the fixed prefix is cached. The
+decode, at 915~ms against 1{,}100~ms, meets its allowance. The selection rule of the
+\emph{M\'emoire de Master} has a failure clause for a constraint that no configuration satisfies,
+and under it the end-to-end budget is re-baselined to the measured 3{,}122~ms. This is a
+re-baseline, not a pass: against the 2{,}500~ms requirement as specified, the selected
+configuration misses by 622~ms, and the verdict of Section~\ref{sec:requirements-summary} remains
+missed.
+
+\paragraph{Per-stage attribution.} The criterion is met: each of the five parse-path stages of
+Table~\ref{tab:stage-budget} is measured and reported at p50, p95 and p99. Three meet their
+allowance: the endpointing wait (480~ms against 500~ms), the decode, and validation with the
+state-machine check (under 1~ms against 50~ms). Two miss: speech recognition and prefill. Two
+intervals inside the span have no budget row and are recorded beside the stages: the segment's
+wait for the parse-path worker, 73~ms at p95, and the overhead of the requests to the
+language-model server, 8~ms at p95. Two rows of Table~\ref{tab:stage-budget} have no verdict here.
+The combined language-model allowance is the deployment constraint that the \emph{M\'emoire de
+Master} applies to its model comparison, where the prefix is cached. The start-of-speech target is
+defined for a 3~s utterance, while the golden-set utterances vary in length.
+
+\paragraph{Keyword false rejects.} The author's 40 takes, scored at the operating threshold by the
+keyword-spotter evaluation's own procedure, give one miss in 20 for the hold class, a false-reject
+rate of 0.050 with an exact 95\% interval of [0.001, 0.249], and none in 20 for the abort class,
+0.000 with [0.000, 0.168]. Under the declared rule the criterion is met only if the whole
+interval lies below 0.10, and neither class's interval does. The criterion is therefore not
+demonstrated. At 20 takes per class it could not have been: even with no miss, the upper bound
+stays at 0.168. The one missed take peaked at a score of 0.9977 against the threshold of 0.999,
+and it is the take missed on both replays on the board.
+
+\paragraph{Not measured.} Two delays are outside every figure of this section: the latency of live
+capture, since the audio was replayed, and the wireless hop from the board to the workstation,
+since the bus ran over loopback. Section~\ref{sec:limitations} treats both.
 
 \section{Keyword-spotter evaluation}
 \label{sec:keyword-spotter-evaluation}
-% Sources: results/wake_training.md, .json (produced by train/train_wake.py; eval/exp2.py only
-% quotes them).
-% - Held-out recordings, operating point fixed on a validation split before the test recordings
-%   were scored.
-% - The per-class curve with the chosen threshold marked (promised by Ch 1) -- a figure; generate
-%   it from the recorded data, do not draw it by hand.
-% - False rejects per class on the synthetic test split.
-% - Keyword false accepts on the continuous ambient-speech stream: point estimate above the
-%   budget, but the 95% interval contains it, so under the declared rule the verdict is NOT
-%   DEMONSTRATED (STATE.md l.1324) -- report the point, the interval and the verdict together.
-% - prd.md 3.1 item 5 lists this section: Ch 1 names this evaluation as a fourth source of
-%   measurements (the Keyword false accepts row), and Table 3 gives it here.
-\TODO{draft}
+The keyword-spotter evaluation scores the two trained heads on held-out recordings, with the
+operating threshold of 0.999 selected on the validation split before the test split was scored;
+the test split was scored once for each of the heads' two fits (Section~\ref{sec:audio-chain}). It judges the keyword false-accept criterion and gives the
+false-reject rates on synthetic speech that the author's recordings of
+Section~\ref{sec:latency-experiment} complement. The recordings are streamed through the
+spotter's front end in 80~ms frames, as the runtime streams them, and detections are counted with
+the runtime's 1.0~s debounce. Every rate below therefore counts the same events the runtime would
+publish.
+
+\paragraph{Operating curve.} Figure~\ref{fig:keyword-curve} gives, for each class, the false-reject
+rate on the test split against the false-accept rate on the ambient-speech stream, both classes
+together, as the threshold sweeps the grid of Section~\ref{sec:audio-chain}, with the operating
+point marked. The two keyword criteria are read from this one curve, as
+Table~\ref{tab:nonfunctional-requirements} requires, and they are quoted together here. The
+curve's upper end is flat in false accepts. A single false accept on the test stream survives
+every threshold from 0.88 to the top of the grid, so no threshold on the grid would have removed
+it; within that range, raising the threshold only adds false rejects. The operating point sits at
+the top of the grid, where the heads' scores saturate and the threshold does little of the
+classification.
+
+\begin{figure}[htbp]
+\centering
+\figtodo{per-class curve from wake\_training.json, threshold 0.999 marked}
+\caption[Keyword-spotter operating curve]{Operating curve of the keyword spotter on the held-out
+test split. For each class, \texttt{swarm hold} and \texttt{swarm abort}, the false-reject rate on
+the 300 synthetic test takes of that class is plotted against the false-accept rate per hour on
+0.429~h of ambient speech, summed over both classes, as the common detection threshold sweeps the
+selection grid from 0.05 to 0.999. The marker is the operating threshold of 0.999, selected on the
+validation split before the test split was scored. Detections are counted in 80~ms frames with a
+1.0~s debounce, as in the runtime.}
+\label{fig:keyword-curve}
+\end{figure}
+
+\paragraph{False rejects on synthetic speech.} At the operating point, the hold class misses 0.027
+of its 300 test takes and the abort class 0.007 of its 300. One hold take fired the abort class,
+and no abort take fired the hold class. On the validation split, where the threshold was chosen,
+the rates are 0.027 and 0.000 over 150 takes per class. Every positive of both splits is rendered
+by the same three synthetic voices the heads were trained on, so these rates measure the heads on
+voices they have heard. The criterion is judged on the author's voice
+(Section~\ref{sec:latency-experiment}). The spotter's delay, from the last voiced sample of the
+keyword to the first frame above the threshold, is 188~ms at p95 for the hold class and 131~ms for
+the abort class on the test split. On the author's takes, measured the same way against the capture
+tool's end of speech, it is 550~ms and 430~ms. The synthetic split therefore understates the delay on real
+speech, which is where the reflex latency criterion is missed (Section~\ref{sec:latency-experiment}).
+
+\paragraph{Keyword false accepts.} The test stream of ambient speech, 0.429~h long, produced one
+false accept, on the abort head. That is 2.33 per hour, with a 95\% Poisson interval of [0.06,
+12.98], against a budget of at most one per hour. The point estimate exceeds the budget, and the
+interval contains it. Under the rule declared before scoring --- met only if the whole interval
+lies inside the budget, missed only if it lies wholly outside --- the criterion is not
+demonstrated. The stream is too short to decide it either way. The validation stream, 0.167~h,
+produced no false accept, with an interval of [0.00, 22.13], and so decides nothing either. The
+golden-set recordings, in which the author reads parse-path commands including phrases close to
+the keywords, produced none in 0.304~h. A further stream of authored near-miss phrases, packed back
+to back, produced 34 false accepts in 0.100~h, 31 of them on the hold head. That rate describes a
+stress condition built from the nearest confusions available, not an operating rate, and no
+criterion is judged on it. A false \texttt{abort} on the spoken word \emph{abort} is itself
+fail-safe (Section~\ref{sec:membership-rule}).
 
 \section{Acoustic-robustness experiment}
 \label{sec:acoustic-robustness}
