@@ -1857,7 +1857,6 @@ Deliberately left out, and why:
   - The combined language-model row and the start-of-speech row of tab:stage-budget: no measured
     counterpart in the generated table; 5.1 says why neither has a verdict (no hand-summed p95).
   - PyFlyt formation figures (STATE.md Exp-4 entry): not in results/; the smoke test is Ch4's.
-  - No "cooled" claim for the acoustic run: results/ never records the cooler for it.
   - The Master's WER number: cited in words only, per the promise.
 
 Requests (not made here -- other subsystems):
@@ -1873,8 +1872,9 @@ Requests (not made here -- other subsystems):
     (exp2.csv: 0.3/0.5/3.5 -- half-to-even vs half-up). Harmless; Ch5 quotes "under 1 ms".
   - references.bib: Tukey's HSD, Cochran's Q and the exact (Clopper-Pearson) interval are named in
     5.3/5.4/5.1 without citation (only mcnemar1947 and dunn1961 exist). Author's call whether to add.
-  - Author: was the active cooler fitted for the acoustic Pi run (17:05-17:50)? If yes, 5.3 and the
-    lead-in can say "cooled".
+  - RESOLVED Thu 24 Sep: the author confirmed the active cooler was fitted for the acoustic Pi run
+    (17:05-17:50). Not recorded in results/ (soc.log has no cooler field) -- this line and the ch5
+    commit are the record. Lead-in and 5.3 now say "cooled".
 
 What Ch6 inherits: every verdict via tab:requirements-summary and the section labels; the misses
 with causes as 5.5 words them; the safe-failure direction result (5.3, "Direction of the errors");
