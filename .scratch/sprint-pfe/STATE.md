@@ -1815,3 +1815,75 @@ list of figures still has one entry on its own page; left as is.
 
 Stopped here: Master layout done to the author's satisfaction; nothing open on the Master beyond
 the pre-submission items listed in the previous entry.
+
+## Writing progress -- Ingenieur Ch 5 (B10) (Thu 24 Sep) -- DRAFTED, awaiting review
+thesis/ingenieur/ch5_validation.tex, \label{chap:validation}, lead-in and all five sections drafted;
+no \TODO{} left, one \figtodo (fig:keyword-curve). Commits: 1ed40d8 (lead-in, 5.1, 5.2), 29fa92d
+(5.3), 6da10fa (5.4, 5.5, notes removed). Written in parallel with the Ch4 4.3-4.6 session; no file
+outside ch5 was touched. Every figure was read from results/ at drafting time.
+  lead-in -- criteria from Ch1's two tables and tab:stage-budget, verdict vocabulary (point estimate;
+      interval rule for the two keyword criteria). Thermal: latency experiment cooled, 50.5-77.9 C,
+      flag clear 0/360 (exp2_analysis.md); acoustic run's state deferred to 5.3. Records: JSON lines
+      per trial (exp2_raw/, exp3_pi_preds/), CSV rows per trial (exp4.csv); pinned whisper.cpp
+      commit, SHA-256 model files, pinned venv, fixed seeds, greedy decoding. Rerun: "holds per
+      experiment rather than for the chapter as a whole" (see run_all.sh below).
+  5.1 sec:latency-experiment -- \input tab:latency-budget. Reflex latency MISSED 545/547 (540 spotter
+      + 6/18 board); core 0 never over 80 ms. Preemption 78/78 cancelled, 0 late; class matrix 38/40
+      hold (one take, w03, twice), 40/40 abort, 0 cross. Recovery MISSED 1,195 (client 6 ms; server's
+      once-per-second closed-connection check). E2E MISSED 3,122 (+622, 25%), located in STT and
+      uncached prefill; re-baseline stated as re-baseline, verdict stays missed. Per-stage MET (five
+      stages; queue 73 and request overhead 8 reported unbudgeted). Keyword false rejects NOT
+      DEMONSTRATED, 0.050 [0.001, 0.249] / 0.000 [0.000, 0.168] (wake_real_voice.md). Parse-path span
+      stated to end at the FSM applied (exp2.py), bounded by the validation row -- closes the Ch3
+      entry's open item. Not measured: live capture, Wi-Fi hop -> sec:limitations.
+  5.2 sec:keyword-spotter-evaluation -- wake_training.{md,json}. Keyword false accepts NOT
+      DEMONSTRATED, 2.33/h [0.06, 12.98]; the one test false accept survives every threshold
+      0.88-0.999 (roc key). Synthetic FRR 0.027/0.007; delay 188/131 synthetic vs 550/430 author.
+  5.3 sec:acoustic-robustness -- \input tab:end-to-end; exp3_pi_analysis.md, exp3_pi.csv,
+      exp3_pi_parity.csv, soc.log. Clean MISSED 0.690, noise MISSED 0.590, with the one-cause
+      error table; ANOVA + its two caveats, Cochran + McNemar (10 vs 5 dB p = 0.0051 vs 0.0050).
+      Safe-failure MISSED at every level (0.014-0.039), below even the Master's 0.053 baseline.
+      Parity, stage-sum column (+108 ms at p95, not E2E), thermal flag from 17:45:13 in 5 dB.
+  5.4 sec:formation-control -- exp4_formation.md, exp4.csv. Collisions MET in the locked phrasing,
+      432 clamp interventions (0-14 per trial, needed in 144/150); FA MET but saturated; convergence
+      ANOVA + Tukey; scope -> sec:limitations.
+  5.5 sec:requirements-summary -- \input tab:requirements-summary; 7 met, 5 missed, 2 not
+      demonstrated, 2 not yet run, 1 planned; one sentence per miss with its cause.
+
+Deliberately left out, and why:
+  - A "target realistic?" paragraph: none written; Ch6 may take one.
+  - The combined language-model row and the start-of-speech row of tab:stage-budget: no measured
+    counterpart in the generated table; 5.1 says why neither has a verdict (no hand-summed p95).
+  - PyFlyt formation figures (STATE.md Exp-4 entry): not in results/; the smoke test is Ch4's.
+  - No "cooled" claim for the acoustic run: results/ never records the cooler for it.
+  - The Master's WER number: cited in words only, per the promise.
+
+Requests (not made here -- other subsystems):
+  - FIGURE: a generator for fig:keyword-curve from results/wake_training.json "roc" (val and test;
+    per-class FRR against aggregated ambient FA/h, threshold 0.999 marked), vector PDF, into
+    thesis/generated/ or results/; then replace the \figtodo in ch5 5.2. Caption already written.
+  - eval/tables.py (optional): a combined LM-stage row (prefill + decode per segment) in
+    exp2_latency_budget, if the author wants tab:stage-budget's 1,350 ms row judged here.
+  - run_all.sh: stages exp2/exp3/exp4 call `eval/bench.py --experiment N`, which without --dry-run
+    exits "nothing to do". The real runners are eval/exp2.py (Pi), eval/exp3.py (--preds for the
+    Pi), eval/exp4.py, then eval/tables.py. Until fixed, Ch5 says the rerun is per experiment.
+  - results/exp2_analysis.md rounds the validation row to 0/1/3 ms, the generated table to 0/0/4
+    (exp2.csv: 0.3/0.5/3.5 -- half-to-even vs half-up). Harmless; Ch5 quotes "under 1 ms".
+  - references.bib: Tukey's HSD, Cochran's Q and the exact (Clopper-Pearson) interval are named in
+    5.3/5.4/5.1 without citation (only mcnemar1947 and dunn1961 exist). Author's call whether to add.
+  - Author: was the active cooler fitted for the acoustic Pi run (17:05-17:50)? If yes, 5.3 and the
+    lead-in can say "cooled".
+
+What Ch6 inherits: every verdict via tab:requirements-summary and the section labels; the misses
+with causes as 5.5 words them; the safe-failure direction result (5.3, "Direction of the errors");
+the limitations 5.1 and 5.4 point at (live capture, Wi-Fi hop, kinematic scope, clamp rewrites only
+there); remedies named in 5.3 "No tuning" for sec:future-work; the golden-set reflex trigger on
+item 0158 (Pi) vs none on the workstation, unexplained.
+What the Ch4 session inherits: 5.4 names the clamp and backend with Ch1's words; if 4.5/4.6 name
+them differently, re-match 5.4's Protocol, Collisions and Scope paragraphs. 5.1 relies on Ch4 4.2
+for the prompt-cache reason and on 4.3 for loopback transport. The Ch4 commit f33e5a1 (4.4, the
+state machine) is titled "docs(review): Ch2 report regenerated..." -- its subject is wrong.
+
+Next: after both chapters are committed, the review issue and tools/review/ingenieur_ch5.py.
+Stopped here: B10 draft complete; nothing in the chapter waits on a measurement, one figure
+waits on its generator.
