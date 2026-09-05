@@ -45,7 +45,18 @@
 % Back to the preamble's tocdepth (3). Restoring 4 here would override it and
 % list every \paragraph lead-in -- "Synthesis.", "Gap." -- in the contents.
 \addtocontents{toc}{\protect\setcounter{tocdepth}{3}}
+% The 37 entries overflow one page by five lines at the body size. Two levers, both
+% confined to the contents: the entries are set \small (the \addtocontents lands at the
+% top of the .toc, inside \@starttoc's group), and the class's 1em gap before each
+% chapter entry (extreport.cls, \l@chapter) is cut to 0.3em inside a group, so the
+% lists of figures and tables keep the class defaults.
+\addtocontents{toc}{\protect\small}
+\begingroup
+\makeatletter
+\patchcmd{\l@chapter}{\vskip 1.0em \@plus\p@}{\vskip 0.3em \@plus\p@}{}{\typeout{TOC chapter-gap patch FAILED}}
+\makeatother
 \tableofcontents
+\endgroup
 \listoffigures
 \listoftables
 
