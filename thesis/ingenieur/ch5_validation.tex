@@ -1,45 +1,14 @@
 % Validation --- section structure from prd.md 3.1 item 5, ownership from Table 3.
-% Scaffold only: headings and planning notes, no prose. Delete each note as its section is filled.
 %
-% This chapter OWNS: the latency experiment, the keyword-spotter evaluation, the acoustic-
-% robustness experiment and the formation-control experiment, each with its statistical analysis
-% (Table 3: Exp-2, Exp-3, Exp-4). Every measured figure in this document is defined here; Ch 6
-% quotes it exactly.
-% It does NOT own: the targets (Ch 1 tables, Ch 3 budget -- quote, never restate differently), the
-% speaker-sensitivity WER (Memoire de Master; cite it as an input, one sentence), the model
-% comparison (Memoire de Master).
+% This chapter OWNS every measured figure of this document: the latency experiment, the
+% keyword-spotter evaluation, the acoustic-robustness experiment and the formation-control
+% experiment, each with its statistical analysis. Ch 6 quotes them exactly.
+% It does NOT own: the targets (Ch 1 tables, Ch 3 tab:stage-budget), any code fact or parameter
+% (Ch 4 -- one clause and a \ref), the speaker-sensitivity WER and the model comparison (Memoire
+% de Master).
 %
-% Naming (issue 00): experiments in words (latency experiment, keyword-spotter evaluation,
-% acoustic-robustness experiment, formation-control experiment), never Exp-2/3/4; criteria by the
-% names in Ch 1's tables, never NFR numbers; reflex/parse path. The roadmap brief (START_SESSION.md
-% B10) and results/*.md still use the old names -- translate, do not copy.
-%
-% Framing already decided (STATE.md, "Exp-2 RESULT" and the Exp-3 entries): targets and verdicts
-% are kept as set before measurement; each miss is reported as a miss with its located cause, not
-% as a failure of the project and not softened. Discuss whether a target was realistic as
-% discussion, never as a changed verdict. The end-to-end re-baseline (ADR / STATE.md) is stated as
-% a re-baseline, never as a pass.
-%
-% Tables: \input the generated tables, never retype them --
-%   thesis/generated/exp2_latency_budget.tex (\label{tab:latency-budget}, budget vs measured);
-%   thesis/generated/table20_end_to_end.tex (\label{tab:end-to-end}; last column is a STAGE SUM,
-%   not end-to-end latency -- say so in the caption or text).
-% Before quoting any number, check it against the results/ file named below, not against this note.
-%
-% Promises made elsewhere that this chapter must keep (issue 06, agents/06-ingenieur-ch1/
-% argument.md P1-P31):
-%   - the full per-class curve of the keyword spotter with the chosen threshold marked (Ch 1,
-%     keyword-spotter paragraph of the safety problem);
-%   - the reflex path measured idle AND while the parse path decodes (Reflex latency criterion);
-%   - every stage instrumented and reported against Ch 3's per-stage budget (Per-stage
-%     attribution);
-%   - beside the zero collisions, the number of clamp interventions (Ch 1, collision paragraph);
-%   - formation quality measured on its own, not inside the acoustic trials;
-%   - the direction of the recognition curve as a separate measurement from the rate;
-%   - the per-trial CSV record and the single-command rerun, reported against (Ch 1, the
-%     requirements common to both documents);
-%   - the safe-failure rate, which Ch 6 returns to;
-%   - the WER on the author's voice cited from the Memoire de Master, not restated.
+% Tables are \input from thesis/generated/ (eval/tables.py); never retype or edit them -- a wording
+% change goes in the renderer. fig:keyword-curve is a \figtodo until its generator exists.
 
 \chapter{Validation}
 \label{chap:validation}
@@ -95,15 +64,15 @@ voice. Table~\ref{tab:latency-budget} sets every measured stage beside its targe
 
 \paragraph{Protocol.} Recorded audio is replayed through the runtime on the cooled board, in real
 time, through the frame source of Section~\ref{sec:audio-chain}, rather than captured from a
-microphone. Replay gives the idle and loaded conditions identical audio, and it makes every trial repeatable. The parse path
-is measured on the 200 golden-set utterances in clean audio, one latency sample per endpointed
-segment, with the reflex path listening as deployed. The reflex path is measured on the author's 40
-recorded keyword takes, 20 per class, each replayed twice in each of two conditions, for 80
-trials per condition: idle, with the parse path resident but given no work, and loaded, with a load
-thread on cores~1--3 running the deployed parse path back to back on golden-set transcripts, so
-that a trigger meets a decode in progress. The loaded condition is preceded by 300~s of the same
-load, after which the processor was at 73.0~$^{\circ}$C. The bus runs
-over the board's loopback interface, with the consumer and the state machine on the board
+microphone. Replay gives the idle and loaded conditions identical audio, and it makes every trial
+repeatable. The parse path is measured on the 200 golden-set utterances in clean audio, one latency
+sample per endpointed segment, with the reflex path listening as deployed. The reflex path is
+measured on the author's 40 recorded keyword takes, 20 per class, each replayed twice in each of two
+conditions, for 80 trials per condition: idle, with the parse path resident but given no work, and
+loaded, with a load thread on cores~1--3 running the deployed parse path back to back on golden-set
+transcripts, so that a trigger meets a decode in progress. The loaded condition is preceded by 300~s
+of the same load, after which the processor was at 73.0~$^{\circ}$C. The bus runs over the board's
+loopback interface, with the consumer and the state machine on the board
 (Section~\ref{sec:command-bus}). The reflex-path span ends at publication, as
 Table~\ref{tab:stage-budget} defines it. The parse-path span ends later, when the state machine on
 the board has applied the command, so it includes the bus and the state-machine check. Both fall
@@ -189,8 +158,8 @@ since the bus ran over loopback. Section~\ref{sec:limitations} treats both.
 \label{sec:keyword-spotter-evaluation}
 The keyword-spotter evaluation scores the two trained heads on held-out recordings, with the
 operating threshold of 0.999 selected on the validation split before the test split was scored;
-the test split was scored once for each of the heads' two fits (Section~\ref{sec:audio-chain}). It judges the keyword false-accept criterion and gives the
-false-reject rates on synthetic speech that the author's recordings of
+the test split was scored once for each of the heads' two fits (Section~\ref{sec:audio-chain}).
+It judges the keyword false-accept criterion and gives the false-reject rates on synthetic speech that the author's recordings of
 Section~\ref{sec:latency-experiment} complement. The recordings are streamed through the
 spotter's front end in 80~ms frames, as the runtime streams them, and detections are counted with
 the runtime's 1.0~s debounce. Every rate below therefore counts the same events the runtime would
@@ -221,16 +190,17 @@ validation split before the test split was scored. Detections are counted in 80~
 \end{figure}
 
 \paragraph{False rejects on synthetic speech.} At the operating point, the hold class misses 0.027
-of its 300 test takes and the abort class 0.007 of its 300. One hold take fired the abort class,
-and no abort take fired the hold class. On the validation split, where the threshold was chosen,
-the rates are 0.027 and 0.000 over 150 takes per class. Every positive of both splits is rendered
-by the same three synthetic voices the heads were trained on, so these rates measure the heads on
-voices they have heard. The criterion is judged on the author's voice
+of its 300 test takes and the abort class 0.007 of its 300. One hold take fired the abort class, and
+no abort take fired the hold class. On the validation split, where the threshold was chosen, the
+rates are 0.027 and 0.000 over 150 takes per class. Every positive of both splits is rendered by the
+same three synthetic voices the heads were trained on, so these rates measure the heads on voices
+they have heard. The criterion is judged on the author's voice
 (Section~\ref{sec:latency-experiment}). The spotter's delay, from the last voiced sample of the
 keyword to the first frame above the threshold, is 188~ms at p95 for the hold class and 131~ms for
 the abort class on the test split. On the author's takes, measured the same way against the capture
-tool's end of speech, it is 550~ms and 430~ms. The synthetic split therefore understates the delay on real
-speech, which is where the reflex latency criterion is missed (Section~\ref{sec:latency-experiment}).
+tool's end of speech, it is 550~ms and 430~ms. The synthetic split therefore understates the delay
+on real speech, which is where the reflex latency criterion is missed
+(Section~\ref{sec:latency-experiment}).
 
 \paragraph{Keyword false accepts.} The test stream of ambient speech, 0.429~h long, produced one
 false accept, on the abort head. That is 2.33 per hour, with a 95\% Poisson interval of [0.06,
@@ -269,32 +239,31 @@ segment after another, so that the experiment measures accuracy rather than sche
 
 \input{generated/table20_end_to_end}
 
-\paragraph{Clean-audio recognition.} The criterion is missed: the \gls{crr} in clean audio is
-0.690, with a 95\% interval of [0.625, 0.750], against at least 0.80. The parser alone, on the
-reference text of the same utterances, reaches an \gls{em} of 0.935, so the speech stage costs
-0.245 [0.185, 0.310] of accuracy. Each of the 62 failed utterances is assigned one cause, in a
-fixed order. The endpointer's splits account for 22 of them: 23 of the 200 utterances were split
-at a pause, all 23 failed, and one of them is counted under a cause earlier in the order. A recognition
-error that left the intent right but a slot wrong accounts for 23, a recognition error that
-changed the intent for 5, and a parser error already present on the reference text for 12; no
-utterance was transcribed perfectly and then misparsed. The miss does not depend on the scoring
-rule for split utterances: scored on the last segment alone, the clean \gls{crr} is 0.730, still
-below 0.80. The endpointing threshold stays at the 450~ms that the budget sets
-(Section~\ref{sec:latency-budget}), and the split rate is reported as measured, at 11.5\% of the
-golden set.
+\paragraph{Clean-audio recognition.} The criterion is missed: the \gls{crr} in clean audio is 0.690,
+with a 95\% interval of [0.625, 0.750], against at least 0.80. The parser alone, on the reference
+text of the same utterances, reaches an \gls{em} of 0.935, so the speech stage costs 0.245 [0.185,
+0.310] of accuracy. Each of the 62 failed utterances is assigned one cause, in a fixed order. The
+endpointer's splits account for 22 of them: 23 of the 200 utterances were split at a pause, all 23
+failed, and one of them is counted under a cause earlier in the order. A recognition error that left
+the intent right but a slot wrong accounts for 23, a recognition error that changed the intent for
+5, and a parser error already present on the reference text for 12; no utterance was transcribed
+perfectly and then misparsed. The miss does not depend on the scoring rule for split utterances:
+scored on the last segment alone, the clean \gls{crr} is 0.730, still below 0.80. The endpointing
+threshold stays at the 450~ms that the budget sets (Section~\ref{sec:latency-budget}), and the split
+rate is reported as measured, at 11.5\% of the golden set.
 
-\paragraph{Recognition in noise.} The criterion is missed: at 10~dB the \gls{crr} is 0.590
-[0.520, 0.660], against at least 0.65. Parser accuracy on reference text does not depend on the
-audio, so the whole fall from clean audio is the speech stage's: its cost rises from 0.245 clean
-to 0.345 [0.280, 0.410] at 10~dB and 0.450 [0.380, 0.520] at 5~dB. The \gls{wer} rises with it,
-from 23.3\% clean to 28.8\% at 10~dB and 36.0\% at 5~dB. At 10~dB, recognition errors that change
-the intent rise from 5 to 19 and those that corrupt a slot from 23 to 30, while the parser's own
-errors stay at 12 and the failures assigned to splits fall from 22 to 20. Taken over the whole curve, the \gls{crr}
-holds at 0.65 or above down to 15~dB on the point estimate (0.650 exactly), and at no level on
-the interval's lower bound; it reaches 0.80 at no level. The clean \gls{wer} matches, within a
-fraction of a point, the figure that the speaker-sensitivity experiment of the \emph{M\'emoire de
-Master} measured on the same recordings with the same decoding prompt, so cutting the audio into
-segments before recognition did not change the recogniser's error rate.
+\paragraph{Recognition in noise.} The criterion is missed: at 10~dB the \gls{crr} is 0.590 [0.520,
+0.660], against at least 0.65. Parser accuracy on reference text does not depend on the audio, so
+the whole fall from clean audio is the speech stage's: its cost rises from 0.245 clean to 0.345
+[0.280, 0.410] at 10~dB and 0.450 [0.380, 0.520] at 5~dB. The \gls{wer} rises with it, from 23.3\%
+clean to 28.8\% at 10~dB and 36.0\% at 5~dB. At 10~dB, recognition errors that change the intent
+rise from 5 to 19 and those that corrupt a slot from 23 to 30, while the parser's own errors stay at
+12 and the failures assigned to splits fall from 22 to 20. Taken over the whole curve, the \gls{crr}
+holds at 0.65 or above down to 15~dB on the point estimate (0.650 exactly), and at no level on the
+interval's lower bound; it reaches 0.80 at no level. The clean \gls{wer} matches, within a fraction
+of a point, the figure that the speaker-sensitivity experiment of the \emph{M\'emoire de Master}
+measured on the same recordings with the same decoding prompt, so cutting the audio into segments
+before recognition did not change the recogniser's error rate.
 
 \paragraph{Tests across the noise levels.} The test fixed before measurement, a one-way analysis of
 variance on the arcsine-transformed \gls{crr}, rejects equality across the five conditions:
@@ -313,22 +282,22 @@ from clean audio.
 
 \paragraph{Direction of the errors.} The safe-failure rate is the share of failed utterances that
 resolve to \texttt{unknown} or to a hold rather than to another action. It is 0.032 in clean audio
-(2 of 62 failures) and lies between 0.014 and 0.039 at every level, against a bound of at least
-0.70 set by the \emph{M\'emoire de Master}, which defines the criterion. The criterion is missed
-at every level. The number of failures
-grows from 62 clean to 103 at 5~dB, and the safe failures stay between one and four: the
-utterances that noise adds to the failures dispatch an executable command, not a hold. The
-recognition rate falls as the \gls{snr} falls, and the errors do not move towards the safe exit
-of Section~\ref{sec:safety-problem} as it does so. The \emph{M\'emoire de Master} re-baselined the
-criterion to the rate its multi-model benchmark measured on text input, 0.053, as a record of where the system
-stands rather than as a lowered target. With recognition errors in the input, the rate measured
-here is below even that figure at every level. Chapter~\ref{chap:demonstration} returns to this
-result.
+(2 of 62 failures) and lies between 0.014 and 0.039 at every level, against a bound of at least 0.70
+set by the \emph{M\'emoire de Master}, which defines the criterion. The criterion is missed at every
+level. The number of failures grows from 62 clean to 103 at 5~dB, and the safe failures stay between
+one and four: the utterances that noise adds to the failures dispatch an executable command, not a
+hold. The recognition rate falls as the \gls{snr} falls, and the errors do not move towards the safe
+exit of Section~\ref{sec:safety-problem} as it does so. The \emph{M\'emoire de Master} re-baselined
+the criterion to the rate its multi-model benchmark measured on text input, 0.053, as a record of
+where the system stands rather than as a lowered target. With recognition errors in the input, the
+rate measured here is below even that figure at every level. Chapter~\ref{chap:demonstration}
+returns to this result.
 
 \paragraph{No tuning.} No part of the parse path was adjusted to these results. Every candidate
-remedy --- a longer endpointing threshold, a larger recognition model, a different prompt --- would have to be chosen on the golden set. That set is the only real speech available, and
-it is the test set, so a remedy chosen on it would be fitted to the measurement that judges it.
-The candidates are listed in Section~\ref{sec:future-work}.
+remedy --- a longer endpointing threshold, a larger recognition model, a different prompt --- would
+have to be chosen on the golden set. That set is the only real speech available, and it is the test
+set, so a remedy chosen on it would be fitted to the measurement that judges it. The candidates are
+listed in Section~\ref{sec:future-work}.
 
 \paragraph{Parity across hardware.} The parser gives bit-identical output on the workstation and
 the board: on the reference-text condition, none of the 200 raw outputs differs. Speech recognition
@@ -347,35 +316,86 @@ overhead. It serves to show how latency moves with noise. At p95 it rises from 2
 measurement (Section~\ref{sec:latency-experiment}). The processor's temperature stayed between 54.3
 and 80.1~$^{\circ}$C over the run. The sticky soft-temperature-limit flag was set from 17:45, during
 the last condition, 5~dB, and clear before it. The per-segment medians at 5~dB, compared by item
-position, track those at 10~dB, which ran with the flag clear. The flag had no measurable effect on these timings,
-and accuracy does not depend on the clock.
+position, track those at 10~dB, which ran with the flag clear. The flag had no measurable effect on
+these timings, and accuracy does not depend on the clock.
 
 \section{Formation-control experiment}
 \label{sec:formation-control}
-% Sources: results/exp4.csv, results/exp4_formation.md; eval/exp4.py -> swarm/simulate.py
-% (kinematic backend).
-% - Protocol (fixed before measurement): circle, line, wedge; repeated 60 s trials, fixed seeds,
-%   timestep and initial spread (simulate.py TrialSpec).
-% - Collisions: zero observed across all trials, backed by a hard geometric separation clamp at
-%   the integrator (Ch 1's locked phrasing). Beside it, the number of clamp interventions -- the
-%   informative figure; zero follows from the clamp's convergence, since collisions are counted
-%   after the clamp at a distance below the clamp distance.
-% - Formation accuracy: saturated, and this was declared before, not discovered after;
-%   convergence time is the discriminating metric; the ANOVA on it.
-% - Scope: kinematic simulator without rotor dynamics; the clamp's scope is Ch 6's limitation.
-\TODO{draft}
+The formation-control experiment measures the swarm controller on its own. Formations are
+commanded directly rather than spoken, so that control quality is measured apart from recognition,
+as Section~\ref{sec:objectives} requires. The experiment judges the collisions and formation
+accuracy criteria of Table~\ref{tab:nonfunctional-requirements}, and it is the verification that
+the swarm-controller requirement of Table~\ref{tab:functional-requirements} names.
+
+\paragraph{Protocol.} The protocol was fixed before measurement. Five simulated drones form the
+circle, the line and the wedge, 50 trials each, for 150 trials of 60~s at a timestep of 0.02~s.
+Each trial draws the initial positions about the formation's centroid from a normal distribution
+with a standard deviation of 0.5~m, seeded by the trial's index. The controller of
+Section~\ref{sec:swarm-controller} runs on the kinematic simulator of
+Section~\ref{sec:simulation-backends}. A collision is a pair of drones closer than 0.35~m, counted
+after the separation clamp has acted. Formation accuracy is the fraction of drones within
+$\tau = 0.5$~m of their assigned slot, averaged over the final 5~s of the trial. A trial has
+converged at the first timestep at which that fraction reaches 0.85. Trials are replicates of
+their formation, not a second factor, so the design is one-way.
+
+\paragraph{Collisions.} The criterion is met: zero collisions were observed across all 150 trials,
+backed by a hard geometric separation clamp at the integrator. Beside that zero, the clamp made
+432 interventions: 150 in the circle trials, 141 in the line and 141 in the wedge, between none and
+14 in a single trial, with 6 trials needing none. Each intervention is a pair of drones, at one
+timestep, that the artificial potential field alone had not kept outside the clamp distance. On
+the kinematic simulator the clamp rewrites the positions, and collisions are counted after it
+against a distance smaller than the clamp distance; the closest approach recorded in any trial,
+0.800~m, equals the clamp distance. The zero therefore follows from the clamp's convergence, not
+from the controller. The intervention count is the informative figure: it shows that the zero
+rests on the clamp, and that the clamp was needed in 144 of the 150 trials.
+
+\paragraph{Formation accuracy.} The criterion is met: formation accuracy is 1.000 in every one of
+the 150 trials, against at least 0.85. The measure is saturated by the protocol. Every trial
+converged, the slowest after 4.32~s, which leaves more than 55~s of the trial after convergence,
+and an initial spread of 0.5~m is small beside a formation several metres across.
+Formation accuracy therefore does not discriminate between the three formations, and an analysis
+of variance on it has no variance to partition. The protocol is reported as it was fixed; it was
+not made harder after the measurement to produce variance. At the end of each trial, the mean
+distance of a drone from its slot is 0.29~m in the circle, 0.13~m in the line and 0.07~m in the
+wedge, and it varies by less than 3~mm between trials of one formation.
+
+\paragraph{Convergence time.} Convergence time is the measure that discriminates. Its median is
+4.06~s for the circle (interquartile range 4.00--4.08~s), 3.26~s for the line (3.21--3.32~s) and
+2.30~s for the wedge (2.21--2.38~s), all in simulated time. A one-way analysis of variance across
+the three formations rejects equality, $F(2, 147) = 3500.7$, $p = 1.0 \times 10^{-124}$, and
+Tukey's pairwise comparison separates every pair: the circle takes 0.795~s longer than the line
+(95\% interval [0.745, 0.845]) and 1.755~s longer than the wedge ([1.705, 1.805]), and the line
+0.960~s longer than the wedge ([0.910, 1.010]), each at $p < 10^{-13}$.
+
+\paragraph{Scope.} These results come from the kinematic simulator, which has no rotor dynamics,
+and the clamp rewrites positions only there. Section~\ref{sec:limitations} treats both as
+limitations of what this experiment establishes.
 
 \section{Summary against the requirements}
 \label{sec:requirements-summary}
-% Author's decision (24 Sep): one closing table, every criterion of Ch 1's two requirement tables
-% with its target, measurement, verdict and section. prd.md 3.1 item 5 amended to list it.
-% - \input{generated/requirements_summary} (\label{tab:requirements-summary}, from
-%   eval/tables.py requirements_summary()). Never retype it; a wording change goes in the renderer.
-%   eval/test_tables.py fails if its rows stop matching Ch 1's criteria, in order.
-% - Prose, short: how many criteria are met, missed, not demonstrated, not yet run -- count them
-%   from the table, do not type the counts from this note. Name the misses in one sentence each
-%   with their located cause, pointing back to the section; no new figure, no new argument.
-% - The verdict vocabulary is defined in the caption: point estimate for Met/Missed; the declared
-%   interval rule for the two keyword criteria ("not demonstrated"). Use the same words in prose.
-% - This section is what Ch 6 refers to for every verdict; it does not interpret (Ch 6 does).
-\TODO{draft}
+Table~\ref{tab:requirements-summary} sets every criterion of
+Table~\ref{tab:functional-requirements} and Table~\ref{tab:nonfunctional-requirements}, in their
+order, beside the measurement that answers it, its verdict and the section that reports it. Of the
+seventeen criteria, seven are met, five are missed and two are not demonstrated. Two more have not
+been run: offline speech recognition and offline operation both require an end-to-end run with
+networking disabled, which none of the runs reported here was. The last, the live demonstration,
+is planned for the defence, under the protocol of Section~\ref{sec:demonstration-protocol}.
+
+\input{generated/requirements_summary}
+
+Each of the five misses has a located cause. Reflex latency is missed in the spotter's delay after
+the keyword offset, not in the board's computation, which stays under 20~ms at p95 while the parse
+path decodes (Section~\ref{sec:latency-experiment}). End-to-end latency is missed in speech
+recognition and in prefill without a cached prefix, and its re-baseline to the measured figure is
+recorded as a re-baseline, not as the requirement met (Section~\ref{sec:latency-experiment}).
+Preemption recovery is missed in the time the language-model server takes to register a closed
+connection, not in the cancellation itself (Section~\ref{sec:latency-experiment}). Clean-audio
+recognition is missed in the speech stage, through recognition errors and the endpointer's splits
+(Section~\ref{sec:acoustic-robustness}). Recognition in noise is missed in the same stage, as
+recognition errors grow with the noise (Section~\ref{sec:acoustic-robustness}). The two keyword
+criteria are not demonstrated because their intervals straddle the budget: the false-accept rate on
+too short a stream of ambient speech (Section~\ref{sec:keyword-spotter-evaluation}), the
+false-reject rate on too few recorded takes (Section~\ref{sec:latency-experiment}). The safe-failure
+rate, the criterion of the \emph{M\'emoire de Master} measured here as well, is missed at every
+noise level (Section~\ref{sec:acoustic-robustness}). Chapter~\ref{chap:demonstration} refers to this
+table for every verdict.
