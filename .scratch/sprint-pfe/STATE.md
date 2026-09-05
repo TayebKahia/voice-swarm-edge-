@@ -1772,7 +1772,7 @@ ready-for-agent, issue 10 blocked on both.
 
 ## Master LAYOUT pass (Thu 24 Sep) -- page breaks tuned by hand, 63 -> 62 pages
 Done after the review closed, at the author's request, on the built PDF page by page (pdftotext
-line counts per page). Five commits: 5304a4b, 08fb8bf, ca0da0e, 2f83043, 2faf2fd. No number or claim
+line counts per page). Five commits: 5304a4b, 08fb8bf, 6413fdd, 6294b54, 9409812. No number or claim
 changed; one prose cut (below). Every chapter script at its review counts; clean build 0 errors,
 0 overfull, 62 pages.
 
