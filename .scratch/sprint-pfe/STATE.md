@@ -1811,7 +1811,9 @@ accepted above. Front matter: the contents spilled 5 lines onto a second page; n
 cbd844f): entries set \small via \addtocontents and the class's 1em gap before each chapter entry
 patched to 0.3em inside a group around \tableofcontents (main_master.tex), so the lists of figures
 and tables keep the defaults. tocdepth 1 alone would have saved only the 2 subsection lines. The
-list of figures still has one entry on its own page; left as is.
+list of figures (one entry) and list of tables now share a page: \clearpage relaxed in a group
+around the two list commands, with an explicit \clearpage before the group (without it the contents'
+Bibliography entry drifts onto the lists' page). Master: 60 pages.
 
 Stopped here: Master layout done to the author's satisfaction; nothing open on the Master beyond
 the pre-submission items listed in the previous entry.
