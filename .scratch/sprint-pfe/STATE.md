@@ -1889,3 +1889,34 @@ state machine) is titled "docs(review): Ch2 report regenerated..." -- its subjec
 Next: after both chapters are committed, the review issue and tools/review/ingenieur_ch5.py.
 Stopped here: B10 draft complete; nothing in the chapter waits on a measurement, one figure
 waits on its generator.
+
+## Writing progress -- Ingenieur Ch 4 (B9, Thu 24 Sep) -- DRAFTED, every section read by the author
+thesis/ingenieur/ch4_implementation.tex, \label{chap:implementation}, lead-in + six sections, no
+\TODO{}, no measured figure (every number is a parameter of the code). Commits: e0f1674 (lead-in,
+4.1), 2be5441 (4.2), ee4f18b (4.3), 2e2116d (4.4), 084a227 (4.5), 11500b4 (4.6). Several commits,
+not one: three of this session's --amend calls swallowed concurrent sessions' commits; history
+was rebuilt the same day (d0fcf7d explains) and later sections were new commits.
+Build: clean from scratch, 0 errors; check_tex over all six chapters concatenated: no unresolved \ref.
+
+Not built, each stated once in its own section (author's decision): live capture (4.1), an entry
+point (4.2 -- only eval/exp2.py assembles the runtime), the state machine -> controller link (4.4).
+4.5 adds that the controller takes only a formation (no intent is mapped onto it) and implements 3
+of the schema's 6 shapes (grid, column, flock have no slot generator).
+
+Handed on -- the chapters that inherit these must carry them:
+  - Ch5 keyword-spotter section: the test split was scored twice (4.1; results/wake_training.md).
+  - Ch5 latency experiment: prefill cost of cache_prompt=false (4.2 promises Ch5 reports it); the
+    server's stop latency bounds preemption recovery (4.2).
+  - Ch5 formation section: reports interventions and collisions (4.5 promises both).
+  - Ch6 sec:limitations -- 4.3/4.4/4.6 point there by \ref, so these three are PROMISED:
+      (a) the Wi-Fi hop never carried a command (bus ran on the Pi's loopback only);
+      (b) the raw-intent defect: fsm.handle_command judges legality on the pre-validation intent;
+          FlightStateMachine(LANDING).handle_command({'intent':'set_param'}) -> Hover (probed).
+          Unreachable on the deployed route; the code fix is Block A's;
+      (c) no clamp on PyFlyt (only APF separates there; no collision claim for that backend).
+  - Ch6 demonstration: if PyFlyt is chosen for the visual, it flies without the clamp. No fix for
+    the prompt cache is promised anywhere (author's decision).
+  - Ch1 l.69 says the simulation runs "at 50 Hz"; PyFlyt's control rate is 48 Hz (4.6). True of
+    the kinematic backend the results use; left for B13's read-through, not edited here.
+
+Stopped here: Ingenieur Ch 4 drafted in full. No section waits on a measurement.
