@@ -8,7 +8,8 @@
 % de Master).
 %
 % Tables are \input from thesis/generated/ (eval/tables.py); never retype or edit them -- a wording
-% change goes in the renderer. fig:keyword-curve is a \figtodo until its generator exists.
+% change goes in the renderer. fig:keyword-curve is results/figure_keyword_curve.pdf, drawn by
+% eval/plots.py from results/wake_training.json -- regenerate it, never edit it.
 
 \chapter{Validation}
 \label{chap:validation}
@@ -178,14 +179,18 @@ classification.
 
 \begin{figure}[htbp]
 \centering
-\figtodo{per-class curve from wake\_training.json, threshold 0.999 marked}
+\includegraphics[width=0.9\textwidth]{../results/figure_keyword_curve.pdf}
 \caption[Keyword-spotter operating curve]{Operating curve of the keyword spotter on the held-out
 test split. For each class, \texttt{swarm hold} and \texttt{swarm abort}, the false-reject rate on
 the 300 synthetic test takes of that class is plotted against the false-accept rate per hour on
 0.429~h of ambient speech, summed over both classes, as the common detection threshold sweeps the
-selection grid from 0.05 to 0.999. The marker is the operating threshold of 0.999, selected on the
-validation split before the test split was scored. Detections are counted in 80~ms frames with a
-1.0~s debounce, as in the runtime.}
+selection grid from 0.05 (right) to 0.999; the horizontal axis is logarithmic. Open circles mark
+the operating threshold of 0.999, selected on the validation split before the test split was
+scored. The shaded band is the 95\% interval of the false-accept rate at that threshold, and it
+contains the false-accept budget of one per hour (dashed); the dotted line is the false-reject
+budget of 0.10. Every threshold from 0.88 up gives the same false-accept rate, which is why the
+upper points lie on one vertical line. Detections are counted in 80~ms frames with a 1.0~s
+debounce, as in the runtime.}
 \label{fig:keyword-curve}
 \end{figure}
 
