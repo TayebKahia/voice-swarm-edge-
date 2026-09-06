@@ -1,7 +1,7 @@
 # Issue 10: whole-document-ingenieur
 
 Status: ready-for-agent
-Blocked by: 06, 07, 11, 12
+Blocked by: 06, 07, 11, 12, 13
 Documents: thesis/main_ingenieur.tex
 
 ## What
