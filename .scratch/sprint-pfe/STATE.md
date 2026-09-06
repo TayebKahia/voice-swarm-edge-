@@ -1820,7 +1820,7 @@ the pre-submission items listed in the previous entry.
 
 ## Writing progress -- Ingenieur Ch 5 (B10) (Thu 24 Sep) -- DRAFTED, awaiting review
 thesis/ingenieur/ch5_validation.tex, \label{chap:validation}, lead-in and all five sections drafted;
-no \TODO{} left, one \figtodo (fig:keyword-curve). Commits: 1ed40d8 (lead-in, 5.1, 5.2), 29fa92d
+no \TODO{} left; the one \figtodo (fig:keyword-curve) since replaced by the generated figure. Commits: 1ed40d8 (lead-in, 5.1, 5.2), 29fa92d
 (5.3), 6da10fa (5.4, 5.5, notes removed). Written in parallel with the Ch4 4.3-4.6 session; no file
 outside ch5 was touched. Every figure was read from results/ at drafting time.
   lead-in -- criteria from Ch1's two tables and tab:stage-budget, verdict vocabulary (point estimate;
@@ -1860,9 +1860,11 @@ Deliberately left out, and why:
   - The Master's WER number: cited in words only, per the promise.
 
 Requests (not made here -- other subsystems):
-  - FIGURE: a generator for fig:keyword-curve from results/wake_training.json "roc" (val and test;
-    per-class FRR against aggregated ambient FA/h, threshold 0.999 marked), vector PDF, into
-    thesis/generated/ or results/; then replace the \figtodo in ch5 5.2. Caption already written.
+  - RESOLVED Thu 24 Sep (author lifted the eval/ restriction for this session): fig:keyword-curve
+    is results/figure_keyword_curve.{pdf,png}, drawn by eval/plots.py figure_keyword_curve() from
+    wake_training.json (test split; 6 tests in eval/test_plots.py; suite 845 passed), commit
+    0dab2eb; included in 5.2 with the caption rewritten against the drawing. Ch5 now has no
+    \figtodo. The figure floats to a page of its own -- B13's layout pass.
   - eval/tables.py (optional): a combined LM-stage row (prefill + decode per segment) in
     exp2_latency_budget, if the author wants tab:stage-budget's 1,350 ms row judged here.
   - run_all.sh: stages exp2/exp3/exp4 call `eval/bench.py --experiment N`, which without --dry-run
@@ -1888,8 +1890,7 @@ for the prompt-cache reason and on 4.3 for loopback transport. The Ch4 commit f3
 state machine) is titled "docs(review): Ch2 report regenerated..." -- its subject is wrong.
 
 Next: after both chapters are committed, the review issue and tools/review/ingenieur_ch5.py.
-Stopped here: B10 draft complete; nothing in the chapter waits on a measurement, one figure
-waits on its generator.
+Stopped here: B10 draft complete; nothing in the chapter waits on a measurement or a figure.
 
 ## Writing progress -- Ingenieur Ch 4 (B9, Thu 24 Sep) -- DRAFTED, every section read by the author
 thesis/ingenieur/ch4_implementation.tex, \label{chap:implementation}, lead-in + six sections, no
