@@ -31,6 +31,22 @@ a reader may not reach:
    Pareto plot invites the reader to treat the x-axis as a property of the model,
    and here it is partly a property of the enclosure.
 
+**The keyword-spotter operating curve** (Ingenieur Ch 5, `fig:keyword-curve`): for each
+reflex-path class, the false-reject rate on the synthetic test takes against the false
+accepts per hour on the ambient-speech stream, as the common threshold sweeps the
+selection grid, with the operating threshold marked. Everything plotted is read from
+`results/wake_training.json`, which `train/train_wake.py` writes; the threshold is the
+one that script selected on val, never re-selected here. Two things the figure states
+on its face:
+
+1. **The operating point's false-accept rate carries its interval.** One event in 0.43 h
+   gives a 95% interval that straddles the 1/h budget, and that is the whole reason the
+   criterion is "not demonstrated". A bare marker would read as a miss.
+
+2. **The top of the curve is flat in false accepts.** The one test false accept survives
+   every threshold from 0.88 up, so the points pile up at one x; they are drawn, not
+   thinned, because that pile is the finding.
+
 Usage:
     python eval/plots.py
 """
@@ -38,6 +54,7 @@ Usage:
 from __future__ import annotations
 
 import csv
+import json
 import sys
 from pathlib import Path
 
@@ -45,6 +62,7 @@ import matplotlib
 
 matplotlib.use("Agg")           # no display on the workstation or in CI
 import matplotlib.pyplot as plt
+from matplotlib.ticker import FuncFormatter
 from matplotlib.transforms import blended_transform_factory
 
 #: TrueType, not Type 3, in the PDF: Type 3 fonts are vector but render poorly in some
@@ -86,6 +104,19 @@ NFR4_EM = 0.85
 
 #: The names the thesis prose uses. Each point is labelled, so one marker shape serves
 #: every model and the legend needs to explain only fill (frontier) and area (memory).
+#: The keyword-spotter record: held-out rates at every grid threshold, and the
+#: operating threshold `train/train_wake.py` selected on val before test was scored.
+WAKE_TRAINING = RESULTS / "wake_training.json"
+FIGURE_KEYWORD = RESULTS / "figure_keyword_curve"
+
+#: The two keyword criteria of the Ingenieur's tab:nonfunctional-requirements: false
+#: accepts on ambient speech (both classes together) and false rejects per class.
+KEYWORD_FA_BUDGET_PER_HOUR = 1.0
+KEYWORD_FRR_BUDGET = 0.10
+
+#: Class names as the thesis prints them, in the order the legend lists them.
+KEYWORD_CLASSES = {"swarm_hold": "swarm hold", "swarm_abort": "swarm abort"}
+
 DISPLAY = {"llama-3.2-1b-instruct": "Llama-3.2-1B", "qwen2.5-0.5b-instruct": "Qwen2.5-0.5B",
            "smollm2-360m-instruct": "SmolLM2-360M"}
 
@@ -268,7 +299,108 @@ def figure2() -> list[Path]:
     return written
 
 
+def keyword_curve(split: str = "test") -> dict:
+    """The operating curve of one split, sorted by threshold, plus what the figure marks.
+
+    Returned rather than plotted so the tests can check the data the figure is drawn
+    from: which point is the operating point, and that the interval comes from the file.
+    """
+    if not WAKE_TRAINING.is_file():
+        raise SystemExit(f"missing {_display(WAKE_TRAINING)} -- run train/train_wake.py")
+    record = json.loads(WAKE_TRAINING.read_text(encoding="utf-8"))
+    points = sorted(record["roc"][split], key=lambda p: p["threshold"])
+    threshold = record["threshold"]
+    operating = [p for p in points if p["threshold"] == threshold]
+    if len(operating) != 1:
+        raise SystemExit(f"operating threshold {threshold} is not on the {split} grid")
+    return {"points": points, "threshold": threshold, "operating": operating[0],
+            "fa_ci95": record[split]["ambient"]["per_hour_ci95"],
+            "hours": record[split]["ambient"]["hours"],
+            "n_positives": record[split]["positives"]["n"]}
+
+
+def figure_keyword_curve() -> list[Path]:
+    curve = keyword_curve("test")
+    points, operating = curve["points"], curve["operating"]
+    colours = {"swarm_hold": "#1f6feb", "swarm_abort": "#b45309"}
+
+    figure, axes = plt.subplots(figsize=(7.2, 4.6))
+
+    #: The interval first, so the curves draw over it. Shaded across the full height:
+    #: it is an interval on the x-axis only, and a bar at one class's y would suggest
+    #: it belonged to that class.
+    low, high = curve["fa_ci95"]
+    axes.axvspan(low, high, color="0.5", alpha=0.12, linewidth=0, zorder=0)
+    #: Label inside the band, left of the budget line, so the line does not cross it.
+    axes.text(low * 1.25, 0.045,
+              "95% interval of the\nfalse-accept rate at the\noperating threshold",
+              ha="left", va="top", fontsize=7, color="0.3")
+
+    for key, label in KEYWORD_CLASSES.items():
+        xs = [p["fa_per_hour_ambient"] for p in points]
+        ys = [p["frr"][key] for p in points]
+        n = curve["n_positives"][key]
+        axes.plot(xs, ys, color=colours[key], linewidth=1.2, marker="o", markersize=2.5,
+                  zorder=3, label=f"{label} (n = {n} test takes)")
+        axes.scatter(operating["fa_per_hour_ambient"], operating["frr"][key], s=70,
+                     facecolor="white", edgecolor=colours[key], linewidth=1.8, zorder=4)
+
+    #: Two thresholds named on the curve, both read from the grid: the lowest, where
+    #: the curve starts, and the operating one. Naming more would crowd the flat top.
+    first = points[0]
+    axes.annotate(f"threshold {first['threshold']:g}",
+                  xy=(first["fa_per_hour_ambient"], first["frr"]["swarm_hold"]),
+                  xytext=(0, 10), textcoords="offset points", ha="center",
+                  fontsize=7, color="0.25")
+    axes.annotate(f"operating threshold {curve['threshold']:g}\n"
+                  f"{operating['fa_per_hour_ambient']:.2f} per hour; false rejects "
+                  f"{operating['frr']['swarm_hold']:.3f} (hold), "
+                  f"{operating['frr']['swarm_abort']:.3f} (abort)",
+                  xy=(operating["fa_per_hour_ambient"], operating["frr"]["swarm_hold"]),
+                  xytext=(14, 16), textcoords="offset points", ha="left", fontsize=7,
+                  color="0.15", arrowprops=dict(arrowstyle="-", color="0.5", linewidth=0.6))
+
+    axes.axvline(KEYWORD_FA_BUDGET_PER_HOUR, color="#b91c1c", linewidth=1.3, linestyle="--",
+                 zorder=2)
+    axes.text(KEYWORD_FA_BUDGET_PER_HOUR * 0.93, 0.082,
+              f"false-accept budget\n{KEYWORD_FA_BUDGET_PER_HOUR:g} per hour",
+              ha="right", va="top", fontsize=7, color="#b91c1c")
+    axes.axhline(KEYWORD_FRR_BUDGET, color="#15803d", linewidth=1.2, linestyle=":", zorder=2)
+    axes.text(max(p["fa_per_hour_ambient"] for p in points), KEYWORD_FRR_BUDGET + 0.002,
+              f"false-reject budget {KEYWORD_FRR_BUDGET:.2f}", ha="right", va="bottom",
+              fontsize=7, color="#15803d")
+
+    #: Log x: the rates span 2.3 to 54 per hour, and the interval reaches down to 0.06.
+    #: Every test point is above zero, so no point is lost to the log.
+    axes.set_xscale("log")
+    #: Plain numbers, not powers of ten: a rate of "0.1 per hour" reads without a
+    #: conversion step, and the axis spans only three decades.
+    axes.xaxis.set_major_formatter(FuncFormatter(lambda value, _: f"{value:g}"))
+    axes.set_xlim(low * 0.6, max(p["fa_per_hour_ambient"] for p in points) * 1.6)
+    axes.set_ylim(-0.004, 0.118)
+    axes.set_xlabel(f"False accepts per hour on ambient speech, both classes together "
+                    f"({curve['hours']:.3f} h, test split)")
+    axes.set_ylabel("False-reject rate (synthetic test takes)")
+    axes.grid(True, which="both", linewidth=0.4, color="0.92", zorder=0)
+    axes.set_axisbelow(True)
+    for spine in ("top", "right"):
+        axes.spines[spine].set_visible(False)
+    axes.legend(loc="upper right", fontsize=7.5, frameon=True, framealpha=0.95,
+                bbox_to_anchor=(1.0, 0.86))
+
+    figure.tight_layout()
+    written = []
+    for suffix in (".pdf", ".png"):
+        path = FIGURE_KEYWORD.with_suffix(suffix)
+        figure.savefig(path, dpi=200)
+        written.append(path)
+    plt.close(figure)
+    return written
+
+
 def run() -> int:
+    for path in figure_keyword_curve():
+        print(f"wrote {_display(path)}")
     plottable, unmeasured = _points()
     for path in figure2():
         print(f"wrote {_display(path)}")

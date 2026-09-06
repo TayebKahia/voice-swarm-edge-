@@ -69,3 +69,58 @@ class TestFigure2:
 
     def test_plots_the_recorded_speech_split(self):
         assert SPLIT == "test_golden"
+
+
+class TestKeywordCurve:
+    """The operating curve of the keyword spotter (Ingenieur Ch 5, fig:keyword-curve).
+
+    What can be silently wrong here is not the drawing but the data it is drawn from:
+    marking a threshold other than the one `train/train_wake.py` selected, or shading
+    an interval that is not the file's.
+    """
+
+    def test_the_operating_point_is_the_selected_threshold(self):
+        import json
+        from eval.plots import WAKE_TRAINING, keyword_curve
+        record = json.loads(WAKE_TRAINING.read_text(encoding="utf-8"))
+        curve = keyword_curve("test")
+        assert curve["threshold"] == record["threshold"]
+        assert curve["operating"]["threshold"] == record["threshold"]
+
+    def test_the_interval_is_the_one_in_the_record(self):
+        import json
+        from eval.plots import WAKE_TRAINING, keyword_curve
+        record = json.loads(WAKE_TRAINING.read_text(encoding="utf-8"))
+        assert keyword_curve("test")["fa_ci95"] == record["test"]["ambient"]["per_hour_ci95"]
+
+    def test_points_are_in_threshold_order_and_none_is_dropped(self):
+        import json
+        from eval.plots import WAKE_TRAINING, keyword_curve
+        record = json.loads(WAKE_TRAINING.read_text(encoding="utf-8"))
+        thresholds = [p["threshold"] for p in keyword_curve("test")["points"]]
+        assert thresholds == sorted(thresholds)
+        assert len(thresholds) == len(record["roc"]["test"])
+
+    def test_every_test_point_survives_the_log_axis(self):
+        # The x-axis is logarithmic; a zero rate would vanish from the plot silently.
+        from eval.plots import keyword_curve
+        assert all(p["fa_per_hour_ambient"] > 0 for p in keyword_curve("test")["points"])
+
+    def test_a_threshold_off_the_grid_is_refused(self, tmp_path, monkeypatch):
+        import json
+        import pytest
+        import eval.plots as module
+        record = json.loads(module.WAKE_TRAINING.read_text(encoding="utf-8"))
+        record["threshold"] = 0.123456
+        fake = tmp_path / "wake_training.json"
+        fake.write_text(json.dumps(record), encoding="utf-8")
+        monkeypatch.setattr(module, "WAKE_TRAINING", fake)
+        with pytest.raises(SystemExit):
+            module.keyword_curve("test")
+
+    def test_writes_a_vector_and_a_raster_copy(self, tmp_path, monkeypatch):
+        import eval.plots as module
+        monkeypatch.setattr(module, "FIGURE_KEYWORD", tmp_path / "figure_keyword_curve")
+        written = module.figure_keyword_curve()
+        assert [p.suffix for p in written] == [".pdf", ".png"]
+        assert all(p.is_file() and p.stat().st_size > 0 for p in written)
