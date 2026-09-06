@@ -327,27 +327,27 @@ as Section~\ref{sec:objectives} requires. The experiment judges the collisions a
 accuracy criteria of Table~\ref{tab:nonfunctional-requirements}, and it is the verification that
 the swarm-controller requirement of Table~\ref{tab:functional-requirements} names.
 
-\paragraph{Protocol.} The protocol was fixed before measurement. Five simulated drones form the
-circle, the line and the wedge, 50 trials each, for 150 trials of 60~s at a timestep of 0.02~s.
-Each trial draws the initial positions about the formation's centroid from a normal distribution
-with a standard deviation of 0.5~m, seeded by the trial's index. The controller of
-Section~\ref{sec:swarm-controller} runs on the kinematic simulator of
-Section~\ref{sec:simulation-backends}. A collision is a pair of drones closer than 0.35~m, counted
-after the separation clamp has acted. Formation accuracy is the fraction of drones within
-$\tau = 0.5$~m of their assigned slot, averaged over the final 5~s of the trial. A trial has
-converged at the first timestep at which that fraction reaches 0.85. Trials are replicates of
+\paragraph{Protocol.} The protocol was fixed before measurement. Five simulated vehicles form the
+circle, the line and the wedge, 50 trials each, for 150 trials of 60~s at the controller's 50~Hz
+tick. Each trial places the vehicles from its own seed, the trial's index multiplied by 42, with
+the spread of 0.5~m given in Section~\ref{sec:simulation-backends}, and the formation is commanded
+about the swarm's centroid. The controller of Section~\ref{sec:swarm-controller} runs on the
+kinematic backend, with the gains given there. Collisions and clamp interventions are counted as
+Section~\ref{sec:swarm-controller} defines them. Formation accuracy is the fraction of vehicles
+within $\tau = 0.5$~m of their assigned slot, averaged over the final 5~s of the trial. A trial
+has converged at the first timestep at which that fraction reaches 0.85. Trials are replicates of
 their formation, not a second factor, so the design is one-way.
 
 \paragraph{Collisions.} The criterion is met: zero collisions were observed across all 150 trials,
 backed by a hard geometric separation clamp at the integrator. Beside that zero, the clamp made
 432 interventions: 150 in the circle trials, 141 in the line and 141 in the wedge, between none and
-14 in a single trial, with 6 trials needing none. Each intervention is a pair of drones, at one
-timestep, that the artificial potential field alone had not kept outside the clamp distance. On
-the kinematic simulator the clamp rewrites the positions, and collisions are counted after it
-against a distance smaller than the clamp distance; the closest approach recorded in any trial,
-0.800~m, equals the clamp distance. The zero therefore follows from the clamp's convergence, not
-from the controller. The intervention count is the informative figure: it shows that the zero
-rests on the clamp, and that the clamp was needed in 144 of the 150 trials.
+14 in a single trial, with 6 trials needing none. Each intervention is a pair of vehicles, at one
+timestep, that the artificial potential field alone had not kept outside the clamp distance.
+Collisions are counted after the clamp, against a distance smaller than the clamp distance
+(Section~\ref{sec:swarm-controller}), so on the kinematic backend the zero follows from the
+clamp's convergence, not from the controller; the closest approach recorded in any trial,
+0.800~m, is the clamp distance itself. The intervention count is the informative figure: it shows
+that the zero rests on the clamp, and that the clamp was needed in 144 of the 150 trials.
 
 \paragraph{Formation accuracy.} The criterion is met: formation accuracy is 1.000 in every one of
 the 150 trials, against at least 0.85. The measure is saturated by the protocol. Every trial
@@ -356,7 +356,7 @@ and an initial spread of 0.5~m is small beside a formation several metres across
 Formation accuracy therefore does not discriminate between the three formations, and an analysis
 of variance on it has no variance to partition. The protocol is reported as it was fixed; it was
 not made harder after the measurement to produce variance. At the end of each trial, the mean
-distance of a drone from its slot is 0.29~m in the circle, 0.13~m in the line and 0.07~m in the
+distance of a vehicle from its slot is 0.29~m in the circle, 0.13~m in the line and 0.07~m in the
 wedge, and it varies by less than 3~mm between trials of one formation.
 
 \paragraph{Convergence time.} Convergence time is the measure that discriminates. Its median is
@@ -367,9 +367,10 @@ Tukey's pairwise comparison separates every pair: the circle takes 0.795~s longe
 (95\% interval [0.745, 0.845]) and 1.755~s longer than the wedge ([1.705, 1.805]), and the line
 0.960~s longer than the wedge ([0.910, 1.010]), each at $p < 10^{-13}$.
 
-\paragraph{Scope.} These results come from the kinematic simulator, which has no rotor dynamics,
-and the clamp rewrites positions only there. Section~\ref{sec:limitations} treats both as
-limitations of what this experiment establishes.
+\paragraph{Scope.} These results come from the kinematic backend, which has no rotor dynamics. The
+physics backend carries no experiment and applies no separation clamp
+(Section~\ref{sec:simulation-backends}), so no collision result is claimed for it.
+Section~\ref{sec:limitations} treats both as limitations of what this experiment establishes.
 
 \section{Summary against the requirements}
 \label{sec:requirements-summary}
