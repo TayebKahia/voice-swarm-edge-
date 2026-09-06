@@ -12,6 +12,8 @@ It was then split, so that the unfinished Ingénieur did not hold up the finishe
 the Master pass, blocked by 01-05 and 09, and `10` is the Ingénieur pass.
 Ingénieur Ch3 is `11` for the same reason as Ch6: it was drafted after 00-10 existed. It is blocked
 by 06 (Ch1), and `10` is now blocked by it.
+Ingénieur Ch4 is `12`, for the same reason again: it was drafted after 00-11 existed. It is blocked
+by 11 (Ch3), and `10` is now blocked by it too.
 Reports: `reports/<script>.md`, regenerated on every run.
 
 ## Why this order
@@ -88,6 +90,7 @@ script reports the new value against the source rather than "anchor not found".
 | 09 | Master Ch6 (107, 0 cites) | 1 reviewer + verifier | short, and no papers to open; the script recomputes every figure (54 PASS), so the reviewer reads for qualifiers and consistency with Ch1, Ch4 and Ch5 |
 | 10 | Whole-document, Ingénieur | 1 reviewer + verifier | split from 08; waits on every Ingénieur chapter, including Ch3-Ch6 once they have issues |
 | 11 | Ingénieur Ch3 (497, 6 cites) | argument + citation/presentation + verifier | design chapter; the script checks every table against the code (100 PASS), so the agents read the argument and the promises to and from Ch1, Ch4 and Ch5 |
+| 12 | Ingénieur Ch4 (432, 8 cites) | argument + citation/presentation + verifier | implementation chapter with no measured figure; the script checks every number against the module it describes, so the agents read the code-level claims and the promises to and from Ch1, Ch3, Ch5 and Ch6 |
 
 ## Self-containment and headings (D11, D12)
 
