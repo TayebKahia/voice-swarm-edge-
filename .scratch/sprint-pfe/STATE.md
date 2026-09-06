@@ -1881,8 +1881,9 @@ with causes as 5.5 words them; the safe-failure direction result (5.3, "Directio
 the limitations 5.1 and 5.4 point at (live capture, Wi-Fi hop, kinematic scope, clamp rewrites only
 there); remedies named in 5.3 "No tuning" for sec:future-work; the golden-set reflex trigger on
 item 0158 (Pi) vs none on the workstation, unexplained.
-What the Ch4 session inherits: 5.4 names the clamp and backend with Ch1's words; if 4.5/4.6 name
-them differently, re-match 5.4's Protocol, Collisions and Scope paragraphs. 5.1 relies on Ch4 4.2
+What the Ch4 session inherits: RESOLVED -- 5.4 re-matched to 4.5/4.6 after they landed ("kinematic
+backend", "vehicles"; 0.35 m and the clamp mechanics now referenced to sec:swarm-controller, not
+restated; spawn sentence corrected to swarm/env.py; physics backend: no clamp, no collision claim). 5.1 relies on Ch4 4.2
 for the prompt-cache reason and on 4.3 for loopback transport. The Ch4 commit f33e5a1 (4.4, the
 state machine) is titled "docs(review): Ch2 report regenerated..." -- its subject is wrong.
 
