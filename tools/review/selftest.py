@@ -29,6 +29,7 @@ MUTATIONS = {
     "master_ch5": ("master/ch5_discussion.tex", "a margin of 67~ms", "a margin of 76~ms", "claim"),
     "ingenieur_ch1": ("ingenieur/ch1_introduction.tex", "& p95 $\\leq$ 150~ms &", "& p95 $\\leq$ 200~ms &", "requirements"),
     "ingenieur_ch3": ("ingenieur/ch3_architecture.tex", "more than 50~m from the origin", "more than 60~m from the origin", "claim"),
+    "ingenieur_ch4": ("ingenieur/ch4_implementation.tex", "closer than 0.80~m and moves", "closer than 0.60~m and moves", "claim"),
     "ingenieur_ch2": ("ingenieur/ch2_state_of_the_art.tex", "\\section{Swarm control}",
                       "\\section{Swarm control}\nGrammars constrain decoding~\\cite{geng2023}.", "table3"),
 }
@@ -39,6 +40,11 @@ EXTRA = [
     ("master_ch1", "master/ch1_introduction.tex", "\\gls{json}", "\\acrfull{json}", "acronym"),
     ("ingenieur_ch3", "ingenieur/ch3_architecture.tex", "\\texttt{takeoff} & \\texttt{LANDED} &",
      "\\texttt{takeoff} & \\texttt{LANDED}, \\texttt{FLYING} &", "legality"),
+    # Ch4 promises parameters only: a measured rate slipped in beside the operating point must FAIL.
+    ("ingenieur_ch4", "ingenieur/ch4_implementation.tex", "reports those rates.",
+     "reports those rates, a test false-reject rate of 0.027 among them.", "promise"),
+    # ... and the state machine's code is exercised: a claimed transition the code does not make must FAIL.
+    ("ingenieur_ch4", "ingenieur/ch4_implementation.tex", "The 50 cells, five", "The 45 cells, five", "claim"),
 ]
 
 
