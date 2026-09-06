@@ -405,7 +405,7 @@ r.text_claim("claim", "each at $p < 10^{-13}$", all(tk.pvalue[i, j] < 1e-13 for 
 # -- 5.5 Summary against the requirements -----------------------------------------------------------
 rows = md_table(RESULTS / "requirements_summary.md", "Criterion")
 verdicts = [x["Verdict"] for x in rows]
-count = {v: verdicts.count(v) for v in set(verdicts)}
+count = {v: verdicts.count(v) for v in dict.fromkeys(verdicts)}  # table order: set() made the report vary per run
 r.number("Of the\nseventeen criteria", len(rows), "rows of the summary table")
 r.number("seven are met", count.get("Met", 0), "Met")
 r.number("five are missed", count.get("Missed", 0), "Missed")
