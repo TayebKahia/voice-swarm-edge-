@@ -38,7 +38,9 @@ Section~\ref{sec:validation-layers}. Section~\ref{sec:swarm-controller} describe
 controller and the separation clamp that realises the third mechanism of the safety problem
 (Section~\ref{sec:safety-problem}), and Section~\ref{sec:simulation-backends} the two simulators
 the controller runs under. The design of Chapter~\ref{chap:architecture} is referred to rather than
-restated, and every figure in this chapter is a parameter of the code, not a measurement. Three
+restated, and every figure in this chapter is a parameter of the code or a criterion of a test, not
+a measured result; the outcomes of the automated tests that verify two criteria, the state
+machine's and the backends', are stated where the tests are described. Three
 components the demonstration of Chapter~\ref{chap:demonstration} requires are not built: live
 microphone capture, an entry point that starts the runtime as one process, and the link from the
 state machine to the swarm controller. Each is named as absent in the section where it would sit.
@@ -60,10 +62,10 @@ endpointer, both on that thread. An utterance the endpointer closes is placed on
 by a worker thread pinned to cores~1--3, which writes it as a 16~kHz mono file and runs the parse
 path on it (Section~\ref{sec:runtime}). The queue is the only link between the two threads, and the
 loop never waits on the worker, which is the property Section~\ref{sec:resource-allocation}
-requires of core~0. For every frame the loop records how late it picked the frame up and how long
-the spotter and the endpointer took on it: the two quantities against which the core-0 constraint
-of Table~\ref{tab:core-allocation} is judged, and which Section~\ref{sec:latency-experiment}
-reports. Both paths are timestamped on the wall clock. A reflex-path trigger carries the due
+requires of core~0. For every frame the loop measures how late it picked the frame up and how long
+the spotter and the endpointer took on it; the second is the quantity against which the core-0
+constraint of Table~\ref{tab:core-allocation} is judged, and Section~\ref{sec:latency-experiment}
+reports it. Both paths are timestamped on the wall clock. A reflex-path trigger carries the due
 instant of the frame that fired it, so the quantisation of audio into 80~ms frames falls inside
 the reflex latency, as the offset anchor of Section~\ref{sec:latency-budget} requires. The
 endpointer reports $T_0$ in stream time, as the last sample it has passed through the \gls{vad}
@@ -109,19 +111,26 @@ loaded, so a third class cannot be added without changing that check. The heads 
 if their files match the hashes recorded when they were trained, because the operating threshold
 was selected for those weights and has no meaning for others.
 
-\paragraph{Training the spotter.} Only the two heads are trained; the front end is the published
-release, used unchanged. Each head is a multilayer perceptron with two hidden layers of 128
-rectified linear units and a sigmoid output. The upstream trainer requires PyTorch, which is kept
-out of this project's environment, so the heads are fitted with scikit-learn and their weights
-written into an ONNX graph directly. The corpus, synthetic positives rendered by three
+\paragraph{Training the spotter.} Only the two heads are trained; the front end is the feature
+models of openWakeWord's v0.5.1 release, used unchanged. Each head is a multilayer perceptron with
+two hidden layers of 128 rectified linear units and a sigmoid output. The upstream trainer requires
+PyTorch, which is kept out of this project's environment, so the heads are fitted with scikit-learn
+and their weights written into an ONNX graph directly. The fit uses scikit-learn's Adam optimiser
+with L2 regularisation of $10^{-3}$, a learning rate of $10^{-3}$, batches of 256 and at most 40
+epochs, on standardised inputs and with seed 42. The corpus, synthetic positives rendered by three
 \gls{tts} voices~\cite{piper} and negatives of read speech, isolated command words and hand-written
 near-misses, is constructed in the \emph{M\'emoire de Master}. Training windows are labelled by
-where the phrase falls, not by the clip they come from: a window containing the whole phrase is a
-positive, a window containing none of it is a negative, and a window that cuts the phrase is
-discarded. A head therefore learns to fire once the phrase is complete, which places detection at
-the keyword offset, the anchor of the reflex budget. Each head treats the other class as a
-negative. The loss weights the classes to balance, and it weights the near-miss negatives, 14\% of
-the training negatives, five times more than other negatives; the corpus itself is unchanged. That
+where the phrase falls, not by the clip they come from: a window that begins before the phrase and
+extends past its end by a margin, 40~ms where the phrase's length was measured and 450~ms where it
+was predicted from the synthesis voice's length setting, is a positive; a window containing none of
+the phrase is a negative; and a window that cuts the phrase is discarded. A head is therefore
+trained to fire on the complete phrase rather than on a fragment of it, but the labelling does not
+fix the frame at which it fires. The time from the keyword offset, the anchor of the reflex budget,
+to the first frame above the threshold is the spotter's decision delay; it is part of the reflex
+latency, and Sections~\ref{sec:keyword-spotter-evaluation} and~\ref{sec:latency-experiment} report
+it. Each head treats the other class as a negative. The loss weights the classes to balance, and it
+weights the hand-written near-misses, 12\% of the negative clips of the training split, five times
+more than other negatives; the corpus itself is unchanged. That
 weighting was introduced after a first fit whose false accepts on the validation split were all
 near-misses, so the held-out test split was scored twice, once for each fit.
 
@@ -178,14 +187,21 @@ prefill allowance of Table~\ref{tab:stage-budget}, which assumes the cache.
 
 \paragraph{Preemption.} A reflex-path trigger acts on the parse path from the frame-loop thread,
 before its own command is published: it closes the connection of the parser's request in flight,
-if there is one. The parser treats any failure of a request as an interrupted decode. It cannot
-tell a cancellation from a server fault and does not need to, because the outcome is the same:
-no command is published for that utterance, and the event is logged. The sequence number is
+if there is one. The parser treats a failed request as an interrupted decode: a closed connection,
+a timeout, a reply that is not \gls{json}, or an error answer to either of the first two requests.
+It cannot tell a cancellation from such a fault and does not need to: no command is published for
+that utterance, and the event is logged. An error answer to the completion request is not treated
+so. It carries no command text, the validator resolves the empty output to a hold like any other
+output it cannot accept, and the hold is published. The sequence number is
 reserved when the worker takes the utterance, before transcription starts, which is the timing the
 ordering rule of Section~\ref{sec:dual-path} depends on. A decode that completes despite the
 cancellation therefore carries a number older than the trigger's, and the consumer discards it
-(Section~\ref{sec:command-bus}). How quickly the server stops decoding after the connection closes
-bounds the preemption-recovery criterion, and Section~\ref{sec:latency-experiment} measures it.
+(Section~\ref{sec:command-bus}). Where the trigger finds one of the parser's requests in flight, the
+recovery time that the preemption-recovery criterion bounds is set by how soon the server, after
+the connection closes, stops decoding and frees its slot; Section~\ref{sec:latency-experiment}
+measures it for triggers that arrive during a decode. A trigger during transcription, or between
+two of the parser's requests, closes nothing, and recovery then waits for the remaining stages
+(Section~\ref{sec:dual-path}).
 
 \paragraph{Core pinning.} The allocation of Table~\ref{tab:core-allocation} is applied per thread,
 through the Linux affinity call, which restricts only the thread that makes it; a process started
@@ -193,7 +209,9 @@ by that thread inherits its restriction. The worker restricts itself to cores~1-
 recogniser process it starts runs there. The language-model server is started from a thread
 restricted to cores~1--3 for that purpose, and the same thread then restricts itself to core~0
 before it runs the frame loop. The latency experiment records the affinity of every thread of the
-server and of the runtime at the start of each run.
+language-model server when the server starts, and that of the frame-loop thread and of the load
+thread; the worker's own restriction, and so that of the recogniser processes it starts, is applied
+by the code but not recorded.
 
 \paragraph{Artefacts from the M\'emoire de Master.} Three artefacts of the parse path are produced
 by the \emph{M\'emoire de Master} and consumed here unchanged: the language-model file, Qwen2.5-0.5B
@@ -281,7 +299,8 @@ test. A second test checks that all ten commands pass the validator unchanged, s
 passes because the validator had already replaced its command with a hold. The recovery path has
 its own test: all ten intents are sent to a state machine in \texttt{ABORTED}, none of them leaves
 it, and only the reset does. Before the tests were accepted, three faults were introduced into the
-state machine in turn, and each made tests fail.
+state machine in turn, and each made tests fail. Every test of the state machine passes, the 50
+cell tests among them.
 
 \paragraph{Legality of the original intent.} The state machine reads a command's intent before it
 runs the validator, keeps it for the log, and judges legality on it. When the validator replaces a
@@ -313,9 +332,13 @@ swarm's current centroid. It implements three of the six shapes the schema admit
 line and the wedge; the other three are valid commands for which the controller has no slot
 generator. No code maps the other intents, a movement, a climb, a rotation, a take-off, a landing
 or a hold, onto the controller. That mapping belongs to the link from the state machine that
-Section~\ref{sec:state-machine} records as not built. Commanded values reach the controller already
-held inside the envelope by the validator (Section~\ref{sec:validation-layers}); the controller
-applies no envelope of its own.
+Section~\ref{sec:state-machine} records as not built. The controller applies no envelope of its own.
+On the designed route the validator would bound every commanded value before it reached the
+controller (Section~\ref{sec:validation-layers}); that route is not built, and the
+formation-control experiment commands the controller directly, with a radius and a spacing that
+lie inside the envelope. Nor is the envelope applied where motion happens. The backends limit speed
+to 3~m/s, above the validator's ceiling of 2.0~m/s on a commanded speed, so a formation change can
+move the vehicles faster than any command could set; Section~\ref{sec:limitations} returns to it.
 
 \paragraph{Formation slots.} Each shape is generated as a set of offsets about the origin, then
 rotated by the commanded heading and translated to the centre, so that a heading means the same
@@ -341,10 +364,12 @@ during the final 5~s of a trial, the window over which that criterion is measure
 (Table~\ref{tab:nonfunctional-requirements}). The second term is an artificial potential field
 that repels each pair of vehicles closer than 1.5~m, with a magnitude of
 $6.0\,(1/d - 1/d_0)/d^2$ for a separation $d$ and an influence distance $d_0 = 1.5$~m, and no force
-beyond it. The third is the cohesion and alignment of flocking~\cite{reynolds1987}, weighted at
-0.15 towards the swarm's centroid and 0.25 towards its mean velocity. Flocking keeps the group
-together on the approach, before the slots dominate; its separation rule is replaced by the
-potential field. Once the vehicles are near their slots, the formation term determines the
+beyond it. The third term is a global form of the flock-centring and velocity-matching rules of
+flocking~\cite{reynolds1987}, weighted at 0.15 towards the swarm's centroid and 0.25 towards its
+mean velocity. Reynolds' rules act on each vehicle's nearby flockmates; this term uses the whole
+swarm, the central-force form his model avoids, which is acceptable here because the formation
+slots, not flocking, organise the swarm. Flocking keeps the group together on the approach, before
+the slots dominate; its collision-avoidance rule is replaced by the potential field. Once the vehicles are near their slots, the formation term determines the
 trajectory and flocking contributes little. Its terms are therefore weighted low rather than
 removed.
 
@@ -387,16 +412,13 @@ backends exist because speed and fidelity are different needs, and neither backe
 acceleration is commanded directly. It limits the commanded acceleration to 4~m/s$^2$ and the
 speed to 3~m/s, and it treats the ground plane as impenetrable. Both limits scale the whole vector
 rather than each component, so a limited command keeps its direction. The integration is
-semi-implicit: the velocity is updated first, and the new velocity moves the position. Explicit
-integration adds energy on every tick, and in a formation controller that energy appears as a slow
-oscillation about the slot, which resembles an under-damped gain and could be mistaken for one.
-The vehicles start at positions drawn, from the trial's seed, from a normal distribution of
+semi-implicit: the velocity is updated first, and the new velocity moves the position. The vehicles start at positions drawn, from the trial's seed, from a normal distribution of
 standard deviation 0.5~m about the point $(0, 0, 2)$~m. The backend runs a 60~s trial of five
 vehicles in under a second, which is what makes the formation-control experiment's sweep of trials
 practical, and the experiment runs on it. It is also the backend whose state the separation clamp
 may overwrite (Section~\ref{sec:swarm-controller}).
 
-\paragraph{Physics backend.} The second backend runs five quadrotors in PyFlyt, on the Bullet
+\paragraph{Physics backend.} The second backend runs five quadrotors in PyFlyt~0.29.0, on the Bullet
 physics engine~\cite{pyflyt}, with rigid-body dynamics, rotor dynamics and PyFlyt's own attitude
 control. The controller's acceleration does not reach the rotors directly. It is integrated into a
 commanded velocity, subject to the same two limits as the kinematic backend, and that velocity is
@@ -415,11 +437,15 @@ mass.
 \paragraph{One controller, one set of gains.} The same controller, with the same gains, runs under
 both backends; nothing in it is selected per backend. That is the condition the simulation-backends
 criterion rests on (Table~\ref{tab:functional-requirements}). The formation-control results come
-from the kinematic backend alone, and the physics backend is what shows that those results
-describe a controller that also flies against rigid-body dynamics. A controller retuned for each
+from the kinematic backend alone. The physics backend's tests check that the same controller, with
+the same gains, also brings five rigid-body quadrotors into each formation from one initial
+placement; they do not reproduce the experiment's measures and apply no separation clamp. Whether
+the experiment's results hold under rigid-body dynamics is therefore not established
+(Section~\ref{sec:limitations}). A controller retuned for each
 backend would prove nothing: the kinematic results would then describe a controller that runs
 nowhere else, and a success on the physics backend would describe a different controller. The
-tests of the physics backend are written to that condition. Each of the three formations is flown
+tests of the physics backend are written to that condition, and they place the vehicles with
+seed 42. Each of the three formations is flown
 for 12~s and must end with at least 85\% of the vehicles within 0.5~m of their slots, a line
 formation must not sink, and one test flies the same line with the default controller on both
 backends and applies the same criterion to each. All five tests pass.

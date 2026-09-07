@@ -74,6 +74,17 @@
 %   there follows from the clamp's convergence; the intervention count is the informative figure
 %   (results/exp4_formation.md). A physics simulator or an airframe exposes no position to
 %   rewrite: the mechanism would have to act on velocity or thrust instead (link to future work).
+% - Transfer to rigid-body dynamics not established (Ch4 sec:simulation-backends points here;
+%   issue 12 V4). PyFlyt's tests fly one placement (seed 42), check only the final state, apply no
+%   clamp and count no collisions. Another placement breaks both: seed 7's wedge ends at formation
+%   accuracy 0.60 with a pair at 0.20 m, under the collision distance
+%   (.scratch/thesis-review/agents/12-ingenieur-ch4/verifier.md A4; not in results/ -- if the
+%   figure is quoted, generate it first, or state the limitation without it).
+% - The speed ceiling is not applied where motion happens (Ch4 sec:swarm-controller points here;
+%   issue 12 V10). The validator bounds a commanded speed at 2.0 m/s (move / set_param only);
+%   both backends cap at 3 m/s, and a formation carries no speed, so formation changes can exceed
+%   the ceiling. No command in the experiments set a speed. Link to the third mechanism: the clamp
+%   bounds separation, not speed.
 % - Recorded audio only; no live capture; live-capture latency not measured. One speaker, one
 %   room, one recording session; speaker spread is the Memoire de Master's speaker-sensitivity
 %   experiment (name it in words).
