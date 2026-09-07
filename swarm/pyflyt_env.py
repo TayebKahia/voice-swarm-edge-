@@ -110,7 +110,12 @@ class PyFlytEnv(SwarmEnv):
 
     @property
     def velocities(self) -> np.ndarray:
-        return np.array([self._aviary.state(i)[2] for i in range(self.n)], dtype=float)
+        # Not state(i)[2]: PyFlyt rotates that into each drone's body frame
+        # (quadx.update_state, "express vels in local frame"), while positions and the
+        # mode-6 setpoint are world-frame. The controller's damping and alignment terms
+        # need the world-frame velocity the interface promises, so read it from Bullet.
+        return np.array([self._aviary.getBaseVelocity(self._aviary.drones[i].Id)[0]
+                         for i in range(self.n)], dtype=float)
 
     def close(self) -> None:
         if self._aviary is not None:
