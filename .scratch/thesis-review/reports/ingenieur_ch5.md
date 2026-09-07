@@ -256,7 +256,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | PASS | claim | 385 | `five are missed` -> written 5, source gives 5.00 (Missed) |
 | PASS | claim | 385 | `two are not demonstrated` -> written 2, source gives 2.00 (Not demonstrated) |
 | PASS | claim | 385 | `Two more have not been run` -> written 2, source gives 2.00 (Not yet run) |
-| PASS | claim | 387 | verdicts: {'Met': 7, 'Not yet run': 2, 'Planned for the defence': 1, 'Missed': 5, 'Not demonstrated': 2} |
+| PASS | claim | 387 | verdicts: {'Not yet run': 2, 'Met': 7, 'Planned for the defence': 1, 'Missed': 5, 'Not demonstrated': 2} |
 | PASS | float | 390 | tab:requirements-summary referenced before it appears (line 382) |
 
 ### Citation sheet (for the citation agent: open each identifier, judge SUPPORTS / PARTIAL / DOES NOT SUPPORT per row)
