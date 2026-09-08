@@ -174,3 +174,41 @@ citation-presentation.md.
 
 **Examiner questions (argument.md §6)** all trace to V1, V4/V5 and V9/V10; none needs a
 separate fix.
+
+### 2026-09-24 -- author's decisions on V1-V14; fixes applied
+
+- **Accepted with the verifier's wording:** V1, V2, V4, V6, V7, V8, V9, V10, V12, V13, V14.
+  V14 took the "cut" option. V12's lead-in now admits test criteria and states that the outcomes
+  of the two criteria's automated tests are given where the tests are described; 4.4 gains
+  "Every test of the state machine passes, the 50 cell tests among them".
+- **V3: prose, code unchanged.** The latency figures were measured on this parser (same reason
+  as issue 11's V2/V3). The published hold is fail-safe, so no Ch6 item.
+- **V5: code.** `PyFlytEnv.velocities` now reads the world-frame velocity from Bullet
+  (`getBaseVelocity`) instead of PyFlyt's body-frame `state(i)[2]`; the chapter's "world frame"
+  sentence is now true and is unchanged. Re-run: `pytest swarm/test_pyflyt.py -m slow` 5 passed;
+  `pytest swarm` 144 passed. No reported figure comes from PyFlyt.
+- **V11: one sentence each.** 4.1: the front end is openWakeWord's v0.5.1 feature models; the fit
+  is scikit-learn's Adam, L2 $10^{-3}$, learning rate $10^{-3}$, batch 256, at most 40 epochs,
+  standardised inputs, seed 42. 4.6: PyFlyt~0.29.0; the tests place the vehicles with seed 42.
+- **V2's code comment** (`train/train_wake.py:87`) corrected to 12% (468/3,930), all-splits 14%.
+- **Ch6 `sec:limitations` outline** gains two bullets: V4 (transfer to rigid-body dynamics not
+  established; seed 7 figures are in verifier.md, not in results/) and V10 (speed ceiling not
+  applied at execution). Still missing from that outline, from issue 11: V2, V3, A15.
+- **Script.** Four anchors followed the rewritten sentences (V2, V3, V7, V9), with the expected
+  values unchanged; V3's judge() became two facts. New checks: the label margins (40/450 ms), the
+  fit's settings, the v0.5.1 release, the PyFlyt pin, the test seed, the 3 m/s vs 2.0 m/s pair,
+  and that the formation experiment bypasses the validator.
+- **After the fixes:** 0 FAIL, 13 WARN, 217 PASS. `selftest.py` passes (all three Ch4 mutations
+  caught). Clean build: 0 errors, 0 undefined citations/references, no Float too large, no
+  Overfull box, 57 pages.
+
+**New finding while applying V5 (open, author's decision).** The PyFlyt control tick is
+**41.67 ms (24 Hz)**, not 20.83 ms (48 Hz). `Aviary.step()` is one step of the slowest drone
+controller, and QuadX's runs at 120 Hz, so each call advances `updates_per_step` = 2 physics steps.
+`PyFlytEnv.step` calls it `steps_per_tick` = 5 times: 10 physics steps per tick. Measured with
+`aviary.elapsed_time` across one `step()`. So `effective_control_hz` (48) is wrong, the commanded
+velocity is integrated with dt = 0.02 against a 41.67 ms tick, and a "12 s" test flies 25 s of
+simulated time. Ch4 l.432-433 ("five ... 48~Hz rather than 50~Hz") is false, and so are the
+docstring's "240 Hz and control at 50 Hz" and the A17 "12.5 s" note. The script WARNs on it
+until decided. The review missed it because every check read the constants, not the simulated
+clock.
