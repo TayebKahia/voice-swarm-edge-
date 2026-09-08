@@ -84,7 +84,8 @@ MARGIN_FITTED_S = 0.45       # the length fit misses by up to ~0.4 s; see the re
 HIDDEN = (128, 128)
 VAL_FRR_TARGET = 0.05
 DEBOUNCE_S = 1.0             # one keyword, one trigger: rising edges closer than this merge
-#: Adversarial near-misses are 14% of train negatives but every val false accept.
+#: Adversarial near-misses are 12% of train-split negative clips (468 / 3,930; 14% is the
+#: all-splits share) but every val false accept.
 #: Upweighted in the loss only -- the corpus itself is frozen (tag dataset-v1.0).
 ADVERSARIAL_WEIGHT = 5.0
 #: The MLP's scores saturate, so the grid extends past 0.99.
