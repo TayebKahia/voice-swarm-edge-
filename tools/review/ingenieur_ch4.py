@@ -195,12 +195,31 @@ adv = [c for c in train_neg if c.get("source") == "adversarial"]
 share = 100 * len(adv) / len(train_neg)
 all_neg = [c for c in clips if c["label"] == "neg"]
 all_share = 100 * sum(c.get("source") == "adversarial" for c in all_neg) / len(all_neg)
-number("the near-miss negatives, 14\\% of the training negatives", share,
+number("the hand-written near-misses, 12\\% of the negative clips of the training split", share,
        f"wake_manifest.json train split: {len(adv)} adversarial / {len(train_neg)} negative clips",
-       note=f"14% is the share over ALL splits ({all_share:.1f}%); per head the other class's clips are negatives "
-            "too, which lowers it further")
+       note=f"the share over ALL splits is {all_share:.1f}%; per head the other class's clips are negatives too")
 number("five times more than other negatives", float(code("train/train_wake.py", r"^ADVERSARIAL_WEIGHT = ([\d.]+)")),
        "train_wake.py ADVERSARIAL_WEIGHT")
+number("by a margin, 40~ms where the phrase's length", 1000 * float(code("train/train_wake.py", r"^MARGIN_EXACT_S = ([\d.]+)")),
+       "train_wake.py MARGIN_EXACT_S")
+number("450~ms where it was predicted", 1000 * float(code("train/train_wake.py", r"^MARGIN_FITTED_S = ([\d.]+)")),
+       "train_wake.py MARGIN_FITTED_S")
+fact("spotter", "a window that cuts the phrase is discarded",
+     "contains = start <= onset - 0.01 and end >= kw_end + margin" in tw, "window_dataset: positive only past kw_end + margin")
+fit = tw[tw.find("def fit_head"):tw.find("mlp.fit(")]
+fact("spotter", "scikit-learn's Adam optimiser", "solver=" not in fit, "MLPClassifier solver left at its default, adam")
+# $10^{-3}$ is read by the number tokenizer as 10, so these two are exact-value facts.
+fact("spotter", "with L2 regularisation of $10^{-3}$", float(code("train/train_wake.py", r"alpha=([\de.-]+),")) == 1e-3,
+     "fit_head alpha=1e-3")
+fact("spotter", "a learning rate of $10^{-3}$",
+     float(code("train/train_wake.py", r"learning_rate_init=([\de.-]+),")) == 1e-3, "fit_head learning_rate_init=1e-3")
+number("batches of 256 and at most 40", float(code("train/train_wake.py", r"batch_size=(\d+),")), "fit_head batch_size", nth=0)
+number("batches of 256 and at most 40", float(code("train/train_wake.py", r"max_iter=(\d+),")), "fit_head max_iter", nth=1)
+fact("spotter", "on standardised inputs and with seed 42", "StandardScaler().fit(x)" in fit and "random_state=SEED" in fit,
+     "fit_head: StandardScaler, random_state=SEED")
+number("on standardised inputs and with seed 42", float(code("train/train_wake.py", r"^SEED = (\d+)")), "train_wake.py SEED")
+fact("spotter", "feature models of openWakeWord's v0.5.1 release",
+     "openWakeWord/releases/tag/v0.5.1" in src("runtime/models/wake/wake_heads.json"), "wake_heads.json feature_models source")
 fact("spotter", "Each head treats the other class as a negative",
      re.search(r'if clip\["label"\] == target:', tw) is not None, "window_dataset: only the target class yields positives")
 fact("spotter", "a window that cuts the phrase is discarded", "continue  # cuts the phrase" in tw, "window_dataset skip")
@@ -280,10 +299,13 @@ fact("runtime", "each completion request disables the server's prompt cache", '"
 fact("runtime", "closes the connection of the parser's request in flight, if there is one",
      "conn.sock.shutdown(socket.SHUT_RDWR)" in pa and "if conn is not None and conn.sock is not None" in pa,
      "CommandParser.abort: shutdown of the in-flight socket; no-op otherwise (V3 in Ch3)")
-judge("runtime", "The parser treats any failure of a request as an interrupted decode",
-      "except (OSError, ValueError, KeyError) as exc:" in parse_fn,
-      "parse raises ParseAborted on OSError/ValueError/KeyError only; an HTTP error body without `content` "
-      "returns an empty string, which the validator turns into a hold -- is 'any failure' right?")
+fact("runtime", "The parser treats a failed request as an interrupted decode",
+     "except (OSError, ValueError, KeyError) as exc:" in parse_fn,
+     "parse raises ParseAborted on OSError (connection, timeout), ValueError (not JSON) and KeyError "
+     "(no prompt/tokens in the first two replies)")
+fact("runtime", "An error answer to the completion request is not treated so",
+     'data.get("content", "")' in parse_fn,
+     "a /completion reply without `content` yields '', which validate() resolves to a hold, and it is published")
 fact("runtime", "The sequence number is reserved when the worker takes the utterance, before transcription starts",
      "while (item := work.get()) is not None:" in src("runtime/stream.py"),
      "the worker dequeues, then process() reserves: matches Ch3 V2 (number at dequeue)")
@@ -295,10 +317,10 @@ fact("runtime", "The worker restricts itself to cores~1--3", "def _worker" in sr
      and "pin(self._back)" in src("runtime/stream.py"), "StreamLoop._worker pins itself to back_cores")
 # The harness records the server's threads (task_affinity walks /proc/pid/task) and the frame-loop thread,
 # and the loader's; the worker thread's own mask is not recorded.
-fact("runtime", "records the affinity of every thread of the server and of the runtime",
-     "Cpus_allowed_list" in ex and "worker_affinity" in ex,
-     "eval/exp2.py records llama_server_affinity (every thread), main_affinity (frame loop) and loader_affinity; "
-     "the parse-path worker thread's mask is not recorded", warn=True)
+fact("runtime", "the worker's own restriction, and so that of the recogniser processes it starts, is applied by the code but not recorded",
+     "Cpus_allowed_list" in ex and "worker_affinity" not in ex and "branch-b" not in ex,
+     "eval/exp2.py records llama_server_affinity (every thread, at server start), main_affinity (frame loop) and "
+     "loader_affinity; nothing reads the worker thread's mask back")
 fact("runtime", "Qwen2.5-0.5B fine-tuned and quantised to Q4\\_K\\_M", "q4_k_m" in src("eval/exp3.py").lower(),
      "eval/exp3.py GGUF is the Q4_K_M artefact")
 fact("runtime", "The runtime adds no prompt text and no grammar rule of its own",
@@ -381,8 +403,15 @@ fact("controller", "Its only command is a formation", [m for m in dir(control.Sw
      == ["command", "step"], "SwarmController public methods: command (a formation) and step")
 fact("controller", "which defaults to the swarm's current centroid", "centre = np.asarray(positions, dtype=float).mean(axis=0)"
      in src("swarm/control.py"), "SwarmController.command centre default")
-fact("controller", "the controller applies no envelope of its own", "ENVELOPE" not in src("swarm/control.py"),
-     "swarm/control.py never reads schema ENVELOPE")
+fact("controller", "The controller applies no envelope of its own", "ENVELOPE" not in src("swarm/control.py")
+     and "validate" not in src("swarm/control.py"), "swarm/control.py never reads schema ENVELOPE nor calls the validator")
+fact("controller", "the formation-control experiment commands the controller directly",
+     "controller.command(" in src("swarm/simulate.py") and "validate" not in src("swarm/simulate.py"),
+     "swarm/simulate.py commands SwarmController without the validator")
+number("The backends limit speed to 3~m/s, above the validator's ceiling of 2.0~m/s", swarm_env.EnvLimits().max_speed,
+       "swarm/env.py EnvLimits.max_speed", nth=0)
+number("The backends limit speed to 3~m/s, above the validator's ceiling of 2.0~m/s", schema.ENVELOPE["speed"][1],
+       "schema ENVELOPE['speed'] upper bound", nth=1)
 number("trailing at $30^\\circ$ either side", float(code("swarm/control.py", r"half_angle = np\.deg2rad\(([\d.]+)\)")),
        "control.py wedge half_angle")
 w = control.formation_slots("wedge", n, (0.0, 0.0, 0.0))
@@ -470,9 +499,23 @@ fact("backends", "the experiment runs on it", "env = env or NumpyEnv(" in sim, "
 judge("backends", "in under a second", "well under a second" in src("swarm/env.py"),
       "'under a second' is a timing observation (swarm/env.py docstring 'well under a second'), not a parameter: "
      "the chapter promises only parameters -- judge")
+fact("backends", "five quadrotors in PyFlyt~0.29.0", "PyFlyt==0.29.0" in src("requirements.txt")
+     and "pyflyt==0.29.0" in src("environment.yml"), "requirements.txt and environment.yml pin PyFlyt 0.29.0")
+params.add(0.29)  # the version string, checked against the pins above
+fact("backends", "they place the vehicles with seed 42", "def _fly(env, shape: str, seed: int = 42," in src("swarm/test_pyflyt.py"),
+     "test_pyflyt._fly seed default 42, and no test passes another")
 number("The physics runs at 240~Hz", PHYSICS_HZ, "swarm/pyflyt_env.py PHYSICS_HZ")
 number("a whole number of physics steps, five", steps, "round(PHYSICS_HZ * DEFAULT_DT)")
 pe = PyFlytEnv()
+pe.reset(0)
+t0 = pe._aviary.elapsed_time
+pe.step(np.zeros((pe.n, 3)))
+tick_s = pe._aviary.elapsed_time - t0
+pe.close()
+r.expect("backends", abs(tick_s - steps / PHYSICS_HZ) < 1e-9,
+         f"one PyFlyt control tick advances {tick_s * 1000:.2f} ms of simulated time ({1 / tick_s:g} Hz), not "
+         f"{steps}/{PHYSICS_HZ} s: Aviary.step() runs updates_per_step physics steps -- author's decision pending "
+         "(issue 12)", warn=True)
 number("so the control rate on this backend is 48~Hz rather than 50~Hz", pe.effective_control_hz,
        "PyFlytEnv.effective_control_hz", nth=0)
 number("so the control rate on this backend is 48~Hz rather than 50~Hz", 1 / dt, "1 / DEFAULT_DT", nth=1)
