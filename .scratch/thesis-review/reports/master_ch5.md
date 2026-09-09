@@ -223,6 +223,6 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 289 | 10 | recomputed by a claim on this line |
 | 290 | 0.935 | recomputed by a claim on this line |
 | 297 | 23.1 | measured: results/table16_asr_speaker_sensitivity.md:26, results/table16_asr_speaker_sensitivity.md:30 |
-| 300 | 6.2 | measured: results/table16_asr_speaker_sensitivity.md:11, results/exp2_analysis.md:67 |
+| 300 | 6.2 | measured: results/table16_asr_speaker_sensitivity.md:11, results/exp2_analysis.md:73 |
 | 300 | 49.5 | measured: results/table16_asr_speaker_sensitivity.md:25, thesis/generated/table16_asr_speaker_sensitivity.tex:26 |
 | 325 | 3{,}540 | measured: results/table19_grammar_ablation.md:10, results/table19_grammar_ablation.md:11 |

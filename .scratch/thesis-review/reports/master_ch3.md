@@ -294,12 +294,12 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 204 | 200 | measured: results/exp2_latency_budget.md:5, results/table18_quantisation_delta.md:3 |
 | 226 | 3.0 | measured: results/exp2_latency_budget.md:4, results/exp2_latency_budget.md:14 |
 | 233 | 20 | measured: results/table16_asr_speaker_sensitivity.md:26, results/exp3_pi_analysis.md:15 |
-| 233 | 30 | measured: results/table16_asr_speaker_sensitivity.md:13, results/exp3_pi_analysis.md:83 |
+| 233 | 30 | measured: results/table16_asr_speaker_sensitivity.md:13, results/exp3_pi_analysis.md:97 |
 | 246 | 4.0 | recomputed by a claim on this line |
 | 269 | 300 | measured: results/exp2_latency_budget.md:29, results/table16_asr_speaker_sensitivity.md:3 |
 | 270 | 17.0 | measured: results/golden_error_intents.md:9, results/golden_error_intents.md:10 |
 | 271 | 263 | DECLARED ONLY: .scratch/sprint-pfe/STATE.md:101 |
-| 272 | 39 | measured: results/exp3_pi_analysis.md:68, results/exp3_analysis.md:68 |
+| 272 | 39 | measured: results/exp3_pi_analysis.md:80, results/exp3_analysis.md:80 |
 | 280 | 0.36 | measured: results/wake_training.json:169, results/wake_training.json:813 |
 | 280 | 1.2 | measured: spikes/reports/S1_llama_throughput_thermals.md:40, results/exp2_latency_budget.md:14 /1024 |
 | 287 | 514 | recomputed by a claim on this line |
@@ -349,7 +349,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 634 | 100 | measured: results/thermal_headroom.md:13, results/thermal_headroom.md:15 |
 | 635 | 0.80 | measured: results/requirements_summary.md:25, results/exp4_formation.md:11 |
 | 636 | 10 | measured: results/table16_asr_speaker_sensitivity.md:11, results/table16_asr_speaker_sensitivity.md:13 |
-| 636 | 0.65 | measured: results/requirements_summary.md:26, results/exp3_pi_analysis.md:50 |
+| 636 | 0.65 | measured: results/requirements_summary.md:26, results/exp3_pi_analysis.md:62 |
 | 637 | 0.70 | measured: results/table20_end_to_end.md:23, results/limitation_abstention.md:15 |
 | 638 | 2.5 | measured: results/nfr18_false_command.md:12, results/nfr18_false_command.md:13 |
 | 640 | 5 | measured: results/exp2_latency_budget.md:3, results/exp2_latency_budget.md:23 |
@@ -361,5 +361,5 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 660 | 0.05 | measured: results/nfr18_false_command.md:5, results/requirements_summary.md:24 |
 | 665 | 200 | measured: results/exp2_latency_budget.md:5, results/table18_quantisation_delta.md:3 |
 | 667 | 200 | measured: results/exp2_latency_budget.md:5, results/table18_quantisation_delta.md:3 |
-| 676 | 1{,}350 | measured: results/exp2.csv:8 x100 |
+| 676 | 1{,}350 | measured: results/exp2_analysis.md:16, results/exp2.csv:7 |
 | 678 | 2{,}500 | measured: results/exp2_latency_budget.md:18, results/exp2_latency_budget.md:19 |

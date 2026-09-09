@@ -257,3 +257,28 @@ reports (A = argument.md, P = citation-presentation.md):
   - The 2.43 m/s formation speed from issue 12 #10 (Ch6 limitations, if accepted).
 
 No file under thesis/ touched.
+
+### 2026-09-24 -- author: V7 and the Block A route
+
+- **V7: fix.** The author holds no dated record of the interval rule from before scoring, so
+  "declared before they were scored" goes. The verdicts are unchanged.
+- **Block A: the code route** for V1, V2, V3, V5 and V9, and **rewording** for V8. The rerun
+  cannot be proven without a full run on the Pi, so run_all.sh is left as it is and the sentence
+  says the single-command rerun is not provided.
+
+Done in 41737eb (eval/ + results/, `--analyse-only`, no rerun on the Pi, every pre-existing row
+byte-identical). The corrected fixes can now quote these figures from results/:
+
+| For | Figure | Where |
+|---|---|---|
+| V1 | detections before the recorded offset: idle 6/78, earliest -234.7 ms (w06, w28, w29); loaded 4/78, earliest -234.0 ms | exp2_analysis.md, both cross-trigger sections |
+| V2 | recoveries above 1,000 ms: 10/78 | exp2_analysis.md, Pre-emption |
+| V3 | exact p beside the p of record for every chi2_cc pair: 10 vs 5 dB 0.0051 / 0.0046, 20 vs 10 dB 0.0053 / 0.0046 | exp3_pi_analysis.md, second McNemar table |
+| V5 | reference text: 13 of 200 failed, 0 safe (rotate 11, move 1, formation 1) | exp3_pi_analysis.md, after "Where the failures come from" |
+| V9 | prefill + decode: n 226, p50 1,112, p95 1,658, p99 1,775 ms against 1,350 (MISSES) | exp2.csv `llm`, exp2_analysis.md |
+
+V9's row is in results/ only. Adding it to tab:latency-budget (eval/tables.py `_BUDGET_LINES`)
+changes a thesis table, so it waits on the author's decision on V9. When Ch5 quotes any of these,
+ingenieur_ch5.py needs a check for each. Checks after the change: ingenieur_ch5 0 FAIL / 252 PASS;
+master_ch3 and master_ch5 reports changed only in trace line numbers (refreshed here); selftest
+passes; pytest eval/ 218 passed.
