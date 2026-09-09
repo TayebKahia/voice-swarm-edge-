@@ -25,9 +25,9 @@ F(4, 995) = 5.47, p = 0.00023.
 
 Two properties of this test must travel with it. (1) The unit is the utterance, whose outcome is 0 or 1, and arcsin(sqrt(x)) maps {0, 1} to {0, pi/2}: on binary data the transform is a rescaling and changes nothing. (2) The same 200 utterances appear in every condition, so the groups are not independent, which one-way ANOVA assumes. The paired test below is the one whose assumptions hold; it is reported beside the pre-registered one, not instead of it.
 
-### Paired: Cochran's Q across the five conditions, exact McNemar per pair
+### Paired: Cochran's Q across the five conditions, McNemar per pair
 
-Q = 56.65, df = 4, p = 1.5e-11. Pairwise McNemar, Bonferroni over 10 pairs (alpha = 0.0050).
+Q = 56.65, df = 4, p = 1.5e-11. Pairwise McNemar, Bonferroni over 10 pairs (alpha = 0.0050); exact binomial below 25 discordant pairs, Edwards' continuity-corrected chi-square (`chi2_cc`) from there up.
 
 | A | B | b (A only) | c (B only) | test | p | signif. |
 | :--- | :--- | ---: | ---: | :--- | ---: | :--- |
@@ -41,6 +41,18 @@ Q = 56.65, df = 4, p = 1.5e-11. Pairwise McNemar, Bonferroni over 10 pairs (alph
 | 15 dB | 10 dB | 20 | 8 | chi2_cc | 0.0376 | no |
 | 15 dB | 5 dB | 40 | 9 | chi2_cc | 1.8e-05 | yes |
 | 10 dB | 5 dB | 34 | 15 | chi2_cc | 0.0101 | no |
+
+Pairs decided by the chi-square form, with the exact p beside the p of record:
+
+| A | B | discordant | p (chi2_cc, of record) | p (exact) |
+| :--- | :--- | ---: | ---: | ---: |
+| clean | 10 dB | 42 | 0.0034 | 0.0029 |
+| clean | 5 dB | 55 | 3e-07 | 8.1e-08 |
+| 20 dB | 10 dB | 33 | 0.0053 | 0.0046 |
+| 20 dB | 5 dB | 56 | 2.9e-06 | 1.2e-06 |
+| 15 dB | 10 dB | 28 | 0.0376 | 0.0357 |
+| 15 dB | 5 dB | 49 | 1.8e-05 | 9.3e-06 |
+| 10 dB | 5 dB | 49 | 0.0101 | 0.0094 |
 
 ### Operational envelope
 
@@ -70,6 +82,8 @@ Where the failures come from. A failed single-segment item is an ASR or parser e
 | 15 dB | 70 | 48 | 22 | 22/22 |
 | 10 dB | 82 | 61 | 21 | 21/21 |
 | 5 dB | 101 | 84 | 17 | 17/17 |
+
+Reference text (the `text` condition): 13 of 200 failed, of which safe 0 (dispatched: formation 1, move 1, rotate 11).
 
 ### Error analysis: one cause per failed item
 

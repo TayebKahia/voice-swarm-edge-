@@ -13,6 +13,7 @@ Host `drone-pi`, governor `performance`, started 2026-09-23T15:34:29+0100. llama
 | STT (whisper-cli, -t 3) | branch_b | 226 | 1,246 | 1,449 | 1,571 | 2,992 | 1,200 | MISSES |
 | SLM prefill (server timing, no prompt cache) | branch_b | 226 | 571 | 751 | 849 | 950 | 250 | MISSES |
 | SLM decode (server timing) | branch_b | 226 | 561 | 915 | 984 | 985 | 1,100 | MEETS |
+| SLM prefill + decode (Table 6 combined row) | branch_b | 226 | 1,112 | 1,658 | 1,775 | 1,865 | 1,350 | MISSES |
 | SLM request overhead (template, tokenize, HTTP) | branch_b | 226 | 8 | 8 | 10 | 11 | -- |  |
 | validate, bus, FSM check | branch_b | 226 | 0 | 1 | 3 | 13 | 50 | MEETS |
 | E2E from T0 (NFR-2 headline) | branch_b | 226 | 2,441 | 3,122 | 3,380 | 3,681 | 2,500 | MISSES |
@@ -46,6 +47,8 @@ All times ms, nearest-rank percentiles. Branch B rows count endpointed segments,
 | `swarm_hold` | 40 | 38 | 0 | 2 |
 | `swarm_abort` | 40 | 0 | 40 | 0 |
 
+Detections before the recorded keyword offset: 6/78, earliest -234.7 ms (takes w06, w28, w29).
+
 ## Branch A, loaded: cross-trigger matrix
 
 | take class | n | fired hover | fired abort | missed |
@@ -53,11 +56,14 @@ All times ms, nearest-rank percentiles. Branch B rows count endpointed segments,
 | `swarm_hold` | 40 | 38 | 0 | 2 |
 | `swarm_abort` | 40 | 0 | 40 | 0 |
 
+Detections before the recorded keyword offset: 4/78, earliest -234.0 ms (takes w06, w28).
+
 ## Pre-emption (FR-6, NFR-17)
 
 - Triggers with a Branch B decode in flight: 78/78.
 - Decode aborted by the trigger: 78; finished anyway (the abort lost the race): 0, of which discarded by the sequence rule: 0.
 - Server never reported idle within 10 s after an abort: 0.
+- Recoveries above 1,000 ms: 10/78.
 - Loader requests over the phase (incl. warm-up): 530.
 
 ## Core 0 frame budget (Table 7)

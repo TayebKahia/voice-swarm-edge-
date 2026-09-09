@@ -69,7 +69,8 @@ import soundfile as sf
 
 from eval.metrics import SAFE_INTENTS, score_predictions
 from eval.norm import edits
-from eval.stats import BOOTSTRAP_SEED, bootstrap_ratio_ci, bonferroni_alpha, mcnemar, nearest_rank
+from eval.stats import (BOOTSTRAP_SEED, EXACT_BELOW_DISCORDANT, bootstrap_ratio_ci, bonferroni_alpha,
+                        mcnemar, nearest_rank)
 
 REPO = Path(__file__).resolve().parent.parent
 RESULTS = REPO / "results"
@@ -376,7 +377,7 @@ def _label(condition: str) -> str:
 
 def analysis_markdown(summaries: Sequence[dict], by_condition: dict[str, list[dict]],
                       mismatches: list[str], em_correct: dict[str, bool],
-                      preds: Path = PREDS) -> str:
+                      preds: Path = PREDS, text_rows: Sequence[dict] = ()) -> str:
     conditions = [s["condition"] for s in summaries]
     ids = [r["id"] for r in by_condition[conditions[0]]]
     matrix = np.array([[outcome(next(r for r in by_condition[c] if r["id"] == i)["segments"]).correct
@@ -420,20 +421,31 @@ def analysis_markdown(summaries: Sequence[dict], by_condition: dict[str, list[di
         "assumes. The paired test below is the one whose assumptions hold; it is reported "
         "beside the pre-registered one, not instead of it.",
         "",
-        "### Paired: Cochran's Q across the five conditions, exact McNemar per pair",
+        "### Paired: Cochran's Q across the five conditions, McNemar per pair",
         "",
         f"Q = {q:.2f}, df = {df}, p = {_fmt_p(q_p)}. Pairwise McNemar, Bonferroni over "
-        f"{len(anova['pairs'])} pairs (alpha = {alpha:.4f}).",
+        f"{len(anova['pairs'])} pairs (alpha = {alpha:.4f}); exact binomial below "
+        f"{EXACT_BELOW_DISCORDANT} discordant pairs, Edwards' continuity-corrected chi-square "
+        "(`chi2_cc`) from there up.",
         "",
         "| A | B | b (A only) | c (B only) | test | p | signif. |",
         "| :--- | :--- | ---: | ---: | :--- | ---: | :--- |",
     ]
-    for i in range(len(conditions)):
-        for j in range(i + 1, len(conditions)):
-            m = mcnemar(matrix[:, i].astype(bool), matrix[:, j].astype(bool))
-            lines.append(f"| {labels[i]} | {labels[j]} | {m.only_first} | {m.only_second} "
-                         f"| {m.test} | {_fmt_p(m.p_value)} | "
-                         f"{'yes' if m.significant_at(alpha) else 'no'} |")
+    tests = [(labels[i], labels[j], mcnemar(matrix[:, i].astype(bool), matrix[:, j].astype(bool)))
+             for i in range(len(conditions)) for j in range(i + 1, len(conditions))]
+    for a, b, m in tests:
+        lines.append(f"| {a} | {b} | {m.only_first} | {m.only_second} "
+                     f"| {m.test} | {_fmt_p(m.p_value)} | "
+                     f"{'yes' if m.significant_at(alpha) else 'no'} |")
+    # The p of record follows the rule above; the other form is printed for the pairs
+    # the chi-square decided, so a pair near alpha shows how much the form matters.
+    chi2_pairs = [(a, b, m) for a, b, m in tests if m.test == "chi2_cc"]
+    if chi2_pairs:
+        lines += ["", "Pairs decided by the chi-square form, with the exact p beside the p of record:", "",
+                  "| A | B | discordant | p (chi2_cc, of record) | p (exact) |",
+                  "| :--- | :--- | ---: | ---: | ---: |"]
+        lines += [f"| {a} | {b} | {m.discordant} | {_fmt_p(m.p_value)} | {_fmt_p(m.p_exact)} |"
+                  for a, b, m in chi2_pairs]
 
     by = {s["condition"]: s for s in summaries}
     lines += ["", "### Operational envelope", "",
@@ -473,6 +485,17 @@ def analysis_markdown(summaries: Sequence[dict], by_condition: dict[str, list[di
         n_split = sum(o.n_segments > 1 for o in scored)
         lines.append(f"| {_label(c)} | {len(failed)} | {len(failed) - split_failed} "
                      f"| {split_failed} | {split_failed}/{n_split} |")
+    if text_rows:
+        # The same items as reference text: the parser's own failures, the baseline
+        # against which the audio conditions' safe-failure rates are read.
+        text_failed = [r for r in text_rows if not outcome(r["segments"]).correct]
+        dispatched: dict[str, int] = {}
+        for r in text_failed:
+            for seg in r["segments"]:
+                dispatched[seg["dispatched"]] = dispatched.get(seg["dispatched"], 0) + 1
+        lines += ["", f"Reference text (the `{TEXT}` condition): {len(text_failed)} of {len(text_rows)} "
+                  f"failed, of which safe {sum(outcome(r['segments']).safe for r in text_failed)} "
+                  f"(dispatched: {', '.join(f'{k} {v}' for k, v in sorted(dispatched.items()))})."]
     lines += ["", "### Error analysis: one cause per failed item", "",
               "Causes are assigned in the order of the columns (`eval/exp3.py:CAUSES`), so "
               "every failure is counted once. 'ASR error' means the transcript differs from "
@@ -607,7 +630,7 @@ def analyse(preds: Path) -> int:
         writer.writeheader()
         for s in summaries:
             writer.writerow({k: _csv_value(v) for k, v in s.items()})
-    analysis = analysis_markdown(summaries, by_condition, mismatches, em_correct, preds)
+    analysis = analysis_markdown(summaries, by_condition, mismatches, em_correct, preds, text_rows)
     if preds.resolve() != PREDS.resolve() and (PREDS / f"{TEXT}.jsonl").is_file():
         # A run elsewhere (A7b) is compared item by item with the run of A7a.
         candidate = {TEXT: text_rows, **by_condition}

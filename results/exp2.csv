@@ -4,6 +4,7 @@ queue,queue (segment waits for Branch B),branch_b,226,40.2,73.1,429.7,1231.1,,
 stt,"STT (whisper-cli, -t 3)",branch_b,226,1246.2,1448.7,1570.7,2992.3,1200,MISSES
 prefill,"SLM prefill (server timing, no prompt cache)",branch_b,226,570.5,750.6,849.2,950.2,250,MISSES
 decode,SLM decode (server timing),branch_b,226,560.7,914.8,983.5,984.7,1100,MEETS
+llm,SLM prefill + decode (Table 6 combined row),branch_b,226,1112.4,1657.7,1775.4,1865.0,1350,MISSES
 http,"SLM request overhead (template, tokenize, HTTP)",branch_b,226,7.8,8.3,9.9,10.8,,
 validate_fsm,"validate, bus, FSM check",branch_b,226,0.3,0.5,3.5,13.5,50,MEETS
 e2e_t0,E2E from T0 (NFR-2 headline),branch_b,226,2441.3,3122.5,3380.3,3681.1,2500,MISSES

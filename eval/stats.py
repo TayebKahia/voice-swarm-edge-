@@ -107,9 +107,9 @@ def bootstrap_ratio_ci(
 
 #: Below this many discordant pairs the chi-square approximation is not trustworthy
 #: and `mcnemar()` reports the exact binomial test instead. 25 is the conventional
-#: cut; every comparison this project runs falls below it, so the exact test is in
-#: practice always the one of record --- the branch exists so a larger future split
-#: does not silently keep using a test chosen for small samples.
+#: cut. The model comparisons fall below it; the acoustic-robustness pairs mostly do
+#: not (7 of Exp-3's 10 are chi-square), so both forms occur in results/ and
+#: `McNemarResult` carries both p-values for a reader to compare.
 EXACT_BELOW_DISCORDANT = 25
 
 

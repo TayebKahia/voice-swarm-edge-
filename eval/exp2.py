@@ -82,6 +82,7 @@ BACK = {1, 2, 3}
 #: Table 6 target p95s, in ms, and the NFR each one serves.
 BUDGETS = {
     "vad_wait": 500, "stt": 1200, "prefill": 250, "decode": 1100, "validate_fsm": 50,
+    "llm": 1350,  # Table 6's "language-model stages combined" (cached-prefix allowance, as prefill's)
     "e2e_t0": 2500,
     "a_offset": 150, "a_onset": 850, "recovery": 300,
 }
@@ -479,6 +480,8 @@ def stage_rows(branch_b: Sequence[dict]) -> list[dict]:
               ("stt", "STT (whisper-cli, -t 3)", [s["stt_ms"] for s in segs]),
               ("prefill", "SLM prefill (server timing, no prompt cache)", [s["prefill_ms"] for s in done]),
               ("decode", "SLM decode (server timing)", [s["decode_ms"] for s in done]),
+              ("llm", "SLM prefill + decode (Table 6 combined row)",
+               [s["prefill_ms"] + s["decode_ms"] for s in done]),
               ("http", "SLM request overhead (template, tokenize, HTTP)",
                [s["parse_wall_ms"] - s["prefill_ms"] - s["decode_ms"] for s in done]),
               ("validate_fsm", "validate, bus, FSM check", [s["validate_fsm_ms"] for s in done]),
@@ -611,6 +614,14 @@ def analysis_markdown(phases: dict, table: Sequence[dict]) -> str:
                   "| :--- | ---: | ---: | ---: | ---: |"]
         for c, cell in matrix.items():
             lines.append(f"| `{c}` | {cell['n']} | {cell['hover']} | {cell['abort']} | {cell['missed']} |")
+        # The offset is the capture tool's energy-based end of speech; a detection that
+        # precedes it measures the anchor's error, not a negative spotter delay.
+        early = sorted((e["latency_offset_ms"], r["take"]) for r in phases[condition]
+                       if (e := first_own_event(r)) is not None and e["latency_offset_ms"] < 0)
+        n_detected = sum(first_own_event(r) is not None for r in phases[condition])
+        lines += ["", f"Detections before the recorded keyword offset: {len(early)}/{n_detected}"
+                  + (f", earliest {early[0][0]:.1f} ms (takes {', '.join(sorted({t for _, t in early}))})."
+                     if early else ".")]
     if "loaded" in phases:
         detected = [first_own_event(r) for r in phases["loaded"] if first_own_event(r)]
         in_flight = [e for e in detected if e.get("in_flight")]
@@ -622,7 +633,10 @@ def analysis_markdown(phases: dict, table: Sequence[dict]) -> str:
                   f"- Decode aborted by the trigger: {len(aborted)}; finished anyway (the abort lost "
                   f"the race): {len(late)}, of which discarded by the sequence rule: "
                   f"{sum(bool(e.get('late_b_stale_discarded')) for e in late)}.",
-                  f"- Server never reported idle within 10 s after an abort: {len(idle_none)}."]
+                  f"- Server never reported idle within 10 s after an abort: {len(idle_none)}.",
+                  f"- Recoveries above 1,000 ms: "
+                  f"{sum(max(e['abort_return_ms'], e['server_idle_ms']) > 1000 for e in aborted if e.get('server_idle_ms') is not None)}"
+                  f"/{len(aborted) - len(idle_none)}."]
         if meta.get("loader_requests"):
             lines.append(f"- Loader requests over the phase (incl. warm-up): {meta['loader_requests']}.")
     lines += ["", "## Core 0 frame budget (Table 7)", ""]
