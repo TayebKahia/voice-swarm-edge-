@@ -212,3 +212,35 @@ simulated time. Ch4 l.432-433 ("five ... 48~Hz rather than 50~Hz") is false, and
 docstring's "240 Hz and control at 50 Hz" and the A17 "12.5 s" note. The script WARNs on it
 until decided. The review missed it because every check read the constants, not the simulated
 clock.
+
+### 2026-09-24 -- PyFlyt tick: option 1 tried, and it breaks the tests (author's decision needed)
+
+**Option 1 as decided.** Run QuadX's inner loop at the physics rate (`drone_options={"control_hz":
+240}`), so one `Aviary.step()` is one physics step and a tick is the 20.83 ms (48 Hz) the chapter
+states. Checked with `aviary.elapsed_time`: 20.833 ms. `pytest swarm/test_pyflyt.py -m slow`: **3
+failed, 2 passed** (line, wedge and the both-backends test fail). No gain was changed. The patch
+is not committed; master is unchanged and its tests pass.
+
+**Diagnosis** (throwaway runs, seed 42, 600 ticks, the tests' own loop):
+
+| PyFlyt inner loop | physics steps / tick | tick | circle FA | line FA | wedge FA |
+|---|---|---|---|---|---|
+| 120 Hz (as committed) | 10 | 41.67 ms | 1.0 | 1.0 | 1.0 |
+| 240 Hz | 10 | 41.67 ms | 1.0 | 1.0 | 1.0 |
+| 120 Hz | 4 | 16.67 ms | 0.8 | 0.8 | 0.8 |
+| 240 Hz (option 1) | 5 | 20.83 ms | 1.0 | 0.6 | 0.2 |
+
+The inner-loop rate is not the cause: at the same 41.67 ms tick, 120 and 240 Hz give identical
+results. The outer tick is. At a true ~20 ms tick the line and wedge do not hold: the wedge is
+in formation at tick 300 (FA 1.0), then diverges to a 2.73 m error by tick 600 and does not
+recover by tick 1200. The kinematic backend holds all three at every mark.
+
+**What this means.** The five tests passed only because each tick lasted 41.67 ms while the
+backend integrated the commanded velocity with dt = 0.02. The controller therefore ran at half its
+design rate, with half the commanded acceleration per unit of simulated time, and the tests flew
+25 s, not 12 s. At its design rate, with the same gains, the controller does not hold two of the
+three formations under PyFlyt. So Ch4 4.6's "All five tests pass" and "one controller, one set of
+gains" rest on a mistimed backend. The simulation-backends criterion's "Passes on both"
+(`requirements_summary.tex`, issue 13) is affected too, as is Ch1's backend row.
+
+Retuning the gains for PyFlyt is what 4.6 says would prove nothing, so it is not offered as a fix.
