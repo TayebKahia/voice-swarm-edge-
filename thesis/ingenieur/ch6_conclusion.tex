@@ -25,42 +25,124 @@
 
 \chapter{Demonstration, limitations and conclusion}
 \label{chap:demonstration}
-% Lead-in (3-4 sentences): what this chapter does -- fixes the protocol of the demonstration
-% planned for the defence, states the limitations the measurements expose, the work left, and
-% answers RQ2 and RQ3. No new result.
-\TODO{draft}
+This chapter closes the document. Section~\ref{sec:demonstration-protocol} fixes the protocol of
+the live demonstration planned for the defence, before it is run, and reports no result from it.
+Section~\ref{sec:limitations} states what the measurements of Chapter~\ref{chap:validation} do not
+establish, and Section~\ref{sec:future-work} the work that follows from each limitation.
+Section~\ref{sec:conclusion} answers RQ2 and RQ3 against those measurements. Every figure in this
+chapter is quoted from Chapter~\ref{chap:validation} and every verdict from
+Table~\ref{tab:requirements-summary}; the chapter adds no measurement.
 
 \section{Demonstration protocol}
 \label{sec:demonstration-protocol}
-% Frame: planned for the defence; the protocol is fixed here, before it is run, so that what
-% counts as success is decided in advance. It is one run, not an experiment: it shows the chain
-% working end to end, it cannot measure a rate or a percentile.
-% - What it adds to Ch5: the only run in which (a) live microphone capture feeds the pipeline,
-%   (b) a spoken command is carried through the state machine to the swarm controller and the
-%   simulated swarm, (c) networking is disabled as Ch1 defines it. Ch5's runs replay recorded
-%   audio and evaluate the chain in parts (latency and acoustic experiments end at the state
-%   machine or validator on the Pi; the formation experiment drives the controller without speech).
-% - Setup: Raspberry Pi 5 with the deployed microphone; workstation running the state machine,
-%   swarm controller and simulation (decide: PyFlyt for the visual, or the kinematic simulator the
-%   results use -- say which and why); the device--workstation wireless link kept; every other
-%   interface disabled, shown on camera at the start (interface state on screen).
-% - Script of utterances, fixed in advance (decide the exact list; source: prd FR-9 and the D21
-%   plan, which includes the ABORTED recovery path):
-%     take-off; a formation command with a slot value (e.g. "form a circle with radius five
-%     metres", Ch1's example); a movement; "swarm hold" spoken WHILE a parse-path command is
-%     decoding (preemption: the older command must not take effect after the hold); a resumption
-%     through the parse path; landing; "swarm abort"; the non-vocal recovery out of ABORTED.
-% - Success criteria, decided now (author to fix): each command produces the expected state-
-%   machine transition and swarm behaviour; the hold preempts the in-flight command; no rejected
-%   or unrecognised utterance produces motion; the whole run is recorded on video with timestamps.
-%   Decide whether latency from live capture is reported (as a single observation, not judged
-%   against the p95 budgets) or not reported at all.
-% - What it cannot show: statistics (one run, one speaker, one room), real airframes, wind.
-% - Prerequisites not yet built (Ch4 lists them as work for the demonstration, not as built):
-%   live capture (runtime/audio.py), an entry point (runtime/main.py -- run_pipeline.sh already
-%   expects it), and the connection from the bus consumer / state machine to the swarm controller.
-%   Planning note only; the prose names components, not file paths.
-\TODO{draft}
+% Author's decisions (24 Sep): two parts -- A on the kinematic backend (clamp active, 3D display
+% of its state, the run of record, the only part judged), B on PyFlyt (rotor dynamics, no clamp,
+% no criterion); no live-capture latency reported; the scaffold's script and four criteria.
+The live-demonstration requirement of Table~\ref{tab:functional-requirements} asks for the full
+pipeline to run end to end from a live microphone, with networking disabled on camera. The
+demonstration is planned for the defence. Its protocol is fixed here, before the run, so that what
+counts as success is decided before the outcome is known and cannot be adjusted to it. It is one
+run and not an experiment: it can establish that the chain operates end to end, but it measures no
+rate and no percentile, and Table~\ref{tab:requirements-summary} records the requirement as planned
+rather than met.
+
+\paragraph{What the run adds.} The demonstration is the only run that joins the parts
+Chapter~\ref{chap:validation} evaluates separately. The speech experiments reported there replay
+recorded audio and end on the board, the latency experiment at the state machine and the
+acoustic-robustness experiment at the validator, and the formation-control experiment drives the
+controller without speech. The demonstration is the first run in which live capture feeds the
+pipeline, in which a spoken command travels through the state machine to the swarm controller and
+the simulated vehicles, and in which the wireless link from the device to the workstation carries a
+command (Section~\ref{sec:command-bus}). It is also the end-to-end run with networking disabled on
+which the offline-speech-recognition and offline-operation criteria are verified; until it is made,
+both remain not yet run.
+
+\paragraph{Setup.} The Raspberry~Pi~5 runs both paths, with the thread allocation of
+Table~\ref{tab:core-allocation}, from the microphone through which the golden set was recorded. The
+workstation runs the consumer of the bus, the flight state machine, the swarm controller and the
+simulation, as Figure~\ref{fig:architecture} places them, and the two machines are joined by their
+wireless link. At the start of the run the network interfaces of both machines are displayed on
+camera: every interface is disabled except that link, which is the meaning
+Section~\ref{sec:operational-context} gives to networking disabled. The video records the whole run
+with a visible clock, and the state machine's log, which records every rejection with the intent
+rejected and the state it arrived in (Section~\ref{sec:state-machine}), is kept beside it. The clock
+orders events; it does not time them. No latency is reported from the run, because a single run
+yields no percentile, and every latency figure in this document remains the one measured in
+Section~\ref{sec:latency-experiment}.
+
+\paragraph{Two parts.} The run has two parts. Both use the same device, the same state machine and
+the same controller with the same gains, and they differ only in the simulation backend behind the
+environment interface (Section~\ref{sec:simulation-backends}). Part~A is the run of record. It flies
+on the kinematic backend, the one from which every result of Section~\ref{sec:formation-control}
+comes and the only one on which the separation clamp acts, and it follows the whole script of
+Table~\ref{tab:demo-script}. Its vehicles are drawn in three dimensions at the positions the
+kinematic backend computes, and the display adds no dynamics of its own. Part~B follows, with the
+workstation's process restarted on the physics backend, and repeats steps~1, 2, 5 and~6 of the
+script: the take-off, the circle, the line and the landing. Its vehicles have rigid-body and rotor
+dynamics, and no separation clamp acts on them. Part~B puts the controller of
+Section~\ref{sec:swarm-controller}, unretuned, under rigid-body dynamics, which otherwise only the
+physics backend's tests do, and its outcome is not anticipated here. It carries no success
+criterion. Separation in Part~B is
+recorded rather than judged, and a close approach there falls under the limitation of
+Section~\ref{sec:limitations}, not under the verdict. Omitting Part~B, if the defence leaves no time
+for it, withdraws no claim.
+
+\begin{table}[htbp]
+\centering
+\footnotesize
+\caption[Script of the demonstration]{Script of Part~A of the demonstration, fixed before the run.
+Each step is performed once, in this order. \emph{Path} is the path that carries the utterance;
+\emph{State after} is the flight state once the step is complete (Table~\ref{tab:legality}); and
+\emph{Expected behaviour} is what the simulated vehicles do. Part~B repeats steps 1, 2, 5 and 6 on
+the physics backend.}
+\label{tab:demo-script}
+\begin{tabularx}{\textwidth}{@{}r >{\raggedright\arraybackslash}p{4.2cm} >{\raggedright\arraybackslash}p{1.7cm} >{\raggedright\arraybackslash}p{2.4cm} X@{}}
+\toprule
+Step & Utterance & Path & State after & Expected behaviour \\
+\midrule
+1 & ``take off to five metres'' & Parse & \texttt{TAKING\_OFF}, then \texttt{FLYING} & All five vehicles climb to 5~m \\
+2 & ``form a circle with radius five metres'' & Parse & \texttt{FLYING} & The vehicles take the slots of a circle of radius 5~m \\
+3 & ``move north ten metres'' & Parse & \texttt{FLYING} & The formation moves 10~m north \\
+4 & ``form a line with spacing three metres'', followed at once by ``swarm hold'' & Parse, then reflex & \texttt{FLYING} & The vehicles stop lateral motion and hold altitude; the line is not formed \\
+5 & ``form a line with spacing three metres'' & Parse & \texttt{FLYING} & The vehicles take the slots of a line spaced 3~m apart \\
+6 & ``land'' & Parse & \texttt{LANDING}, then \texttt{LANDED} & The vehicles descend and stop on ground contact \\
+7 & ``take off to five metres'', then, once airborne, ``swarm abort'' & Parse, then reflex & \texttt{FLYING}, then \texttt{ABORTED} & The vehicles climb, then descend in place, motors stopped on ground contact \\
+8 & None: the reset, from the workstation & Neither & \texttt{LANDED} & None; the reset is accepted only with every vehicle on the ground and nearly at rest \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\paragraph{Success criteria.} Four criteria are fixed for Part~A, and the live-demonstration
+requirement is met only if all four hold. First, every step of Table~\ref{tab:demo-script} ends in
+the state and the behaviour its row gives. Second, at step~4 the hold takes effect and the command
+spoken before it does not. The hold may meet that command during its decode, which it then cancels,
+or earlier, during transcription, in which case the ordering rule discards the command when it is
+published (Section~\ref{sec:command-bus}); in either case no line formation begins. Third, no
+utterance that the validator or the state machine rejects, and none that resolves to
+\texttt{unknown}, produces motion: in flight a rejection becomes a hold, and otherwise nothing is
+dispatched (Section~\ref{sec:validation-layers}). Fourth, the whole run is on video with its clock,
+from the display of the network interfaces to the reset. A criterion that fails is reported as
+failed, together with the step at which it failed.
+
+\paragraph{What the run cannot show.} One run, by one speaker in one room, establishes that the
+chain operates, not how often it does. No rate, percentile or interval follows from it, and every
+criterion of Table~\ref{tab:requirements-summary} that is judged on a rate keeps the verdict
+Chapter~\ref{chap:validation} gives it. The vehicles are simulated in both parts, and neither part
+flies an airframe or models wind.
+
+\paragraph{Prerequisites.} Three components the run requires are not built, and
+Chapter~\ref{chap:implementation} records each where it would sit: live microphone capture
+(Section~\ref{sec:audio-chain}), an entry point that starts the runtime as one process
+(Section~\ref{sec:runtime}), and the link from the state machine to the swarm controller
+(Section~\ref{sec:state-machine}). The link is more than a connection. The controller accepts only
+a formation (Section~\ref{sec:swarm-controller}), while the script also commands a take-off, a
+movement, a hold, a landing and an abort, so each of these needs a mapping onto the controller; and
+the state machine's transitions at the take-off height and on ground contact, like the reset, need
+the vehicles' state reported back to it. Part~A requires, in addition, the three-dimensional display
+of the kinematic backend. None of the four alters a stage measured in
+Chapter~\ref{chap:validation}: a capture source replaces the replay without a change to any stage
+that follows it (Section~\ref{sec:audio-chain}), and the link and the display add to the chain
+without changing the controller or any stage the experiments measured.
 
 \section{Limitations}
 \label{sec:limitations}
