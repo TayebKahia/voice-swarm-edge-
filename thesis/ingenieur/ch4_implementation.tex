@@ -231,7 +231,7 @@ sequence number, publish a message, and receive one. No separate abstract type i
 interface through which Section~\ref{sec:dual-path} lets a middleware replace the bus consists of
 these three operations, and a replacement would provide the same three. Each message is a single \gls{json} object
 carrying the sequence number, a tag naming the path that produced it, the command's fields, and the
-time of publication, and it is sent as one UDP datagram. A message longer than 4{,}096 bytes is
+time of publication, and it is sent as one \gls{udp} datagram. A message longer than 4{,}096 bytes is
 refused rather than split. The largest command of the schema is far shorter, so no message is ever
 reassembled from fragments. The receiving side rejects a message whose path tag is neither of the
 two paths. The time of publication is read from the publishing machine's monotonic clock; it is the
@@ -414,7 +414,7 @@ speed to 3~m/s, and it treats the ground plane as impenetrable. Both limits scal
 rather than each component, so a limited command keeps its direction. The integration is
 semi-implicit: the velocity is updated first, and the new velocity moves the position. The vehicles start at positions drawn, from the trial's seed, from a normal distribution of
 standard deviation 0.5~m about the point $(0, 0, 2)$~m. The backend runs a 60~s trial of five
-vehicles in under a second, which is what makes the formation-control experiment's sweep of trials
+vehicles with point-mass double integration fast enough for iterative testing, which is what makes the formation-control experiment's sweep of trials
 practical, and the experiment runs on it. It is also the backend whose state the separation clamp
 may overwrite (Section~\ref{sec:swarm-controller}).
 
@@ -427,14 +427,16 @@ commanded. PyFlyt also accepts a position setpoint, but using it would have meas
 position controller rather than the controller of Section~\ref{sec:swarm-controller}. The commanded
 velocity is held by the backend rather than read back from the vehicle. PyFlyt's inner loop leaves a
 small steady error in altitude, and a setpoint built on the measured velocity would feed that error
-back as the next command, so that a vehicle told to hold station descends to the ground within
-about two seconds; a test guards against that behaviour. The physics runs at 240~Hz. A control tick
-is rounded to a whole number of physics steps, five, with the setpoint held between them, so the
-control rate on this backend is 48~Hz rather than 50~Hz. The backend runs at about the speed of
-simulated time, and it serves to test whether the controller relies on the simplicity of the point
-mass.
+back as the next command, so that a vehicle told to hold station descends to the ground; a test guards
+against that steady-state altitude droop. The physics runs at 240~Hz. A control tick is rounded to
+a whole number of physics steps, five, with the setpoint held between them. Because QuadX's attitude
+controller steps twice per call, each tick advances 10 physics steps (41.67~ms), so the effective
+control rate is 24~Hz rather than the nominal 48~Hz or 50~Hz, and the 600 ticks evaluate 25~s of
+simulated flight with the controller acting at half its nominal rate. It serves to test whether
+the controller carries across to rigid-body dynamics, though transfer at the nominal 50~Hz rate is
+not established (Section~\ref{sec:limitations}).
 
-\paragraph{One controller, one set of gains.} The same controller, with the same gains, runs under
+\paragraph{Cross-backend verification.} The same controller, with the same gains, runs under
 both backends; nothing in it is selected per backend. That is the condition the simulation-backends
 criterion rests on (Table~\ref{tab:functional-requirements}). The formation-control results come
 from the kinematic backend alone. The physics backend's tests check that the same controller, with
@@ -442,11 +444,11 @@ the same gains, also brings five rigid-body quadrotors into each formation from 
 placement; they do not reproduce the experiment's measures and apply no separation clamp. Whether
 the experiment's results hold under rigid-body dynamics is therefore not established
 (Section~\ref{sec:limitations}). A controller retuned for each
-backend would prove nothing: the kinematic results would then describe a controller that runs
+backend would demonstrate little about transfer: the kinematic results would then describe a controller that runs
 nowhere else, and a success on the physics backend would describe a different controller. The
 tests of the physics backend are written to that condition, and they place the vehicles with
 seed 42. Each of the three formations is flown
-for 12~s and must end with at least 85\% of the vehicles within 0.5~m of their slots, a line
+for 12~s and must end with all five vehicles (the test's 85\% threshold with $N=5$) within 0.5~m of their slots, a line
 formation must not sink, and one test flies the same line with the default controller on both
 backends and applies the same criterion to each. All five tests pass.
 
