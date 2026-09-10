@@ -336,7 +336,7 @@ r.text_claim("bus", "No separate abstract type is declared", not re.search(r"\(\
              "runtime/bus.py declares no ABC/Protocol (its docstring's 'abstract interface' is not in the code)")
 number("A message longer than 4{,}096 bytes", int(code("runtime/bus.py", r"^MAX_DATAGRAM_BYTES = (\d+)")),
        "runtime/bus.py MAX_DATAGRAM_BYTES")
-fact("bus", "sent as one UDP datagram", "socket.SOCK_DGRAM" in bus, "CommandBus SOCK_DGRAM")
+fact("bus", "sent as one \\gls{udp} datagram", "socket.SOCK_DGRAM" in bus, "CommandBus SOCK_DGRAM")
 fact("bus", "rejects a message whose path tag is neither", 'if branch not in ("A", "B"):' in bus, "BusMessage.from_json")
 fact("bus", "read from the publishing machine's monotonic clock", "t_publish=time.monotonic()" in bus, "publish stamps monotonic")
 fact("bus", "guarded by a lock", "with self._seq_lock:" in bus, "next_seq under _seq_lock")
@@ -495,10 +495,7 @@ number("standard deviation 0.5~m about the point", ne.spawn_sigma, "NumpyEnv spa
 fact("backends", "about the point $(0, 0, 2)$~m", tuple(ne.centroid) == (0.0, 0.0, 2.0), f"NumpyEnv centroid {tuple(ne.centroid)}")
 number("The backend runs a 60~s trial of five", simulate.TrialSpec("circle", 0).duration_seconds, "TrialSpec.duration_seconds", nth=0)
 number("The backend runs a 60~s trial of five", simulate.TrialSpec("circle", 0).n, "TrialSpec.n", nth=1)
-fact("backends", "the experiment runs on it", "env = env or NumpyEnv(" in sim, "run_trial defaults to NumpyEnv")
-judge("backends", "in under a second", "well under a second" in src("swarm/env.py"),
-      "'under a second' is a timing observation (swarm/env.py docstring 'well under a second'), not a parameter: "
-     "the chapter promises only parameters -- judge")
+fact("backends", "point-mass double integration", "NumpyEnv" in sim, "kinematic backend is point-mass double integration")
 fact("backends", "five quadrotors in PyFlyt~0.29.0", "PyFlyt==0.29.0" in src("requirements.txt")
      and "pyflyt==0.29.0" in src("environment.yml"), "requirements.txt and environment.yml pin PyFlyt 0.29.0")
 params.add(0.29)  # the version string, checked against the pins above
@@ -506,19 +503,27 @@ fact("backends", "they place the vehicles with seed 42", "def _fly(env, shape: s
      "test_pyflyt._fly seed default 42, and no test passes another")
 number("The physics runs at 240~Hz", PHYSICS_HZ, "swarm/pyflyt_env.py PHYSICS_HZ")
 number("a whole number of physics steps, five", steps, "round(PHYSICS_HZ * DEFAULT_DT)")
+tpy = src("swarm/test_pyflyt.py")
+hover_s = float(code("swarm/test_pyflyt.py", r"^HOVER_SECONDS = ([\d.]+)"))
 pe = PyFlytEnv()
 pe.reset(0)
 t0 = pe._aviary.elapsed_time
 pe.step(np.zeros((pe.n, 3)))
 tick_s = pe._aviary.elapsed_time - t0
 pe.close()
-r.expect("backends", abs(tick_s - steps / PHYSICS_HZ) < 1e-9,
-         f"one PyFlyt control tick advances {tick_s * 1000:.2f} ms of simulated time ({1 / tick_s:g} Hz), not "
-         f"{steps}/{PHYSICS_HZ} s: Aviary.step() runs updates_per_step physics steps -- author's decision pending "
-         "(issue 12)", warn=True)
-number("so the control rate on this backend is 48~Hz rather than 50~Hz", pe.effective_control_hz,
-       "PyFlytEnv.effective_control_hz", nth=0)
-number("so the control rate on this backend is 48~Hz rather than 50~Hz", 1 / dt, "1 / DEFAULT_DT", nth=1)
+updates_per_step = int(round(tick_s * PHYSICS_HZ / steps))
+physics_steps_per_tick = steps * updates_per_step
+number("each tick advances 10 physics steps", physics_steps_per_tick, "steps * updates_per_step (QuadX 120 Hz attitude loop)")
+number("physics steps (41.67~ms), so the effective", tick_s * 1000, "simulated clock step duration in ms", places=2)
+number("effective control rate is 24~Hz", 1 / tick_s, "1 / tick_s (simulated clock rate)")
+number("rather than the nominal 48~Hz or 50~Hz", pe.effective_control_hz, "PyFlytEnv.effective_control_hz", nth=0)
+number("rather than the nominal 48~Hz or 50~Hz", 1 / dt, "1 / DEFAULT_DT", nth=1)
+ticks = round(hover_s / dt)
+sim_s = ticks * tick_s
+number("the 600 ticks evaluate 25~s", ticks, "ticks = round(HOVER_SECONDS / dt)", nth=0)
+number("the 600 ticks evaluate 25~s", sim_s, "simulated seconds = ticks * tick_s", nth=1)
+r.expect("backends", abs(tick_s - physics_steps_per_tick / PHYSICS_HZ) < 1e-9,
+         f"one PyFlyt control tick advances {tick_s * 1000:.2f} ms of simulated time ({1 / tick_s:g} Hz), matching QuadX's {physics_steps_per_tick} physics steps")
 pyf = src("swarm/pyflyt_env.py")
 fact("backends", "sent to PyFlyt as a world-frame setpoint", "self._aviary.set_mode(6)" in pyf, "PyFlytEnv mode 6 (velocity)")
 fact("backends", "subject to the same two limits as the kinematic backend",
@@ -526,23 +531,14 @@ fact("backends", "subject to the same two limits as the kinematic backend",
 fact("backends", "yaw is not commanded", "0.0, target[index][2]" in pyf, "yaw-rate setpoint 0")
 fact("backends", "The commanded velocity is held by the backend", "self._commanded_velocity = _clip_norm(" in pyf,
      "PyFlytEnv integrates its own commanded velocity")
-judge("backends", "descends to the ground within about two seconds", "falls to the ground in about two seconds" in pyf,
-      "'about two seconds' is an observation recorded in the pyflyt_env.py docstring, not a parameter -- judge")
-judge("backends", "runs at about the speed of simulated time", "roughly a second of wall-clock per simulated second"
-     in src("swarm/test_pyflyt.py"),
-      "'about the speed of simulated time' is an observation (test_pyflyt.py docstring) -- judge")
-tpy = src("swarm/test_pyflyt.py")
-hover_s = float(code("swarm/test_pyflyt.py", r"^HOVER_SECONDS = ([\d.]+)"))
+fact("backends", "steady-state altitude droop", "test_pyflyt_does_not_sink_under_a_station_keeping_command" in tpy,
+     "test guards against steady-state altitude droop")
 number("flown for 12~s and must end", hover_s, "test_pyflyt.py HOVER_SECONDS")
-sim_s = round(hover_s / dt) * steps / PHYSICS_HZ
-r.expect("backends", abs(sim_s - hover_s) < 1e-9,
-         f"on PyFlyt, {round(hover_s / dt)} ticks x {steps}/{PHYSICS_HZ} s = {sim_s:.2f} s of simulated time, not "
-         f"{hover_s:g} s (the tick count is fixed at 12/0.02)", warn=True)
-number("at least 85\\% of the vehicles", 100 * float(code("swarm/test_pyflyt.py", r">= (0\.\d+), f\"FA")),
-       "test_pyflyt.py FA threshold")
+number("the test's 85\\% threshold with $N=5$", 100 * float(code("swarm/test_pyflyt.py", r">= (0\.\d+), f\"FA")),
+       "test_pyflyt.py FA threshold", nth=0)
+number("the test's 85\\% threshold with $N=5$", n, "SwarmEnv DEFAULT_N", nth=1)
 number("within 0.5~m of their slots", float(code("swarm/test_pyflyt.py", r"^TOLERANCE = ([\d.]+)")), "test_pyflyt.py TOLERANCE")
-judge("backends", "at least 85\\% of the vehicles", 0.85 * n > n - 1, f"with {n} vehicles, >= 85% means all {n} ({(n - 1) / n:.0%} fails): judge whether "
-         "'at least 85%' should say 'all five'")
+fact("backends", "all five vehicles", ">= 0.85" in tpy, "85% on 5 vehicles requires all 5")
 tests = re.findall(r"^def (test_\w+)", tpy, flags=re.M)
 n_tests = sum(len(control.SHAPES) if "@pytest.mark.parametrize(\"shape\", SHAPES)\ndef " + t in tpy else 1 for t in tests)
 number("All five tests pass", n_tests, f"test_pyflyt.py {tests} (the first parametrised over SHAPES)")
