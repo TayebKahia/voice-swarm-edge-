@@ -156,27 +156,27 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | line | as written | trace |
 |---|---|---|
 | 47 | 8 | measured: results/nfr18_false_command.md:11, results/nfr18_false_command.md:13 |
-| 69 | 50 | measured: results/exp2_latency_budget.md:9, results/exp2_latency_budget.md:15 |
+| 69 | 50 | measured: results/exp2_latency_budget.md:11, results/exp2_latency_budget.md:17 |
 | 125 | 1.3 | measured: results/wire_format_tokens.md:16, results/mcnemar.csv:17 |
 | 125 | 0.7 | measured: results/table18_quantisation_delta.md:19, results/table33_iso_parameter.md:12 |
 | 130 | 2 | measured: results/nfr18_false_command.md:12, results/nfr18_false_command.md:13 |
-| 131 | 50 | measured: results/exp2_latency_budget.md:9, results/exp2_latency_budget.md:15 |
+| 131 | 50 | measured: results/exp2_latency_budget.md:11, results/exp2_latency_budget.md:17 |
 | 169 | 1.35 | measured: results/table17_model_comparison.md:17 /1000, results/table17_model_comparison.md:18 /1000 |
-| 169 | 0.65 | measured: results/exp3_pi_analysis.md:50, results/exp3_pi_analysis.md:60 |
-| 173 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:19 |
-| 174 | 2{,}500 | measured: results/exp2_latency_budget.md:16, results/exp2_latency_budget.md:17 |
-| 176 | 300 | measured: results/exp2_latency_budget.md:27, results/table16_asr_speaker_sensitivity.md:3 |
-| 178 | 0.10 | measured: results/table16_asr_speaker_sensitivity.md:30, results/wake_training.md:25 |
-| 179 | 0.80 | measured: results/exp4_formation.md:11, results/exp4_formation.md:11 |
+| 169 | 0.65 | measured: results/requirements_summary.md:26, results/exp3_pi_analysis.md:50 |
+| 173 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:21 |
+| 174 | 2{,}500 | measured: results/exp2_latency_budget.md:18, results/exp2_latency_budget.md:19 |
+| 176 | 300 | measured: results/exp2_latency_budget.md:29, results/table16_asr_speaker_sensitivity.md:3 |
+| 178 | 0.10 | measured: results/table16_asr_speaker_sensitivity.md:30, results/requirements_summary.md:24 |
+| 179 | 0.80 | measured: results/requirements_summary.md:25, results/exp4_formation.md:11 |
 | 180 | 10 | measured: results/table16_asr_speaker_sensitivity.md:11, results/table16_asr_speaker_sensitivity.md:13 |
-| 180 | 0.65 | measured: results/exp3_pi_analysis.md:50, results/exp3_pi_analysis.md:60 |
+| 180 | 0.65 | measured: results/requirements_summary.md:26, results/exp3_pi_analysis.md:50 |
 | 182 | 0.5 | measured: results/nfr18_false_command.md:12, results/nfr18_false_command.md:13 |
-| 182 | 0.85 | measured: results/exp4_formation.md:13, results/table19_grammar_ablation.md:10 |
+| 182 | 0.85 | measured: results/requirements_summary.md:28, results/exp4_formation.md:13 |
 | 183 | 100 | measured: results/thermal_headroom.md:13, results/thermal_headroom.md:15 |
-| 195 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:19 |
-| 196 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:19 |
+| 195 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:21 |
+| 196 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:21 |
 | 210 | 10 | measured: results/table16_asr_speaker_sensitivity.md:11, results/table16_asr_speaker_sensitivity.md:13 |
-| 211 | 5 | measured: results/exp2_latency_budget.md:3, results/exp2_latency_budget.md:21 |
-| 289 | 2{,}500 | measured: results/exp2_latency_budget.md:16, results/exp2_latency_budget.md:17 |
-| 298 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:19 |
-| 385 | 5 | measured: results/exp2_latency_budget.md:3, results/exp2_latency_budget.md:21 |
+| 211 | 5 | measured: results/exp2_latency_budget.md:3, results/exp2_latency_budget.md:23 |
+| 289 | 2{,}500 | measured: results/exp2_latency_budget.md:18, results/exp2_latency_budget.md:19 |
+| 298 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:21 |
+| 385 | 5 | measured: results/exp2_latency_budget.md:3, results/exp2_latency_budget.md:23 |

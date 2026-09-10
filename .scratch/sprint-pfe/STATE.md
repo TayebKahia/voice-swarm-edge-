@@ -1922,3 +1922,14 @@ Handed on -- the chapters that inherit these must carry them:
     the kinematic backend the results use; left for B13's read-through, not edited here.
 
 Stopped here: Ingenieur Ch 4 drafted in full. No section waits on a measurement.
+
+## Ingenieur Ch 4 review closed (Thu 24 Sep) -- issue 12 resolved
+The review loop of .scratch/thesis-review/spec.md has run over Ingenieur Ch 4 (issue 12).
+All 14 verified findings (V1-V14) were decided and applied (commits 0cd26b1, 8582f81, 90f3375,
+fdf333d, 8f2b360, 7046bf2, 0696a08).
+The PyFlyt 24 Hz tick finding was resolved by prose honesty in Section 4.6 (code unchanged, 10
+physics steps / 41.67 ms per tick, 600 ticks = 25 s flight; transfer at 50 Hz noted as unestablished
+pointing to sec:limitations). Chapter polish applied (\gls{udp}, 'Cross-backend verification' heading,
+'demonstrate little about transfer', all five vehicles for N=5, docstring timing observations removed).
+Review script tools/review/ingenieur_ch4.py at 0 FAIL, 5 WARN (all cross-chapter), 226 PASS; selftest
+passes; clean build 0 errors, 59 pages. Issue 12 closed.

@@ -1,6 +1,6 @@
 # Issue 12: ingenieur-ch4
 
-Status: open
+Status: closed
 Blocked by: 11
 Chapter: thesis/ingenieur/ch4_implementation.tex (432 lines, lead-in + 6 sections, 8 distinct cites:
 whispercpp, llamacpp, silero, pytorch, oww, piper, reynolds1987, pyflyt; drafted in 649feb6
@@ -244,3 +244,26 @@ gains" rest on a mistimed backend. The simulation-backends criterion's "Passes o
 (`requirements_summary.tex`, issue 13) is affected too, as is Ch1's backend row.
 
 Retuning the gains for PyFlyt is what 4.6 says would prove nothing, so it is not offered as a fix.
+
+### 2026-09-24 -- PyFlyt tick and chapter polish decided; prose aligned
+
+- **PyFlyt tick:** author's decision: prose honesty, code unchanged (Option 1 broke line and wedge;
+  retuning gains would prove nothing). Ch4 4.6 now explicitly explains that QuadX's attitude
+  controller steps twice per call, advancing 10 physics steps (41.67 ms, 24 Hz) per control tick;
+  the 600 ticks evaluate 25 s of flight with the controller acting at half its nominal rate. Transfer
+  at the nominal 50 Hz rate is not established, pointing to `sec:limitations` (consistent with Ch6's
+  demonstration protocol in 5585e50).
+- **Chapter polish:**
+  - `\gls{udp}` used at line 234 instead of raw `UDP`.
+  - Heading `\paragraph{One controller, one set of gains.}` changed to neutral noun phrase
+    `\paragraph{Cross-backend verification.}` (D12).
+  - Tone toned down: "would prove nothing" -> "would demonstrate little about transfer".
+  - Discrete threshold clarified: "at least 85%" with $N=5$ -> "all five vehicles (the test's 85%
+    threshold with $N=5$)".
+  - Docstring timing observations removed from parameters-only chapter (NumpyEnv double integration,
+    altitude droop test, PyFlyt wall-clock speed).
+- **Status after fixes:**
+  - Script: 0 FAIL, 5 WARN (all 5 are cross-chapter notes with Ch1 / Ch3), 226 PASS.
+  - Selftest passes (all 3 planted mutations caught).
+  - Clean XeLaTeX build: 0 errors, 59 pages up-to-date.
+  - Status: closed.
