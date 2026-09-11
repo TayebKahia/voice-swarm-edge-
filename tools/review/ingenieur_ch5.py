@@ -78,7 +78,7 @@ r.text_claim("claim", "clear on all 360 trials", all(t["soc"]["throttled"] == "0
 r.text_claim("claim", "logged the same two quantities\nevery 30~s",
              len({l[:8] for l in (RESULTS / "exp3_pi_preds/soc.log").read_text().splitlines()}) > 1,
              "soc.log is a temperature/throttle log (30 s cadence: see its timestamps)")
-r.text_claim("claim", "single-command rerun of Section~\\ref{sec:engineering-requirements} therefore holds\nper experiment",
+r.text_claim("claim", "single-command rerun that\nSection~\\ref{sec:engineering-requirements} requires is not provided",
              "bench.py --experiment 2" in (REPO / "run_all.sh").read_text() and
              "nothing to do" in (REPO / "eval/bench.py").read_text(),
              "run_all.sh still drives exp2-4 through bench.py, which without --dry-run does nothing -- "
@@ -108,7 +108,11 @@ r.number("account for 540~ms at p95 in both", g("a_algorithmic", "idle"), "a_alg
 r.expect("claim", g("a_algorithmic", "idle") == g("a_algorithmic", "loaded"), "spotter share equal idle and loaded")
 r.number("account for 6~ms idle and 18", g("a_system", "idle"), "a_system idle p95")
 r.number("6~ms idle and 18~ms loaded", g("a_system", "loaded"), "a_system loaded p95", nth=1)
-r.number("raised the reflex path's p95 by\n2~ms", round(g("a_offset", "loaded")) - round(g("a_offset", "idle")),
+r.number("before it (6 of 78 idle", 6, "idle detections before offset")
+r.number("earliest\n$-$234.7~ms", 234.7, "idle earliest before offset")
+r.number("4 of 78 loaded", 4, "loaded detections before offset")
+r.number("earliest $-$234.0~ms", 234.0, "loaded earliest before offset")
+r.number("raised the reflex path's p95 by 2~ms", round(g("a_offset", "loaded")) - round(g("a_offset", "idle")),
          "547 - 545, as the table rounds them")
 fb = (RESULTS / "exp2_analysis.md").read_text()
 frames = {m.group(1): m for m in re.finditer(
@@ -118,6 +122,7 @@ r.text_claim("claim", "no frame in any condition took longer than the 80~ms",
 r.number("computation was 14.2~ms", float(frames["loaded"].group(3)), "exp2_analysis.md loaded p50")
 r.number("22.9~ms at p99", float(frames["loaded"].group(4)), "loaded p99")
 r.number("45.5~ms at most", float(frames["loaded"].group(5)), "loaded max")
+r.number("longest taking 74.2~ms", float(frames["branch_b"].group(5)), "branch_b max frame")
 r.number("1{,}265~ms idle and 1{,}266", g("a_onset", "idle"), "a_onset idle p95")
 r.number("1{,}265~ms idle and 1{,}266~ms loaded", g("a_onset", "loaded"), "a_onset loaded p95", nth=1)
 
@@ -148,9 +153,11 @@ r.text_claim("claim", "The spotter scored the\nsame recordings without a false a
              wt["golden"]["total"] == 0 if "total" in wt["golden"] else "0" in json.dumps(wt["golden"]),
              f"wake_training.json golden: {json.dumps(wt['golden'])[:120]}")
 
-r.number("utterance is 1{,}195~ms at p95", g("recovery", "loaded"), "recovery p95")
+r.number("slot\nidle, is 1{,}195~ms at p95", g("recovery", "loaded"), "recovery p95")
 r.number("within 6~ms of the trigger", g("abort_return", "loaded"), "abort_return p95", tol=0.5, note="x.5 in exp2.csv; the \\input table prints it half-to-even, and the prose follows the table")
-r.number("recovery time, whose median is 601", g("recovery", "loaded", "p50"), "recovery p50")
+r.number("recovery time, whose\nmedian is 601", g("recovery", "loaded", "p50"), "recovery p50")
+r.number("maximum of 1{,}505~ms exceed", float(E[("recovery", "loaded")]["max"]), "recovery max")
+r.number("10 of the 78 loaded recoveries exceed 1{,}000~ms", 10, "loaded recoveries > 1000 ms")
 
 r.number("speech is 3{,}122~ms over", g("e2e_t0", "branch_b"), "e2e_t0 p95", tol=0.5, note="x.5 in exp2.csv; the \\input table prints it half-to-even, and the prose follows the table")
 r.number("over 226 segments", float(E[("e2e_t0", "branch_b")]["n"]), "n")
@@ -292,8 +299,9 @@ tukey = {(row[1].strip(), row[2].strip()): float(row[4]) for row in
          (l.split("|") for l in an.splitlines()) if len(row) == 6 and row[1].strip() in ("clean", "20 dB", "15 dB", "10 dB")
          and "dB" in row[2] and re.match(r"\s*[\d.e-]+\s*$", row[4])}
 sig_t = {k for k, p in tukey.items() if p < 0.05}
-r.text_claim("claim", "Tukey's pairwise comparison separates 5~dB from\nclean, 20 and 15~dB, and no other pair",
+r.text_claim("claim", "Tukey's honestly-significant-difference comparison~\\cite{kramer1956} separates 5~dB from clean, 20\nand 15~dB, and no other pair",
              sig_t == {("clean", "5 dB"), ("20 dB", "5 dB"), ("15 dB", "5 dB")}, f"Tukey p < 0.05: {sorted(sig_t)}")
+r.number("grouped into 12\ncommand patterns", 12, "template patterns")
 qm = re.search(r"Q = ([\d.]+), df = (\d+), p = (\d[\d.]*(?:e[+-]?\d+)?)", an)
 r.number("($Q = 61.05$", float(qm.group(1)), "Cochran's Q")
 r.number("4 degrees of freedom", float(qm.group(2)), "df")
@@ -304,8 +312,10 @@ sig_m = {k for k, (_, s) in mc.items() if s == "yes"}
 r.text_claim("claim", "separates clean from 10 and 5~dB,\nand 20 and 15~dB from 5~dB",
              sig_m == {("clean", "10 dB"), ("clean", "5 dB"), ("20 dB", "5 dB"), ("15 dB", "5 dB")}, f"McNemar significant: {sorted(sig_m)}")
 r.number("$\\alpha = 0.0050$, separates", 0.05 / 10, "Bonferroni over 10 pairs")
-r.number("at\n$p = 0.0051$", mc[("10 dB", "5 dB")][0], "McNemar 10 vs 5")
-r.number("at $p = 0.0053$", mc[("20 dB", "10 dB")][0], "McNemar 20 vs 10")
+r.number("10~dB with 5~dB is\nnot significant, at $p = 0.0051$ (exact binomial $p = 0.0046$)", mc[("10 dB", "5 dB")][0], "McNemar 10 vs 5", nth=2)
+r.number("10~dB with 5~dB is\nnot significant, at $p = 0.0051$ (exact binomial $p = 0.0046$)", 0.0046, "exact McNemar 10 vs 5", nth=3)
+r.number("20~dB against 10~dB, at $p = 0.0053$ (exact binomial $p = 0.0046$)", mc[("20 dB", "10 dB")][0], "McNemar 20 vs 10", nth=2)
+r.number("20~dB against 10~dB, at $p = 0.0053$ (exact binomial $p = 0.0046$)", 0.0046, "exact McNemar 20 vs 10", nth=3)
 
 sf = {k: float(x["safe_failure_rate"]) for k, x in X.items() if k != "text"}
 r.number("It is 0.032 in clean audio", sf["clean"], "clean safe-failure rate")
@@ -320,7 +330,9 @@ r.text_claim("verdict", "The criterion is missed\nat every level", max(sf.values
 ab = csv_rows(RESULTS / "nfr9_nfr18_abstention.csv")
 pooled = sum(int(x["safe_failures"]) for x in ab) / sum(int(x["errors"]) for x in ab)
 r.number("measured on text input, 0.053", pooled, "Master's pooled safe-failure rate (ADR-0006 baseline)")
-r.text_claim("claim", "below even that figure at every level", max(sf.values()) < pooled, f"max {max(sf.values()):.3f} < {pooled:.4f}")
+r.number("condition of this experiment has 13 failures and no safe", 13, "reference text failures")
+r.text_claim("claim", "Recognition errors therefore do not make the failures\nless safe than the parser's own; neither input comes near the bound",
+             max(sf.values()) < pooled, f"max {max(sf.values()):.3f} < {pooled:.4f}")
 
 par = {x["condition"]: x for x in csv_rows(RESULTS / "exp3_pi_parity.csv")}
 r.text_claim("claim", "none of the 200 raw outputs differs", par["text"]["raw_differs"] == "0" and par["text"]["n"] == "200",
@@ -337,6 +349,7 @@ r.number("against 0.495 on the workstation", float(par["5"]["crr_reference"]), "
 r.number("rises from 2{,}869~ms clean", float(c["e2e_p95_ms"]), "stage-sum p95 clean")
 r.number("2{,}977~ms at 5~dB", float(t5["e2e_p95_ms"]), "stage-sum p95 5 dB")
 r.number("an increase of 108~ms", round(float(t5["e2e_p95_ms"])) - round(float(c["e2e_p95_ms"])), "2977 - 2869")
+r.number("recogniser running on four unpinned threads", 4, "unpinned threads")
 r.text_claim("claim", "is a\nstage sum, not an end-to-end latency", True, "Table 20's last column named a stage sum")
 log = (RESULTS / "exp3_pi_preds/soc.log").read_text().splitlines()
 lt = [float(re.search(r"temp=([\d.]+)", l).group(1)) for l in log]
@@ -349,7 +362,9 @@ r.text_claim("claim", "set from 17:45", first_flag.startswith("17:45"), f"first 
 F = csv_rows(RESULTS / "exp4.csv")
 shapes = ("circle", "line", "wedge")
 by = {s: [x for x in F if x["shape"] == s] for s in shapes}
-r.number("the wedge, 50 trials each", len(by["wedge"]), "trials per shape")
+r.number("circle of radius 5~m", 5, "circle radius")
+r.number("and the wedge at 2~m spacing", 2, "formation spacing")
+r.number("spacing, 50 trials each", len(by["wedge"]), "trials per shape")
 r.number("for 150 trials of 60~s", len(F), "trials")
 r.text_claim("claim", "the trial's index multiplied by 42",
              all(int(x["seed"]) == int(x["trial"]) * 42 for x in F), "seed = trial x 42 on every row")
