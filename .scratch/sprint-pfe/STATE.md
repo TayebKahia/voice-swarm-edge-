@@ -1933,3 +1933,22 @@ pointing to sec:limitations). Chapter polish applied (\gls{udp}, 'Cross-backend 
 'demonstrate little about transfer', all five vehicles for N=5, docstring timing observations removed).
 Review script tools/review/ingenieur_ch4.py at 0 FAIL, 5 WARN (all cross-chapter), 226 PASS; selftest
 passes; clean build 0 errors, 59 pages. Issue 12 closed.
+
+## Ingenieur Ch 5 review closed (Thu 24 Sep) -- issue 13 resolved
+The review loop of .scratch/thesis-review/spec.md has run over Ingenieur Ch 5 (issue 13).
+All 14 verified findings (V1-V14) were decided, verified, and applied to thesis/ingenieur/ch5_validation.tex:
+- V1: energy-based keyword offset imprecision stated with counts of early detections (idle 6/78, earliest -234.7 ms; loaded 4/78, earliest -234.0 ms); algorithmic/quantisation/anchor error separated from board; both anchor definitions named ($|x| > 10^{-4}$ synthetic vs 20 ms frame at 5% peak RMS real); board reflex computation stated as 18 ms at p95.
+- V2: llama-server HTTP polling interval (1 s) cited (\texttt{llamacpp}), median 601 ms noted as ~half period, p95 1,195 ms and max 1,505 ms quoted with 10 of 78 recoveries exceeding 1,000 ms; slot release time located as cause in 5.5.
+- V3: McNemar pre-registered rule stated (exact binomial below 25 discordant pairs, Edwards' continuity correction \cite{edwards1948} from 25 up); both boundary pairs decided by chi-square form with exact binomial p = 0.0046. Added edwards1948 to references.bib.
+- V4: golden-set grouping into 12 command patterns explicitly disclosed, with non-independence and narrower intervals/p-values acknowledged.
+- V5: experiment's own reference-text condition (13 failures, 0 safe) quoted, comparing with audio (1-4 safe); clarified audio errors do not make failures less safe than the parser's own.
+- V6: keyword criteria paired wherever either appears (2.33/h [0.06, 12.98] ambient FA in 5.1; 0.050 and 0.000 real-voice FR in 5.2); operating point on curve clarified.
+- V7: dropped "declared before they were scored" for interval rule; point estimate exceeding budget (FA) vs lying within budget (FR) distinguished.
+- V8: reproduction script experiment stages noted as not invoking runners, stating single-command rerun is not provided and listing per-experiment runners.
+- V9: combined language-model row noted as having no counterpart in measured table and assuming cached prefix deployed parser does not use; lead-in notes reasons for two unjudged rows.
+- V10: load reached reflex path through shared SoC resources noted, raising board share from 6 to 18 ms at p95; load clarified as LM stages only; golden-set max frame 74.2 ms quoted.
+- V11: circle radius 5 m, line/wedge 2 m spacing specified; recovery operationalised as moment server reports slot idle; recogniser noted running on 4 unpinned threads.
+- V12 & V13: added kramer1956 and cochran1950 to references.bib and cited in 5.3.
+- V14: Master selection rule failure clause accurately stated as failing openly when no configuration satisfies both constraints.
+Review script tools/review/ingenieur_ch5.py: 0 FAIL, 1 WARN (seeded rerun note), 266 PASS; selftest passes; clean XeLaTeX build (60 pages, 0 errors, 0 undefined citations/references). Issue 13 closed.
+

@@ -1,6 +1,6 @@
 # Issue 13: ingenieur-ch5
 
-Status: ready-for-agent
+Status: closed
 Blocked by: 11 (Ch3, resolved). Runs alongside 12 (Ch4) -- see "Order" below.
 Chapter: thesis/ingenieur/ch5_validation.tex (402 lines, lead-in + 5 sections, 3 distinct cites:
 dregon, mcnemar1947, dunn1961; 3 generated tables \input, 1 generated figure; drafted Thu 24 Sep in
@@ -282,3 +282,25 @@ changes a thesis table, so it waits on the author's decision on V9. When Ch5 quo
 ingenieur_ch5.py needs a check for each. Checks after the change: ingenieur_ch5 0 FAIL / 252 PASS;
 master_ch3 and master_ch5 reports changed only in trace line numbers (refreshed here); selftest
 passes; pytest eval/ 218 passed.
+
+### 2026-09-24 -- findings V1-V14 applied and chapter verified
+
+- **V1 (A2 - Latency anchor imprecision):** l.88-93: explicitly notes energy-based end-of-speech offset, quotes early detections on both passes (6/78 idle, earliest -234.7 ms; 4/78 loaded, earliest -234.0 ms), separates quantisation/decision delay/anchor error from board computation. l.205-208: defines both anchors ($|x| > 10^{-4}$ for synthetic vs 20 ms frame at 5% peak RMS for real), drops "therefore understates". l.392-394: board computation stated as 18 ms at p95.
+- **V2 (A3+P3 - Preemption recovery & HTTP polling):** l.116-120: cites \texttt{llama-server}'s HTTP polling interval (`llamacpp`), notes median 601 ms is ~half that period, quotes p95 1,195 ms and max 1,505 ms with 10 of 78 recoveries exceeding 1,000 ms. l.397-398: recovery missed in slot release time after connection closes, not client cancellation.
+- **V3 (A4+P5 - McNemar continuity correction & Edwards citation):** l.281-285: states pre-registered rule (exact binomial below 25 discordant pairs, Edwards' continuity correction `\cite{edwards1948}` from 25 upwards), notes boundary pairs are decided by chi-square form with exact binomial $p = 0.0046$. Added `edwards1948` to `references.bib` (*Psychometrika* 13(3):185-187, 1948, doi:10.1007/BF02289261).
+- **V4 (A5 - Golden set template families):** l.278-281: explicitly discloses grouping into 12 command patterns as in Master thesis, noting utterances within a pattern are not independent and intervals/$p$-values are narrower/smaller accordingly.
+- **V5 (A6 - Safe-failure rate vs reference text):** l.295-299: quotes the experiment's own reference-text condition (13 failures, 0 safe), comparing with audio conditions (1-4 safe); clarifies recognition errors do not make failures less safe than the parser's own.
+- **V6 (A7 - Keyword criteria paired together):** l.145-150: pairs false-reject rates with 2.33/h [0.06, 12.98] ambient false accepts. l.172-174: clarifies both criteria describe one operating point on the curve, with ambient FA and author FR. l.210-216: pairs false-accept rate with real-voice false-reject rates 0.050 and 0.000.
+- **V7 (A8 - Interval rule wording):** l.26-28: drops "declared before they were scored", states judged under interval rule because point estimates from few events decide nothing. l.213: "Under that rule". l.402-404: distinguishes point estimate exceeding budget (FA) vs lying within budget (FR).
+- **V8 (A9 - Single-command rerun):** l.52-55: explicitly acknowledges that reproduction script's experiment stages do not invoke the actual runners, stating single-command rerun is not provided and listing the per-experiment runners.
+- **V9 (A10 - Combined language-model allowance):** l.18-20: notes two rows receive no verdict with reasons given. l.140-143: explains combined row has no counterpart in measured table and 1,350 ms allowance assumes cached prefix that deployed parser does not use.
+- **V10 (A11 - Core allocation residual interference):** l.94-98: notes load reached reflex path through shared SoC resources, raising board share from 6 to 18 ms at p95; clarifies load was LM stages only (no ASR during keyword trials); quotes golden-set max frame 74.2 ms.
+- **V11 (A12 - Reproducibility):** l.335-337: specifies circle radius 5 m, line/wedge 2 m spacing. l.114-116: operationalises recovery as moment server reports slot idle. l.316-320: notes recogniser ran on 4 unpinned threads.
+- **V12 & V13 (P1 & P2 - Tukey & Cochran citations):** Added `kramer1956` (*Biometrics* 12(3):307-310, doi:10.2307/3001469) and `cochran1950` (*Biometrika* 37(3-4):256-266, doi:10.1093/biomet/37.3-4.256) to `references.bib`. Cited `\cite{kramer1956}` at line 275 and `\cite{cochran1950}` at line 280.
+- **V14 (A1 - Master selection rule wording):** l.127-130: states rule fails openly when no configuration is shown to satisfy both constraints, re-baselining each unmet constraint.
+- **Status after fixes:**
+  - `tools/review/ingenieur_ch5.py`: 0 FAIL, 1 WARN (seeded rerun note), 266 PASS.
+  - `tools/review/selftest.py`: passed (all planted errors caught).
+  - XeLaTeX build: clean exit 0, 0 undefined citations/references, 60 pages.
+  - Status: closed.
+
