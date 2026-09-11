@@ -33,6 +33,7 @@ MUTATIONS = {
     "ingenieur_ch5": ("ingenieur/ch5_validation.tex", "keyword offset is 545~ms idle", "keyword offset is 454~ms idle", "claim"),
     "ingenieur_ch2": ("ingenieur/ch2_state_of_the_art.tex", "\\section{Swarm control}",
                       "\\section{Swarm control}\nGrammars constrain decoding~\\cite{geng2023}.", "table3"),
+    "ingenieur_ch6": ("ingenieur/ch6_conclusion.tex", "End-to-end latency (3{,}122~ms", "End-to-end latency (2{,}122~ms", "claim"),
 }
 #: Common checks, planted once each: a project-internal reference, an undefined code, an \\acrfull.
 EXTRA = [
@@ -49,6 +50,9 @@ EXTRA = [
     # Ch5's verdicts were fixed before measurement: a softened one must FAIL.
     ("ingenieur_ch5", "ingenieur/ch5_validation.tex", "\\paragraph{Preemption recovery.} The criterion is missed",
      "\\paragraph{Preemption recovery.} The criterion is met", "verdict"),
+    # Ch6's Conclusion must remain unhedged: a soft modal slipped into Section 6.4 must FAIL.
+    ("ingenieur_ch6", "ingenieur/ch6_conclusion.tex", "The measured data answer the first clause",
+     "The measured data suggests the first clause", "register"),
 ]
 
 
