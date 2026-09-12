@@ -1,6 +1,6 @@
 # Issue 07: ingenieur-ch2
 
-Status: ready-for-human
+Status: ready-for-agent
 Blocked by: 06
 Chapter: thesis/ingenieur/ch2_state_of_the_art.tex (scaffold: headings and NOTEs, no prose)
 Script: tools/review/ingenieur_ch2.py (exits 2 while the chapter is a scaffold)
@@ -48,3 +48,25 @@ then positioning, then gap, so that the comparison follows the material it draws
 decides when drafting; prd.md must then list the new order.
 
 Status stays `ready-for-human` until the prose is drafted.
+
+### 2026-09-24 -- prose drafted (7ad9bc4); Status -> ready-for-agent
+
+All five sections drafted in the scaffold's order (kept, so prd.md is unchanged). Script: 0 FAIL,
+3 WARN (justified in the commit message), exit 0. Clean build, 0 errors, 0 undefined refs.
+
+For the review agents:
+- **No Table 21.** The scaffold's promise of a quantitative Lim comparison in Ch5 was dropped; the
+  positioning is tab:lim-positioning in Ch2, explicitly by design point. Check Ch1 l.448-450 still
+  agrees ("the baseline against which this work is compared").
+- **Citation agent:** every key must carry only its recorded claim. Highest-risk sentences:
+  - MIRA (Gap, "The membership rule"): the contrast "preemption acts on the robot's own response"
+    and "not designed for offline operation" rest on the abstract and the scaffold NOTE. Read the paper.
+  - SkySim: geofence -> position hold (conceded); malformed output -> previous command retained.
+  - CommandSwarm: 4.0 s SeamlessM4T is compared with the 2,500 ms budget "on unstated hardware".
+  - tab:voice-uav-survey: every non-dash cell must be traceable to ingenieur-candidates.md.
+  - speechcmd (Warden) is cited for "KWS is a distinct task with its own methodology"; its
+    candidate entry has no "Verified" line.
+- **Argument agent:** the Gap concedes (i) to CommandSwarm and (ii) to SkySim and claims (iii) and
+  (iv); check that (iv) is framed as a setting, not as a contribution, consistent with Ch1
+  sec:contributions.
+- Licences in "Offline speech components" come from installed package metadata, not from a paper.

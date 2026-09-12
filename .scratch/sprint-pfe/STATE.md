@@ -1979,3 +1979,19 @@ Verification and tooling:
 
 Stopped here: Ingenieur Ch 6 drafted in full; all six chapters of both theses are now drafted. Next: Chapter 6 review loop (Issue 14).
 
+
+## Writing progress -- Ingenieur Ch 2 (Thu 24 Sep) -- DRAFTED, awaiting the author's read
+thesis/ingenieur/ch2_state_of_the_art.tex, \label{chap:state-of-the-art}, lead-in + five sections
+(voice-UAV survey with tab:voice-uav-survey; Lim positioning with tab:lim-positioning; swarm
+control; offline speech components; gap). Commit 7ad9bc4. Script 0 FAIL / 3 WARN (justified),
+clean build 0 errors. Every Ingenieur chapter now has prose.
+- The scaffold's "Table 21 in Ch5" does not exist and is not added: the Lim comparison is by
+  design point, in Ch2 only.
+- Gap: (i) spoken swarm commands with deterministic checking -> conceded to CommandSwarm;
+  (ii) planner over control-rate safety layer -> conceded to SkySim; (iii) preemption under a
+  derived membership rule -> claimed against RelayS2S / dual-attention / MIRA; (iv) offline on one
+  SBC -> the setting, not a contribution.
+- OPEN for the author: the MIRA contrast rests on its abstract; read the paper before the defence.
+- Build note: two sessions building thesis/build/ingenieur at once corrupt the .aux. Build to a
+  private -outdir when another session is active.
+Issue 07 -> ready-for-agent.
