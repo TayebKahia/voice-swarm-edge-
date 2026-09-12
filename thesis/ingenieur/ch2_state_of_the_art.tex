@@ -1,79 +1,437 @@
-% State of the Art
-% Scaffold only --- section structure from prd.md 3.1, ownership from Table 3.
-% The NOTE comments say what belongs in each section and where the material already is.
-% Delete each NOTE as you fill the section. Prose is yours to write.
+% State of the art --- section structure from prd.md 3.1, ownership from Table 3.
+%
+% This chapter OWNS: the voice-UAV and language-to-robot literature (this document only), the
+% positioning against Lim et al., the component choices of the speech chain, and the gap.
+% It does NOT own: edge inference, quantisation, constrained decoding or spoken-language
+% understanding (Master Ch 2). Constraint is discussed here only as a property of SYSTEMS.
+% Every citation carries only the claim recorded for its key in
+% .scratch/thesis-bibliography/ingenieur-candidates.md.
 
 \chapter{State of the art}
 \label{chap:state-of-the-art}
+This chapter places the system of Chapter~\ref{chap:introduction} among the published work it
+resembles. Section~\ref{sec:voice-uav} reviews systems that turn spoken or written language into
+the motion of aerial and other robots, organised by the properties the requirements of
+Section~\ref{sec:engineering-requirements} make decisive. Section~\ref{sec:lim-positioning}
+positions this work against the drone-control agent of Lim et al.~\cite{lim2025} and states why
+the two are compared by design rather than by measurement. Sections~\ref{sec:swarm-control-sota}
+and~\ref{sec:speech-components} cover the swarm-control model the controller builds on and the
+offline speech components the runtime deploys, the latter justified against this system's own
+requirements. Section~\ref{sec:gap} states the gap this document addresses and concedes the parts
+of it that published systems already cover. The literature on edge inference, quantisation,
+constrained decoding and spoken-language understanding is reviewed in the \emph{M\'emoire de
+Master} and is not repeated here.
 
 \section{Voice-controlled UAV systems}
-% NOTE: Table 3 gives this literature to THIS document exclusively. Do not repeat the constrained-
-%       decoding survey from the Master Ch. 2.
-% NOTE: Verified keys (records and claims checked 23 Sep): typefly2024, simoes2024, henry2026,
-%       swarmchat2025, iannoli2026, silva2026, sikorski2025, torkamani2025, llm2swarm2024,
-%       chatwithuav2025, contreras2020, landau2017, codeaspolicies2023, saycan2022,
-%       chatgptrobotics2024, javaid2024, phadke2024. The claim each may carry -- several were
-%       corrected -- is under that candidate in .scratch/thesis-bibliography/ingenieur-candidates.md.
-%       Read it before citing: e.g. SwarmChat's intent recognition is rule-based, not an LLM;
-%       torkamani2025 targets IoT devices, not robots; ChatGPT-for-Robotics DOES gate execution,
-%       by a human reviewer.
+\label{sec:voice-uav}
+Language interfaces to \glspl{uav} have moved from recognisers matched against a fixed command
+language to \glspl{llm} that plan, generate programs or call flight functions, and a
+recent survey maps that field and the directions it is taking~\cite{javaid2024}. Four properties of
+each published system decide how close it lies to the system of this document: whether its input is
+speech or typed text, whether it commands one vehicle or a group, where its language model runs,
+and what check, if any, stands between the model's output and the vehicle. The requirements of
+Chapter~\ref{chap:introduction} fix all four: speech, five vehicles, a model on the device, and
+three automated checks. Table~\ref{tab:voice-uav-survey} records the four properties for the
+systems reviewed in this section.
+
+\paragraph{Fixed command languages.} The earlier generation of voice control needed no language
+model, because it confined the operator to a command language fixed in advance. Landau and van
+Delden map the output of the Nuance speech-recognition platform onto flight commands for a DJI
+Phantom~4 through regular expressions that define the control language~\cite{landau2017}.
+Contreras et al.\ improve a cloud-based recogniser for \gls{uav} control by matching its output
+against the phonemes of a domain vocabulary, which raises English command recognition from 74.81\%
+to 93.33\% in a simulated domestic scene, and they evaluate it with several levels of distortion
+applied to the spoken commands~\cite{contreras2020}. Constraining what the operator may say is
+therefore an established practice in this field, not one this document introduces. The second study
+is also a precedent for measuring recognition as the acoustic conditions degrade, which the
+acoustic-robustness experiment of Chapter~\ref{chap:validation} does across a range of \gls{snr}.
+Both systems command a single vehicle.
+
+\paragraph{Language-model control.} \Glspl{llm} replaced the fixed command language
+with generated plans, programs or function calls, and the check between the model's output and
+actuation became the central design question. SayCan constrains a language model to the actions a
+robot can perform by weighting its proposals with the learned value functions of pretrained
+skills~\cite{saycan2022}. Code as Policies generates programs that compose given perception and
+control primitives, and its authors state that the approach assumes every given instruction is
+feasible and cannot tell in advance whether a response will be correct~\cite{codeaspolicies2023}.
+Vemprala et al.\ apply ChatGPT, through prompt design and a library of robot functions, to tasks
+that include aerial navigation; the check there is a human on the loop, who evaluates the output for
+quality and safety before it is executed, and the authors advise that such tools should not be given
+full control of the robotics pipeline~\cite{chatgptrobotics2024}. A learned feasibility score, a
+primitive library whose correctness is assumed, and human review are the three positions against
+which the validation layers of Section~\ref{sec:safety-problem} are set. Those layers are automated
+and deterministic, and their rejection is a hold (Chapter~\ref{chap:architecture}).
+
+\paragraph{Single-vehicle drone agents.} Systems built specifically for drones make the latency of
+generation explicit. TypeFly observes that sequential token generation introduces a latency that
+grows with the length of the plan, and it answers by changing the output representation: a
+token-efficient plan language, interpreted while it streams, reduces response time by up to 62\%
+and keeps it below 1.5~s on a benchmark of eleven tasks, with GPT-4 as a remote model and a typed
+task description as input~\cite{typefly2024}. That answer shortens the path every command takes.
+The answer of this document to the same pressure is architectural: the stopping command is removed
+from the language-model path altogether (Section~\ref{sec:dual-path}). Chat with UAV splits
+planning from execution between two language-model agents~\cite{chatwithuav2025}. It is a dual
+architecture but not a dual path in the sense of Section~\ref{sec:dual-path}, since both of its
+branches run at the latency of a language model. Phadke et al.\ couple existing language models to
+robotic simulators through a modular template framework~\cite{phadke2024}. Silva and Burke report
+what they describe as the broadest evaluation of a language-model command interface for drones on
+the axes it measures: more than 1{,}000 simulated flights, 110 geofence-violation trials in which
+no aircraft left the permitted zone, and three real quadcopters, with the language model treated as
+an untrusted commander whose output is validated on the server~\cite{silva2026}. Validation
+downstream of a model that is not trusted is the arrangement this document adopts; the models that
+evaluation uses are mostly those of cloud providers.
+
+\paragraph{Pipeline shape and latency.} Two studies measure the latency cost of the pipeline's
+shape directly, and both bear on the reflex path. Sim\~oes et al.\ compare, for one Tello drone
+commanded in Portuguese, a cascade of speech recognition and a language model against a classifier
+that maps speech directly to a command: the cascade reaches an accuracy of 0.81 at 1.233~s, the
+direct classifier 0.99 at 0.021~s~\cite{simoes2024}. Henry et al.\ report, on the explicit simple
+commands of a French corpus of spontaneous human--drone interaction, 93\% at 7~ms for a
+transcription-free intent recogniser against 79\% at 202~ms for a cascade of Whisper and
+CamemBERT-Large. On the full spontaneous test set the figures are 82\% and 59\%, the 7~ms is
+measured on a \gls{gpu} (106~ms on a \gls{cpu}), and the authors attribute the gap to the cascade
+architecture rather than to recognition quality~\cite{henry2026}. The asymmetry between the reflex
+budget and the parse budget of Table~\ref{tab:nonfunctional-requirements} is therefore a property of
+pipeline shape documented independently of this work, and not an artefact of this device. Both
+studies compare the two shapes as alternative pipelines and select between them. In this document
+they run side by side, and the question that follows --- which commands the direct path may carry
+--- does not arise in a comparison of alternatives. Section~\ref{sec:membership-rule} answers it.
+
+\paragraph{Where the model runs.} The offline requirement of Section~\ref{sec:operational-context}
+fixes where the language model runs, and the literature records what that costs. Sikorski et al.\
+command a wheeled mobile robot by speech, recognised offline with VOSK, and compare GPT-4-Turbo in
+the cloud against LLaMA~2-7B quantised to Q5\_K\_M and run offline on a control computer; the
+offline model exhibits significant limitations in consistency and reliability~\cite{sikorski2025}.
+That result states the cost this design absorbs rather than denies, and the \emph{M\'emoire de
+Master} measures it for the models that can run on this device. Torkamani and Zarin route spoken
+commands for IoT devices between edge and cloud according to processor load, device temperature and
+network latency, with the edge tier on an NVIDIA Jetson platform~\cite{torkamani2025}. Routing of
+that kind presumes that the network is available at least part of the time, which the deployment
+site of Section~\ref{sec:operational-context} does not assure. Offline operation is a requirement
+here, not a routing policy.
+
+\paragraph{Swarms.} Language interfaces to swarms are more recent. Strobel et al.\ distinguish
+indirect integration, in which a language model synthesises and validates controllers before or
+during deployment, from direct integration, in which a separate language-model instance runs on
+each robot, and they describe their contribution as mainly conceptual~\cite{llm2swarm2024}.
+SwarmChat offers voice, text and teleoperation interfaces to a robotic swarm over ROS~2 through
+modules described as based on language models; in its implementation, intent recognition is
+rule-based keyword matching, which its authors list as a limitation, and its evaluation is
+preliminary~\cite{swarmchat2025}. Iannoli et al.\ evaluate six general-purpose language models on
+four swarm missions from natural-language text, in ArduPilot software-in-the-loop simulation. They
+find that the models still struggle to execute even simple swarm tasks reliably without explicit
+grounding and execution support, and that task-specific planning tools and runtime guardrails
+substantially improve robustness~\cite{iannoli2026}. That finding is independent support for placing
+validation downstream of the model rather than relying on the model. SkySim~\cite{skysim2026} and
+CommandSwarm~\cite{commandswarm2026} are the two swarm systems nearest to this one, and
+Section~\ref{sec:gap} examines them property by property.
+
+\begin{table}[htbp]
+\centering
+\footnotesize
+\caption[Published language interfaces to robots]{Published language interfaces to robots, by
+the four properties of Section~\ref{sec:voice-uav}. \emph{Remote}: a hosted model reached over a
+network. \emph{Check before execution}: the mechanism between the model's (or the recogniser's)
+output and the vehicle, as the source describes it. A dash marks a property this review did not
+establish from the source. The last row is the system of this document.}
+\label{tab:voice-uav-survey}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.5cm} >{\raggedright\arraybackslash}p{1.7cm} >{\raggedright\arraybackslash}p{2.0cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X@{}}
+\toprule
+System & Input & Target & Language path and host & Check before execution \\
+\midrule
+Landau and van Delden~\cite{landau2017} & Speech & One \gls{uav} & Nuance recogniser; no language model & Regular-expression command language \\
+Contreras et al.~\cite{contreras2020} & Speech & One simulated \gls{uav} & Cloud recogniser; no language model & Matching against domain phonemes \\
+Vemprala et al.~\cite{chatgptrobotics2024} & Text & Robots, including aerial & ChatGPT, remote & Human on the loop \\
+TypeFly~\cite{typefly2024} & Text & One \gls{uav} & GPT-4, remote & Restricted plan language \\
+Sim\~oes et al.~\cite{simoes2024} & Speech & One \gls{uav} & Cascade compared with a direct classifier; --- & --- \\
+Henry et al.~\cite{henry2026} & Speech & \gls{uav} & Cascade compared with a direct intent recogniser; \gls{gpu} & --- \\
+Sikorski et al.~\cite{sikorski2025} & Speech & One ground robot & GPT-4-Turbo, remote, or LLaMA~2-7B on a control computer & --- \\
+Torkamani and Zarin~\cite{torkamani2025} & Speech & IoT devices & Edge (Jetson) or cloud, routed at run time & --- \\
+Silva and Burke~\cite{silva2026} & --- & \glspl{uav} & Mostly cloud models & Server-side validation; geofence \\
+Lim et al.~\cite{lim2025} & Text & One \gls{uav} & Open models, local \gls{gpu} workstation & Prompt format; temperature 0.2 \\
+SwarmChat~\cite{swarmchat2025} & Speech, text, teleoperation & Robot swarm & Modules based on language models; --- & Rule-based intent keywords \\
+Iannoli et al.~\cite{iannoli2026} & Text & \gls{uav} swarm & Six general-purpose models; --- & Planning tools; runtime guardrails \\
+SkySim~\cite{skysim2026} & Text & \gls{uav} swarm, 3--30 & Gemini 3.5 Pro, remote & Waypoint bounds; potential-field layer \\
+Command\-Swarm~\cite{commandswarm2026} & Speech or text & Robot swarm & Open models of 6.7--14B, 4-bit; --- & Primitive whitelist; parser; safety classifier \\
+\midrule
+This work & Speech & Five simulated \glspl{uav} & Fine-tuned 0.5B model; Raspberry~Pi~5 \gls{cpu} & Grammar; validator; flight state machine \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Table~\ref{tab:voice-uav-survey} exhibits three patterns. Speech input and a group of vehicles
+occur together in two of the systems reviewed, SwarmChat and CommandSwarm, and neither states the
+hardware on which its model runs. Every system that uses an \gls{llm} places some check
+between its output and the vehicle, and the checks range from human review to server-side
+validation; among the sources reviewed here, none reports a stopping command handled separately
+from the path that interprets commands. No system in the table executes its full chain on an
+\gls{sbc} without a \gls{gpu}. Section~\ref{sec:gap} builds the gap of this document on
+the second and third patterns.
 
 \section{Positioning against Lim et al.}
-% NOTE: \cite{lim2025} is the named baseline. Prepare here the 'not directly comparable' argument
-%       that Table 21 in Ch. 5 will make quantitatively:
-% NOTE: fine-tuned vs zero-shot; five drones vs one; Pi CPU vs desktop GPU; grammar-constrained vs
-%       temperature-constrained.
-% NOTE: Being explicit about non-comparability is a strength -- claim it as rigour, not as a hedge.
+\label{sec:lim-positioning}
+The agent of Lim et al.~\cite{lim2025} is the baseline for this document because it is the published
+system nearest to this one in the part of the design the \emph{M\'emoire de Master} fixes: open
+language models of the same families, Qwen2.5 and Llama-3.2 among them, hosted locally rather than by
+a cloud provider, turning natural language into commands for a PX4-based drone. The agent prompts
+Gemma3, Qwen2.5, Llama-3.2 and DeepSeek-LLM zero-shot through Ollama, served from an RTX~3080~Ti
+workstation on the local network, with no fine-tuning. Output is constrained by a sampling
+temperature of 0.2 and by a prompt that fixes the format of turn and move commands. The mission
+starts from a text message on ROS~2, and a single quadcopter is flown to a goal, with a
+vision-language model detecting the target. Three of the four models produce valid flight commands
+in all cases and DeepSeek-LLM in 38\%, the invalid outputs consisting of extraneous text, symbols
+and markdown; the highest task success, 40\%, is obtained with Gemma3 and the vision-language model.
+The fallback is a human operator who switches the vehicle to position mode, in which it hovers.
+Latency is not reported.
+
+Table~\ref{tab:lim-positioning} sets the two systems side by side, and they differ on every axis
+that determines latency or accuracy. Without speech input, the figures of Lim et al.\ contain no
+recognition error and no endpointing wait, so neither the acoustic-robustness experiment nor the
+parse-path latency of this document has a counterpart there. A valid-command rate under zero-shot
+prompting measures how reliably a model follows a format it has been asked to follow; under a
+decoding grammar, validity is a property of the grammar, and the \emph{M\'emoire de Master}, which
+owns that mechanism, reports it for the deployed parser. Any latency, had one been reported, would
+be dominated by the difference between a desktop \gls{gpu} and four \gls{cpu} cores. Task success is
+defined over goal-directed flight with visual detection, a task this system does not perform, while
+formation accuracy is defined over a task Lim et al.\ do not attempt. Finally, a stop that waits for
+a human operator offers nothing against which the reflex latency of this system could be compared.
+
+\begin{table}[htbp]
+\centering
+\footnotesize
+\caption[Design points of Lim et al.\ and of this work]{Design points of the agent of Lim et
+al.~\cite{lim2025} and of this work. Every row differs, and each difference changes either the
+latency or the accuracy a system can reach, which is why the two are compared by design and not by
+measurement.}
+\label{tab:lim-positioning}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.6cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X@{}}
+\toprule
+Property & Lim et al. & This work \\
+\midrule
+Input & Text message on ROS~2; no speech & Speech, recorded through the deployed microphone \\
+Language model & Gemma3, Qwen2.5, Llama-3.2, DeepSeek-LLM & Qwen2.5-0.5B, quantised to Q4\_K\_M \\
+Adaptation & Zero-shot prompting & Fine-tuned (\emph{M\'emoire de Master}) \\
+Output constraint & Temperature 0.2; prompt fixing the command format & Decoding grammar; semantic validator; flight state machine \\
+Inference hardware & RTX~3080~Ti workstation on the local network & Raspberry~Pi~5, four \gls{cpu} cores \\
+Vehicles and task & One quadcopter flown to a goal & Five simulated vehicles commanded as a formation \\
+Perception & Vision-language model detects the target & None \\
+Stop & Human operator switches to position mode & Two-class keyword spotter publishes a hold or an abort \\
+Reported & Valid commands; task success; detection rate & Per-stage latency; recognition under noise; safe-failure rate; formation accuracy; collisions \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+A number from Lim et al.\ placed beside one from this document would therefore measure the
+difference between two design points rather than a difference in quality, and no such comparison is
+made. What the comparison establishes is the direction of each difference. This system moves every
+axis of Table~\ref{tab:lim-positioning} towards the deployment of
+Section~\ref{sec:operational-context}: spoken input, an \gls{sbc} without a \gls{gpu},
+five vehicles, output checked before it is published, and a stop that does not wait for a human.
+Chapter~\ref{chap:validation} then measures whether the requirements set for that deployment are
+met. This document does not claim to outperform Lim et al., and none of its measurements is
+presented as a comparison with theirs; stating the non-comparability in advance is what keeps each
+result attributable to the design that produced it.
 
 \section{Swarm control}
-% NOTE: \cite{reynolds1987} for Boids; \cite{pyflyt} for the simulation backend.
+\label{sec:swarm-control-sota}
+Reynolds' model of flocking produces coordinated group motion from three rules applied by each
+individual to its nearby flockmates: avoid collisions with them, match their velocity, and stay
+close to them~\cite{reynolds1987}. The model needs no leader and no global plan, and the group terms
+of this system's controller derive from it. The controller of Chapter~\ref{chap:implementation}
+departs from it in three places, each for a reason specific to this system. The command is a
+formation rather than an emergent flock: an utterance names a shape, and slot assignment with a
+\gls{pid} law on each vehicle's error to its slot determines the trajectory near the formation,
+while the flocking terms keep the group together on the approach and are weighted low
+(Section~\ref{sec:swarm-controller}). The centring and velocity-matching rules act over the whole
+swarm rather than over each vehicle's neighbours, the central-force form that Reynolds' local model
+avoids, which is acceptable for five vehicles organised by slots. Collision avoidance is taken out
+of the flocking rules and given to an artificial potential field, whose failure modes
+Section~\ref{sec:safety-problem} identifies~\cite{koren1991}, backed by a geometric separation clamp
+at the integrator.
+
+In the terms of Strobel et al.~\cite{llm2swarm2024}, this design is neither indirect nor direct
+integration: the language model neither synthesises the controller nor runs on each vehicle. A
+single model instance, on the operator's device, maps an utterance to a formation-level command for a
+conventional controller, and the controller's behaviour between commands involves no language model.
+This separation carries the safety argument of Section~\ref{sec:safety-problem}. The stage that can
+be wrong in the four ways listed there is confined to choosing the command, and separation between
+vehicles is enforced by a mechanism that does not consult it. SkySim arrives at the same layering
+independently: a cloud-hosted planner sits above an artificial-potential-field layer running at
+20~Hz that repels vehicles from one another, with speed saturated at 0.5~m/s, for swarms of 3, 10
+and 30 simulated drones~\cite{skysim2026}. The layering is therefore not claimed as new
+(Section~\ref{sec:gap}).
+
+The nearest systems evaluate in simulation: SkySim in Gazebo with ROS~2, CommandSwarm in a
+PyGame-based swarm simulator~\cite{skysim2026,commandswarm2026}. This work does the same. PyFlyt
+provides \gls{uav} simulation environments for reinforcement-learning research on the Bullet
+physics engine~\cite{pyflyt}, with rigid-body and rotor dynamics and its own attitude control. It
+is one of two backends behind the controller's environment interface, the other being a kinematic
+simulator, and the same controller with the same gains runs on both
+(Section~\ref{sec:simulation-backends}). The physics backend tests whether the controller carries
+across to rigid-body dynamics; the formation-control experiment runs on the kinematic backend, and
+Section~\ref{sec:limitations} states what that leaves unestablished.
 
 \section{Offline speech components}
-% NOTE: \cite{whisper}, \cite{silero}, \cite{oww}, \cite{piper} -- the actual stack, with why each
-%       was chosen.
-% NOTE: There is NO citable literature for openWakeWord or Silero VAD. The comparative material
-%       that exists is vendor blog content, which fails the bibliography's sourcing bar -- do not
-%       go looking for it. Per the references.bib house rules, software gets url + urldate, and
-%       that is the correct and complete citation form for these two.
-% NOTE: "Why each was chosen" must therefore be an ENGINEERING argument from this project's own
-%       measured requirements -- latency budget, offline operation, memory envelope, licence --
-%       and not a literature comparison. That is the honest form of the justification in an
-%       Ingenieur document, and the stronger one: the requirements are yours and they are
-%       measured, where a survey would only be borrowed.
+\label{sec:speech-components}
+Three speech components run on the device --- a keyword spotter, a \gls{vad} model and an
+\gls{stt} model --- and a fourth, a \gls{tts} system, is used only to build the keyword spotter's
+training corpus. No comparative study was found that selects among open components of these kinds
+on a four-core single-board processor under a latency budget, and for two of them, openWakeWord and
+Silero~\gls{vad}, no peer-reviewed description was found at all; both are software releases and are cited
+as such. Each choice is therefore justified by the requirements of this system rather than by a
+published comparison. There are four such requirements. The component runs with no network access
+(Table~\ref{tab:functional-requirements}). It fits its row of the latency budget
+(Table~\ref{tab:stage-budget}) on the cores allocated to it (Table~\ref{tab:core-allocation}). It
+leaves room within the device's 8~GB for the language model; the full deployed stack was not
+measured against its memory ceiling (Section~\ref{sec:resource-allocation}). And its licence permits
+deployment. The latency evidence for each component is measured on this device, and
+Chapter~\ref{chap:validation} reports it.
+
+\paragraph{Keyword spotter.} The reflex budget of 150~ms rests on the keyword spotter. Keyword
+spotting is a task distinct from full recognition, with its own datasets and evaluation
+methodology~\cite{speechcmd}: its output is a detection rather than a transcript, and its errors are
+false accepts and false rejects at an operating point rather than word errors. openWakeWord~\cite{oww}
+supplies a frozen feature front end that turns audio into one speech embedding per 80~ms frame, over
+which small classifier heads can be trained for arbitrary phrases. That property decided the choice.
+The phrases \texttt{swarm hold} and \texttt{swarm abort} occur in no public corpus used here, so the
+heads had to be trained on synthetic positives, and heads that are small networks over a fixed
+embedding can be trained that way without training an acoustic model. The two heads are fitted by
+this work rather than taken from openWakeWord's pre-trained models (Section~\ref{sec:audio-chain}),
+and the spotter runs on core~0 beside the endpointer, which leaves cores~1--3 to the parse path.
+Section~\ref{sec:keyword-spotter-evaluation} reports the operating point and
+Section~\ref{sec:latency-experiment} the reflex latency, idle and under load.
+
+\paragraph{Endpointer.} The endpointer decides when an utterance has ended, and the parse path's
+clock starts at that decision, so its cost appears twice: as computation on the core it shares with
+the spotter, and as the silence it must wait for before it declares the end of speech. Silero
+\gls{vad}~\cite{silero} is a pre-trained neural voice-activity detector distributed as an ONNX model that
+processes 32~ms windows with a recurrent state. It runs here on ONNX Runtime directly, on one thread
+and without the PyTorch dependency of its own wrapper (Section~\ref{sec:audio-chain}). The wait is
+set by the silence threshold derived in Section~\ref{sec:latency-budget}, not by the model. What the
+model has to supply is a speech probability for each window, computed cheaply enough that the
+spotter and the endpointer together complete each 80~ms frame within 80~ms on core~0; the latency
+experiment measures that margin (Section~\ref{sec:latency-experiment}).
+
+\paragraph{Speech recognition.} Speech recognition is the largest row of the parse-path budget,
+1{,}200~ms at p95 on three threads (Table~\ref{tab:stage-budget}). Whisper is trained on 680{,}000
+hours of weakly supervised audio, and its smallest English-only model, \texttt{tiny.en}, has 39
+million parameters~\cite{whisper}. \texttt{whisper.cpp}~\cite{whispercpp} runs that model in C and
+C++ on the \gls{cpu}, with no Python runtime on the inference path. The smallest model was chosen
+because recognition and decoding run in sequence on the same three cores, so every millisecond the
+recogniser spends is a millisecond the end-to-end budget of 2{,}500~ms cannot give to the language
+model. The accuracy cost of the smallest model is the risk this choice carries, and it is measured
+rather than assumed: the \emph{M\'emoire de Master} reports the \gls{wer} of \texttt{tiny.en} on the
+author's speech against a multi-speaker distribution, and the acoustic-robustness experiment
+(Section~\ref{sec:acoustic-robustness}) measures command recognition from the recogniser's
+transcripts as noise increases. The recogniser's invocation, including an initial prompt that lists
+the command vocabulary, is shared with the dataset pipeline, so the parser is trained on the kind of
+transcription errors it receives at run time (Section~\ref{sec:runtime}).
+
+\paragraph{Speech synthesis.} Piper~\cite{piper}, a local neural \gls{tts} system, is not part of
+the runtime, and the system produces no spoken output. Piper renders, in three voices, the
+synthetic positives on which the keyword spotter's heads are trained, within a corpus that the
+\emph{M\'emoire de Master} constructs (Section~\ref{sec:audio-chain}).
+
+\paragraph{Licences.} The licences declared by the deployed packages are permissive: MIT for
+Silero~\gls{vad}, \texttt{whisper.cpp} and ONNX Runtime, and Apache~2.0 for openWakeWord. Piper is
+distributed under the GPL, version~3 or later; it is used only to generate training data and is not
+part of the deployed runtime. The language model on the device, and the runtime that serves it
+under a decoding grammar~\cite{llamacpp}, are selected in the \emph{M\'emoire de Master}, which also
+reviews the literature on them.
 
 \section{Gap}
-% NOTE: The gap is the CONJUNCTION, not any single property. Two of the four conjuncts are now
-%       individually covered by published systems and must be conceded here by name:
-%       - CommandSwarm (\cite{commandswarm2026}) is speech-to-swarm with open 6.7-14B models,
-%         all 4-bit, and a deterministic parser gate against a whitelist of swarm primitives --
-%         so "constrained output" is taken, by validation after generation (its "constrained
-%         prompting" is a prompt listing allowed actions, NOT constrained decoding). It never
-%         claims offline operation and names no hardware. Speech front end: SeamlessM4T at
-%         ~4.0 s (Whisper-medium translation, ~5.2 s, was rejected). Trees are scored by text
-%         metrics and parser acceptance, not executed. No emergency stop: the paper says a real
-%         deployment "should require" one. Its safety classifier is "not independently evaluated".
-%       - SkySim (\cite{skysim2026}) separates a cloud LLM planner (Gemini 3.5 Pro) from an APF
-%         layer at 20 Hz for 3/10/30 drones -- so "planner separate from safety layer" is not
-%         novel. The APF does collision avoidance only; geo-fencing is the planner rejecting
-%         out-of-bounds waypoints. Typed text, NO speech; planning takes 34-50 s. It holds
-%         position on malformed LLM output -- close to this system's hold-on-rejection; say so.
-% NOTE: The two conjuncts that SURVIVE are dual-path preemption and single-SBC operation at
-%       sub-billion scale. Claim those; concede the rest explicitly. A gap claimed against a
-%       surveyed field reads as rigour; the same claim with one citation reads as a literature
-%       search that stopped early.
-% NOTE: Dual-path prior art is cited, not discovered: \cite{relays2s}, \cite{dualattn2023} (the
-%       wake-word frames switch to the CHEAPER branch inside one ASR model -- not a second,
-%       heavier path), \cite{mira}.
-% NOTE: A third system found while verifying the dual-path citations, and it presses closer than
-%       either of the two above on C4's own ground: MIRA (arXiv:2609.24547, Sep 2026) runs a
-%       "dual-timescale interaction policy" for low-latency streaming beside deliberative turn
-%       decisions, commits only a "short, cancellable prefix", and backs it with a robot-side
-%       layer enforcing physical safety constraints at the control rate. Cancellable commitment
-%       is preemption by another name, and the control-rate safety layer is this document's
-%       clamp-at-the-integrator argument. It is human-robot dialogue rather than a swarm, and it
-%       is not offline -- but read it before finalising the Gap, and say what C4 adds to it.
-% NOTE: CommandSwarm sharpens rather than threatens the Master's C1: it validates a COMPLETED
-%       generation against a whitelist, where the grammar here acts inside the sampling loop.
-%       Cite it as the contrast case -- but settle the Table 3 question first, since voice-UAV
-%       literature belongs to THIS document and C1's argument belongs to the Master.
+\label{sec:gap}
+The survey supports a gap stated as a conjunction of properties rather than as any single one. Four
+properties together describe the system of this document:
+\begin{enumerate}
+  \item spoken commands to a group of vehicles, with the language model's output checked
+        deterministically before it takes effect;
+  \item a planner separated from a lower layer that enforces separation between vehicles at the
+        control rate;
+  \item a stopping path that preempts language-model inference, under a membership rule derived
+        from the cost of a false accept and the value of the time saved;
+  \item the whole perception and language chain executing offline on one \gls{sbc},
+        with a language model below a billion parameters.
+\end{enumerate}
+The first two are each covered by a published system, and they are conceded here by name.
 
+\paragraph{CommandSwarm.} CommandSwarm~\cite{commandswarm2026} is the published system nearest to
+this one, and it covers the first property. It turns speech or text into behaviour trees for a
+robotic swarm with open models of 6.7 to 14 billion parameters, all quantised to 4 bits. Execution
+is gated by a deterministic parser that accepts only a whitelist of executable swarm primitives,
+behind constrained prompting --- a prompt that lists the permitted actions --- and a safety
+classifier. Its authors conclude that parser acceptance and safety filtering remain necessary
+execution gates and that generation quality alone is not sufficient, which is the position of
+Section~\ref{sec:safety-problem} reached independently. Its limits against the other three
+properties are recorded as the paper states them. It does not claim offline operation and names no
+deployment hardware. Its chosen speech front end, SeamlessM4T v2-large, takes about 4.0~s per
+utterance, above the end-to-end budget this system is held to
+(Table~\ref{tab:nonfunctional-requirements}), although on unstated hardware; Whisper-medium speech
+translation, at about 5.2~s, was the rejected alternative. The generated trees are scored by
+text-similarity metrics and parser acceptance rather than executed, the safety classifier is not
+independently evaluated, and emergency stop mechanisms appear only among the safeguards that the
+authors say a real deployment should require. CommandSwarm validates a completed generation, whereas
+a decoding grammar acts during generation; the \emph{M\'emoire de Master} develops that distinction
+for its own grammar, and it is not argued here.
+
+\paragraph{SkySim.} SkySim~\cite{skysim2026} covers the second property. Gemini 3.5 Pro, a
+cloud-hosted model, plans waypoints from typed text, and the artificial-potential-field layer of
+Section~\ref{sec:swarm-control-sota} runs beneath it at 20~Hz. Geofencing is performed by the
+planner, which rejects waypoints outside the permitted zone and falls back to holding position. That
+fallback is close to the rule of Section~\ref{sec:safety-problem} that a rejection becomes a hold,
+and it is conceded as such. A malformed output or a timeout of the model's interface instead
+retains the previous command, which differs from a hold whenever that command was a motion. SkySim
+has no speech input, and its mean planning latency of 34 to 50~s, with outliers above 100~s, is
+judged by its authors unsuitable for time-critical missions. The separation of a planner from a
+lower safety layer is therefore not new, and Chapter~\ref{chap:introduction} does not claim it: the
+contribution of Section~\ref{sec:contributions} is the membership rule of the fast path, not the
+layering.
+
+\paragraph{Dual-path prior art.} The third property has prior art in its topology, which is cited
+here as such. RelayS2S pairs a fast duplex speech-to-speech model, which drafts the opening of a
+response, with a slower cascade of recognition and a language model, and a lightweight learned
+verifier decides whether the fast draft is committed; the 90th-percentile latency of the first
+chunk falls from 1{,}006~ms to 81~ms~\cite{relays2s}. Sahai et al.\ use wake-word detection to
+select, frame by frame, which branch of the attention networks inside one recognition model is
+executed, the wake-word frames receiving the cheaper branch, in order to save
+computation~\cite{dualattn2023}. In both, the fast path serves responsiveness or efficiency rather
+than safety, and in the second it is a branch within one model rather than a second path. MIRA is
+closer~\cite{mira}. It combines low-latency barge-in preemption and streaming response generation
+with deliberative turn decisions in a dual-timescale interaction policy, bounds the robot's physical
+commitment to a short, interruptible prefix, and enforces physical safety constraints in a
+robot-side layer at the control rate. Cancellable commitment is a form of preemption, and the
+control-rate safety layer corresponds to the separation clamp at the integrator of this system;
+neither is claimed here.
+
+\paragraph{The membership rule.} What this document adds to MIRA concerns what the fast path is
+permitted to do. In MIRA, as its authors describe it, preemption acts on the robot's own response
+when the user interrupts, and the bounded prefix limits how much of that response is committed before
+it can be withdrawn. The reflex path here originates commands: a detection publishes a hold or an
+abort to five vehicles without transcription or parsing, the two stages that establish what the
+operator said (Section~\ref{sec:safety-problem}). A path that issues commands without interpreting
+them raises a question that a path which withdraws commitments does not, namely which commands it
+may issue. The membership rule of Section~\ref{sec:membership-rule} answers that question from the
+cost of a false accept and the value of the time saved, and the path is held to a latency budget of
+its own that must be met while the language model decodes. The rule and that budget are the
+contribution of Section~\ref{sec:contributions}. MIRA also addresses dialogue with a single embodied
+companion rather than a swarm, and it is not designed for offline operation.
+
+\paragraph{Single-board operation.} The fourth property is the one most plainly open among the sources
+reviewed. No system in Table~\ref{tab:voice-uav-survey} executes its full chain on a single-board
+computer without a \gls{gpu}. The language models of the systems nearest to this one are hosted by
+cloud providers, run on workstation \glspl{gpu}, or run on unstated hardware at 6.7 billion
+parameters and above; the one edge device in the table, the Jetson of Torkamani and Zarin, hands
+work to the cloud when its runtime metrics call for it. Running the chain on one board is
+engineering rather than a research contribution (Section~\ref{sec:contributions}). It belongs to
+the gap because it is the condition under which the third property must hold: the reflex budget is
+met, or missed, on the same four cores on which the language model decodes
+(Section~\ref{sec:resource-allocation}).
+
+The gap this document fills is therefore narrower than any one of the four properties suggests, and
+it is stated in that form. Among the systems reviewed, none combines deterministic checking of
+spoken swarm commands, a separate control-rate safety layer, a stopping path that preempts the
+language model under a derived membership rule, and offline execution on an \gls{sbc} at
+sub-billion scale. The first two properties are conceded to CommandSwarm and SkySim. The third is
+claimed against RelayS2S, the dual-attention transducer and MIRA, and the fourth is the setting that
+turns the third into a problem of processor allocation. Chapter~\ref{chap:architecture} designs the
+system that fills this gap.
