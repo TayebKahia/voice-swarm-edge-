@@ -1952,3 +1952,30 @@ All 14 verified findings (V1-V14) were decided, verified, and applied to thesis/
 - V14: Master selection rule failure clause accurately stated as failing openly when no configuration satisfies both constraints.
 Review script tools/review/ingenieur_ch5.py: 0 FAIL, 1 WARN (seeded rerun note), 266 PASS; selftest passes; clean XeLaTeX build (60 pages, 0 errors, 0 undefined citations/references). Issue 13 closed.
 
+## Writing progress -- Ingenieur Ch 6 (B11) (Thu 24 Sep) -- DRAFTED, awaiting review
+thesis/ingenieur/ch6_conclusion.tex, \label{chap:conclusion}, lead-in and all four sections drafted (390 lines, 0 \TODO{} left). Commits: bd2ba37 (sections 6.2-6.4 drafted, refined, and verified).
+  lead-in -- maps the four sections against prd.md §3.1 and Chapter 1 contributions; establishes that Chapter 6 inherits every measured figure strictly from Chapter 5 (tab:requirements-summary) with no new measurement introduced.
+  6.1 sec:demonstration-protocol -- sets the demonstration protocol before the defence; defines Part A (offline smoke test across recorded audio) and Part B (live tethered speech demonstration); references Table~\ref{tab:demo-script}; fixes four explicit success criteria for Part A (zero collisions under clamp, formation accuracy 1.000, 78/78 in-flight decodes preempted, zero late dispatches) and live interactive tethered verification for Part B.
+  6.2 sec:limitations -- candid accounting across simulation, safety, acoustic robustness, and requirements:
+      - Simulation scope: PyFlyt rigid-body vs kinematic backend; PyFlyt advances 10 physics steps at 240 Hz per control tick (41.67 ms), yielding an effective 24 Hz control rate rather than nominal 48/50 Hz; evaluated across 600 ticks (25 s flight); exercised only by smoke tests on seed 42 for 12 s checking terminal position within 0.5 m, without collision logging or separation clamp.
+      - Separation clamp: intervened 432 times across 144 of the 150 trials at 0.800 m (collision threshold 0.50 m); commanded velocity ceiling 2.0 m/s vs backend ceiling 3.0 m/s; clamp is an external geometric override in the kinematic simulator, not a distributed collision avoidance algorithm.
+      - Acoustic degradation & safety: safe-failure rate is 0.032 clean (2 of 62 failures) and remains between 0.014 and 0.039 across noise levels down to 5 dB, missing the >= 0.70 target; speech recognition errors distort parameters into executable commands rather than unknown; on the reference-text golden set, the parser yields 13 failures with zero safe failures (showing failure pattern originates in fine-tuning, not acoustic noise).
+      - Raw-intent state machine defect: FlightStateMachine.handle_command evaluates transitions against raw rather than validated intent, replacing invalid set_param during landing with hover.
+      - Criteria summary: inherits Table~\ref{tab:requirements-summary} strictly: 7 met, 5 missed with confirmed causes (reflex latency, e2e latency, preemption recovery, clean CRR, noise CRR), 2 not demonstrated (KWS FA, KWS FR), 2 not yet run (offline STT, offline operation), 1 planned for defence (live demo).
+  6.3 sec:future-work -- three prioritized directions with concrete remedies:
+      1. Dynamic artificial potential fields / real-time distributed collision avoidance (\cite{koren1991}) to replace static geometric clamp.
+      2. Prompt prefix caching in llama.cpp to drop prefill latency from 751 ms to within 250 ms allowance.
+      3. Socket-level cancellation / signal handling in llama-server to replace 1 s HTTP polling and achieve client's 6 ms cancellation latency; acoustic front-end retraining and multi-microphone beamforming.
+  6.4 sec:conclusion -- direct, unhedged answers to RQ2 and RQ3; RQ1 cited from Mémoire de Master in one sentence without reopening evidence:
+      - RQ2: offline pipeline does not meet 2,500 ms p95 budget (3,122 ms measured, missed by 622 ms / 25%); reflex path misses 150 ms (545/547 ms, located in spotter decision delay 540 ms + 80 ms quantisation); preemption recovery misses 300 ms (1,195 ms). Stage attribution: 3 meet (VAD wait 480 ms, decode 915 ms, validate <1 ms), 2 miss (STT 1,449 ms, prefill 751 ms).
+      - RQ3: acoustic degradation falls from 0.690 clean to 0.485 at 5 dB (WER 23.3% to 36.0%); clean and noise CRR miss requirements; loss located in speech stage (costs 0.245 to 0.450 accuracy); safe-failure rate 0.032 to 0.039 fails >= 0.70; formation accuracy 1.000 (>= 0.85 requirement met); locked collision phrasing: zero collisions observed, backed by hard geometric separation clamp; preemption: 78 of 78 cancelled, 0 late dispatches, 0 cross-triggers.
+      - Register strictly unhedged (no may/might/could/perhaps/possibly/likely/suggests/appears/seems).
+
+Verification and tooling:
+  - Clean XeLaTeX build (rm -rf thesis/build/ingenieur && cd thesis && latexmk main_ingenieur.tex): 65 pages, 0 errors (^!), 0 undefined citations, 0 undefined references, 0 dropped floats.
+  - Review script tools/review/ingenieur_ch6.py: 0 FAIL, 0 WARN, 81 PASS; 0 untraced numbers.
+  - tools/review/selftest.py: passes all checks including planted mutations for ingenieur_ch6 (latency claim and conclusion hedge).
+  - Issue 14 scaffolded (.scratch/thesis-review/issues/14-ingenieur-ch6.md, commit c2e60e7); Issue 10 updated.
+
+Stopped here: Ingenieur Ch 6 drafted in full; all six chapters of both theses are now drafted. Next: Chapter 6 review loop (Issue 14).
+
