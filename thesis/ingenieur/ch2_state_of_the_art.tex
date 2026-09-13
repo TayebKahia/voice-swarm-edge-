@@ -88,9 +88,9 @@ that maps speech directly to a command: the cascade reaches an accuracy of 0.81 
 direct classifier 0.99 at 0.021~s~\cite{simoes2024}. Henry et al.\ report, on the explicit simple
 commands of a French corpus of spontaneous human--drone interaction, 93\% at 7~ms for a
 transcription-free intent recogniser against 79\% at 202~ms for a cascade of Whisper and
-CamemBERT-Large. On the full spontaneous test set the figures are 82\% and 59\%, the 7~ms is
-measured on a \gls{gpu} (106~ms on a \gls{cpu}), and the authors attribute the gap to the cascade
-architecture rather than to recognition quality~\cite{henry2026}. The asymmetry between the reflex
+CamemBERT-Large, and they attribute that 14-point gap to the cascade architecture rather than to
+recognition quality. On the full spontaneous test set the figures are 82\% and 59\%, and the 7~ms
+is measured on a \gls{gpu} (106~ms on a \gls{cpu})~\cite{henry2026}. The asymmetry between the reflex
 budget and the parse budget of Table~\ref{tab:nonfunctional-requirements} is therefore a property of
 pipeline shape documented independently of this work, and not an artefact of this device. Both
 studies compare the two shapes as alternative pipelines and select between them. In this document
@@ -132,7 +132,8 @@ Section~\ref{sec:gap} examines them property by property.
 \caption[Published language interfaces to robots]{Published language interfaces to robots, by
 the four properties of Section~\ref{sec:voice-uav}. \emph{Remote}: a hosted model reached over a
 network. \emph{Check before execution}: the mechanism between the model's (or the recogniser's)
-output and the vehicle, as the source describes it. A dash marks a property this review did not
+output and the vehicle, as the source describes it, or, where the source describes none, the
+constraint it places on generation. A dash marks a property this review did not
 establish from the source. The last row is the system of this document.}
 \label{tab:voice-uav-survey}
 \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.5cm} >{\raggedright\arraybackslash}p{1.7cm} >{\raggedright\arraybackslash}p{2.0cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X@{}}
@@ -142,9 +143,9 @@ System & Input & Target & Language path and host & Check before execution \\
 Landau and van Delden~\cite{landau2017} & Speech & One \gls{uav} & Nuance recogniser; no language model & Regular-expression command language \\
 Contreras et al.~\cite{contreras2020} & Speech & One simulated \gls{uav} & Cloud recogniser; no language model & Matching against domain phonemes \\
 Vemprala et al.~\cite{chatgptrobotics2024} & Text & Robots, including aerial & ChatGPT, remote & Human on the loop \\
-TypeFly~\cite{typefly2024} & Text & One \gls{uav} & GPT-4, remote & Restricted plan language \\
+TypeFly~\cite{typefly2024} & Text & One \gls{uav} & GPT-4, remote & Plan language; no check stated \\
 Sim\~oes et al.~\cite{simoes2024} & Speech & One \gls{uav} & Cascade compared with a direct classifier; --- & --- \\
-Henry et al.~\cite{henry2026} & Speech & \gls{uav} & Cascade compared with a direct intent recogniser; \gls{gpu} & --- \\
+Henry et al.~\cite{henry2026} & Speech & \gls{uav} & Cascade compared with a direct intent recogniser; \gls{gpu}, \gls{cpu} also reported & --- \\
 Sikorski et al.~\cite{sikorski2025} & Speech & One ground robot & GPT-4-Turbo, remote, or LLaMA~2-7B on a control computer & --- \\
 Torkamani and Zarin~\cite{torkamani2025} & Speech & IoT devices & Edge (Jetson) or cloud, routed at run time & --- \\
 Silva and Burke~\cite{silva2026} & --- & \glspl{uav} & Mostly cloud models & Server-side validation; geofence \\
@@ -161,10 +162,11 @@ This work & Speech & Five simulated \glspl{uav} & Fine-tuned 0.5B model; Raspber
 
 Table~\ref{tab:voice-uav-survey} exhibits three patterns. Speech input and a group of vehicles
 occur together in two of the systems reviewed, SwarmChat and CommandSwarm, and neither states the
-hardware on which its model runs. Every system that uses an \gls{llm} places some check
-between its output and the vehicle, and the checks range from human review to server-side
-validation; among the sources reviewed here, none reports a stopping command handled separately
-from the path that interprets commands. No system in the table executes its full chain on an
+hardware on which its model runs. Every system that uses an \gls{llm} constrains or checks its
+output in some way, from a prompt format and a sampling temperature to human review and
+server-side validation; none of the systems in the table reports a stopping command handled
+separately from the path that interprets commands, and the nearest case outside the table, MIRA,
+is examined in Section~\ref{sec:gap}. No system in the table executes its full chain on an
 \gls{sbc} without a \gls{gpu}. Section~\ref{sec:gap} builds the gap of this document on
 the second and third patterns.
 
@@ -261,8 +263,9 @@ independently: a cloud-hosted planner sits above an artificial-potential-field l
 and 30 simulated drones~\cite{skysim2026}. The layering is therefore not claimed as new
 (Section~\ref{sec:gap}).
 
-The nearest systems evaluate in simulation: SkySim in Gazebo with ROS~2, CommandSwarm in a
-PyGame-based swarm simulator~\cite{skysim2026,commandswarm2026}. This work does the same. PyFlyt
+The nearest systems are simulation-based: SkySim evaluates in Gazebo with ROS~2, and CommandSwarm
+targets a PyGame-based swarm simulator but scores its generated trees without executing
+them~\cite{skysim2026,commandswarm2026}. This work also evaluates in simulation. PyFlyt
 provides \gls{uav} simulation environments for reinforcement-learning research on the Bullet
 physics engine~\cite{pyflyt}, with rigid-body and rotor dynamics and its own attitude control. It
 is one of two backends behind the controller's environment interface, the other being a kinematic
@@ -375,14 +378,15 @@ a decoding grammar acts during generation; the \emph{M\'emoire de Master} develo
 for its own grammar, and it is not argued here.
 
 \paragraph{SkySim.} SkySim~\cite{skysim2026} covers the second property. Gemini 3.5 Pro, a
-cloud-hosted model, plans waypoints from typed text, and the artificial-potential-field layer of
+cloud-hosted model, plans waypoints from natural-language text, and the artificial-potential-field layer of
 Section~\ref{sec:swarm-control-sota} runs beneath it at 20~Hz. Geofencing is performed by the
 planner, which rejects waypoints outside the permitted zone and falls back to holding position. That
 fallback is close to the rule of Section~\ref{sec:safety-problem} that a rejection becomes a hold,
 and it is conceded as such. A malformed output or a timeout of the model's interface instead
-retains the previous command, which differs from a hold whenever that command was a motion. SkySim
-has no speech input, and its mean planning latency of 34 to 50~s, with outliers above 100~s, is
-judged by its authors unsuitable for time-critical missions. The separation of a planner from a
+keeps the waypoints of the previous command rather than issuing a new hold; the paper does not
+state what a swarm still converging on those waypoints does. SkySim has no speech input, and its
+mean planning latency rises from 34~s for 3 drones to 50~s for 10, with outliers above 100~s, a
+latency its authors judge unsuitable for time-critical missions. The separation of a planner from a
 lower safety layer is therefore not new, and Chapter~\ref{chap:introduction} does not claim it: the
 contribution of Section~\ref{sec:contributions} is the membership rule of the fast path, not the
 layering.
@@ -399,22 +403,27 @@ than safety, and in the second it is a branch within one model rather than a sec
 closer~\cite{mira}. It combines low-latency barge-in preemption and streaming response generation
 with deliberative turn decisions in a dual-timescale interaction policy, bounds the robot's physical
 commitment to a short, interruptible prefix, and enforces physical safety constraints in a
-robot-side layer at the control rate. Cancellable commitment is a form of preemption, and the
-control-rate safety layer corresponds to the separation clamp at the integrator of this system;
-neither is claimed here.
+robot-side layer at the control rate. Its fast interruption gate works from voice activity alone,
+without transcription: when the user speaks during the robot's playback, it dispatches an abort,
+stops the speech output and ends the robot's motion, after which the robot holds its last safe pose.
+An uninterpreted stop followed by a hold, preemption of the slower path, and a control-rate safety
+layer corresponding to the separation clamp at the integrator of this system are all present in
+MIRA, and none of them is claimed here.
 
-\paragraph{The membership rule.} What this document adds to MIRA concerns what the fast path is
-permitted to do. In MIRA, as its authors describe it, preemption acts on the robot's own response
-when the user interrupts, and the bounded prefix limits how much of that response is committed before
-it can be withdrawn. The reflex path here originates commands: a detection publishes a hold or an
-abort to five vehicles without transcription or parsing, the two stages that establish what the
-operator said (Section~\ref{sec:safety-problem}). A path that issues commands without interpreting
-them raises a question that a path which withdraws commitments does not, namely which commands it
-may issue. The membership rule of Section~\ref{sec:membership-rule} answers that question from the
+\paragraph{The membership rule.} What this document adds to MIRA concerns what the fast path
+chooses. In MIRA, the fast path reacts to the presence of user speech during the robot's own
+playback and has one action, the abort of that response; what the user said is decided afterwards
+by the deliberative path. The reflex path here discriminates between phrases, at any time, and
+issues one of two distinct swarm commands, a hold or an abort, to five vehicles without
+transcription or parsing, the two stages that establish what the operator said
+(Section~\ref{sec:safety-problem}). A path that chooses between commands without interpreting the
+utterance raises a question that a path with a single action does not, namely which commands it may
+issue. The membership rule of Section~\ref{sec:membership-rule} answers that question from the
 cost of a false accept and the value of the time saved, and the path is held to a latency budget of
 its own that must be met while the language model decodes. The rule and that budget are the
 contribution of Section~\ref{sec:contributions}. MIRA also addresses dialogue with a single embodied
-companion rather than a swarm, and it is not designed for offline operation.
+companion rather than a swarm, and it does not name its recognition and language models or say
+where they run, so offline operation is not addressed.
 
 \paragraph{Single-board operation.} The fourth property is the one most plainly open among the sources
 reviewed. No system in Table~\ref{tab:voice-uav-survey} executes its full chain on a single-board
