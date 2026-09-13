@@ -105,7 +105,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | line | level | title | prose words |
 |---|---|---|---|
 | 26 | chapter | Demonstration, limitations and conclusion | 97 |
-| 36 | section | Demonstration protocol | 1327 |
+| 36 | section | Demonstration protocol | 1328 |
 | 147 | section | Limitations | 1378 |
 | 265 | section | Future work | 604 |
 | 323 | section | Conclusion | 741 |

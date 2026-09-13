@@ -136,9 +136,9 @@ Chapter~\ref{chap:implementation} records each where it would sit: live micropho
 (Section~\ref{sec:runtime}), and the link from the state machine to the swarm controller
 (Section~\ref{sec:state-machine}). The link is more than a connection. The controller accepts only
 a formation (Section~\ref{sec:swarm-controller}), while the script also commands a take-off, a
-movement, a hold, a landing and an abort, so each of these needs a mapping onto the controller; and
-the state machine's transitions at the take-off height and on ground contact, like the reset, need
-the vehicles' state reported back to it. Part~A requires, in addition, the three-dimensional display
+movement, a hold, a landing and an abort, so each of these needs a mapping onto the controller.
+In addition, the state machine's transitions at the take-off height and on ground contact, like the reset,
+require the vehicles' state reported back to it. Part~A requires, in addition, the three-dimensional display
 of the kinematic backend. None of the four alters a stage measured in
 Chapter~\ref{chap:validation}: a capture source replaces the replay without a change to any stage
 that follows it (Section~\ref{sec:audio-chain}), and the link and the display add to the chain
@@ -159,7 +159,7 @@ omits rotor dynamics, aerodynamic downwash, ground effect, battery voltage disch
 saturation. Furthermore, it incorporates no environmental disturbances such as ambient wind or gust
 perturbations. The convergence times (median 4.06~s for the circle, 3.26~s for the line, and 2.30~s for
 the wedge) and trajectory profiles therefore evaluate the algorithmic logic of the potential field
-under idealized kinematics rather than the flight envelope of physical aircraft.
+under idealised kinematics rather than the flight envelope of physical aircraft.
 
 \paragraph{Transfer to rigid-body dynamics.} Transfer of the swarm controller to rigid-body physics is
 not established (Section~\ref{sec:simulation-backends}). The physics backend, constructed on
@@ -193,7 +193,7 @@ formation commands carry no speed parameter. Both simulation backends enforce a 
 on vehicle velocity. During large formation transitions, such as reconfiguring from a line to a circle,
 vehicles accelerate up to the backend limit of 3.0~m/s, exceeding the validator's 2.0~m/s boundary.
 Because the geometric separation clamp bounds inter-vehicle distance rather than speed, velocities during
-formation maneuvers exceed the commanded flight envelope.
+formation manoeuvres exceed the commanded flight envelope.
 
 \paragraph{Acoustic scope and recorded speech.} The acoustic evaluation relies entirely on recorded
 audio replayed through the runtime. Live microphone capture introduces analog gain variations, room
@@ -291,14 +291,14 @@ rigid-body physics across diverse initial configurations. PyFlyt's control tick 
 aligned with the controller's nominal 50~Hz rate, eliminating the 24~Hz stepping discrepancy
 (Section~\ref{sec:simulation-backends}). Following validation in rigid-body simulation with simulated
 aerodynamic disturbances and rotor downwash, the control pipeline should be transferred to physical
-quadrotor airframes equipped with onboard attitude stabilization.
+quadrotor airframes equipped with onboard attitude stabilisation.
 
 \paragraph{Targeted latency reduction.} Following the
 end-to-end latency shortfall (3{,}122~ms against 2{,}500~ms) and preemption recovery shortfall
 (1{,}195~ms against 300~ms), engineering effort must focus on the two stages that exceed their budget
 allowances (Section~\ref{sec:latency-experiment}). Enabling prompt prefix caching in the
 language-model server will reduce prefill latency from 751~ms to within its 250~ms allowance. For speech
-recognition, which accounts for 1{,}449~ms at p95, deploying an optimized acoustic model or streaming
+recognition, which accounts for 1{,}449~ms at p95, deploying an optimised acoustic model or streaming
 encoder will compress transcription time toward the 1{,}200~ms budget. In addition, replacing
 \texttt{llama-server}'s 1~s HTTP polling interval with an explicit slot cancellation callback will reduce
 preemption recovery to the client's 6~ms cancellation latency, satisfying the 300~ms recovery

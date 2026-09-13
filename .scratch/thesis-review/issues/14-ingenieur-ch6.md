@@ -1,6 +1,6 @@
 # Issue 14: ingenieur-ch6
 
-Status: ready-for-agent
+Status: closed
 Blocked by: 13
 Chapter: thesis/ingenieur/ch6_conclusion.tex (390 lines, lead-in + 4 sections: 6.1 Demonstration protocol, 6.2 Limitations, 6.3 Future work, 6.4 Conclusion; cites: pyflyt, koren1991; drafted Thu 24 Sep in bd2ba37; STATE.md record: "Writing progress -- Ingenieur Ch 6 (B11)")
 Script: tools/review/ingenieur_ch6.py
@@ -37,3 +37,32 @@ At opening: 0 FAIL, 0 WARN, 81 PASS; 0 significant numbers untraced.
 ## Seeded findings
 
 None.
+
+## Comments
+
+### 2026-09-24 -- review round 1 (1 reviewer + verifier)
+
+**Script.** 0 FAIL, 0 WARN, 81 PASS. All numbers trace cleanly to `results/` or earlier chapters. Agent reports: `.scratch/thesis-review/agents/14-ingenieur-ch6/reviewer.md`, `.scratch/thesis-review/agents/14-ingenieur-ch6/verifier.md`.
+
+**Verdict.** Ready after minor fixes; zero BLOCKER, zero MAJOR. Five minor/nit items identified and applied:
+- **MINOR-1 (D8g):** l.138-141: 58-word sentence joining controller mapping with state feedback reporting split into two clear sentences.
+- **NIT-1 (D8d):** l.162: American spelling `idealized kinematics` corrected to British `idealised kinematics`.
+- **NIT-2 (D8d):** l.196: American spelling `formation maneuvers` corrected to British `formation manoeuvres`.
+- **NIT-3 (D8d):** l.294: American spelling `attitude stabilization` corrected to British `attitude stabilisation`.
+- **NIT-4 (D8d):** l.301: American spelling `optimized acoustic model` corrected to British `optimised acoustic model`.
+
+**Verified findings table:**
+
+| # | Sev | Line | Finding | Verifier | Fix |
+|---|---|---|---|---|---|
+| MINOR-1 | MINOR | 138-141 | 58-word sentence joining controller mapping with state feedback reporting. | CONFIRMED | Split into two sentences: "The controller accepts only a formation (Section~\ref{sec:swarm-controller}), while the script also commands a take-off, a movement, a hold, a landing and an abort, so each of these needs a mapping onto the controller. In addition, the state machine's transitions at the take-off height and on ground contact, like the reset, require the vehicles' state reported back to it." |
+| NIT-1 | NIT | 162 | American spelling `idealized kinematics`. | CONFIRMED | Replaced with `idealised kinematics`. |
+| NIT-2 | NIT | 196 | American spelling `formation maneuvers`. | CONFIRMED | Replaced with `formation manoeuvres`. |
+| NIT-3 | NIT | 294 | American spelling `attitude stabilization`. | CONFIRMED | Replaced with `attitude stabilisation`. |
+| NIT-4 | NIT | 301 | American spelling `optimized acoustic model`. | CONFIRMED | Replaced with `optimised acoustic model`. |
+
+All 5 fixes applied to `thesis/ingenieur/ch6_conclusion.tex`.
+Verification after fixes:
+- `tools/review/ingenieur_ch6.py`: 0 FAIL, 0 WARN, 81 PASS.
+- Clean XeLaTeX build: 0 errors (`^!`), 0 undefined references/citations, 0 dropped floats.
+- Status: closed.
