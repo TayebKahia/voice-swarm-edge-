@@ -1995,3 +1995,14 @@ clean build 0 errors. Every Ingenieur chapter now has prose.
 - Build note: two sessions building thesis/build/ingenieur at once corrupt the .aux. Build to a
   private -outdir when another session is active.
 Issue 07 -> ready-for-agent.
+
+## Ingenieur Ch 6 review closed (Thu 24 Sep) -- issue 14 resolved
+The review loop of .scratch/thesis-review/spec.md has run over Ingenieur Ch 6 (issue 14).
+All 5 verified findings (MINOR-1, NIT-1 to NIT-4) were decided, verified, and applied to thesis/ingenieur/ch6_conclusion.tex:
+- MINOR-1 (D8g): l.138-141: split 58-word run-on sentence joining controller input mapping with state feedback reporting into two clear sentences.
+- NIT-1 (D8d): l.162: corrected American spelling `idealized kinematics` to British `idealised kinematics`.
+- NIT-2 (D8d): l.196: corrected American spelling `formation maneuvers` to British `formation manoeuvres`.
+- NIT-3 (D8d): l.294: corrected American spelling `attitude stabilization` to British `attitude stabilisation`.
+- NIT-4 (D8d): l.301: corrected American spelling `optimized acoustic model` to British `optimised acoustic model`.
+Review script tools/review/ingenieur_ch6.py: 0 FAIL, 0 WARN, 81 PASS; selftest passes; clean XeLaTeX build from scratch (0 errors, 0 undefined citations/references, 0 dropped floats). Issue 14 closed.
+
