@@ -8,7 +8,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 |---|---|---|---|
 | WARN | numbers |  | 7 significant number(s) found in no source file -- see the number trace |
 | WARN | acronym | 25 | `UAV` typed by hand 2x (lines 25, 72) -- \gls{uav} (the first \gls expands itself) |
-| WARN | acronym | 177 | `LLM` typed by hand 3x (lines 177, 182, 212) -- \gls{llm} (the first \gls expands itself) |
+| WARN | acronym | 179 | `LLM` typed by hand 3x (lines 179, 184, 214) -- \gls{llm} (the first \gls expands itself) |
 | PASS | check_tex |  | tools/check_tex.py: no problems beyond cross-chapter \ref (resolved below) |
 | PASS | ref |  | every \ref resolves within the document |
 | PASS | cite |  | 33 distinct keys cited, all resolved |
@@ -54,10 +54,10 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | PASS | planned-cite |  | planned key `whisper` is in references.bib |
 | PASS | planned-cite |  | planned key `whispercpp` is in references.bib |
 | PASS | table3 |  | no Master-owned literature re-surveyed here |
-| PASS | ready |  | 5162 words of prose -- reviewable |
+| PASS | ready |  | 5303 words of prose -- reviewable |
 | PASS | table3 |  | positions against \cite{lim2025} |
-| PASS | float | 137 | tab:voice-uav-survey referenced before it appears (line 34) |
-| PASS | float | 206 | tab:lim-positioning referenced before it appears (line 187) |
+| PASS | float | 138 | tab:voice-uav-survey referenced before it appears (line 34) |
+| PASS | float | 208 | tab:lim-positioning referenced before it appears (line 189) |
 
 ### Citation sheet (for the citation agent: open each identifier, judge SUPPORTS / PARTIAL / DOES NOT SUPPORT per row)
 
@@ -75,7 +75,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 10 | 76 | phadke2024 | Phadke et al.\ couple existing language models to robotic simulators through a modular template framework~\cite{phadke2024}. |
 | 11 | 80 | silva2026 | Silva and Burke report what they describe as the broadest evaluation of a language-model command interface for drones on the axes it measures: more than 1{,}000 simulated flights, 110 geofence-violation trials in which no aircraft left the permitted zone, and three real quadcopters, with the language model treated as a |
 | 12 | 88 | simoes2024 | Sim\~oes et al.\ compare, for one Tello drone commanded in Portuguese, a cascade of speech recognition and a language model against a classifier that maps speech directly to a command: the cascade reaches an accuracy of 0.81 at 1.233~s, the direct classifier 0.99 at 0.021~s~\cite{simoes2024}. |
-| 13 | 93 | henry2026 | On the full spontaneous test set the figures are 82\% and 59\%, the 7~ms is measured on a \gls{gpu} (106~ms on a \gls{cpu}), and the authors attribute the gap to the cascade architecture rather than to recognition quality~\cite{henry2026}. |
+| 13 | 93 | henry2026 | On the full spontaneous test set the figures are 82\% and 59\%, and the 7~ms is measured on a \gls{gpu} (106~ms on a \gls{cpu})~\cite{henry2026}. |
 | 14 | 104 | sikorski2025 | Sikorski et al.\ command a wheeled mobile robot by speech, recognised offline with VOSK, and compare GPT-4-Turbo in the cloud against LLaMA~2-7B quantised to Q5\_K\_M and run offline on a control computer; the offline model exhibits significant limitations in consistency and reliability~\cite{sikorski2025}. |
 | 15 | 108 | torkamani2025 | Torkamani and Zarin route spoken commands for IoT devices between edge and cloud according to processor load, device temperature and network latency, with the edge tier on an NVIDIA Jetson platform~\cite{torkamani2025}. |
 | 16 | 116 | llm2swarm2024 | Strobel et al.\ distinguish indirect integration, in which a language model synthesises and validates controllers before or during deployment, from direct integration, in which a separate language-model instance runs on each robot, and they describe their contribution as mainly conceptual~\cite{llm2swarm2024}. |
@@ -83,40 +83,40 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 18 | 124 | iannoli2026 | They find that the models still struggle to execute even simple swarm tasks reliably without explicit grounding and execution support, and that task-specific planning tools and runtime guardrails substantially improve robustness~\cite{iannoli2026}. |
 | 19 | 125 | skysim2026 | SkySim~\cite{skysim2026} and CommandSwarm~\cite{commandswarm2026} are the two swarm systems nearest to this one, and Section~\ref{sec:gap} examines them property by property. |
 | 20 | 126 | commandswarm2026 | SkySim~\cite{skysim2026} and CommandSwarm~\cite{commandswarm2026} are the two swarm systems nearest to this one, and Section~\ref{sec:gap} examines them property by property. |
-| 21 | 142 | landau2017 | \midrule Landau and van Delden~\cite{landau2017} & Speech & One \gls{uav} & Nuance recogniser; no language model & Regular-expression command language \\ |
-| 22 | 143 | contreras2020 | Contreras et al.~\cite{contreras2020} & Speech & One simulated \gls{uav} & Cloud recogniser; no language model & Matching against domain phonemes \\ |
-| 23 | 144 | chatgptrobotics2024 | Vemprala et al.~\cite{chatgptrobotics2024} & Text & Robots, including aerial & ChatGPT, remote & Human on the loop \\ |
-| 24 | 145 | typefly2024 | TypeFly~\cite{typefly2024} & Text & One \gls{uav} & GPT-4, remote & Restricted plan language \\ |
-| 25 | 146 | simoes2024 | Sim\~oes et al.~\cite{simoes2024} & Speech & One \gls{uav} & Cascade compared with a direct classifier; --- & --- \\ |
-| 26 | 147 | henry2026 | Henry et al.~\cite{henry2026} & Speech & \gls{uav} & Cascade compared with a direct intent recogniser; \gls{gpu} & --- \\ |
-| 27 | 148 | sikorski2025 | Sikorski et al.~\cite{sikorski2025} & Speech & One ground robot & GPT-4-Turbo, remote, or LLaMA~2-7B on a control computer & --- \\ |
-| 28 | 149 | torkamani2025 | Torkamani and Zarin~\cite{torkamani2025} & Speech & IoT devices & Edge (Jetson) or cloud, routed at run time & --- \\ |
-| 29 | 150 | silva2026 | Silva and Burke~\cite{silva2026} & --- & \glspl{uav} & Mostly cloud models & Server-side validation; geofence \\ |
-| 30 | 151 | lim2025 | Lim et al.~\cite{lim2025} & Text & One \gls{uav} & Open models, local \gls{gpu} workstation & Prompt format; temperature 0.2 \\ |
-| 31 | 152 | swarmchat2025 | SwarmChat~\cite{swarmchat2025} & Speech, text, teleoperation & Robot swarm & Modules based on language models; --- & Rule-based intent keywords \\ |
-| 32 | 153 | iannoli2026 | Iannoli et al.~\cite{iannoli2026} & Text & \gls{uav} swarm & Six general-purpose models; --- & Planning tools; runtime guardrails \\ |
-| 33 | 154 | skysim2026 | SkySim~\cite{skysim2026} & Text & \gls{uav} swarm, 3--30 & Gemini 3.5 Pro, remote & Waypoint bounds; potential-field layer \\ |
-| 34 | 155 | commandswarm2026 | CommandSwarm~\cite{commandswarm2026} & Speech or text & Robot swarm & Open models of 6.7--14B, 4-bit; --- & Primitive whitelist; parser; safety classifier \\ |
-| 35 | 173 | lim2025 | \section{Positioning against Lim et al.} \label{sec:lim-positioning} The agent of Lim et al.~\cite{lim2025} is the baseline for this document because it is the published system nearest to this one in the part of the design the \emph{M\'emoire de Master} fixes: open language models of the same families, Qwen2.5 and Llam |
-| 36 | 203 | lim2025 | \begin{table}[htbp] \centering \footnotesize \caption[Design points of Lim et al.\ and of this work]{Design points of the agent of Lim et al.~\cite{lim2025} and of this work. |
-| 37 | 239 | reynolds1987 | \section{Swarm control} \label{sec:swarm-control-sota} Reynolds' model of flocking produces coordinated group motion from three rules applied by each individual to its nearby flockmates: avoid collisions with them, match their velocity, and stay close to them~\cite{reynolds1987}. |
-| 38 | 249 | koren1991 | Collision avoidance is taken out of the flocking rules and given to an artificial potential field, whose failure modes Section~\ref{sec:safety-problem} identifies~\cite{koren1991}, backed by a geometric separation clamp at the integrator. |
-| 39 | 252 | llm2swarm2024 | In the terms of Strobel et al.~\cite{llm2swarm2024}, this design is neither indirect nor direct integration: the language model neither synthesises the controller nor runs on each vehicle. |
-| 40 | 261 | skysim2026 | SkySim arrives at the same layering independently: a cloud-hosted planner sits above an artificial-potential-field layer running at 20~Hz that repels vehicles from one another, with speed saturated at 0.5~m/s, for swarms of 3, 10 and 30 simulated drones~\cite{skysim2026}. |
-| 41 | 265 | skysim2026, commandswarm2026 | The nearest systems evaluate in simulation: SkySim in Gazebo with ROS~2, CommandSwarm in a PyGame-based swarm simulator~\cite{skysim2026,commandswarm2026}. |
-| 42 | 267 | pyflyt | PyFlyt provides \gls{uav} simulation environments for reinforcement-learning research on the Bullet physics engine~\cite{pyflyt}, with rigid-body and rotor dynamics and its own attitude control. |
-| 43 | 292 | speechcmd | Keyword spotting is a task distinct from full recognition, with its own datasets and evaluation methodology~\cite{speechcmd}: its output is a detection rather than a transcript, and its errors are false accepts and false rejects at an operating point rather than word errors. |
-| 44 | 293 | oww | openWakeWord~\cite{oww} supplies a frozen feature front end that turns audio into one speech embedding per 80~ms frame, over which small classifier heads can be trained for arbitrary phrases. |
-| 45 | 307 | silero | Silero \gls{vad}~\cite{silero} is a pre-trained neural voice-activity detector distributed as an ONNX model that processes 32~ms windows with a recurrent state. |
-| 46 | 318 | whisper | Whisper is trained on 680{,}000 hours of weakly supervised audio, and its smallest English-only model, \texttt{tiny.en}, has 39 million parameters~\cite{whisper}. |
-| 47 | 318 | whispercpp | \texttt{whisper.cpp}~\cite{whispercpp} runs that model in C and C++ on the \gls{cpu}, with no Python runtime on the inference path. |
-| 48 | 330 | piper | \paragraph{Speech synthesis.} Piper~\cite{piper}, a local neural \gls{tts} system, is not part of the runtime, and the system produces no spoken output. |
-| 49 | 339 | llamacpp | The language model on the device, and the runtime that serves it under a decoding grammar~\cite{llamacpp}, are selected in the \emph{M\'emoire de Master}, which also reviews the literature on them. |
-| 50 | 358 | commandswarm2026 | \paragraph{CommandSwarm.} CommandSwarm~\cite{commandswarm2026} is the published system nearest to this one, and it covers the first property. |
-| 51 | 377 | skysim2026 | \paragraph{SkySim.} SkySim~\cite{skysim2026} covers the second property. |
-| 52 | 394 | relays2s | RelayS2S pairs a fast duplex speech-to-speech model, which drafts the opening of a response, with a slower cascade of recognition and a language model, and a lightweight learned verifier decides whether the fast draft is committed; the 90th-percentile latency of the first chunk falls from 1{,}006~ms to 81~ms~\cite{rela |
-| 53 | 397 | dualattn2023 | Sahai et al.\ use wake-word detection to select, frame by frame, which branch of the attention networks inside one recognition model is executed, the wake-word frames receiving the cheaper branch, in order to save computation~\cite{dualattn2023}. |
-| 54 | 399 | mira | MIRA is closer~\cite{mira}. |
+| 21 | 143 | landau2017 | \midrule Landau and van Delden~\cite{landau2017} & Speech & One \gls{uav} & Nuance recogniser; no language model & Regular-expression command language \\ |
+| 22 | 144 | contreras2020 | Contreras et al.~\cite{contreras2020} & Speech & One simulated \gls{uav} & Cloud recogniser; no language model & Matching against domain phonemes \\ |
+| 23 | 145 | chatgptrobotics2024 | Vemprala et al.~\cite{chatgptrobotics2024} & Text & Robots, including aerial & ChatGPT, remote & Human on the loop \\ |
+| 24 | 146 | typefly2024 | TypeFly~\cite{typefly2024} & Text & One \gls{uav} & GPT-4, remote & Plan language; no check stated \\ |
+| 25 | 147 | simoes2024 | Sim\~oes et al.~\cite{simoes2024} & Speech & One \gls{uav} & Cascade compared with a direct classifier; --- & --- \\ |
+| 26 | 148 | henry2026 | Henry et al.~\cite{henry2026} & Speech & \gls{uav} & Cascade compared with a direct intent recogniser; \gls{gpu}, \gls{cpu} also reported & --- \\ |
+| 27 | 149 | sikorski2025 | Sikorski et al.~\cite{sikorski2025} & Speech & One ground robot & GPT-4-Turbo, remote, or LLaMA~2-7B on a control computer & --- \\ |
+| 28 | 150 | torkamani2025 | Torkamani and Zarin~\cite{torkamani2025} & Speech & IoT devices & Edge (Jetson) or cloud, routed at run time & --- \\ |
+| 29 | 151 | silva2026 | Silva and Burke~\cite{silva2026} & --- & \glspl{uav} & Mostly cloud models & Server-side validation; geofence \\ |
+| 30 | 152 | lim2025 | Lim et al.~\cite{lim2025} & Text & One \gls{uav} & Open models, local \gls{gpu} workstation & Prompt format; temperature 0.2 \\ |
+| 31 | 153 | swarmchat2025 | SwarmChat~\cite{swarmchat2025} & Speech, text, teleoperation & Robot swarm & Modules based on language models; --- & Rule-based intent keywords \\ |
+| 32 | 154 | iannoli2026 | Iannoli et al.~\cite{iannoli2026} & Text & \gls{uav} swarm & Six general-purpose models; --- & Planning tools; runtime guardrails \\ |
+| 33 | 155 | skysim2026 | SkySim~\cite{skysim2026} & Text & \gls{uav} swarm, 3--30 & Gemini 3.5 Pro, remote & Waypoint bounds; potential-field layer \\ |
+| 34 | 156 | commandswarm2026 | Command\-Swarm~\cite{commandswarm2026} & Speech or text & Robot swarm & Open models of 6.7--14B, 4-bit; --- & Primitive whitelist; parser; safety classifier \\ |
+| 35 | 175 | lim2025 | \section{Positioning against Lim et al.} \label{sec:lim-positioning} The agent of Lim et al.~\cite{lim2025} is the baseline for this document because it is the published system nearest to this one in the part of the design the \emph{M\'emoire de Master} fixes: open language models of the same families, Qwen2.5 and Llam |
+| 36 | 205 | lim2025 | \begin{table}[htbp] \centering \footnotesize \caption[Design points of Lim et al.\ and of this work]{Design points of the agent of Lim et al.~\cite{lim2025} and of this work. |
+| 37 | 241 | reynolds1987 | \section{Swarm control} \label{sec:swarm-control-sota} Reynolds' model of flocking produces coordinated group motion from three rules applied by each individual to its nearby flockmates: avoid collisions with them, match their velocity, and stay close to them~\cite{reynolds1987}. |
+| 38 | 251 | koren1991 | Collision avoidance is taken out of the flocking rules and given to an artificial potential field, whose failure modes Section~\ref{sec:safety-problem} identifies~\cite{koren1991}, backed by a geometric separation clamp at the integrator. |
+| 39 | 254 | llm2swarm2024 | In the terms of Strobel et al.~\cite{llm2swarm2024}, this design is neither indirect nor direct integration: the language model neither synthesises the controller nor runs on each vehicle. |
+| 40 | 263 | skysim2026 | SkySim arrives at the same layering independently: a cloud-hosted planner sits above an artificial-potential-field layer running at 20~Hz that repels vehicles from one another, with speed saturated at 0.5~m/s, for swarms of 3, 10 and 30 simulated drones~\cite{skysim2026}. |
+| 41 | 268 | skysim2026, commandswarm2026 | The nearest systems are simulation-based: SkySim evaluates in Gazebo with ROS~2, and CommandSwarm targets a PyGame-based swarm simulator but scores its generated trees without executing them~\cite{skysim2026,commandswarm2026}. |
+| 42 | 270 | pyflyt | PyFlyt provides \gls{uav} simulation environments for reinforcement-learning research on the Bullet physics engine~\cite{pyflyt}, with rigid-body and rotor dynamics and its own attitude control. |
+| 43 | 295 | speechcmd | Keyword spotting is a task distinct from full recognition, with its own datasets and evaluation methodology~\cite{speechcmd}: its output is a detection rather than a transcript, and its errors are false accepts and false rejects at an operating point rather than word errors. |
+| 44 | 296 | oww | openWakeWord~\cite{oww} supplies a frozen feature front end that turns audio into one speech embedding per 80~ms frame, over which small classifier heads can be trained for arbitrary phrases. |
+| 45 | 310 | silero | Silero \gls{vad}~\cite{silero} is a pre-trained neural voice-activity detector distributed as an ONNX model that processes 32~ms windows with a recurrent state. |
+| 46 | 321 | whisper | Whisper is trained on 680{,}000 hours of weakly supervised audio, and its smallest English-only model, \texttt{tiny.en}, has 39 million parameters~\cite{whisper}. |
+| 47 | 321 | whispercpp | \texttt{whisper.cpp}~\cite{whispercpp} runs that model in C and C++ on the \gls{cpu}, with no Python runtime on the inference path. |
+| 48 | 333 | piper | \paragraph{Speech synthesis.} Piper~\cite{piper}, a local neural \gls{tts} system, is not part of the runtime, and the system produces no spoken output. |
+| 49 | 342 | llamacpp | The language model on the device, and the runtime that serves it under a decoding grammar~\cite{llamacpp}, are selected in the \emph{M\'emoire de Master}, which also reviews the literature on them. |
+| 50 | 361 | commandswarm2026 | \paragraph{CommandSwarm.} CommandSwarm~\cite{commandswarm2026} is the published system nearest to this one, and it covers the first property. |
+| 51 | 380 | skysim2026 | \paragraph{SkySim.} SkySim~\cite{skysim2026} covers the second property. |
+| 52 | 398 | relays2s | RelayS2S pairs a fast duplex speech-to-speech model, which drafts the opening of a response, with a slower cascade of recognition and a language model, and a lightweight learned verifier decides whether the fast draft is committed; the 90th-percentile latency of the first chunk falls from 1{,}006~ms to 81~ms~\cite{rela |
+| 53 | 401 | dualattn2023 | Sahai et al.\ use wake-word detection to select, frame by frame, which branch of the attention networks inside one recognition model is executed, the wake-word frames receiving the cheaper branch, in order to save computation~\cite{dualattn2023}. |
+| 54 | 403 | mira | MIRA is closer~\cite{mira}. |
 
 | key | title | year | identifier |
 |---|---|---|---|
@@ -159,11 +159,11 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | line | level | title | prose words |
 |---|---|---|---|
 | 10 | chapter | State of the art | 165 |
-| 25 | section | Voice-controlled UAV systems | 1778 |
-| 171 | section | Positioning against Lim et al. | 705 |
-| 235 | section | Swarm control | 463 |
-| 274 | section | Offline speech components | 881 |
-| 342 | section | Gap | 1170 |
+| 25 | section | Voice-controlled UAV systems | 1815 |
+| 173 | section | Positioning against Lim et al. | 705 |
+| 237 | section | Swarm control | 474 |
+| 277 | section | Offline speech components | 881 |
+| 345 | section | Gap | 1263 |
 
 ### For the argument agent
 
@@ -188,38 +188,38 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 89 | 7 | measured: results/table16_asr_speaker_sensitivity.md:21, results/table16_asr_speaker_sensitivity.md:23 |
 | 90 | 79 | measured: results/table18_quantisation_delta.md:20 x100, results/golden_error_intents.md:13 x100 |
 | 90 | 202 | **UNTRACED** |
-| 91 | 82 | measured: results/exp3_pi_analysis.md:83, results/exp3_pi_analysis.md:97 |
-| 91 | 59 | measured: results/table16_asr_speaker_sensitivity.md:16, results/table16_asr_speaker_sensitivity.md:24 |
-| 91 | 7 | measured: results/table16_asr_speaker_sensitivity.md:21, results/table16_asr_speaker_sensitivity.md:23 |
-| 92 | 106 | **UNTRACED** |
-| 151 | 0.2 | measured: results/nfr18_false_command.md:10, results/nfr18_false_command.md:11 |
-| 154 | 3.5 | measured: thesis/generated/requirements_summary.tex:8, results/exp2.csv:9 |
-| 155 | 6.7 | measured: results/wake_training.json:111 x100, results/wake_training.json:321 x100 |
-| 157 | 0.5 | measured: results/nfr18_false_command.md:12, results/nfr18_false_command.md:13 |
-| 177 | 3080 | measured: results/exp4.csv:2 x100, results/exp4.csv:3 x100 |
-| 179 | 0.2 | measured: results/nfr18_false_command.md:10, results/nfr18_false_command.md:11 |
-| 182 | 38 | measured: results/golden_error_intents.md:13, results/wake_training.md:12 |
-| 183 | 40 | measured: results/exp2_latency_budget.md:6, results/exp3_analysis.md:42 |
-| 214 | 0.2 | measured: results/nfr18_false_command.md:10, results/nfr18_false_command.md:11 |
-| 215 | 3080 | measured: results/exp4.csv:2 x100, results/exp4.csv:3 x100 |
-| 260 | 20 | measured: results/table16_asr_speaker_sensitivity.md:26, results/exp3_pi_analysis.md:15 |
-| 260 | 0.5 | measured: results/nfr18_false_command.md:12, results/nfr18_false_command.md:13 |
-| 285 | 8 | measured: results/nfr18_false_command.md:11, results/nfr18_false_command.md:13 |
-| 290 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:21 |
-| 294 | 80 | measured: results/table16_asr_speaker_sensitivity.md:22, results/wake_training.md:7 |
-| 308 | 32 | measured: results/table16_asr_speaker_sensitivity.md:18, results/table16_asr_speaker_sensitivity.md:22 |
-| 312 | 80 | measured: results/table16_asr_speaker_sensitivity.md:22, results/wake_training.md:7 |
-| 312 | 80 | measured: results/table16_asr_speaker_sensitivity.md:22, results/wake_training.md:7 |
-| 316 | 1{,}200 | measured: results/exp2_latency_budget.md:14, results/exp2_analysis.md:13 |
-| 316 | 680{,}000 | **UNTRACED** |
-| 321 | 2{,}500 | measured: results/exp2_latency_budget.md:18, results/exp2_latency_budget.md:19 |
-| 336 | 2.0 | measured: results/nfr18_false_command.md:14, results/nfr18_false_command.md:15 |
-| 360 | 6.7 | measured: results/wake_training.json:111 x100, results/wake_training.json:321 x100 |
-| 367 | 4.0 | measured: results/nfr18_false_command.md:10, results/nfr18_false_command.md:12 |
-| 370 | 5.2 | measured: results/wake_training.json:163 x100, results/wake_training.json:510 x100 |
-| 377 | 3.5 | measured: thesis/generated/requirements_summary.tex:8, results/exp2.csv:9 |
-| 379 | 20 | measured: results/table16_asr_speaker_sensitivity.md:26, results/exp3_pi_analysis.md:15 |
-| 384 | 100 | measured: results/thermal_headroom.md:13, results/thermal_headroom.md:15 |
-| 394 | 1{,}006 | **UNTRACED** |
-| 394 | 81 | measured: results/limitation_abstention.md:79, results/table17_model_comparison.md:19 x100 |
-| 422 | 6.7 | measured: results/wake_training.json:111 x100, results/wake_training.json:321 x100 |
+| 92 | 82 | measured: results/exp3_pi_analysis.md:83, results/exp3_pi_analysis.md:97 |
+| 92 | 59 | measured: results/table16_asr_speaker_sensitivity.md:16, results/table16_asr_speaker_sensitivity.md:24 |
+| 92 | 7 | measured: results/table16_asr_speaker_sensitivity.md:21, results/table16_asr_speaker_sensitivity.md:23 |
+| 93 | 106 | **UNTRACED** |
+| 152 | 0.2 | measured: results/nfr18_false_command.md:10, results/nfr18_false_command.md:11 |
+| 155 | 3.5 | measured: thesis/generated/requirements_summary.tex:8, results/exp2.csv:9 |
+| 156 | 6.7 | measured: results/wake_training.json:111 x100, results/wake_training.json:321 x100 |
+| 158 | 0.5 | measured: results/nfr18_false_command.md:12, results/nfr18_false_command.md:13 |
+| 179 | 3080 | measured: results/exp4.csv:2 x100, results/exp4.csv:3 x100 |
+| 181 | 0.2 | measured: results/nfr18_false_command.md:10, results/nfr18_false_command.md:11 |
+| 184 | 38 | measured: results/golden_error_intents.md:13, results/wake_training.md:12 |
+| 185 | 40 | measured: results/exp2_latency_budget.md:6, results/exp3_analysis.md:42 |
+| 216 | 0.2 | measured: results/nfr18_false_command.md:10, results/nfr18_false_command.md:11 |
+| 217 | 3080 | measured: results/exp4.csv:2 x100, results/exp4.csv:3 x100 |
+| 262 | 20 | measured: results/table16_asr_speaker_sensitivity.md:26, results/exp3_pi_analysis.md:15 |
+| 262 | 0.5 | measured: results/nfr18_false_command.md:12, results/nfr18_false_command.md:13 |
+| 288 | 8 | measured: results/nfr18_false_command.md:11, results/nfr18_false_command.md:13 |
+| 293 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:21 |
+| 297 | 80 | measured: results/table16_asr_speaker_sensitivity.md:22, results/wake_training.md:7 |
+| 311 | 32 | measured: results/table16_asr_speaker_sensitivity.md:18, results/table16_asr_speaker_sensitivity.md:22 |
+| 315 | 80 | measured: results/table16_asr_speaker_sensitivity.md:22, results/wake_training.md:7 |
+| 315 | 80 | measured: results/table16_asr_speaker_sensitivity.md:22, results/wake_training.md:7 |
+| 319 | 1{,}200 | measured: results/exp2_latency_budget.md:14, results/exp2_analysis.md:13 |
+| 319 | 680{,}000 | **UNTRACED** |
+| 324 | 2{,}500 | measured: results/exp2_latency_budget.md:18, results/exp2_latency_budget.md:19 |
+| 339 | 2.0 | measured: results/nfr18_false_command.md:14, results/nfr18_false_command.md:15 |
+| 363 | 6.7 | measured: results/wake_training.json:111 x100, results/wake_training.json:321 x100 |
+| 370 | 4.0 | measured: results/nfr18_false_command.md:10, results/nfr18_false_command.md:12 |
+| 373 | 5.2 | measured: results/wake_training.json:163 x100, results/wake_training.json:510 x100 |
+| 380 | 3.5 | measured: thesis/generated/requirements_summary.tex:8, results/exp2.csv:9 |
+| 382 | 20 | measured: results/table16_asr_speaker_sensitivity.md:26, results/exp3_pi_analysis.md:15 |
+| 388 | 100 | measured: results/thermal_headroom.md:13, results/thermal_headroom.md:15 |
+| 398 | 1{,}006 | **UNTRACED** |
+| 398 | 81 | measured: results/limitation_abstention.md:79, results/table17_model_comparison.md:19 x100 |
+| 431 | 6.7 | measured: results/wake_training.json:111 x100, results/wake_training.json:321 x100 |

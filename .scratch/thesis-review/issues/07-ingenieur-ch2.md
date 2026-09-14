@@ -1,6 +1,6 @@
 # Issue 07: ingenieur-ch2
 
-Status: ready-for-agent
+Status: closed
 Blocked by: 06
 Chapter: thesis/ingenieur/ch2_state_of_the_art.tex (scaffold: headings and NOTEs, no prose)
 Script: tools/review/ingenieur_ch2.py (exits 2 while the chapter is a scaffold)
@@ -70,3 +70,24 @@ For the review agents:
   (iv); check that (iv) is framed as a setting, not as a contribution, consistent with Ch1
   sec:contributions.
 - Licences in "Offline speech components" come from installed package metadata, not from a paper.
+
+### 2026-09-24 -- scoped citation check run and applied (feb7371); Status -> closed
+
+**Scope, stated so nobody mistakes this for the full review:** one agent, citations only (D5),
+against the full MIRA, CommandSwarm and SkySim papers, the arXiv abstracts of TypeFly, Warden,
+Henry and Contreras, and the verified claims in ingenieur-candidates.md for every survey-table
+cell. The argument agent (D1, D2, D4, D6) and the separate verifier of spec.md were NOT run,
+because of the depot deadline. Chosen by the author.
+
+Findings: 1 load-bearing (the MIRA contrast; its fast gate aborts on voice activity alone and then
+holds, so "originates vs withdraws" failed; now "one action vs a choice between two commands"),
+1 unverifiable (MIRA offline), 6 over-statements (SkySim x2, CommandSwarm simulation, the
+"every LLM system checks" synthesis, the TypeFly cell and caption, Henry attribution). All 8 were
+applied, with the author's approval. Everything else SUPPORTS, including all CommandSwarm facts,
+the remaining SkySim facts, speechcmd, and all other table cells.
+
+After the fixes: script 0 FAIL / 3 WARN (justified), clean build 0 errors.
+Left for after the depot, if ever: the argument pass. The whole-document pass (issue 10) should
+check that Ch1 sec:contributions and Ch6's "System contribution" paragraph still agree with the
+Gap as rewritten (the contribution is the membership rule for a path that CHOOSES between commands;
+preemption and an uninterpreted stop are conceded to MIRA).
