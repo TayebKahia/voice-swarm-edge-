@@ -294,10 +294,9 @@ three of their properties. Every complete decode is a string of the command lang
 unreachable rather than improbable; only a decode cut off at the token limit can be malformed, and
 the validator's fallback catches it. The grammar bounds the length of every number, at three
 integer digits and one decimal place, and it restricts drone identifiers to the five that exist.
-It does not bound a number's value. \gls{gbnf} has no construct for a numeric range, and a range
-spelt out as digit patterns would make the decoder emit some admissible value in place of the one
-spoken, with no record that it had done so, where the second layer clamps an out-of-range value
-and logs the change. Every constraint on magnitude therefore falls to the second layer.
+It does not bound a number's value: the \emph{M\'emoire de Master} explains why a range is not
+encoded in the grammar, and the consequence here is that an out-of-range value reaches the second
+layer, which clamps it and logs the change. Every constraint on magnitude therefore falls to the second layer.
 
 \paragraph{Layer 2: the semantic validator.} The validator applies four rules. The first
 enforces the slots each intent requires: a formation needs a shape, a circle a radius, and a line,
@@ -423,8 +422,8 @@ Reflex & \textbf{Reflex path from keyword offset} & \textbf{150~ms} \\
 \end{table}
 
 \paragraph{Anchors.} Each path is measured from two instants, because either one alone misleads.
-On the parse path, $T_0$ is the time of the last audio frame in the buffer at the moment the
-endpointer declares the utterance over, and the headline target of 2{,}500~ms runs from it.
+On the parse path, $T_0$ is the time of the last audio sample the endpointer has processed at the
+moment it declares the utterance over, and the headline target of 2{,}500~ms runs from it.
 Measured only from $T_0$, the system would appear to respond independently of how long the
 operator spoke; measured only from the start of speech, it would be charged for the length of
 the operator's sentence. Both are therefore reported. The reflex path's headline anchor is the

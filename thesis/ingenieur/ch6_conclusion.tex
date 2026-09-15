@@ -154,7 +154,7 @@ Chapter~\ref{chap:validation}.
 \paragraph{Kinematic simulation scope.} The formation-control results of
 Section~\ref{sec:formation-control} come from the kinematic simulator alone. The kinematic backend
 (\texttt{swarm/simulate.py}) models vehicles as ideal point masses responding to commanded
-accelerations under first-order velocity integration (Section~\ref{sec:simulation-backends}). It
+accelerations under semi-implicit double integration (Section~\ref{sec:simulation-backends}). It
 omits rotor dynamics, aerodynamic downwash, ground effect, battery voltage discharge, and motor
 saturation. Furthermore, it incorporates no environmental disturbances such as ambient wind or gust
 perturbations. The convergence times (median 4.06~s for the circle, 3.26~s for the line, and 2.30~s for
@@ -168,7 +168,8 @@ Because the underlying \texttt{QuadX} attitude controller steps twice per invoca
 advances 10 physics steps (41.67~ms), yielding an effective control rate of 24~Hz rather than the
 nominal 48~Hz or 50~Hz (Section~\ref{sec:simulation-backends}). The 600 ticks evaluate 25~s of simulated
 flight with the controller operating at half its intended frequency. Moreover, the physics backend is
-exercised only by unit and smoke tests across a single initial placement (seed~42) for 12~s. These tests
+exercised only by unit and smoke tests across a single initial placement (seed~42), each for 600 ticks: 12~s at the nominal 20~ms tick and
+25~s of simulated flight at the effective one. These tests
 verify only that the terminal positions of the five vehicles lie within 0.5~m of their assigned slots;
 they record no time-resolved trajectories, apply no separation clamp, and count no collisions. Whether
 the controller maintains safe separation and stable flight under rigid-body dynamics across varied
@@ -179,7 +180,7 @@ Section~\ref{sec:formation-control} rests directly on the geometric separation c
 trials, zero collisions were observed, backed by a hard geometric separation clamp at the integrator.
 On the kinematic backend, this clamp operates by directly rewriting vehicle position states at the
 integrator whenever inter-vehicle distance drops below 0.800~m (Section~\ref{sec:swarm-controller}).
-Collisions are evaluated after the clamp against a threshold of 0.50~m, so zero collisions follows from
+Collisions are evaluated after the clamp against a threshold of 0.35~m, below the clamp distance, so zero collisions follows from
 the numerical convergence of the clamp. The clamp intervened 432 times across 144 of the 150 trials,
 requiring between 1 and 14 corrections in 96\% of runs. A physical quadrotor airframe or a rigid-body
 physics simulator exposes no internal position state to rewrite; collision avoidance on physical
@@ -190,10 +191,11 @@ mechanism therefore cannot be transferred to physical airframes without reformul
 occurs (Section~\ref{sec:swarm-controller}). The semantic validator bounds commanded velocities at
 2.0~m/s for \texttt{move} and \texttt{set\_param} commands (Section~\ref{sec:validation-layers}), but
 formation commands carry no speed parameter. Both simulation backends enforce a hard ceiling of 3.0~m/s
-on vehicle velocity. During large formation transitions, such as reconfiguring from a line to a circle,
-vehicles accelerate up to the backend limit of 3.0~m/s, exceeding the validator's 2.0~m/s boundary.
-Because the geometric separation clamp bounds inter-vehicle distance rather than speed, velocities during
-formation manoeuvres exceed the commanded flight envelope.
+on vehicle velocity. A formation change can therefore accelerate the vehicles up to the backend limit of 3.0~m/s, above the
+validator's 2.0~m/s boundary; vehicle speeds were not recorded in the formation-control experiment, so how
+often this occurs is not measured. Because the geometric separation clamp bounds inter-vehicle distance
+rather than speed, nothing in the controller keeps formation manoeuvres within the commanded flight
+envelope.
 
 \paragraph{Acoustic scope and recorded speech.} The acoustic evaluation relies entirely on recorded
 audio replayed through the runtime. Live microphone capture introduces analog gain variations, room
@@ -221,9 +223,9 @@ is in \texttt{FLYING}. (After \texttt{swarm abort}, the state machine rejects it
 In addition, the cancellation mechanism reaches only an active language-model decode. If a reflex
 trigger arrives while an utterance is undergoing \gls{stt} transcription, transcription and the
 subsequent decode proceed to completion before the ordering rule discards the result. In that event,
-recovery latency is governed by the full parse path rather than the 6~ms client cancellation, exceeding
-the 300~ms preemption recovery budget (which was measured only for triggers arriving during decodes,
-78/78).
+recovery latency is governed by the remaining parse-path stages rather than by the cancellation. The
+preemption-recovery criterion was measured only for triggers arriving during a decode, and it is missed
+there as well (1{,}195~ms at p95 against 300~ms).
 
 \paragraph{Safe-failure rate.} The safe-failure rate fails the $\geq 0.70$ requirement at every noise
 level. In clean audio, the safe-failure rate is 0.032 (2 of 62 failures), and it remains between 0.014 and
@@ -248,23 +250,27 @@ dispatched, despite holds being illegal during landing.
 \paragraph{Summary of criteria verdicts.} Table~\ref{tab:requirements-summary} records seven criteria
 met, five missed, two not demonstrated, two not yet run, and one planned for the defence. Each of the
 five misses has a confirmed cause. Reflex latency (545~ms idle, 547~ms loaded at p95 against 150~ms) is
-missed in the spotter's 540~ms decision delay and 80~ms frame quantisation, not in board computation
+missed in 540~ms that combine the spotter's decision delay, the 80~ms frame quantisation and the error of
+the energy-based offset anchor, which the measurement does not separate, and not in board computation
 (6~ms idle, 18~ms loaded). End-to-end latency (3{,}122~ms at p95 against 2{,}500~ms, missed by 622~ms or
 25\%) is missed in speech recognition (1{,}449~ms against 1{,}200~ms allowance) and prompt prefill
 (751~ms against 250~ms allowance, operating without prompt prefix caching). Preemption recovery
-(1{,}195~ms at p95 against 300~ms) is missed in \texttt{llama-server}'s 1~s HTTP polling interval to
-release its slot. Clean-audio recognition (\gls{crr} 0.690 against 0.80) is missed in speech recognition
+(1{,}195~ms at p95 against 300~ms) is missed in the time \texttt{llama-server} takes to
+release its slot, which its 1~s HTTP polling interval explains only in part
+(Section~\ref{sec:latency-experiment}). Clean-audio recognition (\gls{crr} 0.690 against 0.80) is missed in speech recognition
 errors and 22 failures from endpointer pauses. Recognition in noise (\gls{crr} 0.590 at 10~dB against
 0.65) is missed in acoustic degradation under noise. The two keyword criteria are not demonstrated under
 the interval rule: keyword false accepts (2.33/h [0.06, 12.98] against $\leq 1$/h) has a point estimate
 above the budget, but its interval spans the threshold; keyword false rejects (hold 0.050 [0.001, 0.249],
 abort 0.000 [0.000, 0.168] against $\leq 0.10$) have point estimates within budget, but intervals
 exceeding 0.10 due to the 20 takes per class. Offline speech recognition and offline operation remain not
-yet run because neither benchmark evaluated the system with networking disabled on camera.
+yet run because neither benchmark evaluated the system with networking disabled on camera. The
+single-command rerun that reproducibility requires (Section~\ref{sec:engineering-requirements}) is not
+provided either: each experiment is rerun by its own runner (Chapter~\ref{chap:validation}).
 
 \section{Future work}
 \label{sec:future-work}
-Six engineering and experimental developments follow directly from the limitations identified in
+Seven engineering and experimental developments follow directly from the limitations identified in
 Section~\ref{sec:limitations}. Each item addresses a specific empirical or architectural gap.
 
 \paragraph{Live acoustic pipeline and physical wireless deployment.} Following the limitation of
@@ -297,12 +303,22 @@ quadrotor airframes equipped with onboard attitude stabilisation.
 end-to-end latency shortfall (3{,}122~ms against 2{,}500~ms) and preemption recovery shortfall
 (1{,}195~ms against 300~ms), engineering effort must focus on the two stages that exceed their budget
 allowances (Section~\ref{sec:latency-experiment}). Enabling prompt prefix caching in the
-language-model server will reduce prefill latency from 751~ms to within its 250~ms allowance. For speech
-recognition, which accounts for 1{,}449~ms at p95, deploying an optimised acoustic model or streaming
-encoder will compress transcription time toward the 1{,}200~ms budget. In addition, replacing
-\texttt{llama-server}'s 1~s HTTP polling interval with an explicit slot cancellation callback will reduce
-preemption recovery to the client's 6~ms cancellation latency, satisfying the 300~ms recovery
-requirement.
+language-model server is expected to reduce prefill latency from 751~ms towards its 250~ms allowance,
+provided the cached prefix leaves the decoded command unchanged, which was not tested
+(Section~\ref{sec:runtime}). For speech recognition, which accounts for 1{,}449~ms at p95, deploying an
+optimised acoustic model or streaming encoder is expected to compress transcription time toward the
+1{,}200~ms budget. Replacing \texttt{llama-server}'s 1~s HTTP polling interval with an explicit slot
+cancellation callback is expected to shorten preemption recovery, although the polling period does not
+account for all of it: the p95 of 1{,}195~ms and the maximum of 1{,}505~ms both exceed the 1~s period,
+and that remainder is unexplained (Section~\ref{sec:latency-experiment}).
+
+\paragraph{Recognition accuracy.} Following the clean-audio and noise recognition misses, which lie in
+the speech stage (Section~\ref{sec:acoustic-robustness}), the remedies deferred in
+Chapter~\ref{chap:validation} can be evaluated: a longer endpointing silence threshold, which would
+reduce the splits at pauses at a cost to the endpointing wait; a larger recognition model, at a cost to
+the 1{,}200~ms recognition allowance; and a different initial prompt. None of them may be chosen on the
+golden set, which is the test set. Each requires a second held-out set of recorded speech on which it is
+selected before the golden set judges it.
 
 \paragraph{Preemption queue flushing and transcription interruption.} Following the limitations in
 preemption scope, the runtime preemption mechanism must be extended beyond active decodes. The command
@@ -331,8 +347,11 @@ questions are answered directly against the measured data of Chapter~\ref{chap:v
 meet a p95 budget compatible with interactive swarm control, and how that budget is distributed across
 stages.
 
-The measured data answer the first clause in the negative: the deployed offline pipeline does not meet
-the 2{,}500~ms end-to-end p95 budget for interactive swarm control. Measured from the end of speech
+The measured data answer the first clause in the negative: the deployed pipeline, whose models all run on the
+Raspberry~Pi~5, does not meet the 2{,}500~ms end-to-end p95 budget for interactive swarm control. Two scope
+conditions attach to that answer. Offline operation itself was not verified, since no run was made with
+networking disabled, and the measured spans end when the command is handed to the command bus on the
+device, so the wireless hop and the controller lie outside them. Measured from the end of speech
 across 226 golden-set segments on the cooled Raspberry~Pi~5, the parse path reaches an end-to-end p95 of
 3{,}122~ms (3{,}602~ms with endpointing), missing the requirement by 622~ms (25\%). Similarly, the reflex
 path does not meet its 150~ms p95 budget, reaching 545~ms idle and 547~ms loaded from the keyword offset,
@@ -345,7 +364,8 @@ and validation with the state-machine check (under 1~ms against 50~ms). Two stag
 shortfall: speech recognition, which takes 1{,}449~ms against its 1{,}200~ms allowance, and prompt
 prefill, which takes 751~ms against its 250~ms allowance because the deployed runtime does not cache the
 prompt prefix. On the reflex path, board computation and publication require 6~ms idle and 18~ms loaded;
-the 540~ms delay resides entirely in spotter decision delay and 80~ms frame quantisation.
+the remaining 540~ms combines the spotter's decision delay, the 80~ms frame quantisation and the error
+of the offset anchor, which the measurement does not separate.
 
 \paragraph{Acoustic robustness and control quality.} Research Question~3 (RQ3) asks how
 \gls{crr} and \gls{wer} degrade as \gls{snr} falls from clean to 5~dB under propeller noise, whether the
@@ -368,20 +388,27 @@ dispatches an executable command with altered parameters rather than routing the
 The third clause is answered in the affirmative for kinematic simulation: the controller holds formation
 to specification. Across all 150 trials on the kinematic backend, zero collisions were observed, backed
 by a hard geometric separation clamp at the integrator that intervened 432 times across 144 trials.
-Formation accuracy reached 1.000 in every trial, exceeding the $\geq 0.85$ requirement.
+Formation accuracy reached 1.000 in every trial, exceeding the $\geq 0.85$ requirement. The measure is
+saturated by the protocol, since every trial converged within 4.32~s of a 60~s trial, so it does not
+discriminate between the formations; convergence time is the figure that does
+(Section~\ref{sec:formation-control}).
 
-\paragraph{System contribution.} The primary engineering contribution of this work is the dual-path
-runtime with its formal reflex-path membership rule. By decoupling safety-critical emergency stops from
-natural-language parsing, the reflex path cancels 78 of 78 in-progress language-model decodes with zero
-late dispatches and zero cross-triggers between classes. The membership rule restricts the fast path
-strictly to commands where the cost of a false accept is negligible and the value of time saved is
-critical, establishing an auditable architectural boundary between natural-language understanding and
-reflexive vehicle safety.
+\paragraph{System contribution.} The contribution this document claims
+(Section~\ref{sec:contributions}) is the membership rule of the reflex path, derived from the cost of a
+false accept and the value of the time saved rather than chosen by preference, together with the latency
+budget of its own that the path is held to while the language model decodes. The rule admits exactly two
+classes, whose false accepts move the swarm towards a safer state at a cost to the mission rather than to
+safety, and it states the condition a third class would have to meet to be admitted, which is what makes
+it auditable. Running a fast path beside the language model is not itself claimed
+(Section~\ref{sec:gap}). In the latency experiment the reflex path cancelled 78 of 78 in-progress
+decodes, the command bus never had to discard a late result, and neither class triggered on the other's
+phrase; its latency nevertheless misses the 150~ms budget (Section~\ref{sec:latency-experiment}).
 
 \paragraph{Relation to the \emph{M\'emoire de Master}.} Research Question~1 (RQ1), concerning the accuracy--efficiency
 Pareto trade-off across quantised \glspl{slm} on \glspl{sbc}, is answered in the
-\emph{M\'emoire de Master}, which establishes that Qwen2.5-0.5B at Q4\_K\_M provides the Pareto-optimal
-configuration on the Raspberry~Pi~5 at 0.935 \gls{em} on reference text.
+\emph{M\'emoire de Master}, which selects Qwen2.5-0.5B at Q4\_K\_M, one of two non-dominated configurations on the
+Raspberry~Pi~5, as the best measured on its selection criteria against re-baselined constraints, at
+0.935 \gls{em} on reference text.
 
 \paragraph{Closing.} The live demonstration planned for the defence
 (Section~\ref{sec:demonstration-protocol}) will execute the full pipeline from live microphone input to

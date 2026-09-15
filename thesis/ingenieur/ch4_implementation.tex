@@ -448,7 +448,7 @@ backend would demonstrate little about transfer: the kinematic results would the
 nowhere else, and a success on the physics backend would describe a different controller. The
 tests of the physics backend are written to that condition, and they place the vehicles with
 seed 42. Each of the three formations is flown
-for 12~s and must end with all five vehicles (the test's 85\% threshold with $N=5$) within 0.5~m of their slots, a line
+for 600 ticks (12~s at the nominal tick, 25~s of simulated flight) and must end with all five vehicles (the test's 85\% threshold with $N=5$) within 0.5~m of their slots, a line
 formation must not sink, and one test flies the same line with the default controller on both
 backends and applies the same criterion to each. All five tests pass.
 

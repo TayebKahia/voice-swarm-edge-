@@ -63,11 +63,20 @@ every command from both paths before it reaches the swarm controller. A \emph{ho
 recoverable. An \emph{abort} is an immediate descent in place, with the motors stopped on ground
 contact; it ends the mission.
 
+Commands are spoken in English, and the command language has ten intents: taking off, landing, a
+hold, an abort, a movement, a change of altitude, a rotation, a formation, a change of flight
+parameter, and \texttt{unknown} for an utterance that maps to none of them
+(Table~\ref{tab:membership}). The utterance of the opening paragraph travels on the parse
+path: it is endpointed and transcribed, the language model parses the transcript into the single-line
+command \texttt{\{"intent":"formation","shape":"circle","radius":5.0\}}, the validator and the state
+machine check it, and on the designed route the swarm controller assigns each vehicle a slot on a
+circle of radius 5~m. Chapter~\ref{chap:implementation} states which links of that route are built.
+
 One boundary of the operational context must be stated at the outset, because every claim in this
 document is scoped by it: the aircraft are simulated. Commands from the device reach the
 workstation over the wireless link, where the swarm controller drives a software-in-the-loop
-simulation of $N = 5$ vehicles at 50~Hz through a single environment interface with two
-interchangeable backends, the PyFlyt simulator~\cite{pyflyt} and a kinematic simulator. The audio
+simulation of $N = 5$ vehicles, ticking at a nominal 50~Hz, through a single environment interface
+with two interchangeable backends, the PyFlyt simulator~\cite{pyflyt} and a kinematic simulator. The audio
 path is not simulated, but it is recorded: the evaluation corpus, referred to below as the golden
 set, was recorded by one speaker through the deployed microphone in a real room, and every result
 in this document is obtained by replaying recorded audio from file. Live microphone capture is not
@@ -223,9 +232,10 @@ runtime consumes the result of. Two further requirements are verification practi
 documents rather than architecture: one CSV row per benchmark trial, from which every table and
 figure in both documents derives, and full reproducibility through pinned dependency versions,
 fixed seeds and a single-command rerun. Chapter~\ref{chap:validation} reports against both. The
-\gls{wer} of the speech-recognition model on the author's voice also bears on RQ3, but it is
-measured by the speaker-sensitivity experiment of the \emph{M\'emoire de Master}, and
-Chapter~\ref{chap:validation} cites it as an input rather than restating it. One criterion sits
+\gls{wer} of the speech-recognition model on the author's clean voice, positioned against a
+multi-speaker distribution, is measured by the speaker-sensitivity experiment of the \emph{M\'emoire
+de Master}, and Chapter~\ref{chap:validation} cites it as an input; the acoustic-robustness
+experiment measures the \gls{wer} across the noise levels itself. One criterion sits
 across the boundary and is named here explicitly: the one the \emph{M\'emoire de Master} calls
 Safe failure, which bounds the \emph{safe-failure rate}, the proportion of errors that resolve to
 \texttt{unknown} or a hold rather than to a wrong action. It is the numeric form of the design
@@ -446,8 +456,9 @@ claimed by the \emph{M\'emoire de Master}.
 \section{Structure of this document}
 \label{sec:structure}
 Five chapters follow. Chapter~\ref{chap:state-of-the-art} reviews voice-controlled \gls{uav}
-systems and positions this work against the natural-language drone-control agent of Lim
-et al.~\cite{lim2025}, which is the baseline against which this work is compared.
+systems, positions this work against its baseline, the natural-language drone-control agent of Lim
+et al.~\cite{lim2025}, by design point rather than by measurement, reviews the swarm-control model
+and the offline speech components the system builds on, and states the gap this document fills.
 Chapter~\ref{chap:architecture} presents the design: the dual-path decomposition, the membership
 rule of the reflex path derived rather than asserted, the three validation layers, the
 stage-by-stage latency budget and the allocation of a four-core processor between paths that must
