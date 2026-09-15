@@ -533,7 +533,8 @@ fact("backends", "The commanded velocity is held by the backend", "self._command
      "PyFlytEnv integrates its own commanded velocity")
 fact("backends", "steady-state altitude droop", "test_pyflyt_does_not_sink_under_a_station_keeping_command" in tpy,
      "test guards against steady-state altitude droop")
-number("flown for 12~s and must end", hover_s, "test_pyflyt.py HOVER_SECONDS")
+number("(12~s at the nominal tick", hover_s, "test_pyflyt.py HOVER_SECONDS")
+number("for 600 ticks (12~s", hover_s / 0.02, "HOVER_SECONDS / nominal 20 ms tick")
 number("the test's 85\\% threshold with $N=5$", 100 * float(code("swarm/test_pyflyt.py", r">= (0\.\d+), f\"FA")),
        "test_pyflyt.py FA threshold", nth=0)
 number("the test's 85\\% threshold with $N=5$", n, "SwarmEnv DEFAULT_N", nth=1)

@@ -33,6 +33,9 @@ from lib import (  # noqa: E402
     significant,
 )
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from swarm.control import CLAMP_DISTANCE, COLLISION_DISTANCE  # noqa: E402
+
 r = Review("ingenieur_ch6", "ingenieur", INGENIEUR[5], INGENIEUR[:5])
 r.common()
 text, prose = r.ch.text, r.ch.prose()
@@ -81,11 +84,13 @@ r.number("effective control rate of 24~Hz", 24, "PyFlyt effective control rate")
 r.number("advances 10 physics steps", 10, "QuadX 10 physics steps per tick")
 r.number("(41.67~ms)", 41.67, "QuadX tick duration ms", places=2)
 r.number("evaluate 25~s", 25, "PyFlyt flight duration seconds")
-r.number("for 12~s", 12, "PyFlyt test duration")
+r.number("12~s at the nominal 20~ms tick", 12, "PyFlyt test duration (nominal)")
+r.number("600 ticks: 12~s", 600, "PyFlyt test ticks")
 r.number("clamp intervened 432 times", sum(int(x["clamp_activations"]) for x in exp4), "total clamp interventions")
 r.number("across 144 of the 150 trials", sum(1 for x in exp4 if int(x["clamp_activations"]) > 0), "trials needing clamp")
-r.number("distance drops below 0.800~m", 0.800, "clamp distance", places=3)
-r.number("against a threshold of 0.50~m", 0.50, "collision threshold", places=2)
+r.number("distance drops below 0.800~m", CLAMP_DISTANCE, "clamp distance (swarm/control.py)", places=3)
+# Read from the code, not typed: a literal 0.50 here once let the prose's wrong 0.50 m pass review.
+r.number("against a threshold of 0.35~m", COLLISION_DISTANCE, "collision threshold (swarm/control.py)", places=2)
 r.number(r"2.0~m/s for \texttt{move}", 2.0, "commanded velocity ceiling", places=1)
 r.number("hard ceiling of 3.0~m/s", 3.0, "backend speed ceiling", places=1)
 r.number("safe-failure rate is 0.032", float(exp3_pi["clean"]["safe_failure_rate"]), "clean safe-failure rate", places=3)
@@ -101,7 +106,7 @@ r.number("one planned for the defence", 1, "planned criteria count")
 r.number("545~ms idle", reflex_idle_p95, "reflex idle p95", places=0)
 r.number("547~ms loaded", reflex_loaded_p95, "reflex loaded p95", places=0)
 r.number("at p95 against 150~ms", 150, "reflex budget p95")
-r.number("spotter's 540~ms decision delay", 540, "spotter decision delay")
+r.number("missed in 540~ms that combine", 540, "spotter delay + quantisation + anchor error")
 r.number("80~ms frame quantisation", 80, "spotter frame quantisation")
 r.number("6~ms idle", g("a_system", "idle"), "idle board computation p95", places=0)
 r.number("18~ms loaded", g("a_system", "loaded"), "loaded board computation p95", places=0)
@@ -129,10 +134,10 @@ r.number("abort 0.000", wake_real["swarm_abort"]["frr"], "author abort frr", pla
 
 # -- 6.3 Future Work ---------------------------------------------------------------------------
 r.expect("future_work", r"\cite{koren1991}" in text, "Cites koren1991 for potential field collision avoidance")
-r.number("from 751~ms to within its 250~ms allowance", prefill_p95, "prefill p95", places=0)
-r.number("from 751~ms to within its 250~ms allowance", 250, "prefill allowance", nth=1)
-r.number("client's 6~ms cancellation latency", g("abort_return", "loaded"), "client abort return p95", places=0,
-         tol=0.5, note="x.5 in exp2.csv; the \\input table prints it half-to-even, and the prose follows the table")
+r.number("from 751~ms towards its 250~ms allowance", prefill_p95, "prefill p95", places=0)
+r.number("from 751~ms towards its 250~ms allowance", 250, "prefill allowance", nth=1)
+r.expect("future_work", "is expected to shorten preemption recovery" in text,
+         "polling fix stated as expected, not promised (Ch5: p95 and max exceed the 1 s period)")
 
 # -- 6.4 Conclusion ----------------------------------------------------------------------------
 r.expect("rq2", "Research Question~2 (RQ2)" in text, "RQ2 explicitly answered")
@@ -142,9 +147,9 @@ r.text_claim("claim", "zero collisions were observed, backed\nby a hard geometri
              sum(int(x["collisions"]) for x in exp4) == 0, "locked collision phrasing with zero collisions")
 r.number("Formation accuracy reached 1.000", 1.000, "formation accuracy", places=3)
 r.number(r"exceeding the $\geq 0.85$ requirement", 0.85, "formation accuracy requirement", places=2)
-r.number("cancels 78 of 78 in-progress", 78, "cancelled decodes count")
-r.number("zero\nlate dispatches", 0, "late dispatches count")
-r.number("zero cross-triggers between classes", 0, "cross-triggers count")
+r.number("cancelled 78 of 78 in-progress", 78, "cancelled decodes count")
+r.expect("claim", "never had to discard a late result" in text, "no late result discarded (Ch5 sec:latency-experiment)")
+r.expect("claim", "neither class triggered on the other's" in text, "zero cross-triggers stated")
 
 # -- Number inheritance: no new measurement introduced in Ch6 ---------------------------------
 earlier = {round(n.value, n.places) for c in INGENIEUR[:5] for n in numbers(Chapter.load("ingenieur", c))}

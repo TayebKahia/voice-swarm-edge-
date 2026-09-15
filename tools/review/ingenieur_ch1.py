@@ -78,7 +78,7 @@ r.text_claim("claim", "Five chapters follow", len(main_order("ingenieur")) - 1 =
 # -- Hardware and controller facts against prd.md -----------------------------------------------
 p = prd()
 for anchor, needle in (("8~GB of memory", "8 GB"), ("four Cortex-A76 cores", "Cortex-A76"),
-                       ("$N = 5$ vehicles at 50~Hz", "50 Hz")):
+                       ("ticking at a nominal 50~Hz", "50 Hz")):
     r.text_claim("fact", anchor, needle in p, f"`{needle}` stated in prd.md")
 
 # -- Structure paragraph: chapters in order, labels as the header comment fixes them ------------
