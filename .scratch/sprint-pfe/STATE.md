@@ -2006,3 +2006,12 @@ All 5 verified findings (MINOR-1, NIT-1 to NIT-4) were decided, verified, and ap
 - NIT-4 (D8d): l.301: corrected American spelling `optimized acoustic model` to British `optimised acoustic model`.
 Review script tools/review/ingenieur_ch6.py: 0 FAIL, 0 WARN, 81 PASS; selftest passes; clean XeLaTeX build from scratch (0 errors, 0 undefined citations/references, 0 dropped floats). Issue 14 closed.
 
+
+## Ingenieur whole-document pass closed (Thu 24 Sep, ~20:30) -- issue 10
+Abstracts EN/FR/AR written (ee80c2b, f9cbb67); Ch2 scoped citation check applied (feb7371, issue 07
+closed); whole-document pass applied (87ca9f1 thesis, 1395103 scripts). One BLOCKER found and fixed:
+Ch6 said collisions were counted at 0.50 m; the code and Ch4 say 0.35 m, and the Ch6 script had
+checked against the same wrong literal -- it now reads swarm/control.py. Every Ingenieur chapter
+script 0 FAIL; clean build 78 pages, 0 errors.
+LEFT FOR THE AUTHOR BEFORE THE DEPOT: jury names ("Name]" on both title pages); read the Arabic
+abstract; print / DVDs.

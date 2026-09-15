@@ -7,10 +7,10 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | status | check | line | finding |
 |---|---|---|---|
 | WARN | heading | 290 | paragraph `Layer 1: the decoding grammar.` contains a number |
-| WARN | heading | 302 | paragraph `Layer 2: the semantic validator.` contains a number |
-| WARN | heading | 325 | paragraph `Layer 3: the flight state machine.` contains a number |
-| WARN | heading | 495 | paragraph `Core 0.` contains a number |
-| WARN | heading | 505 | paragraph `Cores 1--3.` contains a number |
+| WARN | heading | 301 | paragraph `Layer 2: the semantic validator.` contains a number |
+| WARN | heading | 324 | paragraph `Layer 3: the flight state machine.` contains a number |
+| WARN | heading | 494 | paragraph `Core 0.` contains a number |
+| WARN | heading | 504 | paragraph `Cores 1--3.` contains a number |
 | PASS | check_tex |  | tools/check_tex.py: no problems beyond cross-chapter \ref (resolved below) |
 | PASS | ref |  | every \ref resolves within the document |
 | PASS | cite |  | 6 distinct keys cited, all resolved |
@@ -80,40 +80,40 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | PASS | claim | 293 | `with one of ten intents and a fixed key order` -> written 10, source gives 10.00 (intents in schema/cmd.gbnf) |
 | PASS | grammar | 295 | schema/cmd.gbnf num rule: at most three integer digits, one decimal |
 | PASS | grammar | 296 | cmd.gbnf idlist [0-4], N = 5 |
-| PASS | claim | 306 | `A radius is clamped to 1--10~m` -> written 1, source gives 1.00 (ENVELOPE radius[0]) |
-| PASS | claim | 306 | `A radius is clamped to 1--10~m` -> written 10, source gives 10.00 (ENVELOPE radius[1]) |
-| PASS | claim | 307 | `spacing to 1--5~m` -> written 1, source gives 1.00 (ENVELOPE spacing[0]) |
-| PASS | claim | 307 | `spacing to 1--5~m` -> written 5, source gives 5.00 (ENVELOPE spacing[1]) |
-| PASS | claim | 307 | `a target height to 0.5--15~m` -> written 0.5, source gives 0.50 (ENVELOPE z[0]) |
-| PASS | claim | 307 | `a target height to 0.5--15~m` -> written 15, source gives 15.00 (ENVELOPE z[1]) |
-| PASS | claim | 307 | `a speed to 0.2--2.0~m/s` -> written 0.2, source gives 0.20 (ENVELOPE speed[0]) |
-| PASS | claim | 307 | `a speed to 0.2--2.0~m/s` -> written 2.0, source gives 2.00 (ENVELOPE speed[1]) |
-| PASS | claim | 308 | `its height clamped to 0.5--15~m` -> written 0.5, source gives 0.50 (ENVELOPE z[0]) |
-| PASS | claim | 308 | `its height clamped to 0.5--15~m` -> written 15, source gives 15.00 (ENVELOPE z[1]) |
-| PASS | claim | 308 | `a distance to at most 50~m` -> written 50, source gives 50.00 (ENVELOPE dist (ADR-0001)) |
-| PASS | claim | 309 | `more than 50~m from the origin` -> written 50, source gives 50.00 (schema/schema.py POS_MAX_NORM) |
-| PASS | claim | 309 | schema/validate.py _clamp_pos: z clamped first, then only x, y scaled to the 50 m norm |
-| PASS | claim | 311 | `wrapped into $[-180^\circ, 180^\circ]$` -> written 180, source gives 180.00 (ENVELOPE yaw) |
-| PASS | legality | 340 | rejection -> hold exactly where hover is legal (ADR-0002) |
-| PASS | float | 342 | tab:legality referenced before it appears (line 332) |
-| PASS | legality | 351 | `move` legal in ['FLYING'] = swarm/fsm.py ['FLYING'] |
-| PASS | legality | 351 | `altitude` legal in ['FLYING'] = swarm/fsm.py ['FLYING'] |
-| PASS | legality | 351 | `rotate` legal in ['FLYING'] = swarm/fsm.py ['FLYING'] |
-| PASS | legality | 351 | `formation` legal in ['FLYING'] = swarm/fsm.py ['FLYING'] |
-| PASS | float | 405 | tab:stage-budget referenced before it appears (line 392) |
-| PASS | claim | 415 | `& Language-model stages combined & 1{,}350~ms` -> written 1350, source gives 1350.00 (prefill + decode rows) |
-| PASS | claim | 435 | `quantisation of audio into 80~ms frames` -> written 80, source gives 80.00 (runtime/stream.py FRAME / RATE) |
-| PASS | claim | 444 | `whole windows of 32~ms` -> written 32, source gives 32.00 (runtime/vad.py WINDOW / RATE) |
-| PASS | claim | 446 | `inside the allowance: 450~ms` -> written 450, source gives 450.00 (runtime/vad.py Endpointer min_silence_ms default) |
-| PASS | claim | 446 | `for a worst case of 482~ms` -> written 482, source gives 482.00 (min_silence_ms + one window) |
-| PASS | claim | 454 | `The two language-model rows together allow 1{,}350~ms` -> written 1350, source gives 1350.00 (prefill + decode rows) |
-| PASS | claim | 457 | `$T_0$ sum to 2{,}600~ms` -> written 2600, source gives 2600.00 (sum of the four stage rows after T0) |
-| PASS | claim | 474 | `The Raspberry~Pi~5 has four Cortex-A76 cores` -> written 4, source gives 4.00 (prd.md Table 1 / Ch1) |
-| PASS | float | 484 | tab:core-allocation referenced before it appears (line 475) |
-| PASS | cores | 490 | parser DEFAULT_THREADS = 3, PipelineRuntime stt_threads = 3 |
-| PASS | claim | 495 | `The frame loop takes one 80~ms frame` -> written 80, source gives 80.00 (runtime/stream.py FRAME / RATE) |
-| PASS | cores | 519 | 2.5 GiB full-stack ceiling as Master tab:requirements states it |
-| PASS | cores | 521 | agrees with Master Ch4: no full-stack memory measurement |
+| PASS | claim | 305 | `A radius is clamped to 1--10~m` -> written 1, source gives 1.00 (ENVELOPE radius[0]) |
+| PASS | claim | 305 | `A radius is clamped to 1--10~m` -> written 10, source gives 10.00 (ENVELOPE radius[1]) |
+| PASS | claim | 306 | `spacing to 1--5~m` -> written 1, source gives 1.00 (ENVELOPE spacing[0]) |
+| PASS | claim | 306 | `spacing to 1--5~m` -> written 5, source gives 5.00 (ENVELOPE spacing[1]) |
+| PASS | claim | 306 | `a target height to 0.5--15~m` -> written 0.5, source gives 0.50 (ENVELOPE z[0]) |
+| PASS | claim | 306 | `a target height to 0.5--15~m` -> written 15, source gives 15.00 (ENVELOPE z[1]) |
+| PASS | claim | 306 | `a speed to 0.2--2.0~m/s` -> written 0.2, source gives 0.20 (ENVELOPE speed[0]) |
+| PASS | claim | 306 | `a speed to 0.2--2.0~m/s` -> written 2.0, source gives 2.00 (ENVELOPE speed[1]) |
+| PASS | claim | 307 | `its height clamped to 0.5--15~m` -> written 0.5, source gives 0.50 (ENVELOPE z[0]) |
+| PASS | claim | 307 | `its height clamped to 0.5--15~m` -> written 15, source gives 15.00 (ENVELOPE z[1]) |
+| PASS | claim | 307 | `a distance to at most 50~m` -> written 50, source gives 50.00 (ENVELOPE dist (ADR-0001)) |
+| PASS | claim | 308 | `more than 50~m from the origin` -> written 50, source gives 50.00 (schema/schema.py POS_MAX_NORM) |
+| PASS | claim | 308 | schema/validate.py _clamp_pos: z clamped first, then only x, y scaled to the 50 m norm |
+| PASS | claim | 310 | `wrapped into $[-180^\circ, 180^\circ]$` -> written 180, source gives 180.00 (ENVELOPE yaw) |
+| PASS | legality | 339 | rejection -> hold exactly where hover is legal (ADR-0002) |
+| PASS | float | 341 | tab:legality referenced before it appears (line 331) |
+| PASS | legality | 350 | `move` legal in ['FLYING'] = swarm/fsm.py ['FLYING'] |
+| PASS | legality | 350 | `altitude` legal in ['FLYING'] = swarm/fsm.py ['FLYING'] |
+| PASS | legality | 350 | `rotate` legal in ['FLYING'] = swarm/fsm.py ['FLYING'] |
+| PASS | legality | 350 | `formation` legal in ['FLYING'] = swarm/fsm.py ['FLYING'] |
+| PASS | float | 404 | tab:stage-budget referenced before it appears (line 391) |
+| PASS | claim | 414 | `& Language-model stages combined & 1{,}350~ms` -> written 1350, source gives 1350.00 (prefill + decode rows) |
+| PASS | claim | 434 | `quantisation of audio into 80~ms frames` -> written 80, source gives 80.00 (runtime/stream.py FRAME / RATE) |
+| PASS | claim | 443 | `whole windows of 32~ms` -> written 32, source gives 32.00 (runtime/vad.py WINDOW / RATE) |
+| PASS | claim | 445 | `inside the allowance: 450~ms` -> written 450, source gives 450.00 (runtime/vad.py Endpointer min_silence_ms default) |
+| PASS | claim | 445 | `for a worst case of 482~ms` -> written 482, source gives 482.00 (min_silence_ms + one window) |
+| PASS | claim | 453 | `The two language-model rows together allow 1{,}350~ms` -> written 1350, source gives 1350.00 (prefill + decode rows) |
+| PASS | claim | 456 | `$T_0$ sum to 2{,}600~ms` -> written 2600, source gives 2600.00 (sum of the four stage rows after T0) |
+| PASS | claim | 473 | `The Raspberry~Pi~5 has four Cortex-A76 cores` -> written 4, source gives 4.00 (prd.md Table 1 / Ch1) |
+| PASS | float | 483 | tab:core-allocation referenced before it appears (line 474) |
+| PASS | cores | 489 | parser DEFAULT_THREADS = 3, PipelineRuntime stt_threads = 3 |
+| PASS | claim | 494 | `The frame loop takes one 80~ms frame` -> written 80, source gives 80.00 (runtime/stream.py FRAME / RATE) |
+| PASS | cores | 518 | 2.5 GiB full-stack ceiling as Master tab:requirements states it |
+| PASS | cores | 520 | agrees with Master Ch4: no full-stack memory measurement |
 
 ### Citation sheet (for the citation agent: open each identifier, judge SUPPORTS / PARTIAL / DOES NOT SUPPORT per row)
 
@@ -129,10 +129,10 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | key | title | year | identifier |
 |---|---|---|---|
 | oww | openWakeWord | 2024 | https://github.com/dscripka/openWakeWord |
-| silero | Silero VAD: Pre-trained Enterprise-Grade Voice Activity Detector | ? | https://github.com/snakers4/silero-vad |
+| silero | Silero VAD: Pre-trained Enterprise-Grade Voice Activity Detector | 2024 | https://github.com/snakers4/silero-vad |
 | whisper | Robust Speech Recognition via Large-Scale Weak Supervision | 2023 | https://proceedings.mlr.press/v202/radford23a.html |
 | whispercpp | whisper.cpp: Port of OpenAI's Whisper Model in C/C++ | 2026 | https://github.com/ggml-org/whisper.cpp |
-| llamacpp | llama.cpp: LLM Inference in C/C++ | ? | https://github.com/ggml-org/llama.cpp |
+| llamacpp | llama.cpp: LLM Inference in C/C++ | 2026 | https://github.com/ggml-org/llama.cpp |
 | qwen25 | Qwen2.5 Technical Report | 2024 | arXiv:2412.15115 |
 
 ### Section map
@@ -142,9 +142,9 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 12 | chapter | Architecture and design | 176 |
 | 28 | section | Dual-path decomposition | 1549 |
 | 176 | section | Reflex-path membership rule | 1163 |
-| 281 | section | Three validation layers | 1247 |
-| 386 | section | Latency budget | 906 |
-| 470 | section | Resource allocation | 617 |
+| 281 | section | Three validation layers | 1232 |
+| 385 | section | Latency budget | 906 |
+| 469 | section | Resource allocation | 617 |
 
 ### For the argument agent
 
@@ -207,39 +207,39 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 194 | 4.7 | recomputed by a claim on this line |
 | 248 | 0.5 | recomputed by a claim on this line |
 | 268 | 2.35 | recomputed by a claim on this line |
+| 306 | 0.5 | recomputed by a claim on this line |
+| 306 | 0.2 | recomputed by a claim on this line |
+| 306 | 2.0 | recomputed by a claim on this line |
 | 307 | 0.5 | recomputed by a claim on this line |
-| 307 | 0.2 | recomputed by a claim on this line |
-| 307 | 2.0 | recomputed by a claim on this line |
-| 308 | 0.5 | recomputed by a claim on this line |
-| 311 | 180 | recomputed by a claim on this line |
-| 311 | 180 | recomputed by a claim on this line |
-| 312 | 270 | DECLARED ONLY: docs/adr/0001_physical_envelope_analogies.md:36, .scratch/sprint-pfe/STATE.md:17 |
-| 402 | 700 | measured: results/table16_asr_speaker_sensitivity.md:21 x100, results/table16_asr_speaker_sensitivity.md:23 x100 |
-| 410 | 500 | measured: results/exp2_latency_budget.md:13, results/gate3_parity.md:21 |
-| 411 | 1{,}200 | measured: results/exp2_latency_budget.md:14, results/exp2_analysis.md:13 |
-| 412 | 250 | measured: results/exp2_latency_budget.md:15, results/exp2_analysis.md:14 |
-| 413 | 1{,}100 | measured: results/exp2_latency_budget.md:16, results/exp2_analysis.md:15 |
-| 414 | 50 | measured: results/exp2_latency_budget.md:11, results/exp2_latency_budget.md:17 |
-| 415 | 1{,}350 | recomputed by a claim on this line |
-| 416 | 2{,}500 | measured: results/exp2_latency_budget.md:18, results/exp2_latency_budget.md:19 |
-| 417 | 5{,}500 | measured: results/exp2_latency_budget.md:32, thesis/generated/exp2_latency_budget.tex:32 |
-| 420 | 850 | measured: results/exp2_latency_budget.md:27, results/exp2_latency_budget.md:28 |
-| 427 | 2{,}500 | measured: results/exp2_latency_budget.md:18, results/exp2_latency_budget.md:19 |
-| 431 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:21 |
-| 432 | 700 | measured: results/table16_asr_speaker_sensitivity.md:21 x100, results/table16_asr_speaker_sensitivity.md:23 x100 |
-| 435 | 80 | recomputed by a claim on this line |
-| 436 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:21 |
-| 443 | 500 | measured: results/exp2_latency_budget.md:13, results/gate3_parity.md:21 |
-| 444 | 32 | recomputed by a claim on this line |
-| 446 | 450 | recomputed by a claim on this line |
-| 446 | 482 | recomputed by a claim on this line |
-| 453 | 250 | measured: results/exp2_latency_budget.md:15, results/exp2_analysis.md:14 |
-| 454 | 1{,}350 | recomputed by a claim on this line |
-| 457 | 2{,}600 | recomputed by a claim on this line |
-| 457 | 2{,}500 | recomputed by a claim on this line |
-| 467 | 50 | measured: results/exp2_latency_budget.md:11, results/exp2_latency_budget.md:17 |
-| 489 | 80 | measured: results/table16_asr_speaker_sensitivity.md:22, results/wake_training.md:7 |
-| 489 | 80 | measured: results/table16_asr_speaker_sensitivity.md:22, results/wake_training.md:7 |
-| 495 | 80 | recomputed by a claim on this line |
-| 519 | 8 | measured: results/nfr18_false_command.md:11, results/nfr18_false_command.md:13 |
-| 519 | 2.5 | measured: results/nfr18_false_command.md:12, results/nfr18_false_command.md:13 |
+| 310 | 180 | recomputed by a claim on this line |
+| 310 | 180 | recomputed by a claim on this line |
+| 311 | 270 | DECLARED ONLY: docs/adr/0001_physical_envelope_analogies.md:36, .scratch/sprint-pfe/STATE.md:17 |
+| 401 | 700 | measured: results/table16_asr_speaker_sensitivity.md:21 x100, results/table16_asr_speaker_sensitivity.md:23 x100 |
+| 409 | 500 | measured: results/exp2_latency_budget.md:13, results/gate3_parity.md:21 |
+| 410 | 1{,}200 | measured: results/exp2_latency_budget.md:14, results/exp2_analysis.md:13 |
+| 411 | 250 | measured: results/exp2_latency_budget.md:15, results/exp2_analysis.md:14 |
+| 412 | 1{,}100 | measured: results/exp2_latency_budget.md:16, results/exp2_analysis.md:15 |
+| 413 | 50 | measured: results/exp2_latency_budget.md:11, results/exp2_latency_budget.md:17 |
+| 414 | 1{,}350 | recomputed by a claim on this line |
+| 415 | 2{,}500 | measured: results/exp2_latency_budget.md:18, results/exp2_latency_budget.md:19 |
+| 416 | 5{,}500 | measured: results/exp2_latency_budget.md:32, thesis/generated/exp2_latency_budget.tex:32 |
+| 419 | 850 | measured: results/exp2_latency_budget.md:27, results/exp2_latency_budget.md:28 |
+| 426 | 2{,}500 | measured: results/exp2_latency_budget.md:18, results/exp2_latency_budget.md:19 |
+| 430 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:21 |
+| 431 | 700 | measured: results/table16_asr_speaker_sensitivity.md:21 x100, results/table16_asr_speaker_sensitivity.md:23 x100 |
+| 434 | 80 | recomputed by a claim on this line |
+| 435 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:21 |
+| 442 | 500 | measured: results/exp2_latency_budget.md:13, results/gate3_parity.md:21 |
+| 443 | 32 | recomputed by a claim on this line |
+| 445 | 450 | recomputed by a claim on this line |
+| 445 | 482 | recomputed by a claim on this line |
+| 452 | 250 | measured: results/exp2_latency_budget.md:15, results/exp2_analysis.md:14 |
+| 453 | 1{,}350 | recomputed by a claim on this line |
+| 456 | 2{,}600 | recomputed by a claim on this line |
+| 456 | 2{,}500 | recomputed by a claim on this line |
+| 466 | 50 | measured: results/exp2_latency_budget.md:11, results/exp2_latency_budget.md:17 |
+| 488 | 80 | measured: results/table16_asr_speaker_sensitivity.md:22, results/wake_training.md:7 |
+| 488 | 80 | measured: results/table16_asr_speaker_sensitivity.md:22, results/wake_training.md:7 |
+| 494 | 80 | recomputed by a claim on this line |
+| 518 | 8 | measured: results/nfr18_false_command.md:11, results/nfr18_false_command.md:13 |
+| 518 | 2.5 | measured: results/nfr18_false_command.md:12, results/nfr18_false_command.md:13 |
