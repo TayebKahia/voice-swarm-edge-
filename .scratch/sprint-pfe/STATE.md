@@ -2061,3 +2061,11 @@ Logs: demo_runs/pi-20260925-*.jsonl (copied from the Pi) and demo_runs/20260925-
   change offered, not made).
 - Ctrl-C in the workstation was swallowed by Tk mid-redraw -> fixed in 0d39a7b.
 - Still to do: Part B by voice (optional), recorded run on the Pi hotspot (step 7 of the plan).
+- Spotter check (12:20, landed): 10/10 "swarm abort", 10/10 "swarm hold" caught, each 0.2-0.6 s
+  before the endpoint; the step-7 miss was a one-off (spoken fast, before FLYING).
+- FINDING, not in the thesis: the parse path's copy of a reflex phrase is numbered after the reflex,
+  so the ordering rule lets it through; "swarm hold" copies were hover x6, unknown x1, abort x1,
+  wedge x2. Mitigated for the demo only by ReflexGate in runtime/main.py (7eec6fd): no parse for
+  an utterance a reflex fired during or after, before its parse began. Present it at the defence
+  as a mitigation added after live testing. Not yet verified live on the Pi (Pi unreachable at
+  commit time): copy runtime/main.py + runtime/test_main.py, then 10x "swarm hold" while FLYING.
