@@ -6,8 +6,15 @@ parser under `llama-server`, the trained spotter, the endpointer, the frame loop
 thread allocation, with `llama-server` spawned from cores 1-3 so it inherits their mask -- with
 two differences: the frame source is the microphone (`runtime/audio.py`), and the bus addresses
 the workstation, where the consumer, the state machine, the link and the simulation run
-(`demo/workstation.py`). Nothing here decides anything; `Narrator` only prints what each path did,
-for the camera.
+(`demo/workstation.py`). `Narrator` only prints and logs what each path did, for the camera.
+
+One rule is added here and nowhere else, and it is demonstration-only: `ReflexGate` stops the parse
+path publishing an utterance the reflex path already acted on. Both paths hear "swarm hold"; the
+parse path's copy draws a newer sequence number than the reflex, so the consumer's ordering rule
+(discard parse messages *older* than the last reflex) lets it through, and a misheard copy
+overrides the hold. The first live run measured that: 10 spoken "swarm hold", 10 reflex triggers,
+and parse-path copies of hover x6, unknown x1, abort x1 ("swarm, halt.") and a wedge formation x2
+("swarm, horned."). No measured result was produced through this module, so none changes.
 
     python runtime/main.py --bus-host 10.42.0.1                 # the demonstration
     python runtime/main.py --level-check                        # microphone level, no pipeline
@@ -28,6 +35,7 @@ import os
 import sys
 import threading
 import time
+from collections import deque
 from pathlib import Path
 
 if __package__ in (None, ""):  # `python runtime/main.py`
@@ -48,6 +56,7 @@ BUS_PORT = 8766
 
 _KEYWORD = {"hover": "swarm hold", "abort": "swarm abort"}
 _say_lock = threading.Lock()
+logger = logging.getLogger("runtime.main")
 
 
 def say(text: str) -> None:
@@ -56,7 +65,7 @@ def say(text: str) -> None:
 
 
 class Narrator:
-    """Wraps `PipelineRuntime`, printing each path's outcome. Decides nothing, changes nothing."""
+    """Wraps `PipelineRuntime`, printing and logging each path's outcome. Decides nothing."""
 
     def __init__(self, runtime) -> None:
         self._runtime = runtime
@@ -76,7 +85,83 @@ class Narrator:
             say(f"PARSE   decode stopped (seq={trace.seq}); nothing published")
         else:
             say(f"PARSE   -> {trace.message.command}  seq={trace.seq}")
+        logger.info("parse path heard %r", trace.transcript, extra={
+            "event": "parse_heard", "seq": trace.seq, "transcript": trace.transcript, "raw": trace.raw,
+            "aborted": trace.aborted, "stt_ms": round(trace.stt_ms, 1),
+            "parse_wall_ms": round(trace.parse_wall_ms, 1)})
         return trace
+
+
+class ReflexGate:
+    """The parse path does not publish an utterance a reflex fired during, or after, before its parse began.
+
+    Wraps both the runtime and the endpointer, so `StreamLoop` is given this one object twice. A
+    reflex trigger is kept with the stream time of the frame that fired it; an utterance, with the
+    stream time of its start (onset pad included). When the parse worker picks an utterance up,
+    any reflex at or after that start suppresses it: the operator said the reflex phrase inside
+    it, or after it, and the reflex has already acted. Three cases this closes:
+
+    * the reflex phrase's own parse-path copy (the measured failure above);
+    * a trigger the spotter reports just after the endpointer has closed the utterance (seen
+      in replay: 0.15 s after, for a command and "swarm hold" spoken in one breath);
+    * a command still queued behind a slow parse when the reflex fires. `PipelineRuntime`
+      draws the parse sequence number when the worker starts the utterance, not at its
+      endpoint, so without this the queued command would be numbered after the hold and
+      override it.
+
+    Once a parse has started, it is the ordering rule's business, as before: its number was drawn
+    first, so a reflex that fires during transcription or decode discards it on the consumer.
+    The window between this check and `PipelineRuntime.process` drawing its number is not closed;
+    it is the length of a function call.
+
+    A suppressed utterance is never transcribed: no sequence number is drawn and nothing is
+    published.
+    """
+
+    def __init__(self, runtime, endpointer) -> None:
+        self._runtime = runtime
+        self._endpointer = endpointer
+        self._stream_s = 0.0                              # frame thread only
+        self._lock = threading.Lock()
+        self._fired: list[tuple[float, object]] = []      # (stream time, BusMessage), under _lock
+        self._pending: deque = deque()                    # Utterances, in StreamLoop's queue order
+
+    def on_wake_frame(self, frame):
+        self._stream_s += np.asarray(frame).size / RATE   # end of this frame, as StreamLoop counts it
+        message = self._runtime.on_wake_frame(frame)
+        if message is not None:
+            with self._lock:
+                self._fired.append((self._stream_s, message))
+            logger.info("reflex fired", extra={
+                "event": "reflex_fired", "seq": message.seq, "intent": message.command.get("intent"),
+                "stream_s": round(self._stream_s, 3)})
+        return message
+
+    def feed(self, chunk):
+        utterances = self._endpointer.feed(chunk)
+        self._pending.extend(utterances)
+        return utterances
+
+    def process(self, audio_path: Path):
+        from runtime.pipeline import BranchBTrace
+
+        utterance = self._pending.popleft()               # StreamLoop's worker takes them in order
+        with self._lock:
+            self._fired = [(t, m) for t, m in self._fired if t >= utterance.start_s]   # later starts only
+            fired, owner = self._fired[0] if self._fired else (None, None)
+        if owner is None:
+            return self._runtime.process(audio_path)
+        intent = owner.command.get("intent")
+        when = "during it" if fired <= utterance.t0_s else "after it"
+        say(f"PARSE   utterance endpointed; reflex #{owner.seq} '{_KEYWORD.get(intent, intent)}' "
+            f"fired {when} -- not parsed, the reflex already acted")
+        logger.info("parse path suppressed: reflex seq=%d fired %s", owner.seq, when, extra={
+            "event": "parse_suppressed_by_reflex", "reflex_seq": owner.seq, "intent": intent,
+            "reflex_stream_s": round(fired, 3), "start_s": round(utterance.start_s, 3),
+            "end_s": round(utterance.end_s, 3), "t0_s": round(utterance.t0_s, 3)})
+        now = time.monotonic()
+        return BranchBTrace(seq=-1, transcript="", raw=None, message=None,
+                            t_start=now, t_transcribed=now, t_parsed=now, t_published=None)
 
 
 def _route_logs(path: Path) -> None:
@@ -168,7 +253,8 @@ def main(argv: list[str] | None = None) -> int:
     source = None
     try:
         runtime = PipelineRuntime(bus=bus, branch_a=load_trained(), parser=parser)
-        loop = StreamLoop(Narrator(runtime), Endpointer(), front_cores=FRONT, back_cores=BACK)
+        gate = ReflexGate(Narrator(runtime), Endpointer())
+        loop = StreamLoop(gate, gate, front_cores=FRONT, back_cores=BACK)
         if args.source is not None:
             import soundfile as sf
 
