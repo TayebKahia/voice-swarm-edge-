@@ -2015,3 +2015,22 @@ checked against the same wrong literal -- it now reads swarm/control.py. Every I
 script 0 FAIL; clean build 78 pages, 0 errors.
 LEFT FOR THE AUTHOR BEFORE THE DEPOT: jury names ("Name]" on both title pages); read the Arabic
 abstract; print / DVDs.
+
+## Demonstration chain built (Thu 24 Sep, ~22:20) -- cba9c1e; hardware run NOT yet made
+The three Ch6 prerequisites Ch4 records as not built now exist, as new files only (no measured
+module edited; the deposited Ch4/Ch6 text still says "not built" and is left as deposited):
+runtime/audio.py (live capture, golden-set chain), runtime/main.py (Pi entry point),
+swarm/link.py (FSM -> controller mapping + vehicle feedback + raw-intent guard),
+demo/workstation.py (consumer, Part A numpy + clamp / Part B PyFlyt, 3D display, [r] reset),
+demo/rehearse.py (publishes tab:demo-script in place of the Pi). Runs log to demo_runs/ (ignored).
+Verified on the workstation only: 853 fast tests; loopback rehearsals of Part A (all 8 steps end
+in their State after, step-4 line discarded behind the reflex hold) and Part B; runtime/main.py
+replaying audio through real whisper/llama/spotter/VAD: take off -> circle -> hold -> abort.
+Part B rehearsal (no criterion, recorded not tuned): circle settles at r ~4.73 m, line spacing ~2.8 m.
+OPEN FOR THE AUTHOR:
+- RISK, steps 1 and 7: the parser maps "take off to 5 meters" (whisper's form under DOMAIN_PROMPT,
+  all three piper voices) to altitude z=5 -> illegal in LANDED -> no motion. Rehearse step 1 by voice
+  on the Pi before the defence; the protocol and parser are fixed, so do not reword on the day.
+- Hardware steps (Pi, BOYA, Wi-Fi link, recording) are the author's; commands in the session.
+- Operating rules: restart Pi and workstation together (bus seq restarts at 0); speak only after
+  the workstation prints "listening".
