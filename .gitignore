@@ -180,3 +180,10 @@ thesis/sample_thesis
 # head hashes are tracked in runtime/models/wake/wake_heads.json)
 train/wake_features/
 runtime/models/wake/*.onnx
+
+# ---------------------------------------------------------------------
+# Demonstration runs (runtime/main.py, demo/workstation.py): logs,
+# trajectories and screenshots of one live run. Kept out of results/,
+# which holds only measured experiments; the video is archived by hand.
+# ---------------------------------------------------------------------
+demo_runs/
