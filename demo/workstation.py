@@ -28,6 +28,7 @@ from __future__ import annotations
 import argparse
 import datetime as _dt
 import logging
+import signal
 import queue
 import sys
 import threading
@@ -338,8 +339,12 @@ def main(argv: list[str] | None = None) -> int:
     trajectory: dict[str, list] = {"t": [], "wall": [], "state": [], "positions": [], "targets": []}
     states = list(FlightState)
     t0, n = time.monotonic(), 0
+    # Ctrl-C only sets a flag: a KeyboardInterrupt raised while Tk is redrawing
+    # is caught and printed by Tk's own callback handler and never reaches this loop.
+    stop: list[int] = []
+    previous = signal.signal(signal.SIGINT, lambda signum, _frame: stop.append(signum))
     try:
-        while not (display and display.closed):
+        while not stop and not (display and display.closed):
             elapsed = time.monotonic() - t0
             if args.seconds is not None and elapsed >= args.seconds:
                 break
@@ -367,6 +372,7 @@ def main(argv: list[str] | None = None) -> int:
     except KeyboardInterrupt:
         pass
     finally:
+        signal.signal(signal.SIGINT, previous)
         station.close()
         bus.close()
         if hasattr(link.env, "close"):
