@@ -12,14 +12,14 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from lib import MASTER, RESULTS, Review, md_table, outline_check  # noqa: E402
+from lib import MASTER, RESULTS, Chapter, Review, md_table, outline_check  # noqa: E402
 
-r = Review("master_ch2", "master", MASTER[1], [MASTER[0], *MASTER[2:]])
+r = Review("master_ch2", "master", MASTER[2], [*MASTER[:2], *MASTER[3:]])  # State of the art, Chapter 3 since 25 Sep
 r.common()
 text = r.ch.text
 
 # -- Shape: four themes, then Positioning = Synthesis / Gap / Delta (SKILL §3, Ch2) --------------
-outline_check(r, 1, {"edge LLM inference and SBC benchmarking": r"edge llm|single-board",
+outline_check(r, 2, {"edge LLM inference and SBC benchmarking": r"edge llm|single-board",
                      "quantisation": r"^quantisation$", "constrained decoding": r"constrained decoding",
                      "spoken-language understanding for robotics": r"spoken-language"})
 titles = [t for lvl, t, _ in r.ch.sections() if lvl == "section"]
@@ -65,8 +65,7 @@ r.text_claim("coherence", "Three of those models are carried through to quantise
 # -- Numbers that belong to a cited paper, not to results/: the citation agent must verify ------
 paper_numbers = [("twenty-five quantised language", "sbc2025"), ("three \\glspl{sbc}", "sbc2025"),
                  ("two inference runtimes", "sbc2025"), ("roughly\n1.5~billion parameters", "sbc2025"),
-                 ("up to four times", "sbc2025"), ("blocks of 32", "llamacpp"), ("super-blocks of 256", "llamacpp"),
-                 ("8.5~bits per weight", "llamacpp"), ("4.5~bits per weight", "llamacpp"), ("one percent of weight channels", "awq"),
+                 ("up to four times", "sbc2025"), ("one percent of weight channels", "awq"),
                  ("under one\npercent", "spqr"), ("eight billion parameters and above", "kurtic2025,kurt2026"),
                  ("has 1.5~billion parameters", "kurtic2025"), ("one million\nutterances in 51 languages", "massive"),
                  ("60 intents and 55 slot types", "massive"), ("258 to 580~million", "massive"),
@@ -77,6 +76,15 @@ for anchor, key in paper_numbers:
     r.expect("paper-number", bool(where), f"anchor `{anchor}` present", where[0] if where else None)
     if where:
         rows.append(f"| {where[0]} | {anchor} | {key} (primary source, not the candidate notes) |")
+# The Q8_0 / Q4_K_M construction moved to the Background chapter on 25 Sep (prd.md §3.1); its
+# llama.cpp numbers are checked there, and stay on the citation agent's worklist.
+bg = Chapter.load("master", MASTER[1])
+for anchor, key in [("blocks of 32", "llamacpp"), ("super-blocks of 256", "llamacpp"),
+                    ("8.5~bits per weight", "llamacpp"), ("4.5~bits per weight", "llamacpp")]:
+    where = bg.find(anchor)
+    r.expect("paper-number", bool(where), f"anchor `{anchor}` present in the Background chapter (moved 25 Sep)")
+    if where:
+        rows.append(f"| Background l.{where[0]} | {anchor} | {key} (primary source, not the candidate notes) |")
 r.manual.append("### Numbers quoted from papers (citation agent: find each in the paper)\n\n" + "\n".join(rows))
 r.manual.append("### For the argument agent\n\n- Gap (l.162-176): each of the four sentences claims a literature "
                 "is *silent* on something. Silence is only defensible for the papers actually cited -- check the "

@@ -18,11 +18,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from lib import MASTER, REPO, RESULTS, Chapter, Review, csv_rows, md_table, numbers, outline_check, significant  # noqa: E402
 from eval.stats import nearest_rank  # noqa: E402
 
-r = Review("master_ch6", "master", MASTER[5], MASTER[:5])
+r = Review("master_ch6", "master", MASTER[6], MASTER[:6])  # Conclusion, Chapter 7 since 25 Sep
 r.common()
 text, prose = r.ch.text, r.ch.prose()
 
-outline_check(r, 5, {"RQ1 answered directly against the measured results": r"research question",
+outline_check(r, 6, {"RQ1 answered directly against the measured results": r"research question",
                      "a summary of what the comparison establishes": r"establishes",
                      "prioritised next steps": r"next steps"})
 
@@ -130,7 +130,7 @@ unk = sum('"unknown"' in json.dumps(x) for x in train)
 r.number("through 81 pairs", unk, "rows of data/train.jsonl whose target is unknown")
 
 # -- Conclusion may not add a measurement Ch1-Ch5 did not report ---------------------------------
-earlier = {round(n.value, n.places) for c in MASTER[:5] for n in numbers(Chapter.load("master", c))}
+earlier = {round(n.value, n.places) for c in MASTER[:6] for n in numbers(Chapter.load("master", c))}
 for n in numbers(r.ch):
     if significant(n) and round(n.value, n.places) not in earlier:
         r.add("FAIL", "new-number", f"{n.text} appears in no earlier chapter -- the Conclusion may not "

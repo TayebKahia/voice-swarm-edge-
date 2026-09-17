@@ -25,7 +25,7 @@ import logging  # noqa: E402
 
 # Re-scoring predictions logs one INFO line per clamp; they were logged when the sweep ran.
 logging.getLogger("schema.validate").setLevel(logging.CRITICAL)
-r = Review("master_ch4", "master", MASTER[3], [*MASTER[:3], *MASTER[4:]])
+r = Review("master_ch4", "master", MASTER[4], [*MASTER[:4], *MASTER[5:]])  # Results, Chapter 5 since 25 Sep
 r.common()
 text = r.ch.text
 
@@ -35,7 +35,7 @@ def half_up(x: float, places: int = 0) -> float:
     return float(Decimal(repr(x)).quantize(Decimal(1).scaleb(-places), rounding=ROUND_HALF_UP))
 
 
-outline_check(r, 3, {"Exp-0": r"speaker sensitivity|acoustic", "Exp-1": r"multi-model|benchmark",
+outline_check(r, 4, {"Exp-0": r"speaker sensitivity|acoustic", "Exp-1": r"multi-model|benchmark",
                      "quantisation delta": r"quantisation delta", "grammar ablation": r"grammar ablation",
                      "statistical analysis": r"statistic", "the selection rule applied": r"selection rule"})
 for stem in re.findall(r"\\input\{generated/(\w+)\}", text):

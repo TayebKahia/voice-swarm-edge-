@@ -19,11 +19,11 @@ outline_check(r, 0, {"the edge-inference problem": r"edge-inference",
 r.expect("label", "\\label{chap:introduction}" in r.ch.text,
          "Ch1 carries \\label{chap:introduction} (every other Master chapter has its chap: label)", warn=True)
 refs = re.findall(r"Chapter~\\ref\{(chap:[^}]*)\}", r.ch.text[r.ch.text.find("Structure of this document"):])
-want = ["chap:related-work", "chap:method", "chap:results", "chap:discussion", "chap:conclusion"]
+want = ["chap:background", "chap:state-of-the-art", "chap:method", "chap:results", "chap:discussion", "chap:conclusion"]
 r.expect("outline", list(dict.fromkeys(refs)) == want,
          f"structure paragraph visits chapters in main_master.tex order: {list(dict.fromkeys(refs))}")
-r.text_claim("outline", "has five chapters", len(main_order("master")) - 1 == 5,
-             f"'five chapters' = {len(main_order('master')) - 1} chapters after this one in main_master.tex")
+r.text_claim("outline", "has six chapters", len(main_order("master")) - 1 == 6,
+             f"'six chapters' = {len(main_order('master')) - 1} chapters after this one in main_master.tex")
 
 # -- RQ1 and contributions verbatim against prd.md §2 ------------------------------------------
 rq_check(r, 1)
@@ -59,9 +59,9 @@ r.text_claim("claim", "the three cores the deployed configuration reserves for s
              f"'three cores reserved for speech recognition and inference' matches Ch3's throughput definition "
              f"(taskset -c {cores} in eval/exp1.py; core 0 carries capture, VAD and the keyword spotter)")
 r.number("against the 20~tok/s floor", 22 / (decode_ms / 1000), "22 tokens / 1.100 s (closing paragraph)")
-ch2 = (r.ch.path.parent / "ch2_related_work.tex").read_text()
+ch2 = (r.ch.path.parent / "ch3_state_of_the_art.tex").read_text()
 r.text_claim("coherence", "three deployment candidates", "four fine-tuned models" in ch2 and "a fourth" in r.ch.text,
-             "Ch1 names three deployment candidates plus a fourth control model; Ch2 says 'four fine-tuned models'")
+             "Ch1 names three deployment candidates plus a fourth control model; the state of the art says 'four fine-tuned models'")
 
 # -- RQ1's parameter range against the model metadata -------------------------------------------
 params = {row["Model"].strip("`"): float(row["Params"].replace(",", "").split()[0])

@@ -10,8 +10,8 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | PASS | check_tex |  | tools/check_tex.py: no problems beyond cross-chapter \ref (resolved below) |
 | PASS | ref |  | every \ref resolves within the document |
 | PASS | cite |  | 15 distinct keys cited, all resolved |
-| PASS | heading |  | chapter titles use one capitalisation style: [('ch1_introduction', 'Introduction'), ('ch2_related_work', 'Related work'), ('ch3_method', 'Method'), ('ch4_results', 'Results'), ('ch5_discussion', 'Discussion and limitations'), ('ch6_conclusion', 'Conclusion and future work')] |
-| PASS | outline |  | prd.md §3.1 item 4: Results: Exp-0; Exp-1; quantisation delta; grammar ablation; statistical analysis; the selection rule applied. |
+| PASS | heading |  | chapter titles use one capitalisation style: [('ch1_introduction', 'Introduction'), ('ch2_background', 'Background'), ('ch3_state_of_the_art', 'State of the art'), ('ch3_method', 'Method'), ('ch4_results', 'Results'), ('ch5_discussion', 'Discussion and limitations'), ('ch6_conclusion', 'Conclusion and future work')] |
+| PASS | outline |  | prd.md §3.1 item 5: Results: Exp-0; Exp-1; quantisation delta; grammar ablation; statistical analysis; the selection rule applied. |
 | PASS | outline |  | prd topic `Exp-0` -> section `Speaker sensitivity at the acoustic front end` |
 | PASS | outline |  | prd topic `Exp-1` -> section `The multi-model benchmark` |
 | PASS | outline |  | prd topic `quantisation delta` -> section `The quantisation delta` |

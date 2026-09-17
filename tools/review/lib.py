@@ -250,8 +250,11 @@ def prd_rq(n: int) -> str:
 
 def prd_outline(doc: str) -> list[str]:
     head = "Mémoire de Master" if doc == "master" else "Mémoire d'Ingénieur"
-    m = re.search(rf"\*\*{head} — six chapters:\*\*\n((?:\d\..*\n)+)", prd())
-    return [re.sub(r"^\d\.\s*", "", l) for l in m.group(1).strip().splitlines()] if m else []
+    # The Master block (since 25 Sep) interleaves "*Part I — Background.*" lines and blank lines
+    # with its numbered items; the Ingénieur block is contiguous. Collect numbered lines up to the
+    # next "**Mémoire" heading or "###" section either way.
+    m = re.search(rf"\*\*{head} — [^*\n]*\*\*[^\n]*\n(.*?)(?=\n\*\*Mémoire|\n### )", prd(), flags=re.S)
+    return [re.sub(r"^\d+\.\s*", "", l) for l in m.group(1).splitlines() if re.match(r"^\d+\.\s", l)] if m else []
 
 
 def norm(s: str) -> str:
@@ -677,8 +680,10 @@ class Review:
         return 1 if count["FAIL"] else 0
 
 
-MASTER = [f"master/{c}.tex" for c in ("ch1_introduction", "ch2_related_work", "ch3_method",
-                                       "ch4_results", "ch5_discussion", "ch6_conclusion")]
+# Seven chapters in three parts since 25 Sep (prd.md §3.1). File names keep their historical
+# numbers: index 3 (ch3_method) is Chapter 4, and so on. Index == prd.md §3.1 item - 1.
+MASTER = [f"master/{c}.tex" for c in ("ch1_introduction", "ch2_background", "ch3_state_of_the_art",
+                                       "ch3_method", "ch4_results", "ch5_discussion", "ch6_conclusion")]
 INGENIEUR = [f"ingenieur/{c}.tex" for c in ("ch1_introduction", "ch2_state_of_the_art", "ch3_architecture",
                                              "ch4_implementation", "ch5_validation", "ch6_conclusion")]
 

@@ -18,11 +18,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from lib import (MASTER, REPO, RESULTS, Review, acronyms, md_table, outline_check, prd,  # noqa: E402
                  requirement_table_check)
 
-r = Review("master_ch3", "master", MASTER[2], [*MASTER[:2], *MASTER[3:]])
+r = Review("master_ch3", "master", MASTER[3], [*MASTER[:3], *MASTER[4:]])  # Method, Chapter 4 since 25 Sep
 r.common()
 text = r.ch.text
 
-outline_check(r, 2, {"command schema and grammar design": r"schema", "label-first dataset construction": r"dataset",
+outline_check(r, 3, {"command schema and grammar design": r"schema", "label-first dataset construction": r"dataset",
                      "the LoRA recipe": r"lora", "quantisation procedure": r"quantisation",
                      "evaluation protocol and the definitions of record": r"evaluation protocol"})
 

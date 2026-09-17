@@ -9,8 +9,8 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | PASS | check_tex |  | tools/check_tex.py: no problems beyond cross-chapter \ref (resolved below) |
 | PASS | ref |  | every \ref resolves within the document |
 | PASS | cite |  | no citations |
-| PASS | heading |  | chapter titles use one capitalisation style: [('ch1_introduction', 'Introduction'), ('ch2_related_work', 'Related work'), ('ch3_method', 'Method'), ('ch4_results', 'Results'), ('ch5_discussion', 'Discussion and limitations'), ('ch6_conclusion', 'Conclusion and future work')] |
-| PASS | outline |  | prd.md §3.1 item 6: Conclusion and future work: RQ1 answered directly against the measured results; a summary of what the comparison establishes; prioritised next steps. |
+| PASS | heading |  | chapter titles use one capitalisation style: [('ch1_introduction', 'Introduction'), ('ch2_background', 'Background'), ('ch3_state_of_the_art', 'State of the art'), ('ch3_method', 'Method'), ('ch4_results', 'Results'), ('ch5_discussion', 'Discussion and limitations'), ('ch6_conclusion', 'Conclusion and future work')] |
+| PASS | outline |  | prd.md §3.1 item 7: Conclusion and future work: RQ1 answered directly against the measured results; a summary of what the comparison establishes; prioritised next steps. |
 | PASS | outline |  | prd topic `RQ1 answered directly against the measured results` -> section `Answer to the research question` |
 | PASS | outline |  | prd topic `a summary of what the comparison establishes` -> section `What the comparison establishes` |
 | PASS | outline |  | prd topic `prioritised next steps` -> section `Prioritised next steps` |

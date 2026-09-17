@@ -10,8 +10,8 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | PASS | check_tex |  | tools/check_tex.py: no problems beyond cross-chapter \ref (resolved below) |
 | PASS | ref |  | every \ref resolves within the document |
 | PASS | cite |  | 4 distinct keys cited, all resolved |
-| PASS | heading |  | chapter titles use one capitalisation style: [('ch1_introduction', 'Introduction'), ('ch2_related_work', 'Related work'), ('ch3_method', 'Method'), ('ch4_results', 'Results'), ('ch5_discussion', 'Discussion and limitations'), ('ch6_conclusion', 'Conclusion and future work')] |
-| PASS | outline |  | prd.md §3.1 item 5: Discussion and limitations: the accuracy–efficiency trade-off characterised as a Pareto frontier; failure-mode analysis; threats to internal and external validity. |
+| PASS | heading |  | chapter titles use one capitalisation style: [('ch1_introduction', 'Introduction'), ('ch2_background', 'Background'), ('ch3_state_of_the_art', 'State of the art'), ('ch3_method', 'Method'), ('ch4_results', 'Results'), ('ch5_discussion', 'Discussion and limitations'), ('ch6_conclusion', 'Conclusion and future work')] |
+| PASS | outline |  | prd.md §3.1 item 6: Discussion and limitations: the accuracy–efficiency trade-off characterised as a Pareto frontier; failure-mode analysis; threats to internal and external validity. |
 | PASS | outline |  | prd topic `the accuracy-efficiency trade-off as a Pareto frontier` -> section `The accuracy--efficiency trade-off` |
 | PASS | outline |  | prd topic `failure-mode analysis` -> section `Failure-mode analysis` |
 | PASS | outline |  | prd topic `threats to internal and external validity` -> section `Threats to validity` |

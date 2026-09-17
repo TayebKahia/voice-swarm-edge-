@@ -18,11 +18,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from lib import MASTER, REPO, RESULTS, Chapter, Review, csv_rows, md_table, numbers, outline_check, significant  # noqa: E402
 from eval.stats import nearest_rank  # noqa: E402
 
-r = Review("master_ch5", "master", MASTER[4], [*MASTER[:4], *MASTER[5:]])
+r = Review("master_ch5", "master", MASTER[5], [*MASTER[:5], *MASTER[6:]])  # Discussion, Chapter 6 since 25 Sep
 r.common()
 text = r.ch.text
 
-outline_check(r, 4, {"the accuracy-efficiency trade-off as a Pareto frontier": r"trade-off",
+outline_check(r, 5, {"the accuracy-efficiency trade-off as a Pareto frontier": r"trade-off",
                      "failure-mode analysis": r"failure-mode", "threats to internal and external validity": r"threats"})
 for sub in ("Internal validity", "External validity"):
     r.expect("outline", f"\\subsection{{{sub}}}" in text, f"threats split into `{sub}`")
@@ -161,7 +161,7 @@ names = len(re.findall(r"acoustic-robustness\s+experiment", r.ch.prose()))
 r.expect("table3", names == 1, f"the acoustic-robustness experiment is named {names}x in Ch5 (Table 3: exactly once, in 5.3.2)")
 
 # -- Discussion may not add a measurement Ch4 did not report ------------------------------------
-earlier = {round(n.value, n.places) for c in MASTER[:4] for n in numbers(Chapter.load("master", c))}
+earlier = {round(n.value, n.places) for c in MASTER[:5] for n in numbers(Chapter.load("master", c))}
 claimed = {i.line for i in r.items if i.check == "claim" and i.status == "PASS"}
 todo = {i for i, l in enumerate(r.ch.lines, 1) if "\\TODO{" in l}
 for n in numbers(r.ch):
