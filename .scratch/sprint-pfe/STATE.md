@@ -2034,3 +2034,30 @@ OPEN FOR THE AUTHOR:
 - Hardware steps (Pi, BOYA, Wi-Fi link, recording) are the author's; commands in the session.
 - Operating rules: restart Pi and workstation together (bus seq restarts at 0); speak only after
   the workstation prints "listening".
+
+## First live hardware run (Fri 25 Sep, 11:00-12:13) -- Part A voice tests and full script PASS, unrecorded
+Pi 5 + BOYA (USB adapter hw:2,0) -> Wi-Fi -> workstation demo/workstation.py (numpy + clamp).
+Logs: demo_runs/pi-20260925-*.jsonl (copied from the Pi) and demo_runs/20260925-*-numpy/ (ignored).
+- Pi setup gap: whisper must be selected with `export WHISPER_CPP_DIR=~/whisper.cpp-52a939a`
+  (~/whisper.cpp is a newer build with only tiny.en-q5_1; first run crashed branch-b on it).
+- Mic hum: Pi-hosted floor -38..-42 dBFS raw, mains share 0.75-0.93 (50/100/200 Hz); same mic on
+  the laptop on battery -60.4 dBFS, share 0.00 (S1 was -69.6; room ~9 dB louder today). Official
+  27 W PSU in use. Finger on a Pi port shell -> -57.0 dBFS, share 0.28: floating ground (charger
+  leakage), not the mic. Author has no power bank / earthed HDMI / USB isolator. Left as is: ~97%
+  of that energy is below 300 Hz, and it produced no false triggers in ~70 s of silence and no
+  misparse attributable to it. Capture chain unchanged (no high-pass).
+- Step-1 risk CONFIRMED live: whisper wrote "take off to 5 meters" -> altitude -> not dispatched in
+  LANDED. "take off and climb to five metres" -> takeoff z 5 every time (4/4). Parser-side check of
+  whisper-style variants: altitude for "take off to 5 meters", "takeoff to 5 meters", "... altitude";
+  takeoff for "Take off to 5 meters." and "take off to five meters". Whether the recorded run keeps
+  the thesis wording (step 1 refused on camera) or uses the substitute (same parse target, stated at
+  the defence) is the AUTHOR'S DECISION, still open.
+- Voice tests 3a-3g all pass; step-3d preemption live: hold 1.6 s after endpoint, line decode
+  stopped (seq 3/4), nothing published. Parse path ~2.2 s endpoint -> publish; reflex 2.2-2.4 s
+  ahead of the parse copy. Full tab:demo-script (substitute wording in 1/7): all 8 steps end in
+  their State after. One miss: step 7 "swarm abort" was NOT caught by the spotter (no REFLEX line);
+  the parse path delivered the abort 1.8 s after endpoint. Spotter scores are not logged, so the
+  miss cannot be diagnosed from the log; the Pi JSON log also lacks transcripts (runtime/main.py
+  change offered, not made).
+- Ctrl-C in the workstation was swallowed by Tk mid-redraw -> fixed in 0d39a7b.
+- Still to do: Part B by voice (optional), recorded run on the Pi hotspot (step 7 of the plan).
