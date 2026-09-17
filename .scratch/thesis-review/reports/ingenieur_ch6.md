@@ -85,9 +85,9 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | PASS | claim | 265 | `abort 0.000` -> written 0.000, source gives 0.000 (author abort frr) |
 | PASS | claim | 306 | `from 751~ms towards its 250~ms allowance` -> written 751, source gives 750.60 (prefill p95) |
 | PASS | claim | 306 | `from 751~ms towards its 250~ms allowance` -> written 250, source gives 250.00 (prefill allowance) |
-| PASS | claim | 391 | `Formation accuracy reached 1.000` -> written 1.000, source gives 1.000 (formation accuracy) |
-| PASS | claim | 391 | `exceeding the $\geq 0.85$ requirement` -> written 0.85, source gives 0.85 (formation accuracy requirement) |
-| PASS | claim | 403 | `cancelled 78 of 78 in-progress` -> written 78, source gives 78.00 (cancelled decodes count) |
+| PASS | claim | 392 | `Formation accuracy reached 1.000` -> written 1.000, source gives 1.000 (formation accuracy) |
+| PASS | claim | 392 | `exceeding the $\geq 0.85$ requirement` -> written 0.85, source gives 0.85 (formation accuracy requirement) |
+| PASS | claim | 404 | `cancelled 78 of 78 in-progress` -> written 78, source gives 78.00 (cancelled decodes count) |
 
 ### Citation sheet (for the citation agent: open each identifier, judge SUPPORTS / PARTIAL / DOES NOT SUPPORT per row)
 
@@ -108,8 +108,8 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 26 | chapter | Demonstration, limitations and conclusion | 97 |
 | 36 | section | Demonstration protocol | 1328 |
 | 147 | section | Limitations | 1480 |
-| 271 | section | Future work | 745 |
-| 339 | section | Conclusion | 921 |
+| 271 | section | Future work | 746 |
+| 340 | section | Conclusion | 921 |
 
 ### Codes used in this chapter (self-containment agent: is each one needed, or would a descriptive name read better?)
 
@@ -207,67 +207,67 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 319 | 1{,}200 | measured: results/exp2_latency_budget.md:14, results/exp2_analysis.md:13 |
 | 331 | 0.032 | measured: results/table20_end_to_end.md:15, results/wake_training.json:208 |
 | 331 | 0.70 | measured: results/table20_end_to_end.md:23, results/limitation_abstention.md:15 |
-| 351 | 2{,}500 | measured: results/exp2_latency_budget.md:18, results/exp2_latency_budget.md:19 |
-| 355 | 226 | measured: results/exp2_latency_budget.md:13, results/exp2_latency_budget.md:14 |
-| 356 | 3{,}122 | measured: results/exp2_latency_budget.md:18, results/requirements_summary.md:20 |
-| 356 | 3{,}602 | measured: results/exp2_latency_budget.md:19, results/exp2_analysis.md:20 |
-| 356 | 622 | DECLARED ONLY: .scratch/sprint-pfe/STATE.md:1444, .scratch/sprint-pfe/STATE.md:1542 |
-| 356 | 25 | measured: results/table16_asr_speaker_sensitivity.md:16, results/table16_asr_speaker_sensitivity.md:17 |
-| 357 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:21 |
-| 357 | 545 | measured: results/exp2_latency_budget.md:21, results/requirements_summary.md:19 |
-| 357 | 547 | measured: results/exp2_latency_budget.md:24, results/requirements_summary.md:19 |
-| 358 | 1{,}195 | measured: results/exp2_latency_budget.md:29, results/requirements_summary.md:22 |
-| 358 | 300 | measured: results/exp2_latency_budget.md:29, results/table16_asr_speaker_sensitivity.md:3 |
-| 362 | 480 | measured: results/exp2_latency_budget.md:13, results/exp2_latency_budget.md:13 |
-| 362 | 500 | measured: results/exp2_latency_budget.md:13, results/gate3_parity.md:21 |
-| 362 | 915 | measured: results/exp2_latency_budget.md:16, results/exp2_analysis.md:15 |
-| 362 | 1{,}100 | measured: results/exp2_latency_budget.md:16, results/exp2_analysis.md:15 |
-| 363 | 1 | measured: results/nfr18_false_command.md:10, results/nfr18_false_command.md:11 |
-| 363 | 50 | measured: results/exp2_latency_budget.md:11, results/exp2_latency_budget.md:17 |
-| 363 | 622 | DECLARED ONLY: .scratch/sprint-pfe/STATE.md:1444, .scratch/sprint-pfe/STATE.md:1542 |
-| 364 | 1{,}449 | measured: results/exp2_latency_budget.md:14, results/exp2_analysis.md:13 |
-| 364 | 1{,}200 | measured: results/exp2_latency_budget.md:14, results/exp2_analysis.md:13 |
-| 365 | 751 | measured: results/exp2_latency_budget.md:15, results/exp2_analysis.md:14 |
-| 365 | 250 | measured: results/exp2_latency_budget.md:15, results/exp2_analysis.md:14 |
-| 366 | 6 | measured: results/exp2_latency_budget.md:23, results/exp2_latency_budget.md:23 |
-| 366 | 18 | measured: results/exp2_latency_budget.md:26, results/table18_quantisation_delta.md:1 |
-| 367 | 540 | measured: results/exp2_latency_budget.md:22, results/exp2_latency_budget.md:25 |
-| 367 | 80 | measured: results/table16_asr_speaker_sensitivity.md:22, results/wake_training.md:7 |
-| 371 | 5 | measured: results/exp2_latency_budget.md:3, results/exp2_latency_budget.md:23 |
-| 375 | 0.690 | measured: results/requirements_summary.md:25, results/exp3_pi_analysis.md:70 |
-| 375 | 0.625 | measured: results/table20_end_to_end.md:15, results/mcnemar.md:45 |
-| 375 | 0.750 | measured: results/table20_end_to_end.md:15, results/wake_training.json:1594 |
-| 376 | 0.650 | measured: results/requirements_summary.md:26, results/exp3_pi_analysis.md:62 |
-| 376 | 15 | measured: results/table16_asr_speaker_sensitivity.md:4, results/table16_asr_speaker_sensitivity.md:16 |
-| 376 | 0.590 | measured: results/requirements_summary.md:26, results/exp3_pi_analysis.md:73 |
-| 376 | 0.520 | measured: results/exp3_analysis.md:74, results/table20_end_to_end.md:18 |
-| 376 | 0.660 | measured: results/table18_quantisation_delta.md:19, results/table17_model_comparison.md:31 |
-| 376 | 10 | measured: results/table16_asr_speaker_sensitivity.md:11, results/table16_asr_speaker_sensitivity.md:13 |
-| 376 | 0.485 | measured: results/exp3_pi_analysis.md:74, results/exp3_pi_analysis.md:113 |
-| 376 | 5 | measured: results/exp2_latency_budget.md:3, results/exp2_latency_budget.md:23 |
-| 377 | 23.3 | measured: results/table16_asr_speaker_sensitivity.md:19, results/table20_end_to_end.md:15 |
-| 377 | 28.8 | measured: results/table20_end_to_end.md:18, thesis/generated/table20_end_to_end.tex:15 |
+| 352 | 2{,}500 | measured: results/exp2_latency_budget.md:18, results/exp2_latency_budget.md:19 |
+| 356 | 226 | measured: results/exp2_latency_budget.md:13, results/exp2_latency_budget.md:14 |
+| 357 | 3{,}122 | measured: results/exp2_latency_budget.md:18, results/requirements_summary.md:20 |
+| 357 | 3{,}602 | measured: results/exp2_latency_budget.md:19, results/exp2_analysis.md:20 |
+| 357 | 622 | DECLARED ONLY: .scratch/sprint-pfe/STATE.md:1444, .scratch/sprint-pfe/STATE.md:1542 |
+| 357 | 25 | measured: results/table16_asr_speaker_sensitivity.md:16, results/table16_asr_speaker_sensitivity.md:17 |
+| 358 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:21 |
+| 358 | 545 | measured: results/exp2_latency_budget.md:21, results/requirements_summary.md:19 |
+| 358 | 547 | measured: results/exp2_latency_budget.md:24, results/requirements_summary.md:19 |
+| 359 | 1{,}195 | measured: results/exp2_latency_budget.md:29, results/requirements_summary.md:22 |
+| 359 | 300 | measured: results/exp2_latency_budget.md:29, results/table16_asr_speaker_sensitivity.md:3 |
+| 363 | 480 | measured: results/exp2_latency_budget.md:13, results/exp2_latency_budget.md:13 |
+| 363 | 500 | measured: results/exp2_latency_budget.md:13, results/gate3_parity.md:21 |
+| 363 | 915 | measured: results/exp2_latency_budget.md:16, results/exp2_analysis.md:15 |
+| 363 | 1{,}100 | measured: results/exp2_latency_budget.md:16, results/exp2_analysis.md:15 |
+| 364 | 1 | measured: results/nfr18_false_command.md:10, results/nfr18_false_command.md:11 |
+| 364 | 50 | measured: results/exp2_latency_budget.md:11, results/exp2_latency_budget.md:17 |
+| 364 | 622 | DECLARED ONLY: .scratch/sprint-pfe/STATE.md:1444, .scratch/sprint-pfe/STATE.md:1542 |
+| 365 | 1{,}449 | measured: results/exp2_latency_budget.md:14, results/exp2_analysis.md:13 |
+| 365 | 1{,}200 | measured: results/exp2_latency_budget.md:14, results/exp2_analysis.md:13 |
+| 366 | 751 | measured: results/exp2_latency_budget.md:15, results/exp2_analysis.md:14 |
+| 366 | 250 | measured: results/exp2_latency_budget.md:15, results/exp2_analysis.md:14 |
+| 367 | 6 | measured: results/exp2_latency_budget.md:23, results/exp2_latency_budget.md:23 |
+| 367 | 18 | measured: results/exp2_latency_budget.md:26, results/table18_quantisation_delta.md:1 |
+| 368 | 540 | measured: results/exp2_latency_budget.md:22, results/exp2_latency_budget.md:25 |
+| 368 | 80 | measured: results/table16_asr_speaker_sensitivity.md:22, results/wake_training.md:7 |
+| 372 | 5 | measured: results/exp2_latency_budget.md:3, results/exp2_latency_budget.md:23 |
+| 376 | 0.690 | measured: results/requirements_summary.md:25, results/exp3_pi_analysis.md:70 |
+| 376 | 0.625 | measured: results/table20_end_to_end.md:15, results/mcnemar.md:45 |
+| 376 | 0.750 | measured: results/table20_end_to_end.md:15, results/wake_training.json:1594 |
+| 377 | 0.650 | measured: results/requirements_summary.md:26, results/exp3_pi_analysis.md:62 |
+| 377 | 15 | measured: results/table16_asr_speaker_sensitivity.md:4, results/table16_asr_speaker_sensitivity.md:16 |
+| 377 | 0.590 | measured: results/requirements_summary.md:26, results/exp3_pi_analysis.md:73 |
+| 377 | 0.520 | measured: results/exp3_analysis.md:74, results/table20_end_to_end.md:18 |
+| 377 | 0.660 | measured: results/table18_quantisation_delta.md:19, results/table17_model_comparison.md:31 |
 | 377 | 10 | measured: results/table16_asr_speaker_sensitivity.md:11, results/table16_asr_speaker_sensitivity.md:13 |
-| 377 | 36.0 | measured: results/exp3_pi_analysis.md:43, results/table20_end_to_end.md:19 |
+| 377 | 0.485 | measured: results/exp3_pi_analysis.md:74, results/exp3_pi_analysis.md:113 |
 | 377 | 5 | measured: results/exp2_latency_budget.md:3, results/exp2_latency_budget.md:23 |
-| 377 | 0.80 | measured: results/requirements_summary.md:25, results/exp4_formation.md:11 |
-| 378 | 0.65 | measured: results/requirements_summary.md:26, results/exp3_pi_analysis.md:62 |
+| 378 | 23.3 | measured: results/table16_asr_speaker_sensitivity.md:19, results/table20_end_to_end.md:15 |
+| 378 | 28.8 | measured: results/table20_end_to_end.md:18, thesis/generated/table20_end_to_end.tex:15 |
 | 378 | 10 | measured: results/table16_asr_speaker_sensitivity.md:11, results/table16_asr_speaker_sensitivity.md:13 |
-| 379 | 0.935 | measured: results/table18_quantisation_delta.md:17, results/table18_quantisation_delta.md:17 |
-| 380 | 0.245 | measured: results/table20_end_to_end.md:15, results/wake_training.json:354 |
-| 380 | 0.345 | measured: results/table20_end_to_end.md:18, thesis/generated/table20_end_to_end.tex:15 |
-| 380 | 10 | measured: results/table16_asr_speaker_sensitivity.md:11, results/table16_asr_speaker_sensitivity.md:13 |
-| 380 | 0.450 | measured: results/table20_end_to_end.md:19, results/wake_training.json:1354 |
-| 380 | 5 | measured: results/exp2_latency_budget.md:3, results/exp2_latency_budget.md:23 |
-| 383 | 0.032 | measured: results/table20_end_to_end.md:15, results/wake_training.json:208 |
-| 383 | 0.014 | measured: results/table20_end_to_end.md:17, results/table20_end_to_end.md:23 |
-| 383 | 0.039 | measured: results/table20_end_to_end.md:19, results/wake_training.json:127 |
-| 384 | 0.70 | measured: results/table20_end_to_end.md:23, results/limitation_abstention.md:15 |
-| 389 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:21 |
-| 390 | 432 | measured: results/requirements_summary.md:32, results/exp4_formation.md:11 |
-| 390 | 144 | measured: results/mcnemar.md:28 |
-| 391 | 1.000 | recomputed by a claim on this line |
-| 391 | 0.85 | recomputed by a claim on this line |
-| 392 | 4.32 | **UNTRACED** |
-| 405 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:21 |
-| 411 | 0.935 | measured: results/table18_quantisation_delta.md:17, results/table18_quantisation_delta.md:17 |
+| 378 | 36.0 | measured: results/exp3_pi_analysis.md:43, results/table20_end_to_end.md:19 |
+| 378 | 5 | measured: results/exp2_latency_budget.md:3, results/exp2_latency_budget.md:23 |
+| 378 | 0.80 | measured: results/requirements_summary.md:25, results/exp4_formation.md:11 |
+| 379 | 0.65 | measured: results/requirements_summary.md:26, results/exp3_pi_analysis.md:62 |
+| 379 | 10 | measured: results/table16_asr_speaker_sensitivity.md:11, results/table16_asr_speaker_sensitivity.md:13 |
+| 380 | 0.935 | measured: results/table18_quantisation_delta.md:17, results/table18_quantisation_delta.md:17 |
+| 381 | 0.245 | measured: results/table20_end_to_end.md:15, results/wake_training.json:354 |
+| 381 | 0.345 | measured: results/table20_end_to_end.md:18, thesis/generated/table20_end_to_end.tex:15 |
+| 381 | 10 | measured: results/table16_asr_speaker_sensitivity.md:11, results/table16_asr_speaker_sensitivity.md:13 |
+| 381 | 0.450 | measured: results/table20_end_to_end.md:19, results/wake_training.json:1354 |
+| 381 | 5 | measured: results/exp2_latency_budget.md:3, results/exp2_latency_budget.md:23 |
+| 384 | 0.032 | measured: results/table20_end_to_end.md:15, results/wake_training.json:208 |
+| 384 | 0.014 | measured: results/table20_end_to_end.md:17, results/table20_end_to_end.md:23 |
+| 384 | 0.039 | measured: results/table20_end_to_end.md:19, results/wake_training.json:127 |
+| 385 | 0.70 | measured: results/table20_end_to_end.md:23, results/limitation_abstention.md:15 |
+| 390 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:21 |
+| 391 | 432 | measured: results/requirements_summary.md:32, results/exp4_formation.md:11 |
+| 391 | 144 | measured: results/mcnemar.md:28 |
+| 392 | 1.000 | recomputed by a claim on this line |
+| 392 | 0.85 | recomputed by a claim on this line |
+| 393 | 4.32 | **UNTRACED** |
+| 406 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:21 |
+| 412 | 0.935 | measured: results/table18_quantisation_delta.md:17, results/table18_quantisation_delta.md:17 |

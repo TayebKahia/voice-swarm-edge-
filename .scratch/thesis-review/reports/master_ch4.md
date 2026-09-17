@@ -362,7 +362,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 146 | 0.05 | recomputed by a claim on this line |
 | 146 | 0.1867 | recomputed by a claim on this line |
 | 146 | 0.3933 | recomputed by a claim on this line |
-| 161 | 0.49 | measured: results/exp3_pi_analysis.md:99, results/exp3_analysis.md:62 |
+| 161 | 0.49 | measured: results/exp3_pi_analysis.md:113, results/exp3_analysis.md:74 |
 | 161 | 1.24 | measured: results/exp2_latency_budget.md:27 /1024, results/exp2_latency_budget.md:27 /1024 |
 | 165 | 514 | recomputed by a claim on this line |
 | 166 | 4.0 | recomputed by a claim on this line |
@@ -425,7 +425,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 315 | 2{,}500 | measured: results/exp2_latency_budget.md:18, results/exp2_latency_budget.md:19 |
 | 316 | 2.5 | measured: results/nfr18_false_command.md:12, results/nfr18_false_command.md:13 |
 | 327 | 200 | measured: results/exp2_latency_budget.md:5, results/table18_quantisation_delta.md:3 |
-| 332 | 1{,}350 | measured: results/exp2.csv:8 x100 |
+| 332 | 1{,}350 | measured: results/exp2_analysis.md:16, results/exp2.csv:7 |
 | 333 | 2{,}500 | measured: results/exp2_latency_budget.md:18, results/exp2_latency_budget.md:19 |
 | 334 | 0.85 | measured: results/requirements_summary.md:28, results/exp4_formation.md:13 |
 | 342 | 0.55 | recomputed by a claim on this line |
@@ -449,7 +449,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 378 | 0.85 | recomputed by a claim on this line |
 | 378 | 0.90 | recomputed by a claim on this line |
 | 379 | 1{,}100 | measured: results/exp2_latency_budget.md:16, results/exp2_analysis.md:15 |
-| 379 | 1{,}350 | measured: results/exp2.csv:8 x100 |
+| 379 | 1{,}350 | measured: results/exp2_analysis.md:16, results/exp2.csv:7 |
 | 380 | 20 | measured: results/table16_asr_speaker_sensitivity.md:26, results/exp3_pi_analysis.md:15 |
 | 381 | 9 | recomputed by a claim on this line |
 | 393 | 2{,}500 | recomputed by a claim on this line |

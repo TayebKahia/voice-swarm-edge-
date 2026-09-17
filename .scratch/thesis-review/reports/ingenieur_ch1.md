@@ -65,10 +65,10 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | PASS | requirements | 191 | NFR-13 source `Formation-control experiment` vs prd `Exp-4` |
 | PASS | requirements | 192 | NFR-14 target `100\%, no network dependency` vs prd `100%, no network dependency` |
 | PASS | requirements | 192 | NFR-14 source `End-to-end run, networking disabled` vs prd `FR-5` |
-| PASS | rq | 388 | RQ2 matches prd.md §2 verbatim |
-| PASS | rq | 394 | RQ3 matches prd.md §2 verbatim |
-| PASS | claim | 421 | prd.md §2.1 lists 4 contributions |
-| PASS | claim | 458 | 5 chapters after this one in main_ingenieur.tex |
+| PASS | rq | 389 | RQ2 matches prd.md §2 verbatim |
+| PASS | rq | 395 | RQ3 matches prd.md §2 verbatim |
+| PASS | claim | 422 | prd.md §2.1 lists 4 contributions |
+| PASS | claim | 459 | 5 chapters after this one in main_ingenieur.tex |
 
 ### Citation sheet (for the citation agent: open each identifier, judge SUPPORTS / PARTIAL / DOES NOT SUPPORT per row)
 
@@ -78,12 +78,12 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 2 | 138 | whisper, whispercpp | \midrule Offline speech recognition & Speech recognition runs offline on-device via \texttt{whisper.cpp tiny.en}~\cite{whisper,whispercpp}, with no network access at any point in the pipeline & End-to-end run with networking disabled \\ |
 | 3 | 140 | reynolds1987 | Swarm controller & The swarm controller implements vectorised flocking~\cite{reynolds1987}, formation slot assignment for the circle, line and wedge formations, artificial-potential-field separation with a hard geometric clamp at the integrator, and \acrlong{pid} (\acrshort{pid})\glsunset{pid} point navigation, for $N  |
 | 4 | 141 | pyflyt | Simulation backends & Two interchangeable simulation backends sit behind one environment interface: PyFlyt, built on the Bullet physics engine~\cite{pyflyt}, and a kinematic simulator & Both pass a hover smoke test \\ |
-| 5 | 260 | avizienis2004 | Treating failure modes as unequal in consequence is built into the dependability taxonomy, which grades failures by severity from minor to catastrophic~\cite{avizienis2004}, and systems-theoretic hazard analysis examines hazards under worst-case conditions rather than weighting them by their likelihood~\cite{stpa}. |
-| 6 | 261 | stpa | Treating failure modes as unequal in consequence is built into the dependability taxonomy, which grades failures by severity from minor to catastrophic~\cite{avizienis2004}, and systems-theoretic hazard analysis examines hazards under worst-case conditions rather than weighting them by their likelihood~\cite{stpa}. |
-| 7 | 283 | avizienis2004 | The dependability taxonomy calls a system that fails only in such specified modes fail-controlled, and one whose failures are, to an acceptable extent, all minor, fail-safe~\cite{avizienis2004}. |
-| 8 | 342 | koren1991 | Potential fields also have failure modes identified as inherent to the method~\cite{koren1991}: trap situations at local minima where attractive and repulsive terms cancel, oscillation near obstacles and in narrow passages, and no passage between closely spaced obstacles. |
-| 9 | 437 | relays2s, mira | Running a fast path beside a slower one is a familiar pattern: arrangements that pair a fast responsive path with a slower, higher-quality one, with a gate or a cancellable commitment between them, recur in real-time spoken dialogue~\cite{relays2s,mira}. |
-| 10 | 460 | lim2025 | Chapter~\ref{chap:state-of-the-art} reviews voice-controlled \gls{uav} systems, positions this work against its baseline, the natural-language drone-control agent of Lim et al.~\cite{lim2025}, by design point rather than by measurement, reviews the swarm-control model and the offline speech components the system builds |
+| 5 | 261 | avizienis2004 | Treating failure modes as unequal in consequence is built into the dependability taxonomy, which grades failures by severity from minor to catastrophic~\cite{avizienis2004}, and systems-theoretic hazard analysis examines hazards under worst-case conditions rather than weighting them by their likelihood~\cite{stpa}. |
+| 6 | 262 | stpa | Treating failure modes as unequal in consequence is built into the dependability taxonomy, which grades failures by severity from minor to catastrophic~\cite{avizienis2004}, and systems-theoretic hazard analysis examines hazards under worst-case conditions rather than weighting them by their likelihood~\cite{stpa}. |
+| 7 | 284 | avizienis2004 | The dependability taxonomy calls a system that fails only in such specified modes fail-controlled, and one whose failures are, to an acceptable extent, all minor, fail-safe~\cite{avizienis2004}. |
+| 8 | 343 | koren1991 | Potential fields also have failure modes identified as inherent to the method~\cite{koren1991}: trap situations at local minima where attractive and repulsive terms cancel, oscillation near obstacles and in narrow passages, and no passage between closely spaced obstacles. |
+| 9 | 438 | relays2s, mira | Running a fast path beside a slower one is a familiar pattern: arrangements that pair a fast responsive path with a slower, higher-quality one, with a gate or a cancellable commitment between them, recur in real-time spoken dialogue~\cite{relays2s,mira}. |
+| 10 | 461 | lim2025 | Chapter~\ref{chap:state-of-the-art} reviews voice-controlled \gls{uav} systems, positions this work against its baseline, the natural-language drone-control agent of Lim et al.~\cite{lim2025}, by design point rather than by measurement, reviews the swarm-control model and the offline speech components the system builds |
 
 | key | title | year | identifier |
 |---|---|---|---|
@@ -104,11 +104,11 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 |---|---|---|---|
 | 7 | chapter | Introduction | 47 |
 | 13 | section | Operational context | 1010 |
-| 93 | section | Engineering requirements | 1944 |
-| 245 | section | The safety problem | 1791 |
-| 378 | section | Objectives | 414 |
-| 419 | section | Contribution | 359 |
-| 456 | section | Structure of this document | 304 |
+| 93 | section | Engineering requirements | 1945 |
+| 246 | section | The safety problem | 1791 |
+| 379 | section | Objectives | 414 |
+| 420 | section | Contribution | 359 |
+| 457 | section | Structure of this document | 304 |
 
 ### Codes used in this chapter (self-containment agent: is each one needed, or would a descriptive name read better?)
 
@@ -177,6 +177,6 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 205 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:21 |
 | 219 | 10 | measured: results/table16_asr_speaker_sensitivity.md:11, results/table16_asr_speaker_sensitivity.md:13 |
 | 220 | 5 | measured: results/exp2_latency_budget.md:3, results/exp2_latency_budget.md:23 |
-| 299 | 2{,}500 | measured: results/exp2_latency_budget.md:18, results/exp2_latency_budget.md:19 |
-| 308 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:21 |
-| 395 | 5 | measured: results/exp2_latency_budget.md:3, results/exp2_latency_budget.md:23 |
+| 300 | 2{,}500 | measured: results/exp2_latency_budget.md:18, results/exp2_latency_budget.md:19 |
+| 309 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:21 |
+| 396 | 5 | measured: results/exp2_latency_budget.md:3, results/exp2_latency_budget.md:23 |
