@@ -5,7 +5,8 @@ This chapter reviews the four bodies of work this thesis draws on: benchmarks of
 inference on \glspl{sbc}, post-training quantisation and its evaluation, grammar-constrained
 decoding, and spoken-language understanding. Each section first sorts its studies into the kinds
 that exist, then compares them to one another in a table along fixed axes, and closes by reading
-that table: what the studies agree on, where they differ, and what none of them measures.
+that table. The reading states what the studies agree on, where they differ, and what none of
+them measures.
 Section~\ref{sec:research-gaps} combines the four readings into three numbered gaps and maps each
 onto the contribution of Chapter~\ref{chap:introduction} that closes it. The studies are compared
 to each other in the tables and to this thesis only in that final section. The foundations the
@@ -17,12 +18,12 @@ Chapter~\ref{chap:background}.
 Running a language model without a network connection or a data-centre accelerator is now an
 active subject of measurement, and the studies that measure it are of two kinds. The first kind
 benchmarks the hardware: it times many models on a board and reports throughput and resource use
-without asking what the tokens are for. A recent benchmark of this kind evaluates twenty-five
+without scoring the output. A recent benchmark of this kind evaluates twenty-five
 quantised language models on three \glspl{sbc} under two inference runtimes, Ollama and
 Llamafile~\cite{sbc2025}. It finds that such boards reliably support models of up to roughly
 1.5~billion parameters, with larger models dropping to a few tokens per second. On the
 one board where both runtimes were compared, Llamafile reached up to four times the throughput of
-Ollama~\cite{sbc2025}. That result sets the shape of the problem this thesis inherits. On
+Ollama~\cite{sbc2025}. That result fixes the constraint this thesis works under. On
 \gls{cpu}-only edge hardware throughput is the scarce resource, and the models that fit within it
 are small ones; the inference runtime is a lever on it of the same order as the choice of model.
 
@@ -48,7 +49,7 @@ Study & Models & Hardware & Runtime and formats & Metrics and task scored \\
 Nguyen and Nguyen~\cite{sbc2025} & 25 quantised models, 135~M to 7~B & Three \glspl{sbc} & Ollama and Llamafile; Q4\_K\_M throughout & Throughput, resource use; no task \\
 Kurt~\cite{kurt2026} & Llama-3.1-8B-Instruct & \gls{cpu}; --- & \texttt{llama.cpp}; K-quant and legacy \gls{gguf} formats against 16-bit floating point (fp16) & Perplexity, generic benchmark accuracy, \gls{cpu} throughput; generic tasks \\
 \midrule
-This work & Three fine-tuned candidates of 0.36--1.2~B, and a fine-tuned, parameter-matched control at fp16 & Raspberry~Pi~5, three \gls{cpu} cores (timing); workstation, same runtime (accuracy) & \texttt{llama.cpp}; Q8\_0 and Q4\_K\_M, against an fp16 reference decoded under \texttt{transformers} & \gls{em}, intent and slot F1, schema validity, false-command rate on one task, command parsing under a grammar; throughput, latency, memory at Q4\_K\_M \\
+This work & Three fine-tuned candidates of 0.36--1.2~B, and a fine-tuned, parameter-matched control at fp16 & Raspberry~Pi~5, three \gls{cpu} cores (timing); workstation, same runtime (accuracy) & \texttt{llama.cpp}; Q8\_0 and Q4\_K\_M, against an fp16 reference decoded under \texttt{transformers} & \gls{em}, intent and slot F1, schema validity, false-command and safe-failure rates on one task, command parsing under a grammar; throughput, latency, memory at Q4\_K\_M \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -56,15 +57,15 @@ This work & Three fine-tuned candidates of 0.36--1.2~B, and a fine-tuned, parame
 \paragraph{Critical comparison.} Table~\ref{tab:soa-edge} separates the two studies on three
 axes. On breadth against depth, the hardware benchmark covers twenty-five models on three boards
 and scores none of their output, while the format evaluation covers one model on one class of
-processor and scores it on several suites; neither covers several models scored on one task. On
+processor and scores it on several suites. Neither covers several models scored on one task. On
 the runtime, both treat the inference stack as a variable in its own right, one by comparing
-engines and the other by comparing one engine's formats; only the first measures the engine's
+engines and the other by comparing one engine's formats. Only the first measures the engine's
 effect, up to four times on the one board where two were compared. On scale, both stop
 short of the sub-billion range: the hardware benchmark reports that boards serve models of up to
-about 1.5~billion parameters without saying what accuracy those models retain, and the format
-evaluation studies an 8-billion-parameter model, larger than any the hardware benchmark ran, whose
-models of three billion parameters and above decoded below five tokens per second on the one board
-that could run them~\cite{sbc2025}. A
+about 1.5~billion parameters without saying what accuracy those models retain. The format
+evaluation studies an 8-billion-parameter model, larger than any the hardware benchmark ran; that
+benchmark's models of three billion parameters and above decoded below five tokens per second on
+the one board that could run them~\cite{sbc2025}. A
 configuration that clears a throughput floor and one that clears it while producing wrong output
 are therefore indistinguishable in the first study's tables and absent from the second's. The
 last row narrows the scope to one task, one device and four fine-tuned models
@@ -79,8 +80,9 @@ leave open.
 Post-training quantisation is the established route to reducing a trained model's memory
 footprint~\cite{gptq}, and on-device deployment is one of its stated motivations~\cite{awq}. The
 literature divides into the methods, which propose a way of assigning bits, and the evaluations,
-which measure what an assignment costs; the runtime this thesis deploys is a third kind, an
-assignment fixed by an implementation rather than proposed in a paper. This thesis deploys two of \texttt{llama.cpp}'s
+which measure what an assignment costs. The runtime this thesis deploys is a third kind, an
+assignment fixed by an implementation rather than proposed in a paper. This thesis deploys two of
+\texttt{llama.cpp}'s
 \gls{gguf} formats, Q8\_0 and Q4\_K\_M, whose construction Section~\ref{sec:bg-quant} describes.
 What distinguishes them from the methods the literature studies is how bits are assigned: the
 K-quant recipe allocates them by tensor role, position and shape, not by any measurement of error.
@@ -132,7 +134,7 @@ Kurtic et al.~\cite{kurtic2025} & Evaluation & Llama-3.1 Instruct at 8, 70 and 4
 Kurt~\cite{kurt2026} & Evaluation & Llama-3.1-8B-Instruct & \texttt{llama.cpp} formats from Q3\_K to Q8\_0 & Perplexity; generic benchmark accuracy; \gls{cpu} throughput & No \\
 Wang et al.~\cite{slmquant} & Evaluation & Sub-billion models, Qwen2.5-0.5B among them & Methods tuned on large models, applied to small ones & Generic benchmark accuracy & No \\
 \midrule
-This work & Evaluation & Three fine-tuned models of 0.36--1.2~B & Q8\_0 and Q4\_K\_M against fp16 & \gls{em}, intent and slot F1, schema validity, false-command rate, on one task; throughput on the board at Q4\_K\_M & Yes \\
+This work & Evaluation & Three fine-tuned models of 0.36--1.2~B & Q8\_0 and Q4\_K\_M against fp16 & \gls{em}, intent and slot F1, schema validity, false-command and safe-failure rates, on one task; throughput on the board at Q4\_K\_M & Yes \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -140,13 +142,13 @@ This work & Evaluation & Three fine-tuned models of 0.36--1.2~B & Q8\_0 and Q4\_
 \paragraph{Critical comparison.} Read down its columns, Table~\ref{tab:soa-quantisation}
 exhibits four patterns. On bit assignment, every method uses data to decide where precision goes,
 whether calibration inputs, activation statistics or the weights' own outliers, whereas the runtime
-deployed here assigns bits by a fixed rule; the deployed format is therefore not an instance of any
-method in the table, and no method's reported cost transfers to it. On the cost metric, the methods
+deployed here assigns bits by a fixed rule. The deployed format is therefore not an instance of
+any method in the table, and no method's reported cost transfers to it. On the cost metric, the methods
 report perplexity, with GPTQ adding zero-shot accuracy on generic suites, while the evaluations
-report task accuracy, on generic benchmarks only. On scale, two of the three evaluations work mainly at eight
-billion parameters and above, one of them reaching down to 1.5~billion; the third, the one study
-of sub-billion models, finds that they behave differently under quantisation, which is a reason not to
-extrapolate downwards from the others. On decoding, no study in the table quantises a model and
+report task accuracy, on generic benchmarks only. On scale, two of the three evaluations work
+mainly at eight billion parameters and above, one of them reaching down to 1.5~billion; the third,
+the one study of sub-billion models, finds that they behave differently under quantisation, which
+is a reason not to extrapolate downwards from the others. On decoding, no study in the table quantises a model and
 then scores it under a grammar; every accuracy figure is obtained with the decoder unconstrained.
 None of these studies scores a structured command-parsing task by \gls{em}, intent and slot F1, or
 schema validity, and none decodes under a grammar. Chapter~\ref{chap:results} measures the
@@ -159,10 +161,9 @@ studies above.
 \label{sec:soa-constrained-decoding}
 Grammar-constrained generation, the token-masking mechanism of Section~\ref{sec:bg-gbnf}, has
 been applied to structured language-processing tasks without fine-tuning~\cite{geng2023}. The
-literature around it is of four kinds: the applications, which use the mask on a task without
-fine-tuning; the constructions, which make the mask correct and cheap; the runtime
-implementations, which apply it; and the cost studies, which ask what constraining the decoder
-does to the model's output. The constructions compile a regular expression or a
+literature around it is of four kinds. The applications use the mask on a task without
+fine-tuning; the constructions make the mask correct and cheap; the runtime implementations apply
+it; and the cost studies ask what constraining the decoder does to the model's output. The constructions compile a regular expression or a
 context-free grammar into an automaton over the vocabulary and mask the decoder against
 it~\cite{willard2023,koo2024}, with correctness results for the language classes such a
 construction covers~\cite{koo2024}. \Gls{gbnf} is the formalism \texttt{llama.cpp} implements it
@@ -184,7 +185,7 @@ Chapter~\ref{chap:results} decodes the same fine-tuned models with and without t
 measures how often they leave the format when nothing prevents them.
 
 That property has a cost, which is why the ablation reports accuracy as well as validity.
-Constraining the decoder alters the distribution the model samples from: outputs remain
+Constraining the decoder alters the distribution the model samples from. Outputs remain
 grammatical, but their relative likelihoods no longer track what the unconstrained model would
 have assigned, so a grammar can make a structurally valid command more likely without making the
 correct one more likely~\cite{park2024}. Format restriction has separately been observed to
@@ -220,17 +221,17 @@ This work & Ablation & Bounded \gls{gbnf} grammar written from the command schem
 \paragraph{Critical comparison.} Table~\ref{tab:soa-constrained} separates the works along three
 axes. On what they contribute, the constructions establish that a mask can be built correctly and
 applied cheaply, the application demonstrates that it works without fine-tuning, and the cost studies find
-that it is not free; the cost studies measure the mask's effect in experiments of their own, so
-the literature establishes correctness and cost separately. On fine-tuning, no work
-in the table evaluates a model that had already been trained to produce the constrained format:
-the application and the format-restriction study use models prompted into the format, and the
+that it is not free. The cost studies measure the mask's effect in experiments of their own, so
+the literature establishes correctness and cost separately. On fine-tuning, no work in the table
+evaluates a model that had already been trained to produce the constrained format. The
+application and the format-restriction study use models prompted into the format, and the
 constructions report no task evaluation at all. What a grammar adds once fine-tuning has taught a
 model the format is therefore not reported anywhere in the table. On the direction of the effect,
-the two cost studies disagree in kind: the distortion result establishes that grammar-constrained sampling departs from the model's own
-grammar-conditioned distribution, and counts what that departure costs in correct solutions only
-against an aligned sampler, never against decoding without a grammar, and the format-restriction
-study finds the sign of the effect task-dependent. The size
-of either effect on a given task does not follow from that literature. Of the two task types the
+the two cost studies disagree in kind. The distortion result establishes that grammar-constrained
+sampling departs from the model's own grammar-conditioned distribution, and counts what that
+departure costs in correct solutions only against an aligned sampler, never against decoding
+without a grammar. The format-restriction study finds the sign of the effect task-dependent. The
+size of either effect on a given task does not follow from that literature. Of the two task types the
 format-restriction study compares, classification is the closer to parsing a command into one of
 ten intents. Chapter~\ref{chap:results} therefore reports accuracy with and without the grammar,
 not schema validity alone, on models that were fine-tuned to the format first.
@@ -265,21 +266,21 @@ Work & Kind & Formulation and models & Metrics reported & Hardware and latency b
 Qin et al.~\cite{qin2021} & Survey & Semantic frame of intent and slots; methods sorted into single and joint models & --- & --- & --- \\
 MASSIVE~\cite{massive} & Corpus and baselines & 60 intents, 55 slot types, 51 languages; encoder baselines of 258--580~M parameters & Intent accuracy 85.1--86.1\%; slot F1 73.6--76.8\%; \gls{em} 63.7--66.6\% & Data-centre \glspl{gpu}; no budget & None \\
 \midrule
-This work & Corpus, models and deployment & Ten intents and a bounded slot vocabulary for a five-drone swarm; decoder-only models of 0.36--1.2~B, fine-tuned & \gls{em}, intent and slot F1, schema validity, false-command and safe-failure rates & Raspberry~Pi~5 \gls{cpu}; 1{,}100~ms decode allowance & Bounded \gls{gbnf} grammar \\
+This work & Corpus, models and deployment & Ten intents and a bounded slot vocabulary for a five-drone swarm; decoder-only models of 0.36--1.2~B, fine-tuned & \gls{em}, intent and slot F1, schema validity, false-command and safe-failure rates & Raspberry~Pi~5 \gls{cpu}; 20~tok/s throughput floor, from a 1{,}100~ms decode allowance & Bounded \gls{gbnf} grammar \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
 \paragraph{Critical comparison.} What differs across Table~\ref{tab:soa-slu} is the setting, not
 the shape of the task. On formulation, the survey and the corpus agree: one intent from a closed
-set and a set of typed slots, with the joint model as the modern default~\cite{qin2021}. On the models, the
-benchmark's baselines are encoders that classify and label, whereas this work uses a decoder that
+set and a set of typed slots, with the joint model as the modern default~\cite{qin2021}. On the
+models, the benchmark's baselines are encoders that classify and label, whereas this work uses a decoder that
 generates the frame as text, which is what makes a grammar applicable to it. On the metric, the
 benchmark's lowest figure is \gls{em}, and it is the metric a controller depends on, since a
-command with one wrong slot is a wrong command; the benchmark reports it but does not optimise for
-it, and its baselines are trained on data-centre \glspl{gpu}, decoded without a grammar, and
-scored with no latency or memory limit~\cite{massive}. On the deployment, the last row is the only one with a hardware and latency budget
-and the only one whose output is constrained; Section~\ref{sec:research-gaps} states what that
+command with one wrong slot is a wrong command. The benchmark reports it but does not optimise
+for it, and its baselines are trained on data-centre \glspl{gpu}, decoded without a grammar, and
+scored with no latency or memory limit~\cite{massive}. On the deployment, the last row is the
+only one with a hardware and latency budget and the only one whose output is constrained; Section~\ref{sec:research-gaps} states what that
 leaves open.
 
 \section{Research gaps}
@@ -289,8 +290,8 @@ leaves open.
 question. Benchmarking on \glspl{sbc} has found that such boards reliably serve models of up to
 about 1.5~billion parameters, and that on one board the choice of runtime changed throughput by up
 to four times~\cite{sbc2025}. Post-training quantisation is the established way to shrink a trained
-model~\cite{gptq}, with on-device deployment among its motivations~\cite{awq}. Its cost is reported as perplexity and generic zero-shot accuracy by
-the papers introducing the methods~\cite{spqr,gptq}, and as accuracy on general-purpose suites by
+model~\cite{gptq}, with on-device deployment among its motivations~\cite{awq}. Its cost is
+reported as perplexity and generic zero-shot accuracy by the papers introducing the methods~\cite{spqr,gptq}, and as accuracy on general-purpose suites by
 the studies evaluating them, including at sub-billion scale~\cite{kurtic2025,kurt2026,slmquant}.
 Grammar-constrained decoding makes a model's output structurally valid by construction rather than
 by the accuracy of the model that produced it~\cite{willard2023,koo2024}, at costs its own
@@ -303,11 +304,11 @@ models~\cite{slmquant}, and format restriction with task accuracy~\cite{tam2024}
 reviewed here combines all four. The four critical comparisons above leave three gaps, stated
 here in the order the contributions of Chapter~\ref{chap:introduction} close them.
 
-\paragraph{Gap G1, structural validity after fine-tuning.} The constrained-decoding studies
-reviewed here (Table~\ref{tab:soa-constrained}) evaluate grammars and format restrictions on
-models that were not fine-tuned to the target format, so what a grammar still adds once
-fine-tuning has taught a model that format is not reported, and neither is what it costs in
-accuracy on a task of the classification kind. Contribution C1, the frozen command schema and its
+\paragraph{Gap G1, validity after fine-tuning.} The constrained-decoding studies reviewed here
+(Table~\ref{tab:soa-constrained}) evaluate grammars and format restrictions on models that were
+not fine-tuned to the target format. What a grammar still adds once fine-tuning has taught a model
+that format is therefore not reported, and neither is what it costs in accuracy on a task of the
+classification kind. Contribution C1, the frozen command schema and its
 matched, bounded \gls{gbnf} grammar, makes structural validity on this task a property of the
 decoder. The grammar ablation, run with the harness of Contribution C3, decodes the same
 fine-tuned, quantised models with and without that grammar, and so reports what the grammar adds
@@ -315,26 +316,28 @@ once fine-tuning has taught the models the format.
 
 \paragraph{Gap G2, the command corpus.} Intent-and-slot benchmarks such as
 MASSIVE (Table~\ref{tab:soa-slu}) are scored on data-centre hardware without a latency budget or a
-grammar, and no public corpus covering this command vocabulary was found. Contribution C2, the label-first
-dataset (each label written before the sentences that express it), supplies what a general-purpose
-corpus does not: training and test data for this command vocabulary, split at the template-family
-level, with a recorded golden set of spoken commands on which the deployed configuration is
-scored; Section~\ref{sec:dataset} defines both the families and the golden set.
+grammar, and no public corpus covering this command vocabulary was found. Contribution C2, the
+label-first dataset (each label written before the sentences that express it), supplies what a
+general-purpose corpus does not. It holds training and test data for this command vocabulary,
+split at the template-family level, with a recorded golden set of spoken commands on which the
+deployed configuration is scored. Section~\ref{sec:dataset} defines both the families and the
+golden set.
 
-\paragraph{Gap G3, deployment cost on a task.} The single-board-computer
+\paragraph{Gap G3, deployment cost.} The single-board-computer
 benchmark (Table~\ref{tab:soa-edge}) reports throughput without reference to any task, so it
 cannot say what a configuration that meets a throughput floor costs in task accuracy. The
 quantisation studies (Table~\ref{tab:soa-quantisation}) report accuracy on general-purpose
 benchmarks with the decoder unconstrained, not \gls{em}, intent and slot F1, or schema validity on
-a command-parsing task; the two that score tasks at scale work at 1.5~billion parameters and
-above, and the one sub-billion evaluation scores generic suites too. Choosing a model to deploy on this hardware requires all four quantities measured together,
-on the configuration that is actually deployed. Contribution C3, the quantised-inference harness,
-measures \gls{em}, intent and slot F1, schema validity, and false-command rate for three of the
-four fine-tuned models at Q8\_0 and Q4\_K\_M, with accuracy scored under the deployed runtime and
-grammar and throughput timed on the Raspberry~Pi~5 at Q4\_K\_M. It reports the accuracy cost of
+a command-parsing task. The two that score tasks at scale work at 1.5~billion parameters and
+above, and the one sub-billion evaluation scores generic suites too. Choosing a model to deploy on
+this hardware requires all four quantities measured together, on the configuration that is
+actually deployed. Contribution C3, the quantised-inference harness, measures \gls{em}, intent and
+slot F1, schema validity, and false-command and safe-failure rates for three of the four
+fine-tuned models at Q8\_0 and Q4\_K\_M. Accuracy is scored under the deployed runtime and
+grammar, and throughput is timed on the Raspberry~Pi~5 at Q4\_K\_M. It reports the accuracy cost of
 the whole deployment pipeline on this task at sub-billion scale, next to the throughput that
 single-board-computer benchmarking measures alone.
 
 Together the three contributions supply the measurements that Chapter~\ref{chap:results} reports
-and from which Chapter~\ref{chap:conclusion} answers RQ1 for this task and this device. Chapter~\ref{chap:method} specifies how each
-contribution was built, and Chapter~\ref{chap:results} reports what it measured.
+and from which Chapter~\ref{chap:conclusion} answers RQ1 for this task and this device.
+Chapter~\ref{chap:method} specifies how each contribution was built, and Chapter~\ref{chap:results} reports what it measured.
