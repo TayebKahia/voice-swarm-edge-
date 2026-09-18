@@ -5,7 +5,7 @@ This chapter assembles the foundations the rest of the document rests on, in the
 needs them. It begins with the object of the comparison: language models, the tokenisers that
 turn text into the units they process, and the adaptation method that fits them to a task. It
 then sets out the three conditions under which the models are compared: reduced weight precision,
-inference on the processor of a single-board computer, and decoding under a grammar. It closes
+inference on the processor of a \gls{sbc}, and decoding under a grammar. It closes
 with the task those models are asked to perform, the extraction of an intent and its slots from a
 spoken command, and with the instruments used to score them: the accuracy and efficiency metrics,
 the paired statistical test, and the notion of dominance that organises a trade-off. Every section
@@ -26,29 +26,31 @@ and an autoregressive model is one trained to estimate each factor from the toke
 Generation runs the factorisation forward: given a prompt, the model produces a distribution over
 the next token, one token is chosen from it, appended to the sequence, and the step repeats until
 a stop token is produced or a length cap is reached. When the chosen token is always the most
-probable one the procedure is \emph{greedy decoding}, and its output for a given prompt is
-deterministic. Sampling at a temperature, or searching over several partial sequences at once,
+probable one the procedure is \emph{greedy decoding}; for a fixed implementation, with one
+sequence decoded at a time, its output for a given prompt is deterministic. Sampling at a temperature, or searching over several partial sequences at once,
 trades that determinism for diversity. Two phases of unequal cost make up one generation. The
 \emph{prefill} phase processes every prompt token in one pass; the \emph{decode} phase then
 produces one output token per forward pass. The per-token cost of decoding, not the cost of
 prefill, is what bounds how long a short structured output takes to produce.
 
 \paragraph{The decoder-only transformer.} Every model compared in this work is a decoder-only
-transformer~\cite{qwen25,smollm2,llama32,danube3}.\TODO{Cite the original transformer paper
+transformer~\cite{qwen25,smollm2,llama32card,danube3}.\TODO{Cite the original transformer paper
 (Vaswani et al., 2017) once the author has added and verified its entry in the bibliography.}
 The architecture maps each input token to a vector through an embedding table, passes the
 sequence of vectors through a stack of $L$ identical blocks, and projects the final vector at
-each position onto the vocabulary to obtain the logits of Equation~\ref{eq:bg-autoregressive}.
+each position onto the vocabulary to obtain a score per token, the \emph{logits}, which a softmax
+turns into the next-token distribution of Equation~\ref{eq:bg-autoregressive}.
 Each block has two sub-layers joined by residual connections and normalisation. The first is
 multi-head self-attention: three linear projections produce a query, a key and a value for every
 position, each query is scored against the keys of every earlier position, and the values are
 combined under those scores and passed through a fourth, output projection. The four
 projections are conventionally named \texttt{q\_proj}, \texttt{k\_proj}, \texttt{v\_proj} and
 \texttt{o\_proj}. The second sub-layer is a position-wise feed-forward network, which in the
-model family used here is gated: an \texttt{up\_proj} and a \texttt{gate\_proj} expand the
-vector, their product is passed through a non-linearity, and a \texttt{down\_proj} contracts it
-back to the model width. These seven projections hold nearly all of a model's parameters, and
-they are the modules that the adaptation method of Section~\ref{sec:bg-lora} attaches to. A
+model family used here is gated: a \texttt{gate\_proj} and an \texttt{up\_proj} each expand the
+vector; the gate branch is passed through a non-linearity and multiplied element-wise with the up
+branch, and a \texttt{down\_proj} contracts the product back to the model width. These seven
+projections hold most of a model's parameters, the embedding table holding the rest, and they are
+the modules that the adaptation method of Section~\ref{sec:bg-lora} attaches to. A
 causal mask restricts every position to attend to itself and earlier positions only, which is
 what makes the stack an estimator of the conditional distributions in
 Equation~\ref{eq:bg-autoregressive}.
@@ -78,11 +80,13 @@ a property to be checked rather than assumed.
 continue text. An \emph{instruct} or \emph{chat} model is further trained on conversations, so
 that it responds to a request rather than continuing it. The conversation is rendered into one
 token sequence by a \emph{chat template}: a fixed convention of special tokens and role markers
-that delimits a system turn, the user's turn and the assistant's reply. The template is part of
+that delimits the user's turn, the assistant's reply and, where the template has one, a system
+turn. The template is part of
 the model's training distribution. Fine-tuning and serving must therefore render the same
 template, and a difference in a role marker or a whitespace convention between the two changes
 the prompt the model sees. Every model compared in this work is the instruct variant of its
-family, and its serving prompt is rendered by the template its model card publishes~\cite{llama32card}.
+family; how its template is rendered at fine-tuning and at serving, and how the two renderings are
+checked against each other, is stated in Chapter~\ref{chap:method}.
 
 \paragraph{Small language models.} The models compared here have between a third of a billion and
 one and a quarter billion parameters. Such models are commonly called \glspl{slm} to distinguish
@@ -91,20 +95,19 @@ motivated the field. The distinction is one of scale, not of architecture: an \g
 decoder-only transformer with fewer and narrower blocks, trained on a smaller or more carefully
 curated corpus~\cite{smollm2}, and released in the same base and instruct variants. What scale
 buys, at the cost of memory and time per token, is the question the comparison in this document
-puts to four such models. Table~\ref{tab:bg-models} lists them with the parameter counts reported
-by their developers.
+puts to four such models. Table~\ref{tab:bg-models} lists them with their parameter counts.
 
 \begin{table}[htbp]
 \centering
 \caption[Small language models compared in this work]{The four small language models compared in
-this work, with the parameter count reported by each developer. Parameter counts are counted from
-the released checkpoints (Chapter~\ref{chap:method}).}
+this work. Parameter counts are those of the released checkpoints, rounded to the nearest million
+(Chapter~\ref{chap:method}); the developer's report is cited for each model.}
 \label{tab:bg-models}
 \begin{tabular}{@{}llrl@{}}
 \toprule
 Model & Developer & Parameters & Source \\
 \midrule
-SmolLM2-360M-Instruct & Hugging Face & 360~M & \cite{smollm2} \\
+SmolLM2-360M-Instruct & Hugging Face & 362~M & \cite{smollm2} \\
 Qwen2.5-0.5B-Instruct & Alibaba Qwen team & 494~M & \cite{qwen25} \\
 H2O-Danube3-500M-Chat & H2O.ai & 514~M & \cite{danube3} \\
 Llama-3.2-1B-Instruct & Meta & 1.24~B & \cite{llama32} \\
@@ -116,8 +119,9 @@ Llama-3.2-1B-Instruct & Meta & 1.24~B & \cite{llama32} \\
 \label{sec:bg-lora}
 
 A pretrained model is adapted to a task by \emph{supervised fine-tuning}: it is trained on pairs
-of a prompt and the completion that the task expects, with the cross-entropy loss of
-Equation~\ref{eq:bg-autoregressive} taken over the completion tokens. Computing the loss over
+of a prompt and the completion that the task expects, the loss being the negative logarithm of
+the completion's probability under Equation~\ref{eq:bg-autoregressive}, the cross-entropy, taken
+over the completion tokens. Computing the loss over
 the prompt tokens as well would reward the model for reproducing input it is never asked to
 generate; restricting the loss to the completion, called \emph{completion-only masking}, keeps
 every gradient about whether the output that follows the prompt is the right one. Full
@@ -143,17 +147,18 @@ QLoRA extends the method by quantising the frozen base weights to four bits duri
 keeping only the adapters and the optimiser state at higher precision, so that a model too large
 for the training accelerator can still be adapted~\cite{qlora}. The same work found that adapters
 on every linear projection, attention and feed-forward alike, were needed to match the accuracy of
-full fine-tuning, whereas adapters on the attention projections alone fell short~\cite{qlora}.
+full fine-tuning, whereas adapters on the query and value projections alone, the original
+\gls{lora} default, fell short~\cite{qlora}.
 
 \paragraph{Optimisation and checkpoint selection.} The adapters are trained with a
 gradient-based optimiser; AdamW, which keeps a running estimate of each parameter's gradient mean
 and variance and applies weight decay separately from the adaptive step, is the usual
 choice~\cite{adamw}. The learning rate follows a schedule, commonly a short warm-up followed by a
 cosine decay to zero. The model is evaluated on a held-out validation split at the end of every
-epoch, and one checkpoint is kept. Selecting it by validation loss is convenient, since the loss
-is computed anyway, but the loss is a per-token quantity that gives partial credit to an output
-that is close in token terms yet wrong as a whole. When the task has a natural item-level
-metric, selecting on that metric measures what the deployment depends on. The software stack
+epoch, and one checkpoint is kept. Validation loss is a per-token quantity and gives partial
+credit to an output that is close in token terms yet wrong as a whole; an item-level task metric
+does not. Which criterion selects the checkpoint is part of the recipe
+(Chapter~\ref{chap:method}). The software stack
 used for this stage in the present work, \texttt{transformers}~\cite{transformers},
 \texttt{peft}~\cite{peft} and PyTorch~\cite{pytorch}, is named in Chapter~\ref{chap:method}
 together with the recipe.
@@ -175,10 +180,11 @@ Quantisation-aware training, which simulates the rounding during training so tha
 adapt to it, is the alternative, at the cost of a training run. Weight-only quantisation, which
 leaves the activations at higher precision, is the common choice for inference at batch size one,
 because at that batch size it is the reading of the weights, not the arithmetic on them, that
-bounds the speed of decoding (Section~\ref{sec:bg-edge})~\cite{awq}.
+bounds the speed of decoding (Section~\ref{sec:bg-edge}), as a roofline analysis on a desktop
+\gls{gpu} establishes~\cite{awq}.
 
 \paragraph{Calibrated methods.} Rounding to the nearest integer treats every weight alike. The
-methods introduced for large language models use a small calibration set of inputs to do better.
+methods introduced for \glspl{llm} use a small calibration set of inputs to reduce the error.
 GPTQ quantises the weights of each layer one column at a time and adjusts the remaining columns to
 compensate for the rounding error already committed, using second-order information about the
 layer's inputs~\cite{gptq}. AWQ observes that a small fraction of weight channels, those that meet
@@ -187,9 +193,10 @@ their relative precision is preserved~\cite{awq}. SpQR isolates the outlier weig
 low-bit representation and stores them separately at higher precision~\cite{spqr}. The cost of
 any of these transformations is usually reported as the change in \emph{perplexity} on held-out
 text, the exponential of the mean negative log-likelihood per token, or as the Kullback--Leibler
-divergence of the quantised model's next-token distribution from the unquantised one. Both are
-measures of how much less confident the quantised model is about the next token in general; how
-that translates into accuracy on a specific downstream task is a separate measurement.
+divergence of the quantised model's next-token distribution from the unquantised one. Both
+measure how far the quantised model's next-token predictions have moved from the original's,
+averaged over generic text; how that translates into accuracy on a specific downstream task is a
+separate measurement.
 
 \paragraph{GGUF and the llama.cpp formats.} \gls{gguf} is the file format of the
 \texttt{llama.cpp} runtime (Section~\ref{sec:bg-edge}): one file holds every tensor of a model
@@ -197,8 +204,9 @@ together with the metadata a runtime needs to serve it, including the tokeniser 
 chat template~\cite{llamacpp}. A model is converted to \gls{gguf} at 16~bits and then quantised by
 the runtime's own tool to one of its formats. Two are used in this work. Q8\_0, a legacy format,
 stores weights in blocks of 32 at eight bits with one scale per block, 8.5~bits per weight in
-all. Q4\_K\_M belongs to the K-quant family, which stores weights in super-blocks of 256 with
-quantised per-sub-block scales, 4.5~bits per weight at the four-bit level~\cite{llamacpp}. Its
+all. Q4\_K\_M belongs to the K-quant family, which stores weights in super-blocks of 256, each
+divided into eight sub-blocks of 32 whose scales are themselves stored at reduced precision,
+4.5~bits per weight at the four-bit level~\cite{llamacpp}. Its
 target is four bits for most tensors. A fixed rule raises the output projection, and a subset of
 the attention-value and feed-forward down-projection tensors chosen by layer position, to six
 bits~\cite{llamacpp}. A K-quant also requires each tensor's rows to divide into whole
@@ -206,8 +214,9 @@ super-blocks: a tensor whose row length is not a multiple of 256 falls back to a
 five bits in place of four and eight in place of six~\cite{llamacpp}. The name Q4\_K\_M therefore
 denotes an allocation recipe rather than a bit width, and in a model whose hidden dimension is
 not a multiple of 256 most of the weights end up at five or eight bits. The recipe allocates bits
-by tensor role, position and shape, and uses no calibration data, which sets it apart from the
-methods of the previous paragraph. The runtime's documentation reports the cost of its formats as
+by tensor role, position and shape; unless an importance matrix computed from calibration text
+is supplied, it uses no calibration data, which sets the plain form apart from the methods of the
+previous paragraph. The runtime's documentation reports the cost of its formats as
 perplexity or Kullback--Leibler divergence against the unquantised model~\cite{llamacpp}.
 
 \section{Inference on a CPU-only single-board computer}
@@ -216,8 +225,8 @@ perplexity or Kullback--Leibler divergence against the unquantised model~\cite{l
 A \gls{sbc} is a complete computer on one circuit board: a system-on-chip carrying the processor
 cores, a memory controller and the peripheral interfaces, with the memory soldered beside it and
 storage on a removable card. The Raspberry~Pi~5 used in this work carries a quad-core Arm
-Cortex-A76 processor and LPDDR4X memory shared by all four cores, and no accelerator a language
-model runtime can use.\CHECK{Verify the processor and memory designations against the Raspberry
+Cortex-A76 processor and LPDDR4X memory shared by all four cores, and no accelerator that a
+language-model runtime uses in practice.\CHECK{Verify the processor and memory designations against the Raspberry
 Pi~5 product documentation and add a bibliography entry for it.} Inference therefore runs on the
 \gls{cpu} alone, through the vector instructions of the Arm architecture, and the four cores are
 the only compute available to every process on the board: the speech recogniser, the language
@@ -235,17 +244,18 @@ a subset of the cores by the operating system, which is how a share of the board
 it. It also implements the grammar-constrained sampling of Section~\ref{sec:bg-gbnf} and a server
 that keeps a prompt cache, so that a prefix common to every request is prefilled once.
 
-\paragraph{Why decoding is memory-bound.} A decode step at batch size one performs one
+\paragraph{Memory-bound decoding.} A decode step at batch size one performs one
 matrix--vector product per projection, and each such product reads the whole projection matrix
 once to produce one vector. The arithmetic per weight is two operations, a multiply and an add,
 while the weight itself must be fetched from memory. On a processor whose arithmetic throughput
 exceeds its memory bandwidth by a wide margin, the step therefore finishes when the last weight
 has been read, not when the last operation has been done, and the time per token is approximately
 the size of the weights in bytes divided by the memory bandwidth in bytes per second. Two
-consequences follow. First, a smaller model or a lower-precision format decodes faster in direct
-proportion to the bytes it saves, which is why weight-only quantisation is the lever of choice for
-throughput on a \gls{cpu}~\cite{awq}. Second, adding threads beyond what saturates the memory bus
-adds nothing, so the number of cores an inference process is given is a matter of how the board's
+consequences follow. First, under that bound a smaller model or a lower-precision format decodes
+faster in proportion to the bytes it saves, which is the rationale for weight-only quantisation as
+a means to decode throughput~\cite{awq}; how closely a given processor approaches the bound, given
+the arithmetic its low-bit kernels add, is a matter of measurement. Second, adding threads beyond
+what saturates the memory bus adds little, so the number of cores an inference process is given is a matter of how the board's
 compute is shared rather than of how fast the model could run alone. Prefill is different: it
 processes every prompt token in one matrix--matrix pass, reads each weight once for all of them,
 and is bounded by arithmetic. For a short structured output following a short prompt, decode
@@ -259,7 +269,8 @@ after which every timing figure measured on it is a figure for a slower clock. A
 holds the clock at its rated frequency under the same load. A frequency governor, the
 operating-system policy that chooses the clock in the absence of a thermal limit, can also lower
 it to save power. A throughput figure measured on an \gls{sbc} is therefore a statement about the
-board's thermal state and governor as much as about the model, and it is reported with both.
+board's thermal state and governor as much as about the model, and is interpretable only when
+both are reported with it.
 
 \paragraph{Throughput, latency and memory.} Three quantities describe the efficiency of a
 configuration on the board. \emph{Throughput} is the number of output tokens decoded per second of
@@ -280,9 +291,9 @@ A \emph{context-free grammar} is a set of rewriting rules over two alphabets: te
 which appear in the strings of the language, and non-terminal symbols, each of which expands to a
 sequence of terminals and non-terminals according to its rules. The language of the grammar is
 the set of terminal strings derivable from its start symbol. \Gls{bnf} is the usual notation:
-each rule names a non-terminal and lists its alternatives, separated by a bar. A grammar whose
-every rule is bounded, with no non-terminal able to expand to itself without limit, has a finite
-language, and its longest string has a computable length. A \gls{json} object with a fixed set of
+each rule names a non-terminal and lists its alternatives, separated by a bar. A grammar in which
+no non-terminal can derive a string that contains itself, that is, a grammar without recursion,
+has a finite language, and its longest string has a computable length. A \gls{json} object with a fixed set of
 keys, enumerated string values and numbers of bounded width is such a language.
 
 \paragraph{The token-masking mechanism.} Grammar-constrained generation restricts, at every
@@ -294,12 +305,12 @@ prefix of some string in the language, sets the logits of every other token to m
 and lets the sampler choose among the remainder. Greedy decoding then takes the most probable
 \emph{admissible} token. Because a token is a piece of text that may span several characters,
 and may straddle a boundary between two grammar symbols, the admissibility of a token is decided
-character by character against the grammar; formulations that compile a regular expression or a
+character by character against the grammar. Formulations that compile a regular expression or a
 context-free grammar into an automaton over the vocabulary make this check efficient, with
 correctness results for the language classes the construction covers~\cite{willard2023,koo2024}.
 \Gls{gbnf} is the \gls{bnf} dialect in which \texttt{llama.cpp} accepts a grammar: it adds
-character classes and bounded repetition in the manner of regular expressions, is parsed once per
-request, and is applied at every decoding step as described~\cite{llamacpp}. The per-step cost
+character classes and bounded repetition in the manner of regular expressions~\cite{llamacpp},
+and is applied at every decoding step as described. The per-step cost
 depends on the grammar's structure, and the runtime's documentation warns that some rule shapes
 make sampling slow~\cite{llamacpp}.
 
@@ -326,7 +337,8 @@ decides when an utterance has ended; a \gls{stt} model transcribes it; the parse
 transcript to a structured command; and a validator and controller act on the command. The
 \gls{stt} stage in this work is a model of the Whisper family, an encoder--decoder transformer
 trained on a large corpus of weakly supervised audio-transcript pairs~\cite{whisper}, served by a
-C/C++ port of the same kind as the language-model runtime. The pipeline's other components, and
+C/C++ port of the same kind as the language-model runtime~\cite{whispercpp}. The pipeline's other
+components, and
 the audio chain around them, are the subject of the \emph{M\'emoire d'Ing\'enieur}; this
 document concerns the parser, whose input is a transcript and whose output is a command.
 
@@ -342,7 +354,7 @@ way: MASSIVE, for instance, labels a million utterances in 51 languages with one
 spans over 55 slot types~\cite{massive}. A generative formulation replaces the two classifiers by
 one language model that emits the frame directly as structured text, for instance as a
 \gls{json} object whose first key is the intent and whose remaining keys are the slots. Under
-that formulation the grammar of Section~\ref{sec:bg-gbnf} is the natural place to fix which
+that formulation a grammar of the kind described in Section~\ref{sec:bg-gbnf} can fix which
 intents and keys exist and what shape their values take.
 
 \paragraph{Out-of-domain input and abstention.} A system that acts on commands must also handle
@@ -376,7 +388,8 @@ the grammar is removed.
 
 \paragraph{Safety-oriented rates.} Two rates score the abstention behaviour of
 Section~\ref{sec:bg-slu}. The \emph{false-command rate} is the fraction of out-of-domain inputs
-on which the system emits an actionable command rather than declining. The \emph{safe-failure
+on which the system does anything other than decline; a fallback to a hold counts, since the
+vehicle still acts on input that was not a command. The \emph{safe-failure
 rate} is the fraction of the system's errors on in-domain input that resolve to a harmless
 action, such as declining or holding position, rather than to a wrong command. The first has
 out-of-domain items as its denominator, the second the erroneous items only; neither is a
@@ -384,15 +397,18 @@ function of \gls{em}, and a system can score well on \gls{em} and poorly on both
 
 \paragraph{Speech recognition.} The accuracy of a transcript is scored by \gls{wer}: the number of
 word substitutions, deletions and insertions needed to turn the transcript into the reference,
-divided by the number of reference words, summed over a corpus. A \gls{wer} carries into the
-parser as noise in its input; the comparison of parsers in this document therefore takes
-reference transcripts as input, and the recognition error is measured separately.
+summed over a corpus and divided by the total number of reference words. An interval for a
+corpus-level rate such as \gls{wer} is obtained by the bootstrap: the corpus is resampled with
+replacement many times, the rate is recomputed on each resample, and the interval is read from
+the percentiles of those rates. A \gls{wer} carries into the parser as noise in its input, so a
+parser scored on recognised text is scored on the recogniser as well; which input each metric of
+this document takes is fixed with its definition of record.
 
 \paragraph{Paired comparison of two systems.} When two configurations are scored on the same
 items, and each item's outcome is right or wrong, the two sets of outcomes are paired, and a test
 that uses the pairing is more sensitive than one that compares the two accuracies as if they were
 independent samples. McNemar's test does so: it discards the items on which both systems agree
-and asks whether the \emph{discordant} items, those one system gets right and the other wrong,
+and asks whether the \emph{discordant} items, those one system answers correctly and the other does not,
 split evenly between the two directions~\cite{mcnemar1947}. With few discordant items the exact
 binomial form of the test is used; with many, a chi-square approximation with a continuity
 correction~\cite{edwards1948}. Two properties bound what the test can say. A non-significant
@@ -408,18 +424,19 @@ criterion, accuracy and latency among them, need not produce a single winner. Co
 strictly better on at least one. The configurations that no other dominates form the
 \emph{Pareto frontier}, and a choice among them is a choice of how much of one criterion to give
 up for the other. A selection rule that fixes a bound on one criterion, such as a latency budget,
-and maximises the other within it, picks one point of that frontier; stated before the results
-exist, it keeps the choice from being made to fit them.
+and maximises the other within it, picks a point of that frontier, provided a tie on the
+maximised criterion is broken by the bounded one; stated before the results exist, it keeps the
+choice from being made to fit them.
 
 \section{Conclusion}
 \label{sec:bg-conclusion}
 
-This chapter has set out the object of the comparison, a decoder-only \gls{slm} adapted by
-low-rank fine-tuning; the three conditions under which it is compared, weight quantisation to a
-\gls{gguf} format, decoding on the \gls{cpu} of a single-board computer where memory bandwidth
-and thermal state bound throughput, and token masking under a bounded \gls{gbnf} grammar; the task,
-the extraction of an intent and its slots from a transcribed command, with abstention as a
-required behaviour; and the instruments, from \gls{em} and the F1 scores to McNemar's paired test
-and Pareto dominance. Chapter~\ref{chap:state-of-the-art} reviews what prior studies have measured
+This chapter has set out the object of the comparison: a decoder-only \gls{slm} adapted by
+low-rank fine-tuning. It has set out the three conditions under which it is compared: weight
+quantisation to a \gls{gguf} format, decoding on the \gls{cpu} of an \gls{sbc} where memory
+bandwidth and thermal state bound throughput, and token masking under a bounded \gls{gbnf}
+grammar. It has defined the task, the extraction of an intent and its slots from a transcribed
+command, with abstention as a required behaviour. And it has defined the instruments, from
+\gls{em} and the F1 scores to McNemar's paired test and Pareto dominance. Chapter~\ref{chap:state-of-the-art} reviews what prior studies have measured
 under each of these conditions, compares them to one another, and identifies what none of them
 measures together.
