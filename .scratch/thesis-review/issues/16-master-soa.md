@@ -166,3 +166,20 @@ and the trace does not look inside table rows -- justified. WARN 2 (coherence, "
 one fp16 control"): a warn=True claim by design; MINOR-9 makes the l.51 row and l.67 read as one
 story -- justified. Self-test PASSED. Clean build: 0 errors, 0 undefined citations, 0 dropped
 floats, 0 overfull, 79 pages.
+
+### 2026-09-25 -- style items applied (author's decision: all remaining)
+
+MINOR-2: the l.266 cell now names the constraint as the 20 tok/s throughput floor derived from
+the 1,100 ms decode allowance; "throughput budget" no longer appears. MINOR-7: one metric list
+("false-command and safe-failure rates") in both This-work rows and in G3; Chapter 1's C3 gains
+"safe-failure rate" (written "false-command rate and safe-failure rate" so master_ch1.py's anchor
+survives; a matching text_claim against nfr9_nfr18_abstention.csv added to that script). NIT-1:
+every sentence over 40 words split, mostly at a colon or semicolon; none over 40 remains. NIT-2:
+"Gap G1, validity after fine-tuning." and "Gap G3, deployment cost.". NIT-4: "without scoring the
+output"; "fixes the constraint this thesis works under". Not applied: cit-13 (smollm2 "and
+others" in references.bib -- the file has uncommitted edits from the Background review session,
+so it is left for that session or the author); examiner question 1 (a scoping sentence for
+Table 3.1 is a claim about the field, the author's to make).
+
+Final state: master_ch2.py 0 FAIL, 2 WARN (justified above), 59 PASS; master_ch1.py 0 FAIL,
+3 WARN (pre-existing acronym warns, unchanged), 42 PASS; clean build 0/0/0/0, 79 pages.

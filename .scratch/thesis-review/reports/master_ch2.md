@@ -7,7 +7,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | status | check | line | finding |
 |---|---|---|---|
 | WARN | numbers |  | 6 significant number(s) found in no source file -- see the number trace |
-| WARN | coherence | 72 | Ch2 states three quantised + one fp16 control; Ch1 says 'three deployment candidates' plus a control -- the argument agent checks the two read as one story |
+| WARN | coherence | 73 | Ch2 states three quantised + one fp16 control; Ch1 says 'three deployment candidates' plus a control -- the argument agent checks the two read as one story |
 | PASS | check_tex |  | tools/check_tex.py: no problems beyond cross-chapter \ref (resolved below) |
 | PASS | ref |  | every \ref resolves within the document |
 | PASS | cite |  | 19 distinct keys cited, all resolved |
@@ -45,94 +45,94 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | PASS | paper-number |  | anchor `super-blocks of 256` present in the Background chapter (moved 25 Sep) |
 | PASS | paper-number |  | anchor `8.5~bits per weight` present in the Background chapter (moved 25 Sep) |
 | PASS | paper-number |  | anchor `4.5~bits per weight` present in the Background chapter (moved 25 Sep) |
-| PASS | paper-number | 20 | anchor `twenty-five quantised language` present |
-| PASS | paper-number | 21 | anchor `three \glspl{sbc}` present |
-| PASS | paper-number | 21 | anchor `two inference runtimes` present |
-| PASS | paper-number | 22 | anchor `roughly
+| PASS | paper-number | 21 | anchor `twenty-five quantised language` present |
+| PASS | paper-number | 22 | anchor `three \glspl{sbc}` present |
+| PASS | paper-number | 22 | anchor `two inference runtimes` present |
+| PASS | paper-number | 23 | anchor `roughly
 1.5~billion parameters` present |
-| PASS | paper-number | 24 | anchor `up to four times` present |
-| PASS | float | 43 | tab:soa-edge referenced before it appears (line 33) |
-| PASS | paper-number | 48 | anchor `135~M to 7~B` present |
-| PASS | coherence | 70 | 'four fine-tuned models' = 4 fine-tuned models in results/table33_iso_parameter.md |
-| PASS | paper-number | 87 | anchor `one percent of weight channels` present |
-| PASS | paper-number | 99 | anchor `under one
+| PASS | paper-number | 25 | anchor `up to four times` present |
+| PASS | float | 44 | tab:soa-edge referenced before it appears (line 34) |
+| PASS | paper-number | 49 | anchor `135~M to 7~B` present |
+| PASS | coherence | 71 | 'four fine-tuned models' = 4 fine-tuned models in results/table33_iso_parameter.md |
+| PASS | paper-number | 89 | anchor `one percent of weight channels` present |
+| PASS | paper-number | 101 | anchor `under one
 percent` present |
-| PASS | paper-number | 105 | anchor `eight billion parameters and above` present |
-| PASS | paper-number | 107 | anchor `has 1.5~billion parameters` present |
-| PASS | float | 122 | tab:soa-quantisation referenced before it appears (line 111) |
-| PASS | paper-number | 131 | anchor `8, 70 and 405~B` present |
-| PASS | float | 203 | tab:soa-constrained referenced before it appears (line 192) |
-| PASS | paper-number | 245 | anchor `one million
+| PASS | paper-number | 107 | anchor `eight billion parameters and above` present |
+| PASS | paper-number | 109 | anchor `has 1.5~billion parameters` present |
+| PASS | float | 124 | tab:soa-quantisation referenced before it appears (line 113) |
+| PASS | paper-number | 133 | anchor `8, 70 and 405~B` present |
+| PASS | float | 204 | tab:soa-constrained referenced before it appears (line 193) |
+| PASS | paper-number | 246 | anchor `one million
 utterances in 51 languages` present |
-| PASS | paper-number | 245 | anchor `60 intents and 55 slot types` present |
-| PASS | paper-number | 246 | anchor `258 to 580~million` present |
-| PASS | paper-number | 247 | anchor `85.1--86.1` present |
-| PASS | paper-number | 248 | anchor `73.6--76.8` present |
-| PASS | paper-number | 248 | anchor `63.7--66.6` present |
-| PASS | float | 260 | tab:soa-slu referenced before it appears (line 251) |
+| PASS | paper-number | 246 | anchor `60 intents and 55 slot types` present |
+| PASS | paper-number | 247 | anchor `258 to 580~million` present |
+| PASS | paper-number | 248 | anchor `85.1--86.1` present |
+| PASS | paper-number | 249 | anchor `73.6--76.8` present |
+| PASS | paper-number | 249 | anchor `63.7--66.6` present |
+| PASS | float | 261 | tab:soa-slu referenced before it appears (line 252) |
 
 ### Citation sheet (for the citation agent: open each identifier, judge SUPPORTS / PARTIAL / DOES NOT SUPPORT per row)
 
 | # | line | keys | sentence the citation must support |
 |---|---|---|---|
-| 1 | 22 | sbc2025 | A recent benchmark of this kind evaluates twenty-five quantised language models on three \glspl{sbc} under two inference runtimes, Ollama and Llamafile~\cite{sbc2025}. |
-| 2 | 25 | sbc2025 | On the one board where both runtimes were compared, Llamafile reached up to four times the throughput of Ollama~\cite{sbc2025}. |
-| 3 | 31 | kurt2026 | The second kind benchmarks a runtime's formats on one model and scores the output: a unified evaluation of \texttt{llama.cpp}'s quantisation formats on Llama-3.1-8B-Instruct reports downstream benchmark accuracy and perplexity next to \gls{cpu} throughput~\cite{kurt2026}. |
-| 4 | 48 | sbc2025 | \midrule Nguyen and Nguyen~\cite{sbc2025} & 25 quantised models, 135~M to 7~B & Three \glspl{sbc} & Ollama and Llamafile; Q4\_K\_M throughout & Throughput, resource use; no task \\ |
-| 5 | 49 | kurt2026 | Kurt~\cite{kurt2026} & Llama-3.1-8B-Instruct & \gls{cpu}; --- & \texttt{llama.cpp}; K-quant and legacy \gls{gguf} formats against 16-bit floating point (fp16) & Perplexity, generic benchmark accuracy, \gls{cpu} throughput; generic tasks \\ |
-| 6 | 67 | sbc2025 | On scale, both stop short of the sub-billion range: the hardware benchmark reports that boards serve models of up to about 1.5~billion parameters without saying what accuracy those models retain, and the format evaluation studies an 8-billion-parameter model, larger than any the hardware benchmark ran, whose models of  |
-| 7 | 71 | qwen25 | The last row narrows the scope to one task, one device and four fine-tuned models (Qwen2.5-0.5B~\cite{qwen25}, SmolLM2-360M~\cite{smollm2}, Llama-3.2-1B~\cite{llama32}, and H2O-Danube3-500M~\cite{danube3} as a parameter-matched control at fp16). |
-| 8 | 71 | smollm2 | The last row narrows the scope to one task, one device and four fine-tuned models (Qwen2.5-0.5B~\cite{qwen25}, SmolLM2-360M~\cite{smollm2}, Llama-3.2-1B~\cite{llama32}, and H2O-Danube3-500M~\cite{danube3} as a parameter-matched control at fp16). |
-| 9 | 71 | llama32 | The last row narrows the scope to one task, one device and four fine-tuned models (Qwen2.5-0.5B~\cite{qwen25}, SmolLM2-360M~\cite{smollm2}, Llama-3.2-1B~\cite{llama32}, and H2O-Danube3-500M~\cite{danube3} as a parameter-matched control at fp16). |
-| 10 | 72 | danube3 | The last row narrows the scope to one task, one device and four fine-tuned models (Qwen2.5-0.5B~\cite{qwen25}, SmolLM2-360M~\cite{smollm2}, Llama-3.2-1B~\cite{llama32}, and H2O-Danube3-500M~\cite{danube3} as a parameter-matched control at fp16). |
-| 11 | 80 | gptq | \section{Quantisation} \label{sec:soa-quantisation} Post-training quantisation is the established route to reducing a trained model's memory footprint~\cite{gptq}, and on-device deployment is one of its stated motivations~\cite{awq}. |
-| 12 | 80 | awq | \section{Quantisation} \label{sec:soa-quantisation} Post-training quantisation is the established route to reducing a trained model's memory footprint~\cite{gptq}, and on-device deployment is one of its stated motivations~\cite{awq}. |
-| 13 | 89 | awq | This thesis deploys two of \texttt{llama.cpp}'s \gls{gguf} formats, Q8\_0 and Q4\_K\_M, whose construction Section~\ref{sec:bg-quant} describes. What distinguishes them from the methods the literature studies is how bits are assigned: the K-quant recipe allocates them by tensor role, position and shape, not by any meas |
-| 14 | 92 | llamacpp | The runtime's documentation states that the accuracy cost of its formats is usually measured as a perplexity or a Kullback--Leibler divergence against the unquantised model~\cite{llamacpp}, not as a change in accuracy on a downstream task. |
-| 15 | 100 | spqr | The papers introducing post-training quantisation methods report their cost mainly in generic terms: SpQR reports a relative perplexity loss of under one percent~\cite{spqr}, and GPTQ reports perplexity together with zero-shot accuracy on generic benchmarks such as LAMBADA, ARC and PIQA~\cite{gptq}. |
-| 16 | 101 | gptq | The papers introducing post-training quantisation methods report their cost mainly in generic terms: SpQR reports a relative perplexity loss of under one percent~\cite{spqr}, and GPTQ reports perplexity together with zero-shot accuracy on generic benchmarks such as LAMBADA, ARC and PIQA~\cite{gptq}. |
-| 17 | 104 | kurtic2025 | Evaluation studies have since measured downstream accuracy under quantisation at scale~\cite{kurtic2025}, and for \texttt{llama.cpp}'s own formats specifically~\cite{kurt2026}. |
-| 18 | 104 | kurt2026 | Evaluation studies have since measured downstream accuracy under quantisation at scale~\cite{kurtic2025}, and for \texttt{llama.cpp}'s own formats specifically~\cite{kurt2026}. |
-| 19 | 108 | kurtic2025 | Their models are mostly of eight billion parameters and above, scored on general-purpose reasoning, knowledge and coding suites with the decoder unconstrained; the smallest model either study evaluates has 1.5~billion parameters, a reasoning distillation of the Qwen family rather than a Llama-3.1 model~\cite{kurtic2025 |
-| 20 | 111 | slmquant | Small models have also been studied directly: a benchmark of quantisation at sub-billion scale, which includes Qwen2.5-0.5B, finds that small models differ from large ones in their sensitivity to quantisation, so that methods tuned on large models transfer poorly~\cite{slmquant}. |
-| 21 | 127 | gptq | \midrule GPTQ~\cite{gptq} & Method & --- & One-shot weight quantisation to 3--4 bits with error compensation from calibration data & Perplexity; zero-shot accuracy on generic benchmarks & No \\ |
-| 22 | 128 | awq | AWQ~\cite{awq} & Method & --- & Weight-only; salient channels protected by activation statistics & --- & No \\ |
-| 23 | 129 | spqr | SpQR~\cite{spqr} & Method & --- & Outlier weights isolated at higher precision & Relative perplexity loss under one percent & No \\ |
-| 24 | 130 | llamacpp | \texttt{llama.cpp} K-quants~\cite{llamacpp} & Runtime & Any \gls{gguf} model & Bits by tensor role, position and shape; no calibration required & Perplexity; Kullback--Leibler divergence & Optional \\ |
-| 25 | 131 | kurtic2025 | Kurtic et al.~\cite{kurtic2025} & Evaluation & Llama-3.1 Instruct at 8, 70 and 405~B; DeepSeek-R1 distillations from 1.5~B, on reasoning suites & FP8, INT8, INT4 & Accuracy on academic benchmarks and real-world tasks & No \\ |
-| 26 | 132 | kurt2026 | Kurt~\cite{kurt2026} & Evaluation & Llama-3.1-8B-Instruct & \texttt{llama.cpp} formats from Q3\_K to Q8\_0 & Perplexity; generic benchmark accuracy; \gls{cpu} throughput & No \\ |
-| 27 | 133 | slmquant | Wang et al.~\cite{slmquant} & Evaluation & Sub-billion models, Qwen2.5-0.5B among them & Methods tuned on large models, applied to small ones & Generic benchmark accuracy & No \\ |
-| 28 | 161 | geng2023 | \section{Constrained decoding} \label{sec:soa-constrained-decoding} Grammar-constrained generation, the token-masking mechanism of Section~\ref{sec:bg-gbnf}, has been applied to structured language-processing tasks without fine-tuning~\cite{geng2023}. |
-| 29 | 167 | willard2023, koo2024 | The constructions compile a regular expression or a context-free grammar into an automaton over the vocabulary and mask the decoder against it~\cite{willard2023,koo2024}, with correctness results for the language classes such a construction covers~\cite{koo2024}. |
-| 30 | 168 | koo2024 | The constructions compile a regular expression or a context-free grammar into an automaton over the vocabulary and mask the decoder against it~\cite{willard2023,koo2024}, with correctness results for the language classes such a construction covers~\cite{koo2024}. |
-| 31 | 169 | llamacpp | \Gls{gbnf} is the formalism \texttt{llama.cpp} implements it with~\cite{llamacpp}. |
-| 32 | 190 | park2024 | That property has a cost, which is why the ablation reports accuracy as well as validity. Constraining the decoder alters the distribution the model samples from: outputs remain grammatical, but their relative likelihoods no longer track what the unconstrained model would have assigned, so a grammar can make a structur |
-| 33 | 192 | tam2024 | Format restriction has separately been observed to degrade accuracy on reasoning tasks, more so as the restriction tightens, while classification tasks were in some cases helped by it~\cite{tam2024}. |
-| 34 | 208 | geng2023 | \midrule Geng et al.~\cite{geng2023} & Application & Context-free grammar; token masking on structured NLP tasks & No & --- \\ |
-| 35 | 209 | willard2023 | Willard and Louf~\cite{willard2023} & Construction & Regular expression or context-free grammar compiled to a finite-state index over the vocabulary & --- & --- \\ |
-| 36 | 210 | koo2024 | Koo et al.~\cite{koo2024} & Construction & Automata for regular and deterministic context-free languages; provably correct masks & --- & --- \\ |
-| 37 | 211 | park2024 | Park et al.~\cite{park2024} & Cost study & Grammar-constrained decoding, shown to distort the model's distribution; an aligned alternative proposed & No & Yes: Kullback--Leibler divergence from the model's grammar-conditioned distribution, and solution correctness on program-synthesis tasks, against an aligned sampler  |
-| 38 | 212 | tam2024 | Tam et al.~\cite{tam2024} & Cost study & Format restriction of increasing strictness & No & Yes: reasoning accuracy falls as restriction tightens; classification sometimes helped \\ |
-| 39 | 213 | llamacpp | \texttt{llama.cpp} \gls{gbnf}~\cite{llamacpp} & Implementation & \gls{bnf} dialect supplied per request and applied at each sampling step; cost depends on rule shape & --- & --- \\ |
-| 40 | 244 | qin2021 | A survey of the field treats the extraction of this semantic frame as the object of the task, and classifies methods by whether they model intent and slots separately or jointly~\cite{qin2021}. |
-| 41 | 246 | massive | A survey of the field treats the extraction of this semantic frame as the object of the task, and classifies methods by whether they model intent and slots separately or jointly~\cite{qin2021}. MASSIVE, a dataset of one million utterances in 51 languages labelled with 60 intents and 55 slot types, is built around the s |
-| 42 | 248 | massive | Its baselines, encoders of 258 to 580~million parameters, reach locale-averaged intent accuracies of 85.1--86.1\% and slot F1 of 73.6--76.8\%, but \gls{em} of only 63.7--66.6\%~\cite{massive}. |
-| 43 | 265 | qin2021 | \midrule Qin et al.~\cite{qin2021} & Survey & Semantic frame of intent and slots; methods sorted into single and joint models & --- & --- & --- \\ |
-| 44 | 266 | massive | MASSIVE~\cite{massive} & Corpus and baselines & 60 intents, 55 slot types, 51 languages; encoder baselines of 258--580~M parameters & Intent accuracy 85.1--86.1\%; slot F1 73.6--76.8\%; \gls{em} 63.7--66.6\% & Data-centre \glspl{gpu}; no budget & None \\ |
-| 45 | 275 | qin2021 | On formulation, the survey and the corpus agree: one intent from a closed set and a set of typed slots, with the joint model as the modern default~\cite{qin2021}. |
-| 46 | 281 | massive | On the metric, the benchmark's lowest figure is \gls{em}, and it is the metric a controller depends on, since a command with one wrong slot is a wrong command; the benchmark reports it but does not optimise for it, and its baselines are trained on data-centre \glspl{gpu}, decoded without a grammar, and scored with no l |
-| 47 | 291 | sbc2025 | Benchmarking on \glspl{sbc} has found that such boards reliably serve models of up to about 1.5~billion parameters, and that on one board the choice of runtime changed throughput by up to four times~\cite{sbc2025}. |
-| 48 | 292 | gptq | Post-training quantisation is the established way to shrink a trained model~\cite{gptq}, with on-device deployment among its motivations~\cite{awq}. |
-| 49 | 292 | awq | Post-training quantisation is the established way to shrink a trained model~\cite{gptq}, with on-device deployment among its motivations~\cite{awq}. |
-| 50 | 293 | spqr, gptq | Its cost is reported as perplexity and generic zero-shot accuracy by the papers introducing the methods~\cite{spqr,gptq}, and as accuracy on general-purpose suites by the studies evaluating them, including at sub-billion scale~\cite{kurtic2025,kurt2026,slmquant}. |
-| 51 | 294 | kurtic2025, kurt2026, slmquant | Its cost is reported as perplexity and generic zero-shot accuracy by the papers introducing the methods~\cite{spqr,gptq}, and as accuracy on general-purpose suites by the studies evaluating them, including at sub-billion scale~\cite{kurtic2025,kurt2026,slmquant}. |
-| 52 | 296 | willard2023, koo2024 | Its cost is reported as perplexity and generic zero-shot accuracy by the papers introducing the methods~\cite{spqr,gptq}, and as accuracy on general-purpose suites by the studies evaluating them, including at sub-billion scale~\cite{kurtic2025,kurt2026,slmquant}. Grammar-constrained decoding makes a model's output stru |
-| 53 | 297 | park2024 | Its cost is reported as perplexity and generic zero-shot accuracy by the papers introducing the methods~\cite{spqr,gptq}, and as accuracy on general-purpose suites by the studies evaluating them, including at sub-billion scale~\cite{kurtic2025,kurt2026,slmquant}. Grammar-constrained decoding makes a model's output stru |
-| 54 | 298 | tam2024 | Its cost is reported as perplexity and generic zero-shot accuracy by the papers introducing the methods~\cite{spqr,gptq}, and as accuracy on general-purpose suites by the studies evaluating them, including at sub-billion scale~\cite{kurtic2025,kurt2026,slmquant}. Grammar-constrained decoding makes a model's output stru |
-| 55 | 300 | massive | Intent and slot parsing is an established task formulation, with a large multilingual benchmark built for it~\cite{massive}. |
-| 56 | 301 | kurt2026 | Some pairs of these literatures have already been combined: quantisation with \gls{cpu} inference and downstream accuracy~\cite{kurt2026}, quantisation with small models~\cite{slmquant}, and format restriction with task accuracy~\cite{tam2024}. |
-| 57 | 302 | slmquant | Some pairs of these literatures have already been combined: quantisation with \gls{cpu} inference and downstream accuracy~\cite{kurt2026}, quantisation with small models~\cite{slmquant}, and format restriction with task accuracy~\cite{tam2024}. |
-| 58 | 302 | tam2024 | Some pairs of these literatures have already been combined: quantisation with \gls{cpu} inference and downstream accuracy~\cite{kurt2026}, quantisation with small models~\cite{slmquant}, and format restriction with task accuracy~\cite{tam2024}. |
+| 1 | 23 | sbc2025 | A recent benchmark of this kind evaluates twenty-five quantised language models on three \glspl{sbc} under two inference runtimes, Ollama and Llamafile~\cite{sbc2025}. |
+| 2 | 26 | sbc2025 | On the one board where both runtimes were compared, Llamafile reached up to four times the throughput of Ollama~\cite{sbc2025}. |
+| 3 | 32 | kurt2026 | The second kind benchmarks a runtime's formats on one model and scores the output: a unified evaluation of \texttt{llama.cpp}'s quantisation formats on Llama-3.1-8B-Instruct reports downstream benchmark accuracy and perplexity next to \gls{cpu} throughput~\cite{kurt2026}. |
+| 4 | 49 | sbc2025 | \midrule Nguyen and Nguyen~\cite{sbc2025} & 25 quantised models, 135~M to 7~B & Three \glspl{sbc} & Ollama and Llamafile; Q4\_K\_M throughout & Throughput, resource use; no task \\ |
+| 5 | 50 | kurt2026 | Kurt~\cite{kurt2026} & Llama-3.1-8B-Instruct & \gls{cpu}; --- & \texttt{llama.cpp}; K-quant and legacy \gls{gguf} formats against 16-bit floating point (fp16) & Perplexity, generic benchmark accuracy, \gls{cpu} throughput; generic tasks \\ |
+| 6 | 68 | sbc2025 | The format evaluation studies an 8-billion-parameter model, larger than any the hardware benchmark ran; that benchmark's models of three billion parameters and above decoded below five tokens per second on the one board that could run them~\cite{sbc2025}. |
+| 7 | 72 | qwen25 | The last row narrows the scope to one task, one device and four fine-tuned models (Qwen2.5-0.5B~\cite{qwen25}, SmolLM2-360M~\cite{smollm2}, Llama-3.2-1B~\cite{llama32}, and H2O-Danube3-500M~\cite{danube3} as a parameter-matched control at fp16). |
+| 8 | 72 | smollm2 | The last row narrows the scope to one task, one device and four fine-tuned models (Qwen2.5-0.5B~\cite{qwen25}, SmolLM2-360M~\cite{smollm2}, Llama-3.2-1B~\cite{llama32}, and H2O-Danube3-500M~\cite{danube3} as a parameter-matched control at fp16). |
+| 9 | 72 | llama32 | The last row narrows the scope to one task, one device and four fine-tuned models (Qwen2.5-0.5B~\cite{qwen25}, SmolLM2-360M~\cite{smollm2}, Llama-3.2-1B~\cite{llama32}, and H2O-Danube3-500M~\cite{danube3} as a parameter-matched control at fp16). |
+| 10 | 73 | danube3 | The last row narrows the scope to one task, one device and four fine-tuned models (Qwen2.5-0.5B~\cite{qwen25}, SmolLM2-360M~\cite{smollm2}, Llama-3.2-1B~\cite{llama32}, and H2O-Danube3-500M~\cite{danube3} as a parameter-matched control at fp16). |
+| 11 | 81 | gptq | \section{Quantisation} \label{sec:soa-quantisation} Post-training quantisation is the established route to reducing a trained model's memory footprint~\cite{gptq}, and on-device deployment is one of its stated motivations~\cite{awq}. |
+| 12 | 81 | awq | \section{Quantisation} \label{sec:soa-quantisation} Post-training quantisation is the established route to reducing a trained model's memory footprint~\cite{gptq}, and on-device deployment is one of its stated motivations~\cite{awq}. |
+| 13 | 91 | awq | This thesis deploys two of \texttt{llama.cpp}'s \gls{gguf} formats, Q8\_0 and Q4\_K\_M, whose construction Section~\ref{sec:bg-quant} describes. What distinguishes them from the methods the literature studies is how bits are assigned: the K-quant recipe allocates them by tensor role, position and shape, not by any meas |
+| 14 | 94 | llamacpp | The runtime's documentation states that the accuracy cost of its formats is usually measured as a perplexity or a Kullback--Leibler divergence against the unquantised model~\cite{llamacpp}, not as a change in accuracy on a downstream task. |
+| 15 | 102 | spqr | The papers introducing post-training quantisation methods report their cost mainly in generic terms: SpQR reports a relative perplexity loss of under one percent~\cite{spqr}, and GPTQ reports perplexity together with zero-shot accuracy on generic benchmarks such as LAMBADA, ARC and PIQA~\cite{gptq}. |
+| 16 | 103 | gptq | The papers introducing post-training quantisation methods report their cost mainly in generic terms: SpQR reports a relative perplexity loss of under one percent~\cite{spqr}, and GPTQ reports perplexity together with zero-shot accuracy on generic benchmarks such as LAMBADA, ARC and PIQA~\cite{gptq}. |
+| 17 | 106 | kurtic2025 | Evaluation studies have since measured downstream accuracy under quantisation at scale~\cite{kurtic2025}, and for \texttt{llama.cpp}'s own formats specifically~\cite{kurt2026}. |
+| 18 | 106 | kurt2026 | Evaluation studies have since measured downstream accuracy under quantisation at scale~\cite{kurtic2025}, and for \texttt{llama.cpp}'s own formats specifically~\cite{kurt2026}. |
+| 19 | 110 | kurtic2025 | Their models are mostly of eight billion parameters and above, scored on general-purpose reasoning, knowledge and coding suites with the decoder unconstrained; the smallest model either study evaluates has 1.5~billion parameters, a reasoning distillation of the Qwen family rather than a Llama-3.1 model~\cite{kurtic2025 |
+| 20 | 113 | slmquant | Small models have also been studied directly: a benchmark of quantisation at sub-billion scale, which includes Qwen2.5-0.5B, finds that small models differ from large ones in their sensitivity to quantisation, so that methods tuned on large models transfer poorly~\cite{slmquant}. |
+| 21 | 129 | gptq | \midrule GPTQ~\cite{gptq} & Method & --- & One-shot weight quantisation to 3--4 bits with error compensation from calibration data & Perplexity; zero-shot accuracy on generic benchmarks & No \\ |
+| 22 | 130 | awq | AWQ~\cite{awq} & Method & --- & Weight-only; salient channels protected by activation statistics & --- & No \\ |
+| 23 | 131 | spqr | SpQR~\cite{spqr} & Method & --- & Outlier weights isolated at higher precision & Relative perplexity loss under one percent & No \\ |
+| 24 | 132 | llamacpp | \texttt{llama.cpp} K-quants~\cite{llamacpp} & Runtime & Any \gls{gguf} model & Bits by tensor role, position and shape; no calibration required & Perplexity; Kullback--Leibler divergence & Optional \\ |
+| 25 | 133 | kurtic2025 | Kurtic et al.~\cite{kurtic2025} & Evaluation & Llama-3.1 Instruct at 8, 70 and 405~B; DeepSeek-R1 distillations from 1.5~B, on reasoning suites & FP8, INT8, INT4 & Accuracy on academic benchmarks and real-world tasks & No \\ |
+| 26 | 134 | kurt2026 | Kurt~\cite{kurt2026} & Evaluation & Llama-3.1-8B-Instruct & \texttt{llama.cpp} formats from Q3\_K to Q8\_0 & Perplexity; generic benchmark accuracy; \gls{cpu} throughput & No \\ |
+| 27 | 135 | slmquant | Wang et al.~\cite{slmquant} & Evaluation & Sub-billion models, Qwen2.5-0.5B among them & Methods tuned on large models, applied to small ones & Generic benchmark accuracy & No \\ |
+| 28 | 163 | geng2023 | \section{Constrained decoding} \label{sec:soa-constrained-decoding} Grammar-constrained generation, the token-masking mechanism of Section~\ref{sec:bg-gbnf}, has been applied to structured language-processing tasks without fine-tuning~\cite{geng2023}. |
+| 29 | 168 | willard2023, koo2024 | The constructions compile a regular expression or a context-free grammar into an automaton over the vocabulary and mask the decoder against it~\cite{willard2023,koo2024}, with correctness results for the language classes such a construction covers~\cite{koo2024}. |
+| 30 | 169 | koo2024 | The constructions compile a regular expression or a context-free grammar into an automaton over the vocabulary and mask the decoder against it~\cite{willard2023,koo2024}, with correctness results for the language classes such a construction covers~\cite{koo2024}. |
+| 31 | 170 | llamacpp | \Gls{gbnf} is the formalism \texttt{llama.cpp} implements it with~\cite{llamacpp}. |
+| 32 | 191 | park2024 | Outputs remain grammatical, but their relative likelihoods no longer track what the unconstrained model would have assigned, so a grammar can make a structurally valid command more likely without making the correct one more likely~\cite{park2024}. |
+| 33 | 193 | tam2024 | Format restriction has separately been observed to degrade accuracy on reasoning tasks, more so as the restriction tightens, while classification tasks were in some cases helped by it~\cite{tam2024}. |
+| 34 | 209 | geng2023 | \midrule Geng et al.~\cite{geng2023} & Application & Context-free grammar; token masking on structured NLP tasks & No & --- \\ |
+| 35 | 210 | willard2023 | Willard and Louf~\cite{willard2023} & Construction & Regular expression or context-free grammar compiled to a finite-state index over the vocabulary & --- & --- \\ |
+| 36 | 211 | koo2024 | Koo et al.~\cite{koo2024} & Construction & Automata for regular and deterministic context-free languages; provably correct masks & --- & --- \\ |
+| 37 | 212 | park2024 | Park et al.~\cite{park2024} & Cost study & Grammar-constrained decoding, shown to distort the model's distribution; an aligned alternative proposed & No & Yes: Kullback--Leibler divergence from the model's grammar-conditioned distribution, and solution correctness on program-synthesis tasks, against an aligned sampler  |
+| 38 | 213 | tam2024 | Tam et al.~\cite{tam2024} & Cost study & Format restriction of increasing strictness & No & Yes: reasoning accuracy falls as restriction tightens; classification sometimes helped \\ |
+| 39 | 214 | llamacpp | \texttt{llama.cpp} \gls{gbnf}~\cite{llamacpp} & Implementation & \gls{bnf} dialect supplied per request and applied at each sampling step; cost depends on rule shape & --- & --- \\ |
+| 40 | 245 | qin2021 | A survey of the field treats the extraction of this semantic frame as the object of the task, and classifies methods by whether they model intent and slots separately or jointly~\cite{qin2021}. |
+| 41 | 247 | massive | A survey of the field treats the extraction of this semantic frame as the object of the task, and classifies methods by whether they model intent and slots separately or jointly~\cite{qin2021}. MASSIVE, a dataset of one million utterances in 51 languages labelled with 60 intents and 55 slot types, is built around the s |
+| 42 | 249 | massive | Its baselines, encoders of 258 to 580~million parameters, reach locale-averaged intent accuracies of 85.1--86.1\% and slot F1 of 73.6--76.8\%, but \gls{em} of only 63.7--66.6\%~\cite{massive}. |
+| 43 | 266 | qin2021 | \midrule Qin et al.~\cite{qin2021} & Survey & Semantic frame of intent and slots; methods sorted into single and joint models & --- & --- & --- \\ |
+| 44 | 267 | massive | MASSIVE~\cite{massive} & Corpus and baselines & 60 intents, 55 slot types, 51 languages; encoder baselines of 258--580~M parameters & Intent accuracy 85.1--86.1\%; slot F1 73.6--76.8\%; \gls{em} 63.7--66.6\% & Data-centre \glspl{gpu}; no budget & None \\ |
+| 45 | 276 | qin2021 | On formulation, the survey and the corpus agree: one intent from a closed set and a set of typed slots, with the joint model as the modern default~\cite{qin2021}. |
+| 46 | 282 | massive | The benchmark reports it but does not optimise for it, and its baselines are trained on data-centre \glspl{gpu}, decoded without a grammar, and scored with no latency or memory limit~\cite{massive}. |
+| 47 | 292 | sbc2025 | Benchmarking on \glspl{sbc} has found that such boards reliably serve models of up to about 1.5~billion parameters, and that on one board the choice of runtime changed throughput by up to four times~\cite{sbc2025}. |
+| 48 | 293 | gptq | Post-training quantisation is the established way to shrink a trained model~\cite{gptq}, with on-device deployment among its motivations~\cite{awq}. |
+| 49 | 293 | awq | Post-training quantisation is the established way to shrink a trained model~\cite{gptq}, with on-device deployment among its motivations~\cite{awq}. |
+| 50 | 294 | spqr, gptq | Its cost is reported as perplexity and generic zero-shot accuracy by the papers introducing the methods~\cite{spqr,gptq}, and as accuracy on general-purpose suites by the studies evaluating them, including at sub-billion scale~\cite{kurtic2025,kurt2026,slmquant}. |
+| 51 | 295 | kurtic2025, kurt2026, slmquant | Its cost is reported as perplexity and generic zero-shot accuracy by the papers introducing the methods~\cite{spqr,gptq}, and as accuracy on general-purpose suites by the studies evaluating them, including at sub-billion scale~\cite{kurtic2025,kurt2026,slmquant}. |
+| 52 | 297 | willard2023, koo2024 | Its cost is reported as perplexity and generic zero-shot accuracy by the papers introducing the methods~\cite{spqr,gptq}, and as accuracy on general-purpose suites by the studies evaluating them, including at sub-billion scale~\cite{kurtic2025,kurt2026,slmquant}. Grammar-constrained decoding makes a model's output stru |
+| 53 | 298 | park2024 | Its cost is reported as perplexity and generic zero-shot accuracy by the papers introducing the methods~\cite{spqr,gptq}, and as accuracy on general-purpose suites by the studies evaluating them, including at sub-billion scale~\cite{kurtic2025,kurt2026,slmquant}. Grammar-constrained decoding makes a model's output stru |
+| 54 | 299 | tam2024 | Its cost is reported as perplexity and generic zero-shot accuracy by the papers introducing the methods~\cite{spqr,gptq}, and as accuracy on general-purpose suites by the studies evaluating them, including at sub-billion scale~\cite{kurtic2025,kurt2026,slmquant}. Grammar-constrained decoding makes a model's output stru |
+| 55 | 301 | massive | Intent and slot parsing is an established task formulation, with a large multilingual benchmark built for it~\cite{massive}. |
+| 56 | 302 | kurt2026 | Some pairs of these literatures have already been combined: quantisation with \gls{cpu} inference and downstream accuracy~\cite{kurt2026}, quantisation with small models~\cite{slmquant}, and format restriction with task accuracy~\cite{tam2024}. |
+| 57 | 303 | slmquant | Some pairs of these literatures have already been combined: quantisation with \gls{cpu} inference and downstream accuracy~\cite{kurt2026}, quantisation with small models~\cite{slmquant}, and format restriction with task accuracy~\cite{tam2024}. |
+| 58 | 303 | tam2024 | Some pairs of these literatures have already been combined: quantisation with \gls{cpu} inference and downstream accuracy~\cite{kurt2026}, quantisation with small models~\cite{slmquant}, and format restriction with task accuracy~\cite{tam2024}. |
 
 | key | title | year | identifier |
 |---|---|---|---|
@@ -160,12 +160,12 @@ utterances in 51 languages` present |
 
 | line | level | title | prose words |
 |---|---|---|---|
-| 1 | chapter | State of the art | 142 |
-| 15 | section | Edge language-model inference and single-board-computer benchmarking | 733 |
-| 77 | section | Quantisation | 957 |
-| 158 | section | Constrained decoding | 964 |
-| 238 | section | Spoken-language understanding for robotics | 533 |
-| 285 | section | Research gaps | 689 |
+| 1 | chapter | State of the art | 145 |
+| 16 | section | Edge language-model inference and single-board-computer benchmarking | 731 |
+| 78 | section | Quantisation | 960 |
+| 160 | section | Constrained decoding | 959 |
+| 239 | section | Spoken-language understanding for robotics | 537 |
+| 286 | section | Research gaps | 692 |
 
 ### Codes used in this chapter (self-containment agent: is each one needed, or would a descriptive name read better?)
 
@@ -180,26 +180,26 @@ utterances in 51 languages` present |
 
 | line | claim | must be found in |
 |---|---|---|
-| 20 | twenty-five quantised language | sbc2025 (primary source, not the candidate notes) |
-| 21 | three \glspl{sbc} | sbc2025 (primary source, not the candidate notes) |
-| 21 | two inference runtimes | sbc2025 (primary source, not the candidate notes) |
-| 22 | roughly
+| 21 | twenty-five quantised language | sbc2025 (primary source, not the candidate notes) |
+| 22 | three \glspl{sbc} | sbc2025 (primary source, not the candidate notes) |
+| 22 | two inference runtimes | sbc2025 (primary source, not the candidate notes) |
+| 23 | roughly
 1.5~billion parameters | sbc2025 (primary source, not the candidate notes) |
-| 24 | up to four times | sbc2025 (primary source, not the candidate notes) |
-| 48 | 135~M to 7~B | sbc2025 (primary source, not the candidate notes) |
-| 131 | 8, 70 and 405~B | kurtic2025 (primary source, not the candidate notes) |
-| 87 | one percent of weight channels | awq (primary source, not the candidate notes) |
-| 99 | under one
+| 25 | up to four times | sbc2025 (primary source, not the candidate notes) |
+| 49 | 135~M to 7~B | sbc2025 (primary source, not the candidate notes) |
+| 133 | 8, 70 and 405~B | kurtic2025 (primary source, not the candidate notes) |
+| 89 | one percent of weight channels | awq (primary source, not the candidate notes) |
+| 101 | under one
 percent | spqr (primary source, not the candidate notes) |
-| 105 | eight billion parameters and above | kurtic2025,kurt2026 (primary source, not the candidate notes) |
-| 107 | has 1.5~billion parameters | kurtic2025 (primary source, not the candidate notes) |
-| 245 | one million
+| 107 | eight billion parameters and above | kurtic2025,kurt2026 (primary source, not the candidate notes) |
+| 109 | has 1.5~billion parameters | kurtic2025 (primary source, not the candidate notes) |
+| 246 | one million
 utterances in 51 languages | massive (primary source, not the candidate notes) |
-| 245 | 60 intents and 55 slot types | massive (primary source, not the candidate notes) |
-| 246 | 258 to 580~million | massive (primary source, not the candidate notes) |
-| 247 | 85.1--86.1 | massive (primary source, not the candidate notes) |
-| 248 | 73.6--76.8 | massive (primary source, not the candidate notes) |
-| 248 | 63.7--66.6 | massive (primary source, not the candidate notes) |
+| 246 | 60 intents and 55 slot types | massive (primary source, not the candidate notes) |
+| 247 | 258 to 580~million | massive (primary source, not the candidate notes) |
+| 248 | 85.1--86.1 | massive (primary source, not the candidate notes) |
+| 249 | 73.6--76.8 | massive (primary source, not the candidate notes) |
+| 249 | 63.7--66.6 | massive (primary source, not the candidate notes) |
 | Background l.206 | blocks of 32 | llamacpp (primary source, not the candidate notes) |
 | Background l.207 | super-blocks of 256 | llamacpp (primary source, not the candidate notes) |
 | Background l.206 | 8.5~bits per weight | llamacpp (primary source, not the candidate notes) |
@@ -216,36 +216,37 @@ utterances in 51 languages | massive (primary source, not the candidate notes) |
 
 | line | as written | trace |
 |---|---|---|
-| 23 | 1.5 | measured: results/table18_quantisation_delta.md:15, results/table18_quantisation_delta.md:19 |
-| 48 | 135 | quoted from a paper (see "Numbers quoted from papers") |
-| 51 | 0.36 | measured: results/wake_training.json:169, results/wake_training.json:813 |
-| 51 | 1.2 | measured: spikes/reports/S1_llama_throughput_thermals.md:40, results/exp2_latency_budget.md:14 /1024 |
-| 64 | 1.5 | measured: results/table18_quantisation_delta.md:15, results/table18_quantisation_delta.md:19 |
-| 73 | 20 | measured: results/table16_asr_speaker_sensitivity.md:26, results/exp3_pi_analysis.md:15 |
-| 107 | 1.5 | quoted from a paper (see "Numbers quoted from papers") |
-| 131 | 405 | quoted from a paper (see "Numbers quoted from papers") |
-| 131 | 1.5 | quoted from a paper (see "Numbers quoted from papers") |
-| 135 | 0.36 | measured: results/wake_training.json:169, results/wake_training.json:813 |
-| 135 | 1.2 | measured: spikes/reports/S1_llama_throughput_thermals.md:40, results/exp2_latency_budget.md:14 /1024 |
-| 147 | 1.5 | measured: results/table18_quantisation_delta.md:15, results/table18_quantisation_delta.md:19 |
-| 246 | 258 | quoted from a paper (see "Numbers quoted from papers") |
-| 247 | 580 | quoted from a paper (see "Numbers quoted from papers") |
-| 247 | 85.1 | quoted from a paper (see "Numbers quoted from papers") |
-| 247 | 86.1 | quoted from a paper (see "Numbers quoted from papers") |
-| 248 | 73.6 | quoted from a paper (see "Numbers quoted from papers") |
-| 248 | 76.8 | quoted from a paper (see "Numbers quoted from papers") |
-| 248 | 63.7 | quoted from a paper (see "Numbers quoted from papers") |
-| 248 | 66.6 | quoted from a paper (see "Numbers quoted from papers") |
-| 266 | 258 | **UNTRACED** |
-| 266 | 580 | **UNTRACED** |
-| 266 | 85.1 | measured: results/limitation_abstention.md:106, spikes/reports/S2_whisper_timing.md:61 |
-| 266 | 86.1 | **UNTRACED** |
-| 266 | 73.6 | **UNTRACED** |
-| 266 | 76.8 | measured: results/exp2.csv:24 /1024 |
-| 266 | 63.7 | **UNTRACED** |
-| 266 | 66.6 | **UNTRACED** |
-| 268 | 0.36 | measured: results/wake_training.json:169, results/wake_training.json:813 |
-| 268 | 1.2 | measured: spikes/reports/S1_llama_throughput_thermals.md:40, results/exp2_latency_budget.md:14 /1024 |
-| 268 | 1{,}100 | measured: results/exp2_latency_budget.md:16, results/exp2_analysis.md:15 |
-| 290 | 1.5 | measured: results/table18_quantisation_delta.md:15, results/table18_quantisation_delta.md:19 |
-| 329 | 1.5 | measured: results/table18_quantisation_delta.md:15, results/table18_quantisation_delta.md:19 |
+| 24 | 1.5 | measured: results/table18_quantisation_delta.md:15, results/table18_quantisation_delta.md:19 |
+| 49 | 135 | quoted from a paper (see "Numbers quoted from papers") |
+| 52 | 0.36 | measured: results/wake_training.json:169, results/wake_training.json:813 |
+| 52 | 1.2 | measured: spikes/reports/S1_llama_throughput_thermals.md:40, results/exp2_latency_budget.md:14 /1024 |
+| 65 | 1.5 | measured: results/table18_quantisation_delta.md:15, results/table18_quantisation_delta.md:19 |
+| 74 | 20 | measured: results/table16_asr_speaker_sensitivity.md:26, results/exp3_pi_analysis.md:15 |
+| 109 | 1.5 | quoted from a paper (see "Numbers quoted from papers") |
+| 133 | 405 | quoted from a paper (see "Numbers quoted from papers") |
+| 133 | 1.5 | quoted from a paper (see "Numbers quoted from papers") |
+| 137 | 0.36 | measured: results/wake_training.json:169, results/wake_training.json:813 |
+| 137 | 1.2 | measured: spikes/reports/S1_llama_throughput_thermals.md:40, results/exp2_latency_budget.md:14 /1024 |
+| 149 | 1.5 | measured: results/table18_quantisation_delta.md:15, results/table18_quantisation_delta.md:19 |
+| 247 | 258 | quoted from a paper (see "Numbers quoted from papers") |
+| 248 | 580 | quoted from a paper (see "Numbers quoted from papers") |
+| 248 | 85.1 | quoted from a paper (see "Numbers quoted from papers") |
+| 248 | 86.1 | quoted from a paper (see "Numbers quoted from papers") |
+| 249 | 73.6 | quoted from a paper (see "Numbers quoted from papers") |
+| 249 | 76.8 | quoted from a paper (see "Numbers quoted from papers") |
+| 249 | 63.7 | quoted from a paper (see "Numbers quoted from papers") |
+| 249 | 66.6 | quoted from a paper (see "Numbers quoted from papers") |
+| 267 | 258 | **UNTRACED** |
+| 267 | 580 | **UNTRACED** |
+| 267 | 85.1 | measured: results/limitation_abstention.md:106, spikes/reports/S2_whisper_timing.md:61 |
+| 267 | 86.1 | **UNTRACED** |
+| 267 | 73.6 | **UNTRACED** |
+| 267 | 76.8 | measured: results/exp2.csv:24 /1024 |
+| 267 | 63.7 | **UNTRACED** |
+| 267 | 66.6 | **UNTRACED** |
+| 269 | 0.36 | measured: results/wake_training.json:169, results/wake_training.json:813 |
+| 269 | 1.2 | measured: spikes/reports/S1_llama_throughput_thermals.md:40, results/exp2_latency_budget.md:14 /1024 |
+| 269 | 20 | measured: results/table16_asr_speaker_sensitivity.md:26, results/exp3_pi_analysis.md:15 |
+| 269 | 1{,}100 | measured: results/exp2_latency_budget.md:16, results/exp2_analysis.md:15 |
+| 291 | 1.5 | measured: results/table18_quantisation_delta.md:15, results/table18_quantisation_delta.md:19 |
+| 331 | 1.5 | measured: results/table18_quantisation_delta.md:15, results/table18_quantisation_delta.md:19 |

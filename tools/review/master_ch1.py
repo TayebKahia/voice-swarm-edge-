@@ -35,6 +35,9 @@ for metric, col in (("\\gls{em}", "exact_match"), ("intent and slot F1", "slot_m
                     ("schema validity", "schema_validity"), ("false-command rate", "false_command_rate")):
     r.text_claim("contribution", metric, col in cols,
                  f"C3 metric `{metric}` is a column the harness reports (results/surface_b.csv:{col})")
+abst = set(csv_rows(RESULTS / "nfr9_nfr18_abstention.csv")[0])
+r.text_claim("contribution", "safe-failure rate", "safe_failure_rate" in abst,
+             "C3 metric `safe-failure rate` is a column the harness reports (results/nfr9_nfr18_abstention.csv:safe_failure_rate)")
 
 # -- The throughput paragraph (§1.1): every number against results/thermal_headroom.md ----------
 # The table writes "qwen2.5-0.5b-instruct Q4_K_M" since the Ch4 review (it wrote the artefact stem

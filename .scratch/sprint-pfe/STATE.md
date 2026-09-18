@@ -2159,8 +2159,8 @@ This-work rows implying accuracy and timing on the Pi at both levels and an fp16
 llama.cpp; F1 promised for the ablation that Table 19 does not report; "no existing corpus" scoped
 to the world; uncited "no SBC serves 8 B"; Park misread twice; a false citation-graph claim). All
 confirmed by the verifier and applied with its anchor-safe wording, plus the factual MINORs (27
-edits). Style items left for the author: floor/budget/allowance naming, one metric list per
-This-work row (needs safe-failure added to Ch1's C3), fourteen sentences over 40 words, two Gap
-lead-ins, two figurative phrases. Examiner gap still open: why Table 3.1 holds one SBC benchmark
+edits), then the style items in a second pass (one name for the throughput constraint, one metric
+list per This-work row with safe-failure added to Ch1's C3, no sentence over 40 words, shorter Gap
+lead-ins, two figurative phrases removed). Examiner gap still open: why Table 3.1 holds one SBC benchmark
 (a scoping sentence, or an author-verified second row). Script 0 FAIL, 2 WARN justified; self-test
 PASSED; clean build 0/0/0/0, 79 pages. Details: .scratch/thesis-review/issues/16-master-soa.md.
