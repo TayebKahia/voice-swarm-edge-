@@ -2136,3 +2136,31 @@ sources already cited (no new bib entries; closed set kept):
   float to their own pages (white space on 29 and 31): layout pass (B13) territory, not fixed now.
 Remaining for the author before deposit: the two markers in Background (Vaswani 2017; Pi 5 brief),
 the optional table rows above, jury names on the title page, and the final layout pass.
+
+## Master Background REVIEW closed (Fri 25 Sep, evening) -- issue 15
+Loop as for issues 01-14: new script tools/review/master_bg.py (registered in selftest.py with
+three planted errors; check_tex.py taught to skip display math), citation + argument + verifier.
+No BLOCKER; 5 MAJOR all confirmed and applied (SwiGLU description was wrong; a protocol decision
+had leaked in; edwards1948 bib title wrong since 4445be5; one model card cited for four models;
+AWQ cited for a CPU claim it makes for a GPU); 26 minors/nits applied, 2 rejected by the verifier.
+Script 0 FAIL after fixes; clean build 0/0/0/0. Outstanding for the author: add + verify two bib
+entries (Raspberry Pi 5 product brief RP-008348-DS-6 -> resolves the \CHECK and cites the throttle
+flag; Vaswani et al. 2017 -> resolves the \TODO). Details: .scratch/thesis-review/issues/15-master-bg.md.
+
+## Master State of the art REVIEW closed (Fri 25 Sep, night) -- issue 16
+Loop as for issues 01-15 on the rebuilt Chapter 3 (7830694): script master_ch2.py (re-pointed
+in 4bb8138/7830694; stale agent note rewritten; two paper-number anchors added), citation +
+argument + verifier. Citations 53/57 SUPPORTS, 4 PARTIAL, 0 DOES NOT SUPPORT; all 19 paper
+numbers found; bib metadata all agree. 3 BLOCKER (G3's "8 B and above" refuted by the chapter's
+own table -- issue 02 #11 crept back; Kurtic's 1.5 B model is a DeepSeek-R1 Qwen distillation,
+not Llama-3.1; sbc2025 ran every model at Q4_K_M, not "formats as distributed"), 8 MAJOR + 1 NEW
+(positioning inside two critical comparisons against prd §3.1 "to this thesis only in the gaps";
+This-work rows implying accuracy and timing on the Pi at both levels and an fp16 reference in
+llama.cpp; F1 promised for the ablation that Table 19 does not report; "no existing corpus" scoped
+to the world; uncited "no SBC serves 8 B"; Park misread twice; a false citation-graph claim). All
+confirmed by the verifier and applied with its anchor-safe wording, plus the factual MINORs (27
+edits). Style items left for the author: floor/budget/allowance naming, one metric list per
+This-work row (needs safe-failure added to Ch1's C3), fourteen sentences over 40 words, two Gap
+lead-ins, two figurative phrases. Examiner gap still open: why Table 3.1 holds one SBC benchmark
+(a scoping sentence, or an author-verified second row). Script 0 FAIL, 2 WARN justified; self-test
+PASSED; clean build 0/0/0/0, 79 pages. Details: .scratch/thesis-review/issues/16-master-soa.md.

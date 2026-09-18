@@ -94,6 +94,7 @@ script reports the new value against the source rather than "anchor not found".
 | 11 | Ingénieur Ch3 (497, 6 cites) | argument + citation/presentation + verifier | design chapter; the script checks every table against the code (100 PASS), so the agents read the argument and the promises to and from Ch1, Ch4 and Ch5 |
 | 12 | Ingénieur Ch4 (432, 8 cites) | argument + citation/presentation + verifier | implementation chapter with no measured figure; the script checks every number against the module it describes, so the agents read the code-level claims and the promises to and from Ch1, Ch3, Ch5 and Ch6 |
 | 13 | Ingénieur Ch5 (402, 3 cites) | argument/statistics + citation/presentation + verifier | results chapter; the script recomputes every figure from results/ (252 PASS) and checks the fixed verdict words, so the agents read located causes vs interpretation, the statistics, and the promises from Ch1 and Ch4 |
+| 15 | Master Ch2 Background (~425, 23 cites) | citation + argument + verifier | new chapter (25 Sep restructure); foundations only, so the argument agent checks textbook correctness and that nothing is a result or a decision; 23 papers/tool docs to open |
 
 ## Self-containment and headings (D11, D12)
 
