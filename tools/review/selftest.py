@@ -25,6 +25,7 @@ MUTATIONS = {
     "master_ch1": ("master/ch1_introduction.tex", "floor at 27.93~tok/s", "floor at 27.39~tok/s", "claim"),
     "master_ch2": ("master/ch3_state_of_the_art.tex", "model~\\cite{gptq}, with on-device", "model~\\cite{gptq,lora}, with on-device", "positioning"),
     "master_ch3": ("master/ch3_method.tex", "difference of 4.0\\%", "difference of 4.5\\%", "claim"),
+    "master_bg": ("master/ch2_background.tex", "Hugging Face & 362~M", "Hugging Face & 360~M", "claim"),
     "master_ch4": ("master/ch4_results.tex", "SmolLM2-360M (785~ms)", "SmolLM2-360M (795~ms)", "claim"),
     "master_ch5": ("master/ch5_discussion.tex", "a margin of 67~ms", "a margin of 76~ms", "claim"),
     "ingenieur_ch1": ("ingenieur/ch1_introduction.tex", "& p95 $\\leq$ 150~ms &", "& p95 $\\leq$ 200~ms &", "requirements"),
@@ -38,6 +39,9 @@ MUTATIONS = {
 #: Common checks, planted once each: a project-internal reference, an undefined code, an \\acrfull.
 EXTRA = [
     ("master_ch2", "master/ch3_state_of_the_art.tex", "as part of Contribution~C3.", "as part of Contribution~C3, as prd.md fixes.", "internal"),
+    # Background is foundations only: a result slipped into it must FAIL, and a moved passage repeated in Method must FAIL.
+    ("master_bg", "master/ch2_background.tex", "and is bounded by arithmetic.", "and is bounded by arithmetic, at 27.93~tok/s here.", "foundations"),
+    ("master_bg", "master/ch3_method.tex", "\\paragraph{Adaptation method.}", "\\paragraph{Adaptation method.} LoRA works by freezing the pretrained weight matrices.", "write-once"),
     ("master_ch5", "master/ch5_discussion.tex", "Only three configurations", "Under Exp-7, only three configurations", "code"),
     ("master_ch1", "master/ch1_introduction.tex", "\\gls{json}", "\\acrfull{json}", "acronym"),
     ("ingenieur_ch3", "ingenieur/ch3_architecture.tex", "\\texttt{takeoff} & \\texttt{LANDED} &",

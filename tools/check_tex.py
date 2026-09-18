@@ -400,7 +400,12 @@ def check(raw: str, src: Path | None = None,
         notes.append(f"\\label{{{l}}} never referenced (harmless)")
 
     # -- 6. bare special characters in text mode ---------------------------
-    for n, line in enumerate(doc.split("\n"), 1):
+    # Display math (equation, align, ...) is math mode across several lines, so an
+    # underscore there is a subscript, not a fault. Blank those bodies line by line
+    # (keeping the line count) before the per-line check below.
+    math_body = re.sub(r"\\begin\{(equation|align|gather|multline|eqnarray)\*?\}.*?\\end\{\1\*?\}",
+                       lambda m: "\n" * m.group().count("\n"), doc, flags=re.S)
+    for n, line in enumerate(math_body.split("\n"), 1):
         if DEFN.search(line):
             continue
         s = PATHARG.sub("", line)                          # drop path/key args
