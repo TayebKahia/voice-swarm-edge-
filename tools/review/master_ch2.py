@@ -75,7 +75,8 @@ r.text_claim("coherence", "Three of those models are carried through to quantise
 # -- Numbers that belong to a cited paper, not to results/: the citation agent must verify ------
 paper_numbers = [("twenty-five quantised language", "sbc2025"), ("three \\glspl{sbc}", "sbc2025"),
                  ("two inference runtimes", "sbc2025"), ("roughly\n1.5~billion parameters", "sbc2025"),
-                 ("up to four times", "sbc2025"), ("one percent of weight channels", "awq"),
+                 ("up to four times", "sbc2025"), ("135~M to 7~B", "sbc2025"),
+                 ("8, 70 and 405~B", "kurtic2025"), ("one percent of weight channels", "awq"),
                  ("under one\npercent", "spqr"), ("eight billion parameters and above", "kurtic2025,kurt2026"),
                  ("has 1.5~billion parameters", "kurtic2025"), ("one million\nutterances in 51 languages", "massive"),
                  ("60 intents and 55 slot types", "massive"), ("258 to 580~million", "massive"),
@@ -96,10 +97,13 @@ for anchor, key in [("blocks of 32", "llamacpp"), ("super-blocks of 256", "llama
     if where:
         rows.append(f"| Background l.{where[0]} | {anchor} | {key} (primary source, not the candidate notes) |")
 r.manual.append("### Numbers quoted from papers (citation agent: find each in the paper)\n\n" + "\n".join(rows))
-r.manual.append("### For the argument agent\n\n- Gap (l.162-176): each of the four sentences claims a literature "
-                "is *silent* on something. Silence is only defensible for the papers actually cited -- check the "
-                "claim is scoped to 'the literature reviewed here'.\n- Delta: C1 is described as 'isolating the "
-                "grammar's own contribution'. The isolation is the ablation (Ch4), not the schema -- judge whether "
-                "C1 is being credited with C3's measurement.\n- .scratch/thesis-bibliography/master-candidates.md "
-                "'Notes for the author' flags a tension with C3's framing: read it.")
+r.manual.append("### For the argument agent\n\n- Critical comparisons: each must read its table column by column "
+                "and compare the studies to each other; the chapter promises (intro) that they are compared to this "
+                "thesis only in Research gaps -- judge whether the closing sentences of each comparison keep that promise.\n"
+                "- Silence claims ('none of these studies', 'no work in the table', 'not reported anywhere in the table', "
+                "'no study reviewed here combines all four'): each must be scoped to the studies reviewed, never to the "
+                "literature.\n- 'This work' rows and Gap G1-G3: promise nothing Chapters 4-6 do not deliver; the reference "
+                "is Ch1's C3 wording (three of four models, two levels, accuracy on the workstation, timing on the Pi at "
+                "Q4_K_M).\n- .scratch/thesis-bibliography/master-candidates.md 'Notes for the author' flags a tension with "
+                "C3's framing: read it.")
 sys.exit(r.finish())
