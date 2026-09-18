@@ -10,7 +10,7 @@
 %  XeLaTeX (or LuaLaTeX) is REQUIRED -- polyglossia + an Arabic font render the
 %  Arabic abstract. pdflatex will NOT build this.
 %
-%  Chapter structure is prd.md 3.1 verbatim (six chapters). Chapters not yet
+%  Chapter structure is prd.md 3.1 verbatim (seven chapters in three parts). Chapters not yet
 %  written are listed commented-out below with their prd.md titles, so the
 %  outline stays visible and the document still compiles.
 % =============================================================================
@@ -73,18 +73,24 @@
 \printglossary[type=\acronymtype, title=List of Acronyms, style=acrolong]
 \clearpage
 
-% -- Chapters (prd.md 3.1) ----------------------------------------------------
+% -- Chapters (prd.md 3.1: seven chapters in three parts) ---------------------
+%  Introduction and Conclusion sit outside the parts, as in the ESI reference
+%  theses. File names keep their historical numbers where the chapter number
+%  did not change; ch2/ch3 were renumbered on 25 Sep.
 \input{master/ch1_introduction}
-\input{master/ch2_related_work}
-\input{master/ch3_method}
-\input{master/ch4_results}
-%                                 % Results: Exp-0; Exp-1; quantisation delta;
-%                                 % grammar ablation; statistics; selection rule
-\input{master/ch5_discussion}
-%                                 % Discussion and limitations: Pareto frontier;
-%                                 % failure modes; threats to validity
-\input{master/ch6_conclusion}
-%                                 % Conclusion and future work: RQ1 answered
+
+\part{Background}
+\input{master/ch2_background}
+
+\part{State of the art}
+\input{master/ch3_state_of_the_art}
+
+\part{Contribution}
+\input{master/ch3_method}         % Chapter 4
+\input{master/ch4_results}        % Chapter 5
+\input{master/ch5_discussion}     % Chapter 6
+
+\input{master/ch6_conclusion}     % Chapter 7, outside the parts
 
 % -- Bibliography -------------------------------------------------------------
 \newpage

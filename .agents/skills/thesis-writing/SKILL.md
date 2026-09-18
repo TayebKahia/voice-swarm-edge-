@@ -87,7 +87,7 @@ the spike reports, so the prose may not lean on any of them.
 - **Short:** a `\paragraph` lead-in of at most about five words; a section title of at most
   about eight.
 - **One capitalisation convention per document.** Chapter titles are currently mixed
-  ("Related Work", "Discussion and limitations"): choose title case or sentence case for
+  ("State of the art", "Discussion and limitations"): choose title case or sentence case for
   chapters and sections, and apply it everywhere.
 
 ### Register
@@ -109,34 +109,65 @@ chapter counts, topics, and closing structure differ. Never add, merge, or reord
 what `prd.md` §3.1 specifies; if a chapter seems to need splitting or combining, change `prd.md`
 first, then the scaffold, then the prose — never the prose alone.
 
-### Mémoire de Master — six chapters (`thesis/master/`)
+### Mémoire de Master — seven chapters in three parts (`thesis/master/`)
+
+Restructured on 25 Sep 2026 after the supervisor meeting (prd.md §3.1 records why). Introduction
+and Conclusion sit outside the parts, as in the two ESI reference theses under
+`thesis/sample_thesis/` and `~/Downloads/thesos/`. File names keep their historical numbers:
+`ch3_method.tex` is Chapter 4, `ch4_results.tex` is Chapter 5, `ch5_discussion.tex` is Chapter 6,
+`ch6_conclusion.tex` is Chapter 7. Never hardcode a chapter number in prose; `\ref{chap:...}`.
 
 1. **Introduction** — the edge-inference problem; why structured output matters for robot
    control; formal Research Questions in a quote block; Contributions (C1–C3) as bullets; a short
-   document-outline paragraph.
-2. **Related work** — four themes, each its own section, per the existing scaffold: edge LLM
-   inference and single-board-computer benchmarking; quantisation; constrained decoding (**GBNF
-   only** — this project's actual stack; do not introduce a tool this project never used, e.g.
-   Outlines); spoken-language understanding for robotics. Close with a single Positioning section
-   stating the gap this thesis fills — do not scatter a gap statement into every subsection. Use a
-   three-part shape for that section: **Synthesis** (where the intersection of these four themes
-   currently stands), **Gap** (what the literature actually reviewed does not address — verify
-   this against the papers once they are read; do not reuse an unverified example as if it were
-   established), **Delta** (how C1–C3 specifically close that gap).
-3. **Method** — command schema and grammar (formal spec), label-first dataset construction, the
+   document-outline paragraph naming the three parts.
+
+*Part I — Background.*
+
+2. **Background** (`ch2_background.tex`, `\label{chap:background}`) — foundations only, at the level
+   a jury member outside the sub-field needs: the transformer decoder and its seven projections
+   (`sec:bg-lm`), LoRA (`sec:bg-lora`), post-training quantisation and the GGUF formats
+   (`sec:bg-quant`), CPU inference on the Raspberry Pi 5 and why decode is memory-bound
+   (`sec:bg-edge`), grammars and token masking (`sec:bg-gbnf`), the intent-and-slot frame
+   (`sec:bg-slu`), metrics, McNemar, Bonferroni and Pareto dominance (`sec:bg-metrics`). **No
+   positioning, no results, no design decisions**: a sentence that says what *this* work chose
+   belongs in Chapter 4; a sentence that says what the *literature* has measured belongs in
+   Chapter 3. Textbook definitions only; the operational definitions of record stay in Chapter 4's
+   `tab:metrics`. The Q8\_0/Q4\_K\_M construction, the GBNF mechanism and the LoRA/QLoRA
+   description were moved here from the old Chapters 2 and 3 and must not be re-stated there.
+
+*Part II — State of the art.*
+
+3. **State of the art** (`ch3_state_of_the_art.tex`, `\label{chap:state-of-the-art}`) — the
+   chapter the supervisor grades first. Four themes, each its own section: edge LLM inference and
+   single-board-computer benchmarking; quantisation; constrained decoding (**GBNF is the only
+   tool this project used**; other constrained-decoding tools may appear as *reviewed* rows of the
+   comparison table, never as something this project ran); spoken-language understanding for
+   robotics. Each section is a taxonomy of the reviewed studies with **one comparison table**
+   (study, models and size range, hardware, runtime or method, metrics reported, downstream task
+   scored, grammar used) and a **critical-comparison paragraph** that walks the table's axes and
+   compares the studies *to each other*, as in Bensalah §3.3.4.1 and Boufafa §5.2.4/§6.5. Close
+   with one **Research gaps** section, numbered G1–G3 and mapped one to one onto C1–C3; the studies
+   are compared to this thesis only there. Do not scatter a gap statement into every subsection.
+   The bibliography stays a closed set; a table row needing a source not in
+   `thesis/references.bib` is a `\TODO{}` for the author, not an invented entry.
+
+*Part III — Contribution.*
+
+4. **Method** — command schema and grammar (formal spec), label-first dataset construction, the
    LoRA recipe, the quantisation procedure, the evaluation protocol and definitions of record.
-4. **Results** — Exp-0, Exp-1, the quantisation delta, the grammar ablation; the statistical
+5. **Results** — Exp-0, Exp-1, the quantisation delta, the grammar ablation; the statistical
    analysis and the selection rule applied. Metrics are whatever the harness behind the cited CSV
    actually reports — currently exact match, intent/slot F1, schema validity, false-command rate,
    safe-failure rate, and throughput in tok/s. Never cite a metric the Master's own harness does
    not compute (e.g. time-to-first-token belongs to the Ingénieur's preemption validation, §5
    below — see Table 3, write-once).
-5. **Discussion and limitations** — the accuracy–efficiency trade-off as a Pareto frontier;
+6. **Discussion and limitations** — the accuracy–efficiency trade-off as a Pareto frontier;
    failure-mode analysis; threats to internal and external validity. Honest and hedged is the
-   right register here; do not pre-empt Chapter 6's verdict.
-6. **Conclusion and future work** — a direct, unhedged answer to RQ1 against the measured
+   right register here; do not pre-empt Chapter 7's verdict.
+
+7. **Conclusion and future work** — a direct, unhedged answer to RQ1 against the measured
    results; a short statement of what the comparison establishes; prioritised next steps. No new
-   caveats belong here — a limitation surfacing while drafting this chapter belongs in Chapter 5,
+   caveats belong here — a limitation surfacing while drafting this chapter belongs in Chapter 6,
    not here.
 
 ### Mémoire d'Ingénieur — six chapters (`thesis/ingenieur/`)

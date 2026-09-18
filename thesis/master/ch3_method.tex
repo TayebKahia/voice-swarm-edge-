@@ -319,15 +319,14 @@ Checkpoint selection & Best validation \acrshort{em}, not best validation loss \
 \end{tabularx}
 \end{table}
 
-\paragraph{Adaptation method.} \Gls{lora}~\cite{lora} freezes the base weights and trains
-a pair of rank-$r$ update matrices per targeted projection. QLoRA~\cite{qlora} adds one further
-step, quantising the frozen base weights during training to fit a larger model into a smaller
-training budget. Every model here is small enough to fine-tune without quantising its base weights
-on the training hardware, so that step would add a training-time quantisation confound without
-recovering any memory the run needs. The rank-16 adapters target every linear projection in the
-transformer block, attention and feed-forward alike, rather than attention alone. Adapters on
-every linear layer are what QLoRA found necessary to match full fine-tuning~\cite{qlora}, and the
-memory a narrower adapter would save is not a constraint on the training hardware. Under the fixed
+\paragraph{Adaptation method.} The adapters are \gls{lora} adapters~\cite{lora}, in the form of
+Section~\ref{sec:bg-lora}, and not QLoRA~\cite{qlora}. Every model here is small enough to
+fine-tune without quantising its base weights on the training hardware, so QLoRA's training-time
+quantisation would add a confound without recovering any memory the run needs. The rank-16
+adapters target every linear projection in the transformer block, attention and feed-forward
+alike, rather than attention alone: adapters on every linear layer are what QLoRA found necessary
+to match full fine-tuning~\cite{qlora}, and the memory a narrower adapter would save is not a
+constraint on the training hardware. Under the fixed
 three-epoch budget, only Llama-3.2-1B-Instruct's validation \gls{em} was unchanged between epochs
 two and three (0.900). The other three were still rising at the final epoch: Qwen2.5-0.5B-Instruct
 by 0.008 (two of 240 items), SmolLM2-360M-Instruct by 0.025 and H2O-Danube3-500M-Chat by 0.038. No

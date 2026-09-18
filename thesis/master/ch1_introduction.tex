@@ -19,7 +19,7 @@ accelerator.
 That difficulty is not unique to this hardware or this task. A recent benchmark of twenty-five
 quantised language models on three \glspl{sbc} finds that such boards reliably support models
 of up to about 1.5~billion parameters, with larger models dropping to a few tokens per
-second~\cite{sbc2025}; Chapter~\ref{chap:related-work} takes up that literature in full. Here the
+second~\cite{sbc2025}; Chapter~\ref{chap:state-of-the-art} takes up that literature in full. Here the
 same constraint is stated for one target device and three deployment candidates,
 Qwen2.5-0.5B-Instruct, SmolLM2-360M-Instruct and Llama-3.2-1B-Instruct, with a fourth,
 parameter-matched model fine-tuned as a control (Chapter~\ref{chap:method}). On this device the
@@ -132,9 +132,13 @@ preempt language-model inference for safety-critical commands, belongs to the \e
 d'Ing\'enieur}.
 
 \section{Structure of this document}
-The rest of this document has five chapters. Chapter~\ref{chap:related-work} surveys the
-literature this work builds on and positions it against edge language-model inference, quantisation,
-constrained decoding, and spoken-language understanding for robotics. Chapter~\ref{chap:method}
+The rest of this document has six chapters in three parts. Part~I holds
+Chapter~\ref{chap:background}, which sets out the foundations the document relies on: language
+models and their adaptation, quantisation, inference on a single-board computer,
+grammar-constrained decoding, the intent-and-slot formulation of the task, and the metrics and
+tests used to score it. Part~II holds Chapter~\ref{chap:state-of-the-art}, which reviews the
+studies that have measured language models under each of those conditions, compares them to one
+another, and states the gap this work fills. Part~III is the contribution. Chapter~\ref{chap:method}
 sets out the command schema and grammar, the dataset construction, the fine-tuning recipe, the
 quantisation procedure, and the evaluation protocol. Chapter~\ref{chap:results} reports the
 speaker-sensitivity experiment, the multi-model benchmark, a parameter-matched control that

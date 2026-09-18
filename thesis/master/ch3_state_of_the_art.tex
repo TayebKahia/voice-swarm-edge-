@@ -1,5 +1,5 @@
-\chapter{Related work}
-\label{chap:related-work}
+\chapter{State of the art}
+\label{chap:state-of-the-art}
 \enlargethispage{\baselineskip}
 
 This chapter reviews the four bodies of work this thesis draws on: benchmarks of language-model
@@ -48,20 +48,12 @@ decoded token; Section~\ref{sec:quantisation} takes up what those schemes cost i
 %       \cite{awq} carry the field-level claims around it. Do not 'fix' this.
 Post-training quantisation is the established route to reducing a trained model's memory
 footprint~\cite{gptq}, and on-device deployment is one of its stated motivations~\cite{awq}.
-This thesis deploys two of llama.cpp's \gls{gguf} quantisation formats. Q8\_0, a legacy format,
-stores weights in blocks of 32 at eight bits with one scale per block, 8.5~bits per weight in
-all. Q4\_K\_M belongs to the K-quant family, which stores weights in super-blocks of 256 with
-quantised per-sub-block scales, 4.5~bits per weight at the four-bit level~\cite{llamacpp}. Its
-target is four bits for most tensors. A fixed rule raises the output projection, and a subset of
-the attention-value and feed-forward down-projection tensors chosen by layer position, to six
-bits~\cite{llamacpp}. A K-quant also requires each tensor's rows to divide into whole
-super-blocks: a tensor whose row length is not a multiple of 256 falls back to a legacy format,
-five bits in place of four and eight in place of six~\cite{llamacpp}. The name Q4\_K\_M therefore
-denotes an allocation recipe rather than a bit width, and in a model whose hidden dimension is not
-a multiple of 256 most of the weights end up at five or eight bits. The recipe allocates bits by
-tensor role, position and shape, not by any measurement of error. The method literature measures
-instead: it finds that protecting the roughly one percent of weight channels that activation
-statistics mark as salient greatly reduces quantisation error~\cite{awq}.
+This thesis deploys two of llama.cpp's \gls{gguf} formats, Q8\_0 and Q4\_K\_M, whose
+construction Section~\ref{sec:bg-quant} describes. What distinguishes them from the methods the
+literature studies is how bits are assigned: the K-quant recipe allocates them by tensor role,
+position and shape, not by any measurement of error. The method literature measures instead: it
+finds that protecting the roughly one percent of weight channels that activation statistics mark
+as salient greatly reduces quantisation error~\cite{awq}.
 
 The runtime's documentation states that the accuracy cost of its formats is usually measured as
 a perplexity or a Kullback--Leibler divergence against the unquantised model~\cite{llamacpp},
@@ -91,19 +83,15 @@ quantisation alone, and why it is not to be read against the studies above.
 
 \section{Constrained decoding}
 \label{sec:constrained-decoding}
-Grammar-constrained generation restricts, at every decoding step, the set of tokens the model is
-allowed to sample to those consistent with a formal grammar, so that no output can leave the
-grammar's language regardless of what the model would otherwise have produced. The technique has
+Grammar-constrained generation, the token-masking mechanism of Section~\ref{sec:bg-gbnf}, has
 been applied to structured language-processing tasks without fine-tuning~\cite{geng2023}. Its
 formulations compile a regular expression or a context-free grammar into an automaton over the
 vocabulary and mask the decoder against it~\cite{willard2023,koo2024}, with correctness results
-for the language classes such a construction covers~\cite{koo2024}. \Gls{gbnf} is the grammar
-formalism llama.cpp implements it with: a context-free grammar applied at each decoding step to
-mask the tokens it cannot accept. Its per-step cost depends on the grammar's
-structure, and the documentation warns that some rule shapes make sampling slow~\cite{llamacpp}.
-This is a different mechanism from prompting a model to produce well-formed output and then
-checking the result: the grammar acts inside the sampling loop, before an invalid token can be
-emitted, not after a full sequence has been generated.
+for the language classes such a construction covers~\cite{koo2024}. \Gls{gbnf} is the
+formalism llama.cpp implements it with~\cite{llamacpp}. The mechanism differs from prompting a
+model to produce well-formed output and then checking the result: the grammar acts inside the
+sampling loop, before an invalid token can be emitted, not after a full sequence has been
+generated.
 
 That difference in mechanism is also a difference in the kind of claim that can be made about
 structural validity. Without a grammar, whether a model's output parses against a schema is an

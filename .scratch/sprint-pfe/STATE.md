@@ -2069,3 +2069,43 @@ Logs: demo_runs/pi-20260925-*.jsonl (copied from the Pi) and demo_runs/20260925-
   an utterance a reflex fired during or after, before its parse began. Present it at the defence
   as a mitigation added after live testing. Not yet verified live on the Pi (Pi unreachable at
   commit time): copy runtime/main.py + runtime/test_main.py, then 10x "swarm hold" while FLYING.
+
+## Master RESTRUCTURE (Fri 25 Sep, afternoon) -- Background chapter written; SoA rebuild pending
+Trigger: supervisor meeting with Prof. Khaldi, 25 Sep. Three notes on the Master: (1) the state of
+the art is the chapter that counts and must compare the previous studies TO EACH OTHER (comparison
+tables + critical comparison, as in Bensalah 2023 SS3.3.4.1 and Boufafa 2026 SS5.2.4/SS6.5 -- the
+latter co-supervised by Khaldi, so it is the template of record); (2) structure must follow the ESI
+skeleton: Part I Background, Part II State of the art; (3) a Background chapter must precede the
+state of the art. Deposit extended: author can deliver in two days (Sun 27 Sep).
+Decision: experimental chapters STAY in the Master. Both reference Masters are literature-only
+(their experiments live in the PFE), but moving Method/Results across would undo Table 3, take RQ1
+out of the document that states it, and does not fit two days. Front of the document adopts the
+skeleton; the spine is untouched:
+  1 Introduction | Part I: 2 Background | Part II: 3 State of the art |
+  Part III Contribution: 4 Method, 5 Results, 6 Discussion | 7 Conclusion (outside the parts).
+Done today:
+- prd.md SS3.1 rewritten (seven chapters, three parts, rationale); Table 2 chapter count; Table 3
+  renumbered (+ a Background-foundations ownership row: Master owns LM/LoRA/quantisation/GBNF/SLU/
+  metrics foundations; the Ingenieur's background, when written, owns speech pipeline/UAV/swarm/RT).
+- thesis/master/ch2_background.tex NEW (~4.4k words, 8 sections, one table, two equations). About
+  half is moved text: the Q8_0/Q4_K_M construction and the GBNF mechanism from the old Ch2, the
+  LoRA/QLoRA description from the old Ch3 "Adaptation method"; each origin now points at the
+  Background section instead. Two visible markers for the author: \TODO (Vaswani 2017 not in
+  references.bib -- add + verify, then cite in sec:bg-lm) and \CHECK (Raspberry Pi 5 SoC/memory
+  designations -- verify against the product brief, add a bib entry).
+- ch2_related_work.tex -> git mv -> ch3_state_of_the_art.tex; \chapter{State of the art};
+  label chap:related-work -> chap:state-of-the-art everywhere. CONTENT NOT YET REBUILT (Day 2).
+- main_master.tex: \part{Background} / \part{State of the art} / \part{Contribution}; file names
+  keep their historical numbers (ch3_method.tex is Chapter 4, etc.), never hardcode a number.
+- ch1 "Structure of this document" rewritten for the three parts. ch6 comment numbers fixed.
+- thesis-writing SKILL.md blueprint rewritten to match prd.md SS3.1.
+- Clean build: 0 errors, 0 undefined refs/cites, 0 overfull, 75 pages (was 62). TOC now spills to
+  a second page; the \small + chapter-gap patch in main_master.tex was tuned for one page and can be
+  dropped in the layout pass.
+Day 2 (SoA rebuild), in order: one comparison table per section from the 19 already-cited sources
+(columns: study, models/size range, hardware, runtime or method, metrics reported, downstream task
+scored, grammar used); a critical-comparison paragraph under each table; \section{Positioning} ->
+\section{Research gaps} with G1-G3 mapped to C1-C3 (the Synthesis/Gap/Delta prose becomes that
+section); at most 3-5 author-verified new bib entries. Other constrained-decoding tools may appear
+as REVIEWED rows, never as used (SKILL.md exception recorded). Then tools/review/master_ch2.py
+must be re-pointed at the new chapter/index (see below), and the whole-document read-through.
