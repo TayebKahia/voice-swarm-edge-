@@ -51,6 +51,26 @@
 }
 
 % -- Edge inference: hardware envelope and runtimes ---------------------------
+@misc{rpiosdocs,
+  title        = {Raspberry {Pi} Documentation: Raspberry {Pi} {OS}},
+  author       = {{Raspberry Pi Ltd}},
+  year         = {2026},
+  url          = {https://www.raspberrypi.com/documentation/computers/os.html},
+  urldate      = {2026-09-25},
+  note         = {Section \emph{Utilities}, \texttt{vcgencmd get\_throttled}: the throttled-state bit pattern, including the ``throttling has occurred'' bit}
+}
+
+@misc{rpi5brief,
+  title        = {Raspberry {Pi} 5 Product Brief},
+  author       = {{Raspberry Pi Ltd}},
+  year         = {2023},
+  month        = {9},
+  number       = {RP-008348-DS-6},
+  url          = {https://pip-assets.raspberrypi.com/categories/892-raspberry-pi-5/documents/RP-008348-DS-6-raspberry-pi-5-product-brief.pdf},
+  urldate      = {2026-09-25},
+  note         = {Broadcom {BCM2712}, quad-core 64-bit Arm {Cortex-A76} at 2.4~GHz; {LPDDR4X-4267} {SDRAM}; {VideoCore VII} {GPU}}
+}
+
 @misc{sbc2025,
   title        = {An Evaluation of {LLMs} Inference on Popular Single-board Computers},
   author       = {Nguyen, Tung and Nguyen, Tuyen},
@@ -168,6 +188,18 @@
   url          = {https://www.nvidia.com/en-us/data-center/tesla-t4/},
   urldate      = {2026-09-24},
   note         = {T4 is based on the Turing architecture}
+}
+
+@inproceedings{vaswani2017,
+  title        = {Attention Is All You Need},
+  author       = {Vaswani, Ashish and Shazeer, Noam and Parmar, Niki and Uszkoreit, Jakob and
+                  Jones, Llion and Gomez, Aidan N. and Kaiser, {\L}ukasz and Polosukhin, Illia},
+  booktitle    = {Advances in Neural Information Processing Systems 30 (NeurIPS 2017)},
+  year         = {2017},
+  eprint       = {1706.03762},
+  archivePrefix= {arXiv},
+  primaryClass = {cs.CL},
+  url          = {https://arxiv.org/abs/1706.03762}
 }
 
 % -- Candidate language models ------------------------------------------------

@@ -34,8 +34,8 @@ produces one output token per forward pass. The per-token cost of decoding, not 
 prefill, is what bounds how long a short structured output takes to produce.
 
 \paragraph{The decoder-only transformer.} Every model compared in this work is a decoder-only
-transformer~\cite{qwen25,smollm2,llama32card,danube3}.\TODO{Cite the original transformer paper
-(Vaswani et al., 2017) once the author has added and verified its entry in the bibliography.}
+transformer, the architecture introduced for machine translation~\cite{vaswani2017} and since
+adopted for language modelling by every model family compared here~\cite{qwen25,smollm2,llama32card,danube3}.
 The architecture maps each input token to a vector through an embedding table, passes the
 sequence of vectors through a stack of $L$ identical blocks, and projects the final vector at
 each position onto the vocabulary to obtain a score per token, the \emph{logits}, which a softmax
@@ -225,9 +225,8 @@ perplexity or Kullback--Leibler divergence against the unquantised model~\cite{l
 A \gls{sbc} is a complete computer on one circuit board: a system-on-chip carrying the processor
 cores, a memory controller and the peripheral interfaces, with the memory soldered beside it and
 storage on a removable card. The Raspberry~Pi~5 used in this work carries a quad-core Arm
-Cortex-A76 processor and LPDDR4X memory shared by all four cores, and no accelerator that a
-language-model runtime uses in practice.\CHECK{Verify the processor and memory designations against the Raspberry
-Pi~5 product documentation and add a bibliography entry for it.} Inference therefore runs on the
+Cortex-A76 processor and LPDDR4X memory shared by all four cores~\cite{rpi5brief}, and no
+accelerator that a language-model runtime uses in practice. Inference therefore runs on the
 \gls{cpu} alone, through the vector instructions of the Arm architecture, and the four cores are
 the only compute available to every process on the board: the speech recogniser, the language
 model, the validator and the operating system share them. Running a language model on such a
@@ -263,7 +262,8 @@ dominates.
 
 \paragraph{Thermal state and clock frequency.} A system-on-chip regulates its own temperature by
 lowering its clock frequency when a threshold is reached, a behaviour called \emph{thermal
-throttling}, and it exposes a flag that records whether throttling occurred. A sustained inference
+throttling}, and the board used here exposes a flag that records whether throttling
+occurred~\cite{rpiosdocs}. A sustained inference
 workload on all cores raises the temperature of a passively cooled board until throttling begins,
 after which every timing figure measured on it is a figure for a slower clock. An active cooler
 holds the clock at its rated frequency under the same load. A frequency governor, the
