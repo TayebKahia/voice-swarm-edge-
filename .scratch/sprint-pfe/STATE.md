@@ -2109,3 +2109,30 @@ scored, grammar used); a critical-comparison paragraph under each table; \sectio
 section); at most 3-5 author-verified new bib entries. Other constrained-decoding tools may appear
 as REVIEWED rows, never as used (SKILL.md exception recorded). Then tools/review/master_ch2.py
 must be re-pointed at the new chapter/index (see below), and the whole-document read-through.
+
+## Master state of the art REBUILT (Fri 25 Sep, evening) -- comparison tables + research gaps; Day 2 item done early
+thesis/master/ch3_state_of_the_art.tex rewritten in the ESI form Khaldi asked for, from the 19
+sources already cited (no new bib entries; closed set kept):
+- Each of the four sections opens with a taxonomy of its studies (kinds), carries ONE comparison
+  table (tab:soa-edge, tab:soa-quantisation, tab:soa-constrained, tab:soa-slu; every table ends in a
+  "This work" row, dashes for properties the review did not establish -- same convention as the
+  Ingenieur's tab:voice-uav-survey), and closes with a \paragraph{Critical comparison.} that walks
+  the table's axes and compares the studies TO EACH OTHER (Bensalah SS3.3.4.1 pattern).
+- \section{Positioning} -> \section{Research gaps}: Synthesis paragraph kept, then Gap G1
+  (structural validity after fine-tuning -> C1), G2 (the command corpus -> C2), G3 (deployment cost
+  on a task at sub-billion scale -> C3). Studies are compared to this thesis only there.
+- Section labels renamed sec:soa-*; Method's three refs repointed. Old prose kept where it held.
+- Table cells state only what the chapter prose or .scratch/thesis-bibliography/*-candidates.md
+  establish about each source. Tables 3.1 (2 studies) and 3.4 (2 works) are thin: the candidate
+  files hold page-verified additions the author can make in an hour each -- XGrammar, PICARD,
+  Beurer-Kellner 2024 (constrained decoding); Jin 2024, Li 2024, Dettmers & Zettlemoyer 2023
+  (quantisation evaluations); ATIS, SNIPS, SLURP (SLU corpora). Each needs the author to open the
+  primary page and add a verified entry; then one table row + one sentence each.
+- tools/review/master_ch2.py shape checks rewritten: last section "Research gaps"; Synthesis +
+  Gap G1..G3 paragraphs; each sec:soa-* has a table, a Critical comparison and a This-work row;
+  each gap paragraph names its contribution. 0 FAIL, 2 WARN (paper numbers on the citation
+  worklist; the pre-existing Ch1/Ch2 coherence note).
+- Clean build: 0 errors, 0 undefined, 0 Float too large, 0 overfull, 79 pages. Tables 3.2 and 3.3
+  float to their own pages (white space on 29 and 31): layout pass (B13) territory, not fixed now.
+Remaining for the author before deposit: the two markers in Background (Vaswani 2017; Pi 5 brief),
+the optional table rows above, jury names on the title page, and the final layout pass.

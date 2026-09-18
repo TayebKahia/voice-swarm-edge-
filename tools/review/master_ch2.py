@@ -18,30 +18,40 @@ r = Review("master_ch2", "master", MASTER[2], [*MASTER[:2], *MASTER[3:]])  # Sta
 r.common()
 text = r.ch.text
 
-# -- Shape: four themes, then Positioning = Synthesis / Gap / Delta (SKILL §3, Ch2) --------------
+# -- Shape: four themes with a comparison table each, then Research gaps = Synthesis / G1-G3 -----
+# (prd.md §3.1 since 25 Sep; the supervisor's note is that studies are compared to each other in
+# the tables and to this thesis only in the gaps.)
 outline_check(r, 2, {"edge LLM inference and SBC benchmarking": r"edge llm|single-board",
                      "quantisation": r"^quantisation$", "constrained decoding": r"constrained decoding",
                      "spoken-language understanding for robotics": r"spoken-language"})
 titles = [t for lvl, t, _ in r.ch.sections() if lvl == "section"]
-r.expect("outline", titles[-1:] == ["Positioning"], f"a single closing Positioning section (last section: {titles[-1:]})")
-pos = text[text.find("\\section{Positioning}"):]
-for part in ("Synthesis", "Gap", "Delta"):
-    r.expect("outline", f"\\paragraph{{{part}.}}" in pos, f"Positioning has its `{part}.` paragraph")
+r.expect("outline", titles[-1:] == ["Research gaps"], f"a single closing Research gaps section (last section: {titles[-1:]})")
+pos = text[text.find("\\section{Research gaps}"):]
+r.expect("outline", "\\paragraph{Synthesis.}" in pos, "Research gaps opens with its `Synthesis.` paragraph")
+for g in ("G1", "G2", "G3"):
+    r.expect("outline", f"\\paragraph{{Gap {g}," in pos, f"Research gaps has its `Gap {g}` paragraph")
+themes_text = text[: text.find("\\section{Research gaps}")]
+for sec in ("soa-edge", "soa-quantisation", "soa-constrained-decoding", "soa-slu"):
+    chunk = themes_text[themes_text.find(f"\\label{{sec:{sec}}}"):]
+    chunk = chunk[: chunk.find("\\section{", 1) if "\\section{" in chunk[1:] else None]
+    r.expect("table", "\\begin{table}" in chunk and "\\paragraph{Critical comparison.}" in chunk,
+             f"section `{sec}` has a comparison table and a Critical comparison paragraph")
+    r.expect("table", "This work &" in chunk, f"section `{sec}`'s table ends with a `This work` row")
 
 
 def cites(chunk: str) -> set[str]:
     return {k.strip() for m in re.findall(r"\\cite\{([^}]*)\}", chunk) for k in m.split(",")}
 
 
-themes, positioning = cites(text[: text.find("\\section{Positioning}")]), cites(pos)
+themes, positioning = cites(text[: text.find("\\section{Research gaps}")]), cites(pos)
 new = positioning - themes
-r.expect("positioning", not new, "Positioning introduces no source the theme sections did not review"
-         if not new else f"Positioning cites {sorted(new)} that no theme section reviewed -- a synthesis "
+r.expect("positioning", not new, "Research gaps introduces no source the theme sections did not review"
+         if not new else f"Research gaps cites {sorted(new)} that no theme section reviewed -- a synthesis "
          "should summarise, not introduce")
-gap_para = pos[pos.find("\\paragraph{Gap.}"): pos.find("\\paragraph{Delta.}")]
-r.expect("positioning", "gap" in gap_para.lower(), "Gap paragraph states the gap", warn=True)
-for c in ("C1", "C2", "C3"):
-    r.expect("positioning", f"Contribution {c}" in pos, f"Delta maps {c} onto the gap")
+for g, c in (("G1", "C1"), ("G2", "C2"), ("G3", "C3")):
+    para = pos[pos.find(f"\\paragraph{{Gap {g},"):]
+    para = para[: para.find("\\paragraph{", 1) if "\\paragraph{" in para[1:] else None]
+    r.expect("positioning", f"Contribution {c}" in para, f"Gap {g} is closed by Contribution {c} in its own paragraph")
 
 # -- Stack honesty and the Table 3 boundary -----------------------------------------------------
 r.expect("stack", not re.search(r"\bOutlines\b", r.ch.prose()), "no tool this project never used (e.g. Outlines) named")

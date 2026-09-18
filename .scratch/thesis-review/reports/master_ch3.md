@@ -221,10 +221,10 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | line | level | title | prose words |
 |---|---|---|---|
 | 1 | chapter | Method | 61 |
-| 10 | section | Command schema and grammar design | 1014 |
+| 10 | section | Command schema and grammar design | 1016 |
 | 125 | section | Label-first dataset construction | 1877 |
 | 276 | section | The LoRA recipe | 1061 |
-| 373 | section | Quantisation procedure | 1059 |
+| 373 | section | Quantisation procedure | 1060 |
 | 458 | section | Evaluation protocol and the definitions of record | 2658 |
 
 ### Codes used in this chapter (self-containment agent: is each one needed, or would a descriptive name read better?)

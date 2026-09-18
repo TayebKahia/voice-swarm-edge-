@@ -9,7 +9,7 @@ protocol measured.
 
 \section{Command schema and grammar design}
 \label{sec:schema}
-The schema is the contract Section~\ref{sec:constrained-decoding} argued for: a fixed vocabulary of
+The schema is the contract Section~\ref{sec:soa-constrained-decoding} argued for: a fixed vocabulary of
 structured commands that a flight controller can act on directly, with every structural property a
 controller depends on enforced before a command is dispatched rather than checked afterwards. It
 was fixed before the synthetic corpus was generated. No later convenience -- an intent that turned
@@ -117,7 +117,7 @@ truncated before it closes.
 
 The design rests on the distinction between a rate that a favourable test set and thorough
 fine-tuning can inflate, and a property that holds by construction on any input under that cap.
-Section~\ref{sec:constrained-decoding} made that argument in the abstract.
+Section~\ref{sec:soa-constrained-decoding} made that argument in the abstract.
 Table~\ref{tab:grammar-ablation} in Chapter~\ref{chap:results} makes it concrete: it decodes the
 same fine-tuned models with and without this grammar, and so measures how often they leave the
 format when nothing prevents them.
@@ -414,7 +414,7 @@ batching and checkpoint differences contribute nothing. Separating precision
 from runtime would require a further surface, which was not measured. The difference is nonetheless
 the quantity a deployment decision needs, since the reference surface is not a configuration that
 runs on the board. It is a different quantity from the perplexity and generic-benchmark accuracy
-changes the quantisation literature reports (Section~\ref{sec:quantisation}).
+changes the quantisation literature reports (Section~\ref{sec:soa-quantisation}).
 
 \paragraph{Chat-template parity.} Fine-tuning used a Hugging Face tokeniser and its chat template;
 inference uses \texttt{llama.cpp}, a separate implementation of the same template. If the two
