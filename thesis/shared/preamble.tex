@@ -185,6 +185,19 @@
 %                                 so a table stays inside its own section.
 \usepackage{needspace}
 \usepackage{placeins}
+%  Float placement (layout pass, 25 Sep). The class defaults (\topfraction 0.7,
+%  \floatpagefraction 0.5) send any table taller than 70% of the text height to a
+%  float page of its own, which it then fills only half: Tables 3.2, 3.3 and 4.1 of
+%  the Master each sat alone with a third of the page blank. Raising the ceiling for
+%  top floats and the minimum fill of a float page lets a tall table sit at the top
+%  of a page with text beneath it. The output routine tries a float page BEFORE a
+%  top float for a deferred float, so \floatpagefraction sits just under
+%  \topfraction: a float under 0.88 of the text height can only go to the top of a
+%  page, one over 0.9 only to a float page, and nothing falls between.
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\bottomfraction}{0.5}
+\renewcommand{\textfraction}{0.08}
+\renewcommand{\floatpagefraction}{0.88}
 \AtEndDocument{\keepsec@close}
 \makeatother
 \makeatletter

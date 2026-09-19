@@ -44,18 +44,11 @@
 % Back to the preamble's tocdepth (3). Restoring 4 here would override it and
 % list every \paragraph lead-in -- "Synthesis.", "Gap." -- in the contents.
 \addtocontents{toc}{\protect\setcounter{tocdepth}{3}}
-% The 37 entries overflow one page by five lines at the body size. Two levers, both
-% confined to the contents: the entries are set \small (the \addtocontents lands at the
-% top of the .toc, inside \@starttoc's group), and the class's 1em gap before each
-% chapter entry (extreport.cls, \l@chapter) is cut to 0.3em inside a group, so the
-% lists of figures and tables keep the class defaults.
-\addtocontents{toc}{\protect\small}
-\begingroup
-\makeatletter
-\patchcmd{\l@chapter}{\vskip 1.0em \@plus\p@}{\vskip 0.3em \@plus\p@}{}{\typeout{TOC chapter-gap patch FAILED}}
-\makeatother
+% Seven chapters in three parts give 47 entries, two pages at the body size. The
+% \small and chapter-gap patch that once squeezed six chapters onto one page was
+% dropped in the layout pass of 25 Sep: it no longer reached one page and only made
+% the entries smaller than the text.
 \tableofcontents
-\endgroup
 % One figure and seventeen tables: the two lists share a page. Each \chapter* starts with
 % \clearpage, which is disabled for these two lines only; the page break before the
 % acronyms below is the explicit \clearpage after \printglossary. The break before the

@@ -115,6 +115,9 @@ Llama-3.2-1B-Instruct & Meta & 1{,}236~M & \cite{llama32} \\
 \end{tabular}
 \end{table}
 
+% \noautobreak: the keep-section-whole rule would start this section on a new page
+% and leave the rest of the page under Table~\ref{tab:bg-models} blank (layout pass, 25 Sep).
+\noautobreak
 \section{Fine-tuning and low-rank adaptation}
 \label{sec:bg-lora}
 
@@ -284,6 +287,8 @@ resident memory} is the largest amount of physical memory a process held during 
 figure a memory ceiling is checked against, since a model that fits on disk may still not fit
 beside the other processes the board must run.
 
+% \noautobreak: same reason as before Section~\ref{sec:bg-lora}; the rule left half a page blank here.
+\noautobreak
 \section{Grammar-constrained decoding}
 \label{sec:bg-gbnf}
 
