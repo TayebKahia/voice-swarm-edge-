@@ -10,7 +10,7 @@
 %  XeLaTeX (or LuaLaTeX) is REQUIRED -- polyglossia + an Arabic font render the
 %  Arabic abstract. pdflatex will NOT build this.
 %
-%  Chapter structure is prd.md 3.1 verbatim (seven chapters in three parts); every chapter is
+%  Chapter structure is prd.md 3.1 verbatim (seven chapters in two parts); every chapter is
 %  written and \input below.
 % =============================================================================
 \documentclass[openany,12pt,oneside]{extreport}
@@ -44,7 +44,7 @@
 % Back to the preamble's tocdepth (3). Restoring 4 here would override it and
 % list every \paragraph lead-in -- "Synthesis.", "Gap." -- in the contents.
 \addtocontents{toc}{\protect\setcounter{tocdepth}{3}}
-% Seven chapters in three parts give 47 entries, two pages at the body size. The
+% Seven chapters in two parts give 46 entries, two pages at the body size. The
 % \small and chapter-gap patch that once squeezed six chapters onto one page was
 % dropped in the layout pass of 25 Sep: it no longer reached one page and only made
 % the entries smaller than the text.
@@ -65,16 +65,15 @@
 \printglossary[type=\acronymtype, title=List of Acronyms, style=acrolong]
 \clearpage
 
-% -- Chapters (prd.md 3.1: seven chapters in three parts) ---------------------
+% -- Chapters (prd.md 3.1: seven chapters in two parts) -----------------------
 %  Introduction and Conclusion sit outside the parts, as in the ESI reference
-%  theses. File names keep their historical numbers where the chapter number
-%  did not change; ch2/ch3 were renumbered on 25 Sep.
+%  theses. Background and State of the art share one part at the supervisor's
+%  request (26 Sep). File names keep their historical numbers where the chapter
+%  number did not change; ch2/ch3 were renumbered on 25 Sep.
 \input{master/ch1_introduction}
 
-\part{Background}
+\part{Background and state of the art}
 \input{master/ch2_background}
-
-\part{State of the art}
 \input{master/ch3_state_of_the_art}
 
 \part{Contribution}
