@@ -100,8 +100,8 @@ puts to four such models. Table~\ref{tab:bg-models} lists them with their parame
 \begin{table}[htbp]
 \centering
 \caption[Small language models compared in this work]{The four small language models compared in
-this work. Parameter counts are those of the released checkpoints, rounded to the nearest million
-(Chapter~\ref{chap:method}); the developer's report is cited for each model.}
+this work. Parameter counts are those of the released checkpoints, rounded to the nearest million;
+the developer's report is cited for each model.}
 \label{tab:bg-models}
 \begin{tabular}{@{}llrl@{}}
 \toprule
@@ -110,7 +110,7 @@ Model & Developer & Parameters & Source \\
 SmolLM2-360M-Instruct & Hugging Face & 362~M & \cite{smollm2} \\
 Qwen2.5-0.5B-Instruct & Alibaba Qwen team & 494~M & \cite{qwen25} \\
 H2O-Danube3-500M-Chat & H2O.ai & 514~M & \cite{danube3} \\
-Llama-3.2-1B-Instruct & Meta & 1.24~B & \cite{llama32} \\
+Llama-3.2-1B-Instruct & Meta & 1{,}236~M & \cite{llama32} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -390,10 +390,11 @@ the grammar is removed.
 Section~\ref{sec:bg-slu}. The \emph{false-command rate} is the fraction of out-of-domain inputs
 on which the system does anything other than decline; a fallback to a hold counts, since the
 vehicle still acts on input that was not a command. The \emph{safe-failure
-rate} is the fraction of the system's errors on in-domain input that resolve to a harmless
-action, such as declining or holding position, rather than to a wrong command. The first has
-out-of-domain items as its denominator, the second the erroneous items only; neither is a
-function of \gls{em}, and a system can score well on \gls{em} and poorly on both.
+rate} is the fraction of the system's errors, on in-domain and out-of-domain input alike, that
+resolve to a harmless action, such as declining or holding position, rather than to a wrong
+command. The first has out-of-domain items as its denominator, the second erroneous items only,
+whatever their input; neither is a function of \gls{em}, and a system can score well on \gls{em}
+and poorly on both.
 
 \paragraph{Speech recognition.} The accuracy of a transcript is scored by \gls{wer}: the number of
 word substitutions, deletions and insertions needed to turn the transcript into the reference,

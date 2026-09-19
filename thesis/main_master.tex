@@ -10,9 +10,8 @@
 %  XeLaTeX (or LuaLaTeX) is REQUIRED -- polyglossia + an Arabic font render the
 %  Arabic abstract. pdflatex will NOT build this.
 %
-%  Chapter structure is prd.md 3.1 verbatim (seven chapters in three parts). Chapters not yet
-%  written are listed commented-out below with their prd.md titles, so the
-%  outline stays visible and the document still compiles.
+%  Chapter structure is prd.md 3.1 verbatim (seven chapters in three parts); every chapter is
+%  written and \input below.
 % =============================================================================
 \documentclass[openany,12pt,oneside]{extreport}
 
@@ -57,7 +56,7 @@
 \makeatother
 \tableofcontents
 \endgroup
-% One figure and seven tables: the two lists share a page. Each \chapter* starts with
+% One figure and seventeen tables: the two lists share a page. Each \chapter* starts with
 % \clearpage, which is disabled for these two lines only; the page break before the
 % acronyms below is the explicit \clearpage after \printglossary. The break before the
 % lists must then be explicit too, or the contents' last entry drifts onto their page.
@@ -93,8 +92,12 @@
 \input{master/ch6_conclusion}     % Chapter 7, outside the parts
 
 % -- Bibliography -------------------------------------------------------------
-\newpage
-\printbibliography
+%  The contents entry and its hyperref anchor go BEFORE \printbibliography: placed after it,
+%  \addcontentsline records the bibliography's last page and the last \item of Chapter 7, and
+%  heading=bibintoc does not help because titlesec drops the anchor of \chapter*.
+\clearpage
+\phantomsection
 \addcontentsline{toc}{chapter}{Bibliography}
+\printbibliography
 
 \end{document}

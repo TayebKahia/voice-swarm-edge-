@@ -37,9 +37,9 @@ property of the size range, and it should be held at that strength.
 \paragraph{Model-specific position of the knee.} It would be tempting to restate the
 previous paragraph as ``0.5~B parameters suffice''. The iso-parameter control of
 Section~\ref{sec:iso-parameter} argues against that restatement. H2O-Danube3-500M, within 4.0\% of
-Qwen2.5-0.5B's parameter count, scores 6.5~pp lower on the golden split at FP16. It has no latency
+Qwen2.5-0.5B's parameter count, scores 6.5~pp lower on the golden split at fp16. It has no latency
 coordinate, because it has no quantised artefact, so it cannot be placed on
-Figure~\ref{fig:pareto}, and the comparison has to be made between the unquantised models. At FP16
+Figure~\ref{fig:pareto}, and the comparison has to be made between the unquantised models. At fp16
 the two frontier models are 16.0~pp apart (0.935 against 0.775), so at a fixed size the vertical
 position of a point moved by more than a third of the distance separating them. Part of both gaps
 may reflect convergence rather than family: no model is shown to have converged within the
@@ -137,7 +137,7 @@ requests from supported ones more reliably than they separate commands they pars
 commands they did not. The distinction matters
 in operation, because a misrecognised command still reads as a supported request, and it falls on the side of that boundary where, on the in-domain splits,
 abstention is almost absent. Nor does the pattern appear to
-belong to one model. At FP16 the three models of the main comparison abstain on 62.0\% to 73.3\% of
+belong to one model. At fp16 the three models of the main comparison abstain on 62.0\% to 73.3\% of
 the out-of-domain set, and H2O-Danube3-500M, a fourth family trained under the same recipe, falls
 inside that spread at 72.0\% (Table~\ref{tab:iso-parameter}).
 

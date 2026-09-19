@@ -73,8 +73,12 @@
 %                                      % it the way the Master's was)
 
 % -- Bibliography -------------------------------------------------------------
-\newpage
-\printbibliography
+%  The contents entry and its hyperref anchor go BEFORE \printbibliography (issue 17): placed
+%  after it, \addcontentsline records the bibliography's last page and the last \item of the
+%  final chapter; heading=bibintoc does not help because titlesec drops the anchor of \chapter*.
+\clearpage
+\phantomsection
 \addcontentsline{toc}{chapter}{Bibliography}
+\printbibliography
 
 \end{document}
