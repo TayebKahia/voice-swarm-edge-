@@ -1,6 +1,6 @@
 # Issue 15: master-bg (Background, Chapter 2 since 25 Sep)
 
-Status: resolved (two author bib entries outstanding: Pi 5 brief, Vaswani 2017)
+Status: resolved
 Blocked by: 01 (resolved)
 Chapter: thesis/master/ch2_background.tex (~425 lines, 23 cites; written 25 Sep, committed `1109a91`)
 Script: tools/review/master_bg.py
@@ -120,3 +120,14 @@ only the three cross-chapter \ref false positives. Clean build: 0 errors, 0 unde
 floats, 0 overfull; 79 pages (the state-of-the-art rebuild in the other session adds pages).
 
 Status: resolved, pending the author's two bibliography entries.
+
+### 2026-09-25 -- markers resolved (author delegated the two bib entries)
+
+Verified against primary sources before adding: vaswani2017 (arXiv abs 1706.03762 and the NeurIPS
+proceedings page: title, eight authors, Advances in NIPS 30, 2017); rpi5brief (RP-008348-DS-6,
+Raspberry Pi Ltd, Sept 2023, downloaded PDF: "Broadcom BCM2712 2.4GHz quad-core 64-bit Arm
+Cortex-A76", "LPDDR4X-4267 SDRAM", "VideoCore VII GPU, ... Vulkan 1.2"). The throttle-flag
+sentence (C-8) is not in the brief; it is in the Raspberry Pi OS documentation (Utilities >
+vcgencmd > get_throttled, bit 18 "Throttling has occurred"), added as rpiosdocs and cited there.
+\TODO and \CHECK removed; no marker left in either thesis. Script 0 FAIL, 6 WARN (headings only,
+plus the earned "always"). Clean build 0/0/0/0, 80 pages.
