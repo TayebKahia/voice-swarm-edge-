@@ -240,17 +240,23 @@ not schema validity alone, on models that were fine-tuned to the format first.
 \label{sec:soa-slu}
 Parsing an utterance into an intent and a set of slot values is an established formulation in
 spoken-language understanding, not one this thesis introduces. The literature on it is of two
-kinds: surveys that fix the formulation, and corpora with their baselines that instantiate it. A
+kinds: surveys that fix the formulation, and corpora, with the baselines or systems built on
+them, that instantiate it. A
 survey of the field treats the extraction of this semantic frame as the object of the task, and
 classifies methods by whether they model intent and slots separately or jointly~\cite{qin2021}.
 MASSIVE, a dataset of one million utterances in 51 languages labelled with 60 intents and 55 slot
 types, is built around the same formulation~\cite{massive}. Its baselines, encoders of 258 to
 580~million parameters, reach locale-averaged intent accuracies of 85.1--86.1\% and slot F1 of
-73.6--76.8\%, but \gls{em} of only 63.7--66.6\%~\cite{massive}. For the single-utterance commands
+73.6--76.8\%, but \gls{em} of only 63.7--66.6\%~\cite{massive}. MASSIVE was made by localising the
+English SLURP corpus, which pairs recorded audio with one scenario and one action per utterance
+and reports pipeline baselines of speech recognition followed by tagging
+models~\cite{massive,slurp2020}. The Snips platform is the one corpus paper that also times its
+parser on a board: a regular-expression parser followed by a classifier and per-intent
+conditional random fields, run on a Raspberry~Pi~3~\cite{snips2018}. For the single-utterance commands
 considered here, a spoken instruction to a robot has the same shape: one intent from a fixed set
 and a handful of slot values. Language-model control of robots and aircraft more broadly is
 reviewed in the \emph{M\'emoire d'Ing\'enieur}. Table~\ref{tab:soa-slu} sets the survey, the
-corpus and this work on one set of axes.
+corpora and this work on one set of axes.
 
 \begin{table}[htbp]
 \centering
@@ -264,6 +270,8 @@ property this review did not establish from the source. The last row is this wor
 Work & Kind & Formulation and models & Metrics reported & Hardware and latency budget & Output constraint \\
 \midrule
 Qin et al.~\cite{qin2021} & Survey & Semantic frame of intent and slots; methods sorted into single and joint models & --- & --- & --- \\
+Snips~\cite{snips2018} & System and corpus & Seven intents, 2{,}242--2{,}300 crowdsourced queries each; regular-expression parser, then a logistic-regression classifier and per-intent conditional random fields & Slot F1 93.0\% averaged over slots and intents; no intent accuracy or \gls{em} on that set & Raspberry~Pi~3 \gls{cpu} (1.4~GHz, 1~GB); parse in 60~ms; real-time factor below 1, no stated budget & Parser output built by patterns and taggers, not generated \\
+SLURP~\cite{slurp2020} & Corpus and baselines & 18 scenarios and 46 actions, one of each per utterance; 72{,}277 recordings of 17{,}181 sentences; pipeline baselines of Kaldi speech recognition and BiLSTM--CRF language understanding & Scenario, action and scenario-action accuracy 90.2, 87.0 and 84.8\% on reference text; entity SLU-F1 70.8\% from audio; no \gls{em} & --- & --- \\
 MASSIVE~\cite{massive} & Corpus and baselines & 60 intents, 55 slot types, 51 languages; encoder baselines of 258--580~M parameters & Intent accuracy 85.1--86.1\%; slot F1 73.6--76.8\%; \gls{em} 63.7--66.6\% & Data-centre \glspl{gpu}; no budget & None \\
 \midrule
 This work & Corpus, models and deployment & Ten intents and a bounded slot vocabulary for a five-drone swarm; decoder-only models of 0.36--1.2~B, fine-tuned & \gls{em}, intent and slot F1, schema validity, false-command and safe-failure rates & Raspberry~Pi~5 \gls{cpu}; 20~tok/s throughput floor, from a 1{,}100~ms decode allowance & Bounded \gls{gbnf} grammar \\
@@ -272,16 +280,21 @@ This work & Corpus, models and deployment & Ten intents and a bounded slot vocab
 \end{table}
 
 \paragraph{Critical comparison.} What differs across Table~\ref{tab:soa-slu} is the setting, not
-the shape of the task. On formulation, the survey and the corpus agree: one intent from a closed
-set and a set of typed slots, with the joint model as the modern default~\cite{qin2021}. On the
-models, the benchmark's baselines are encoders that classify and label, whereas this work uses a decoder that
-generates the frame as text, which is what makes a grammar applicable to it. On the metric, the
-benchmark's lowest figure is \gls{em}, and it is the metric a controller depends on, since a
-command with one wrong slot is a wrong command. The benchmark reports it but does not optimise
-for it, and its baselines are trained on data-centre \glspl{gpu}, decoded without a grammar, and
-scored with no latency or memory limit~\cite{massive}. On the deployment, the last row is the
-only one with a hardware and latency budget and the only one whose output is constrained; Section~\ref{sec:research-gaps} states what that
-leaves open.
+the shape of the task. On formulation, the survey and the three corpora agree: one intent from a
+closed set and a set of typed slots, with the joint model as the modern default~\cite{qin2021}.
+On the models, every prior row classifies and labels, with conditional random fields or
+encoders, whereas this work uses a decoder that generates the frame as text, which is what makes
+a grammar applicable to it. On the metric, only the multilingual benchmark reports \gls{em}, and
+there it is the lowest figure; the two older corpora report slot or entity F1 and accuracy on the
+intent alone. \Gls{em} is the metric a controller depends on, since a command with one wrong
+slot is a wrong command. On the deployment, the Snips platform is the one prior row timed on a
+board. Its classical pipeline parses in 60~ms on a Raspberry~Pi~3, against real time rather than
+a stated budget, and its output is structured by how the parser is built. MASSIVE's baselines are
+trained on data-centre \glspl{gpu}~\cite{massive} and SLURP names no hardware; both are decoded
+without a grammar, and neither reports a latency or memory limit. The last row is therefore the
+only one that runs a generative language model on a board under a stated budget, and the only
+one whose output is constrained at decoding time; Section~\ref{sec:research-gaps} states what
+that leaves open.
 
 \section{Research gaps}
 \label{sec:research-gaps}
@@ -297,11 +310,12 @@ Grammar-constrained decoding makes a model's output structurally valid by constr
 by the accuracy of the model that produced it~\cite{willard2023,koo2024}, at costs its own
 literature documents: a distorted sampling distribution~\cite{park2024} and, on reasoning tasks,
 lower accuracy~\cite{tam2024}. Intent and slot parsing
-is an established task formulation, with a large multilingual benchmark built for
-it~\cite{massive}. Some pairs of these literatures have already been combined: quantisation with
+is an established task formulation, with recorded corpora and a large multilingual benchmark
+built for it~\cite{slurp2020,massive}. Some pairs of these literatures have already been combined: quantisation with
 \gls{cpu} inference and downstream accuracy~\cite{kurt2026}, quantisation with small
-models~\cite{slmquant}, and format restriction with task accuracy~\cite{tam2024}. No study
-reviewed here combines all four. The four critical comparisons above leave three gaps, stated
+models~\cite{slmquant}, format restriction with task accuracy~\cite{tam2024}, and intent-and-slot
+parsing with inference on a board, for a classical pipeline~\cite{snips2018}. No study reviewed
+here combines all four. The four critical comparisons above leave three gaps, stated
 here in the order the contributions of Chapter~\ref{chap:introduction} close them.
 
 \paragraph{Gap G1, validity after fine-tuning.} The constrained-decoding studies reviewed here
@@ -314,9 +328,10 @@ decoder. The grammar ablation, run with the harness of Contribution C3, decodes 
 fine-tuned, quantised models with and without that grammar, and so reports what the grammar adds
 once fine-tuning has taught the models the format.
 
-\paragraph{Gap G2, the command corpus.} Intent-and-slot benchmarks such as
-MASSIVE (Table~\ref{tab:soa-slu}) are scored on data-centre hardware without a latency budget or a
-grammar, and no public corpus covering this command vocabulary was found. Contribution C2, the
+\paragraph{Gap G2, the command corpus.} The intent-and-slot corpora (Table~\ref{tab:soa-slu})
+cover assistant domains, and the one timed on a board is parsed by a classical pipeline. None is
+scored under a latency budget or a grammar, and no public corpus covering this command
+vocabulary was found. Contribution C2, the
 label-first dataset (each label written before the sentences that express it), supplies what a
 general-purpose corpus does not. It holds training and test data for this command vocabulary,
 split at the template-family level, with a recorded golden set of spoken commands on which the
@@ -325,8 +340,9 @@ golden set.
 
 \paragraph{Gap G3, deployment cost.} The single-board-computer
 benchmark (Table~\ref{tab:soa-edge}) reports throughput without reference to any task, so it
-cannot say what a configuration that meets a throughput floor costs in task accuracy. The
-quantisation studies (Table~\ref{tab:soa-quantisation}) report accuracy on general-purpose
+cannot say what a configuration that meets a throughput floor costs in task accuracy. The one
+intent-and-slot system timed on a board (Table~\ref{tab:soa-slu}) is a pattern-and-tagger
+pipeline, not a language model, and reports slot F1 alone. The quantisation studies (Table~\ref{tab:soa-quantisation}) report accuracy on general-purpose
 benchmarks with the decoder unconstrained, not \gls{em}, intent and slot F1, or schema validity on
 a command-parsing task. The two that score tasks at scale work at 1.5~billion parameters and
 above, and the one sub-billion evaluation scores generic suites too. Choosing a model to deploy on

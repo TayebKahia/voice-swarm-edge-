@@ -511,6 +511,11 @@ with a 96-token cap, a 1{,}024-token context and one sequence at a time; the run
 en\_US-ryan and en\_GB-alba, all at medium quality), and generation and noise mixing are seeded
 with 42.
 
+\paragraph{Code and data availability.} The dataset pipeline, the training configurations, the
+schema and grammar, the evaluation harness and the analysis scripts named in this chapter are
+kept in one repository, \url{https://github.com/TayebKahia/voice-swarm-edge-}, private at the
+time of writing and to be made public.
+
 \paragraph{Canonical form and comparator.} A single function, $\mathrm{canon}(\cdot)$, is applied to
 both the model's prediction and the reference label before either is compared to anything, so that
 \gls{em} and \gls{crr} are never computed against two differently normalised
