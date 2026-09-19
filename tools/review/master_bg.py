@@ -87,7 +87,7 @@ params = {row["Model"].strip("`"): float(row["Params"].replace(",", "").split()[
 r.number("Hugging Face & 362~M", params["smollm2-360m-instruct"], "results/table33_iso_parameter.md Params")
 r.number("Alibaba Qwen team & 494~M", params["qwen2.5-0.5b-instruct"], "results/table33_iso_parameter.md Params")
 r.number("H2O.ai & 514~M", params["h2o-danube3-500m-chat"], "results/table33_iso_parameter.md Params")
-r.number("Meta & 1.24~B", params["llama-3.2-1b-instruct"] / 1000, "results/table33_iso_parameter.md Params, in B")
+r.number("Meta & 1{,}236~M", params["llama-3.2-1b-instruct"], "results/table33_iso_parameter.md Params")
 r.text_claim("claim", "between a third of a billion and\none and a quarter billion parameters",
              round(min(params.values())) == 362 and round(max(params.values()) / 1000, 2) == 1.24,
              "'a third of a billion to one and a quarter billion' brackets 362 M .. 1,236 M")

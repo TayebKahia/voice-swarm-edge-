@@ -8,7 +8,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 |---|---|---|---|
 | WARN | acronym | 95 | long form `small language model` spelled out -- \gls{slm}? |
 | WARN | acronym | 97 | `CPU` typed by hand 1x (lines 97) -- \gls{cpu} (the first \gls expands itself) |
-| WARN | acronym | 138 | long form `single-board computer` spelled out -- \gls{sbc}? |
+| WARN | acronym | 139 | long form `single-board computer` spelled out -- \gls{sbc}? |
 | PASS | check_tex |  | tools/check_tex.py: no problems beyond cross-chapter \ref (resolved below) |
 | PASS | ref |  | every \ref resolves within the document |
 | PASS | cite |  | 3 distinct keys cited, all resolved |
@@ -49,7 +49,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | PASS | contribution | 121 | C3 metric `false-command rate` is a column the harness reports (results/surface_b.csv:false_command_rate) |
 | PASS | contribution | 121 | C3 metric `safe-failure rate` is a column the harness reports (results/nfr9_nfr18_abstention.csv:safe_failure_rate) |
 | PASS | outline | 136 | 'six chapters' = 6 chapters after this one in main_master.tex |
-| PASS | claim | 154 | `against the 20~tok/s floor` -> written 20, source gives 20.00 (22 tokens / 1.100 s (closing paragraph)) |
+| PASS | claim | 155 | `against the 20~tok/s floor` -> written 20, source gives 20.00 (22 tokens / 1.100 s (closing paragraph)) |
 
 ### Citation sheet (for the citation agent: open each identifier, judge SUPPORTS / PARTIAL / DOES NOT SUPPORT per row)
 
@@ -74,7 +74,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 43 | section | Why structured output matters for robot control | 397 |
 | 75 | section | Objectives | 292 |
 | 106 | section | Contributions | 282 |
-| 135 | section | Structure of this document | 241 |
+| 135 | section | Structure of this document | 246 |
 
 ### Codes used in this chapter (self-containment agent: is each one needed, or would a descriptive name read better?)
 
@@ -102,4 +102,4 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 34 | 40 | recomputed by a claim on this line |
 | 96 | 0.36 | recomputed by a claim on this line |
 | 96 | 1.2 | recomputed by a claim on this line |
-| 154 | 20 | recomputed by a claim on this line |
+| 155 | 20 | recomputed by a claim on this line |

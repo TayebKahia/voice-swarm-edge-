@@ -161,7 +161,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | PASS | claim | 247 | `moves from 0.8508` -> written 0.8508, source gives 0.8508 (pooled EM grammar on) |
 | PASS | claim | 247 | `to 0.8492, a difference` -> written 0.8492, source gives 0.8492 (pooled EM grammar off) |
 | PASS | claim | 247 | `a difference of 0.17~pp` -> written 0.17, source gives 0.17 (pooled EM difference) |
-| PASS | claim | 247 | `or six decodes in 3{,}540` -> written 6, source gives 6.00 (item-count difference) |
+| PASS | claim | 248 | `or six decodes in 3{,}540` -> written 6, source gives 6.00 (item-count difference) |
 | PASS | claim | 276 | `gives $\alpha = 0.0167$` -> written 0.0167, source gives 0.0167 (0.05 / 3) |
 | PASS | claim | 276 | `Below 25 discordant` -> written 25, source gives 25.00 (eval/stats.py EXACT_BELOW_DISCORDANT) |
 | PASS | path | 278 | `results/mcnemar.csv` exists in the repo |
@@ -261,7 +261,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 66 | section | The multi-model benchmark | 962 |
 | 158 | section | A parameter-matched family control | 570 |
 | 208 | section | The quantisation delta | 296 |
-| 238 | section | The grammar ablation | 246 |
+| 238 | section | The grammar ablation | 250 |
 | 267 | section | Statistical analysis | 485 |
 | 311 | section | The selection rule applied | 1032 |
 
@@ -402,7 +402,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 247 | 0.8508 | recomputed by a claim on this line |
 | 247 | 0.8492 | recomputed by a claim on this line |
 | 247 | 0.17 | recomputed by a claim on this line |
-| 248 | 3{,}540 | measured: results/table19_grammar_ablation.md:10, results/table19_grammar_ablation.md:11 |
+| 248 | 3{,}540 | recomputed by a claim on this line |
 | 249 | 3{,}540 | measured: results/table19_grammar_ablation.md:10, results/table19_grammar_ablation.md:11 |
 | 255 | 3{,}540 | measured: results/table19_grammar_ablation.md:10, results/table19_grammar_ablation.md:11 |
 | 261 | 0.17 | measured: results/requirements_summary.md:24, results/wake_training.md:22 |

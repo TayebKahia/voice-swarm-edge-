@@ -180,7 +180,7 @@ utterances in 51 languages` present |
 | 78 | section | Quantisation | 960 |
 | 160 | section | Constrained decoding | 959 |
 | 239 | section | Spoken-language understanding for robotics | 786 |
-| 299 | section | Research gaps | 744 |
+| 299 | section | Research gaps | 743 |
 
 ### Codes used in this chapter (self-containment agent: is each one needed, or would a descriptive name read better?)
 
@@ -286,3 +286,5 @@ utterances in 51 languages | massive (primary source, not the candidate notes) |
 | 291 | 60 | measured: results/thermal_headroom.md:5, results/exp4_formation.md:3 |
 | 304 | 1.5 | measured: results/table18_quantisation_delta.md:15, results/table18_quantisation_delta.md:19 |
 | 347 | 1.5 | measured: results/table18_quantisation_delta.md:15, results/table18_quantisation_delta.md:19 |
+| 354 | 0.36 | measured: results/wake_training.json:169, results/wake_training.json:813 |
+| 354 | 1.2 | measured: spikes/reports/S1_llama_throughput_thermals.md:40, results/exp2_latency_budget.md:14 /1024 |

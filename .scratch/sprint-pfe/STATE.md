@@ -2166,3 +2166,15 @@ rows (primary pages verified by an agent at the author's delegation; ATIS reject
 slots in the 1990 paper), and Method names the repository (private, to be opened). Examiner gap still open: why Table 3.1 holds one SBC benchmark
 (a scoping sentence, or an author-verified second row). Script 0 FAIL, 2 WARN justified; self-test
 PASSED; clean build 0/0/0/0, 79 pages. Details: .scratch/thesis-review/issues/16-master-soa.md.
+
+## Master WHOLE-DOCUMENT pass repeated (Fri 25 Sep, late night) -- issue 17
+Template B on the seven-chapter Master (issue 08 had run it on the six-chapter one). Reviewer +
+verifier. PASS on the golden thread (RQ1/C1-C3 -> G1-G3 -> Ch4 -> Ch5 -> Ch6 -> Ch7), headline
+numbers identical everywhere, three abstracts agree, write-once against the finished Ingénieur,
+scope from Ch1 alone, acronyms, bibliography. 2 MAJOR (Background defined the safe-failure rate over
+in-domain errors while the definition of record pools all splits; the contents entry for the
+Bibliography pointed at the wrong page and anchor -- same defect fixed in the Ingénieur main file),
+4 MINOR, 2 NIT applied; 1 MINOR refuted (issue 15 had ruled). Both documents build clean: Master 80
+pages, Ingénieur 78. Master is review-complete. Remaining for the author: jury names; the layout
+pass (B13); optional Table 3.1 scoping sentence; converter commit if the logs have it.
+Details: .scratch/thesis-review/issues/17-master-whole.md.
