@@ -2178,3 +2178,21 @@ Bibliography pointed at the wrong page and anchor -- same defect fixed in the In
 pages, Ingénieur 78. Master is review-complete. Remaining for the author: jury names; the layout
 pass (B13); optional Table 3.1 scoping sentence; converter commit if the logs have it.
 Details: .scratch/thesis-review/issues/17-master-whole.md.
+
+## Master LAYOUT pass (B13, Master half; Fri 25 Sep, late night) -- DONE
+Survey by per-page text-line counts plus renders. Four defects, four causes, all fixed at the
+cause: (1) the contents' \small + chapter-gap patch, tuned to fit six chapters on one page, now
+gave two pages of shrunken entries -> dropped, contents at body size on two pages; (2) the
+keep-section-whole rule (preamble, 23 Sep) left half-empty pages before Background §2.2 and §2.5
+(sections of nearly a page each) and its page break flushed Tables 3.2 and 3.3 onto float pages ->
+the rule's own \noautobreak override before those four sections, with a comment each; (3) class
+float defaults (\topfraction 0.7, \floatpagefraction 0.5) put any table over 70% of the text height
+alone on a float page -> preamble now \topfraction 0.9, \floatpagefraction 0.88 (just under, since
+the output routine tries a float page before a top float), \textfraction 0.08, \bottomfraction 0.5;
+Tables 3.2, 3.3, 3.4 and 4.1 now sit at the top of a page with text beneath; (4) the hand-placed
+\clearpage before Method §4.5 (left 40% of a page blank) was no longer needed -> removed; the two
+other hand-placed breaks (Discussion §6.3.2, Conclusion §7.3) cost nothing and stay. Master 80 -> 78
+pages, still 0/0/0/0, all scripts unchanged. The shared preamble change also rebuilt the Ingénieur
+clean at 77 pages (was 78); its own layout pass is not done (sparse pages at 22-23, 33, 43, 48
+noted, not examined). Remaining Master layout: nothing found; part pages and chapter ends are by
+design.

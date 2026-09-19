@@ -8,10 +8,10 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 |---|---|---|---|
 | WARN | absolute | 28 | `always` -- earned? ...oduced or a length cap is reached. When the chosen token is always the most probable one the procedure is \emph{greedy d... |
 | WARN | acronym | 91 | long form `small language model` spelled out -- \gls{slm}? |
-| WARN | acronym | 118 | long form `low-rank adaptation` spelled out -- \gls{lora}? |
-| WARN | acronym | 166 | `GGUF` typed by hand 1x (lines 166) -- \gls{gguf} (the first \gls expands itself) |
-| WARN | acronym | 222 | long form `single-board computer` spelled out -- \gls{sbc}? |
-| WARN | acronym | 222 | `CPU` typed by hand 1x (lines 222) -- \gls{cpu} (the first \gls expands itself) |
+| WARN | acronym | 121 | long form `low-rank adaptation` spelled out -- \gls{lora}? |
+| WARN | acronym | 169 | `GGUF` typed by hand 1x (lines 169) -- \gls{gguf} (the first \gls expands itself) |
+| WARN | acronym | 225 | long form `single-board computer` spelled out -- \gls{sbc}? |
+| WARN | acronym | 225 | `CPU` typed by hand 1x (lines 225) -- \gls{cpu} (the first \gls expands itself) |
 | PASS | check_tex |  | tools/check_tex.py: no problems beyond cross-chapter \ref (resolved below) |
 | PASS | ref |  | every \ref resolves within the document |
 | PASS | cite |  | 27 distinct keys cited, all resolved |
@@ -59,29 +59,29 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | PASS | claim | 111 | `Alibaba Qwen team & 494~M` -> written 494, source gives 494.00 (results/table33_iso_parameter.md Params) |
 | PASS | claim | 112 | `H2O.ai & 514~M` -> written 514, source gives 514.00 (results/table33_iso_parameter.md Params) |
 | PASS | claim | 113 | `Meta & 1{,}236~M` -> written 1236, source gives 1236.00 (results/table33_iso_parameter.md Params) |
-| PASS | write-once | 132 | LoRA description (from the old Ch3 `Adaptation method`): stated in the Background (`freezing the pretrained weight matrices`) |
-| PASS | write-once | 146 | QLoRA description (from the old Ch3): stated in the Background (`quantising the frozen base weights to four bits`) |
-| PASS | paper-number | 146 | anchor `to four bits during training` present |
-| PASS | paper-number | 148 | anchor `adapters
+| PASS | write-once | 135 | LoRA description (from the old Ch3 `Adaptation method`): stated in the Background (`freezing the pretrained weight matrices`) |
+| PASS | write-once | 149 | QLoRA description (from the old Ch3): stated in the Background (`quantising the frozen base weights to four bits`) |
+| PASS | paper-number | 149 | anchor `to four bits during training` present |
+| PASS | paper-number | 151 | anchor `adapters
 on every linear projection` present |
-| PASS | claim | 173 | `16 = 144$ bits` -> written 144, source gives 144.00 (32 weights x 4 bits + one 16-bit scale) |
-| PASS | claim | 173 | `= 144$ bits, or 4.5~bits per` -> written 4.5, source gives 4.50 (144 bits / 32 weights) |
-| PASS | claim | 174 | `against 512 for` -> written 512, source gives 512.00 (32 weights x 16 bits) |
-| PASS | write-once | 206 | Q8_0 construction (from the old Ch2): stated in the Background (`blocks of 32 at eight bits with one scale per block`) |
-| PASS | paper-number | 206 | anchor `blocks of 32` present |
-| PASS | paper-number | 206 | anchor `8.5~bits per weight in
+| PASS | claim | 176 | `16 = 144$ bits` -> written 144, source gives 144.00 (32 weights x 4 bits + one 16-bit scale) |
+| PASS | claim | 176 | `= 144$ bits, or 4.5~bits per` -> written 4.5, source gives 4.50 (144 bits / 32 weights) |
+| PASS | claim | 177 | `against 512 for` -> written 512, source gives 512.00 (32 weights x 16 bits) |
+| PASS | write-once | 209 | Q8_0 construction (from the old Ch2): stated in the Background (`blocks of 32 at eight bits with one scale per block`) |
+| PASS | paper-number | 209 | anchor `blocks of 32` present |
+| PASS | paper-number | 209 | anchor `8.5~bits per weight in
 all` present |
-| PASS | write-once | 207 | Q4_K_M construction (from the old Ch2): stated in the Background (`stores weights in super-blocks of 256`) |
-| PASS | paper-number | 207 | anchor `super-blocks of 256` present |
-| PASS | paper-number | 209 | anchor `4.5~bits per weight at the four-bit level` present |
-| PASS | paper-number | 211 | anchor `to six
+| PASS | write-once | 210 | Q4_K_M construction (from the old Ch2): stated in the Background (`stores weights in super-blocks of 256`) |
+| PASS | paper-number | 210 | anchor `super-blocks of 256` present |
+| PASS | paper-number | 212 | anchor `4.5~bits per weight at the four-bit level` present |
+| PASS | paper-number | 214 | anchor `to six
 bits` present |
-| PASS | paper-number | 213 | anchor `not a multiple of 256` present |
-| PASS | paper-number | 214 | anchor `five bits in place of four and eight in place of six` present |
-| PASS | write-once | 304 | token-masking mechanism (new statement of the old Ch2 paragraph): stated in the Background (`sets the logits of every other`) |
-| PASS | paper-number | 353 | anchor `a million utterances in 51` present |
-| PASS | paper-number | 353 | anchor `one of 60 intents` present |
-| PASS | paper-number | 354 | anchor `55 slot types` present |
+| PASS | paper-number | 216 | anchor `not a multiple of 256` present |
+| PASS | paper-number | 217 | anchor `five bits in place of four and eight in place of six` present |
+| PASS | write-once | 309 | token-masking mechanism (new statement of the old Ch2 paragraph): stated in the Background (`sets the logits of every other`) |
+| PASS | paper-number | 358 | anchor `a million utterances in 51` present |
+| PASS | paper-number | 358 | anchor `one of 60 intents` present |
+| PASS | paper-number | 359 | anchor `55 slot types` present |
 
 ### Citation sheet (for the citation agent: open each identifier, judge SUPPORTS / PARTIAL / DOES NOT SUPPORT per row)
 
@@ -94,37 +94,37 @@ bits` present |
 | 5 | 111 | qwen25 | Qwen2.5-0.5B-Instruct & Alibaba Qwen team & 494~M & \cite{qwen25} \\ |
 | 6 | 112 | danube3 | H2O-Danube3-500M-Chat & H2O.ai & 514~M & \cite{danube3} \\ |
 | 7 | 113 | llama32 | Llama-3.2-1B-Instruct & Meta & 1{,}236~M & \cite{llama32} \\ |
-| 8 | 133 | lora | \paragraph{Low-rank adaptation.} \Gls{lora} avoids both costs by freezing the pretrained weight matrices and learning a low-rank update beside each targeted one~\cite{lora}. |
-| 9 | 148 | qlora | The adapter is attached to a chosen subset of the projections named in Section~\ref{sec:bg-lm}; the choice of subset and rank are hyperparameters of the recipe. QLoRA extends the method by quantising the frozen base weights to four bits during training, keeping only the adapters and the optimiser state at higher precis |
-| 10 | 151 | qlora | The same work found that adapters on every linear projection, attention and feed-forward alike, were needed to match the accuracy of full fine-tuning, whereas adapters on the query and value projections alone, the original \gls{lora} default, fell short~\cite{qlora}. |
-| 11 | 156 | adamw | \paragraph{Optimisation and checkpoint selection.} The adapters are trained with a gradient-based optimiser; AdamW, which keeps a running estimate of each parameter's gradient mean and variance and applies weight decay separately from the adaptive step, is the usual choice~\cite{adamw}. |
-| 12 | 162 | transformers | The software stack used for this stage in the present work, \texttt{transformers}~\cite{transformers}, \texttt{peft}~\cite{peft} and PyTorch~\cite{pytorch}, is named in Chapter~\ref{chap:method} together with the recipe. |
-| 13 | 163 | peft | The software stack used for this stage in the present work, \texttt{transformers}~\cite{transformers}, \texttt{peft}~\cite{peft} and PyTorch~\cite{pytorch}, is named in Chapter~\ref{chap:method} together with the recipe. |
-| 14 | 163 | pytorch | The software stack used for this stage in the present work, \texttt{transformers}~\cite{transformers}, \texttt{peft}~\cite{peft} and PyTorch~\cite{pytorch}, is named in Chapter~\ref{chap:method} together with the recipe. |
-| 15 | 184 | awq | Weight-only quantisation, which leaves the activations at higher precision, is the common choice for inference at batch size one, because at that batch size it is the reading of the weights, not the arithmetic on them, that bounds the speed of decoding (Section~\ref{sec:bg-edge}), as a roofline analysis on a desktop \g |
-| 16 | 190 | gptq | The methods introduced for \glspl{llm} use a small calibration set of inputs to reduce the error. GPTQ quantises the weights of each layer one column at a time and adjusts the remaining columns to compensate for the rounding error already committed, using second-order information about the layer's inputs~\cite{gptq}. |
-| 17 | 192 | awq | AWQ observes that a small fraction of weight channels, those that meet large activations, account for most of the error, and scales them up before rounding so that their relative precision is preserved~\cite{awq}. |
-| 18 | 193 | spqr | SpQR isolates the outlier weights that resist low-bit representation and stores them separately at higher precision~\cite{spqr}. |
-| 19 | 204 | llamacpp | \paragraph{GGUF and the llama.cpp formats.} \gls{gguf} is the file format of the \texttt{llama.cpp} runtime (Section~\ref{sec:bg-edge}): one file holds every tensor of a model together with the metadata a runtime needs to serve it, including the tokeniser vocabulary and the chat template~\cite{llamacpp}. |
-| 20 | 209 | llamacpp | Q4\_K\_M belongs to the K-quant family, which stores weights in super-blocks of 256, each divided into eight sub-blocks of 32 whose scales are themselves stored at reduced precision, 4.5~bits per weight at the four-bit level~\cite{llamacpp}. |
-| 21 | 212 | llamacpp | A fixed rule raises the output projection, and a subset of the attention-value and feed-forward down-projection tensors chosen by layer position, to six bits~\cite{llamacpp}. |
-| 22 | 214 | llamacpp | A K-quant also requires each tensor's rows to divide into whole super-blocks: a tensor whose row length is not a multiple of 256 falls back to a legacy format, five bits in place of four and eight in place of six~\cite{llamacpp}. |
-| 23 | 220 | llamacpp | The runtime's documentation reports the cost of its formats as perplexity or Kullback--Leibler divergence against the unquantised model~\cite{llamacpp}. |
-| 24 | 228 | rpi5brief | The Raspberry~Pi~5 used in this work carries a quad-core Arm Cortex-A76 processor and LPDDR4X memory shared by all four cores~\cite{rpi5brief}, and no accelerator that a language-model runtime uses in practice. |
-| 25 | 238 | llamacpp | \paragraph{The llama.cpp runtime.} \texttt{llama.cpp} is a C/C++ inference engine for transformer language models, built on the \gls{ggml} tensor library, that runs on a \gls{cpu} without a \gls{gpu} driver or a Python interpreter~\cite{llamacpp}. |
-| 26 | 255 | awq | First, under that bound a smaller model or a lower-precision format decodes faster in proportion to the bytes it saves, which is the rationale for weight-only quantisation as a means to decode throughput~\cite{awq}; how closely a given processor approaches the bound, given the arithmetic its low-bit kernels add, is a m |
-| 27 | 266 | rpiosdocs | \paragraph{Thermal state and clock frequency.} A system-on-chip regulates its own temperature by lowering its clock frequency when a threshold is reached, a behaviour called \emph{thermal throttling}, and the board used here exposes a flag that records whether throttling occurred~\cite{rpiosdocs}. |
-| 28 | 310 | willard2023, koo2024 | Formulations that compile a regular expression or a context-free grammar into an automaton over the vocabulary make this check efficient, with correctness results for the language classes the construction covers~\cite{willard2023,koo2024}. |
-| 29 | 312 | llamacpp | Formulations that compile a regular expression or a context-free grammar into an automaton over the vocabulary make this check efficient, with correctness results for the language classes the construction covers~\cite{willard2023,koo2024}. \Gls{gbnf} is the \gls{bnf} dialect in which \texttt{llama.cpp} accepts a gramma |
-| 30 | 315 | llamacpp | The per-step cost depends on the grammar's structure, and the runtime's documentation warns that some rule shapes make sampling slow~\cite{llamacpp}. |
-| 31 | 339 | whisper | The \gls{stt} stage in this work is a model of the Whisper family, an encoder--decoder transformer trained on a large corpus of weakly supervised audio-transcript pairs~\cite{whisper}, served by a C/C++ port of the same kind as the language-model runtime~\cite{whispercpp}. |
-| 32 | 340 | whispercpp | The \gls{stt} stage in this work is a model of the Whisper family, an encoder--decoder transformer trained on a large corpus of weakly supervised audio-transcript pairs~\cite{whisper}, served by a C/C++ port of the same kind as the language-model runtime~\cite{whispercpp}. |
-| 33 | 348 | qin2021 | \paragraph{The semantic frame.} Spoken-language understanding treats the meaning of a task-oriented utterance as a \emph{semantic frame}: an \emph{intent}, drawn from a fixed set of actions the system can perform, and a set of \emph{slots}, each a key with a value extracted from the utterance~\cite{qin2021}. |
-| 34 | 352 | qin2021 | Intent detection is a classification problem over the utterance; slot filling is traditionally a sequence-labelling problem over its words, and the field's methods are classified by whether the two are modelled separately or jointly~\cite{qin2021}. |
-| 35 | 354 | massive | Benchmark corpora define the frame the same way: MASSIVE, for instance, labels a million utterances in 51 languages with one of 60 intents and spans over 55 slot types~\cite{massive}. |
-| 36 | 413 | mcnemar1947 | McNemar's test does so: it discards the items on which both systems agree and asks whether the \emph{discordant} items, those one system answers correctly and the other does not, split evenly between the two directions~\cite{mcnemar1947}. |
-| 37 | 415 | edwards1948 | With few discordant items the exact binomial form of the test is used; with many, a chi-square approximation with a continuity correction~\cite{edwards1948}. |
-| 38 | 420 | dunn1961 | And when several comparisons are made from the same data, the chance that at least one reaches a nominal significance level by accident rises with their number, which the Bonferroni correction controls by dividing the significance level by the number of comparisons in the family~\cite{dunn1961}. |
+| 8 | 136 | lora | \paragraph{Low-rank adaptation.} \Gls{lora} avoids both costs by freezing the pretrained weight matrices and learning a low-rank update beside each targeted one~\cite{lora}. |
+| 9 | 151 | qlora | The adapter is attached to a chosen subset of the projections named in Section~\ref{sec:bg-lm}; the choice of subset and rank are hyperparameters of the recipe. QLoRA extends the method by quantising the frozen base weights to four bits during training, keeping only the adapters and the optimiser state at higher precis |
+| 10 | 154 | qlora | The same work found that adapters on every linear projection, attention and feed-forward alike, were needed to match the accuracy of full fine-tuning, whereas adapters on the query and value projections alone, the original \gls{lora} default, fell short~\cite{qlora}. |
+| 11 | 159 | adamw | \paragraph{Optimisation and checkpoint selection.} The adapters are trained with a gradient-based optimiser; AdamW, which keeps a running estimate of each parameter's gradient mean and variance and applies weight decay separately from the adaptive step, is the usual choice~\cite{adamw}. |
+| 12 | 165 | transformers | The software stack used for this stage in the present work, \texttt{transformers}~\cite{transformers}, \texttt{peft}~\cite{peft} and PyTorch~\cite{pytorch}, is named in Chapter~\ref{chap:method} together with the recipe. |
+| 13 | 166 | peft | The software stack used for this stage in the present work, \texttt{transformers}~\cite{transformers}, \texttt{peft}~\cite{peft} and PyTorch~\cite{pytorch}, is named in Chapter~\ref{chap:method} together with the recipe. |
+| 14 | 166 | pytorch | The software stack used for this stage in the present work, \texttt{transformers}~\cite{transformers}, \texttt{peft}~\cite{peft} and PyTorch~\cite{pytorch}, is named in Chapter~\ref{chap:method} together with the recipe. |
+| 15 | 187 | awq | Weight-only quantisation, which leaves the activations at higher precision, is the common choice for inference at batch size one, because at that batch size it is the reading of the weights, not the arithmetic on them, that bounds the speed of decoding (Section~\ref{sec:bg-edge}), as a roofline analysis on a desktop \g |
+| 16 | 193 | gptq | The methods introduced for \glspl{llm} use a small calibration set of inputs to reduce the error. GPTQ quantises the weights of each layer one column at a time and adjusts the remaining columns to compensate for the rounding error already committed, using second-order information about the layer's inputs~\cite{gptq}. |
+| 17 | 195 | awq | AWQ observes that a small fraction of weight channels, those that meet large activations, account for most of the error, and scales them up before rounding so that their relative precision is preserved~\cite{awq}. |
+| 18 | 196 | spqr | SpQR isolates the outlier weights that resist low-bit representation and stores them separately at higher precision~\cite{spqr}. |
+| 19 | 207 | llamacpp | \paragraph{GGUF and the llama.cpp formats.} \gls{gguf} is the file format of the \texttt{llama.cpp} runtime (Section~\ref{sec:bg-edge}): one file holds every tensor of a model together with the metadata a runtime needs to serve it, including the tokeniser vocabulary and the chat template~\cite{llamacpp}. |
+| 20 | 212 | llamacpp | Q4\_K\_M belongs to the K-quant family, which stores weights in super-blocks of 256, each divided into eight sub-blocks of 32 whose scales are themselves stored at reduced precision, 4.5~bits per weight at the four-bit level~\cite{llamacpp}. |
+| 21 | 215 | llamacpp | A fixed rule raises the output projection, and a subset of the attention-value and feed-forward down-projection tensors chosen by layer position, to six bits~\cite{llamacpp}. |
+| 22 | 217 | llamacpp | A K-quant also requires each tensor's rows to divide into whole super-blocks: a tensor whose row length is not a multiple of 256 falls back to a legacy format, five bits in place of four and eight in place of six~\cite{llamacpp}. |
+| 23 | 223 | llamacpp | The runtime's documentation reports the cost of its formats as perplexity or Kullback--Leibler divergence against the unquantised model~\cite{llamacpp}. |
+| 24 | 231 | rpi5brief | The Raspberry~Pi~5 used in this work carries a quad-core Arm Cortex-A76 processor and LPDDR4X memory shared by all four cores~\cite{rpi5brief}, and no accelerator that a language-model runtime uses in practice. |
+| 25 | 241 | llamacpp | \paragraph{The llama.cpp runtime.} \texttt{llama.cpp} is a C/C++ inference engine for transformer language models, built on the \gls{ggml} tensor library, that runs on a \gls{cpu} without a \gls{gpu} driver or a Python interpreter~\cite{llamacpp}. |
+| 26 | 258 | awq | First, under that bound a smaller model or a lower-precision format decodes faster in proportion to the bytes it saves, which is the rationale for weight-only quantisation as a means to decode throughput~\cite{awq}; how closely a given processor approaches the bound, given the arithmetic its low-bit kernels add, is a m |
+| 27 | 269 | rpiosdocs | \paragraph{Thermal state and clock frequency.} A system-on-chip regulates its own temperature by lowering its clock frequency when a threshold is reached, a behaviour called \emph{thermal throttling}, and the board used here exposes a flag that records whether throttling occurred~\cite{rpiosdocs}. |
+| 28 | 315 | willard2023, koo2024 | Formulations that compile a regular expression or a context-free grammar into an automaton over the vocabulary make this check efficient, with correctness results for the language classes the construction covers~\cite{willard2023,koo2024}. |
+| 29 | 317 | llamacpp | Formulations that compile a regular expression or a context-free grammar into an automaton over the vocabulary make this check efficient, with correctness results for the language classes the construction covers~\cite{willard2023,koo2024}. \Gls{gbnf} is the \gls{bnf} dialect in which \texttt{llama.cpp} accepts a gramma |
+| 30 | 320 | llamacpp | The per-step cost depends on the grammar's structure, and the runtime's documentation warns that some rule shapes make sampling slow~\cite{llamacpp}. |
+| 31 | 344 | whisper | The \gls{stt} stage in this work is a model of the Whisper family, an encoder--decoder transformer trained on a large corpus of weakly supervised audio-transcript pairs~\cite{whisper}, served by a C/C++ port of the same kind as the language-model runtime~\cite{whispercpp}. |
+| 32 | 345 | whispercpp | The \gls{stt} stage in this work is a model of the Whisper family, an encoder--decoder transformer trained on a large corpus of weakly supervised audio-transcript pairs~\cite{whisper}, served by a C/C++ port of the same kind as the language-model runtime~\cite{whispercpp}. |
+| 33 | 353 | qin2021 | \paragraph{The semantic frame.} Spoken-language understanding treats the meaning of a task-oriented utterance as a \emph{semantic frame}: an \emph{intent}, drawn from a fixed set of actions the system can perform, and a set of \emph{slots}, each a key with a value extracted from the utterance~\cite{qin2021}. |
+| 34 | 357 | qin2021 | Intent detection is a classification problem over the utterance; slot filling is traditionally a sequence-labelling problem over its words, and the field's methods are classified by whether the two are modelled separately or jointly~\cite{qin2021}. |
+| 35 | 359 | massive | Benchmark corpora define the frame the same way: MASSIVE, for instance, labels a million utterances in 51 languages with one of 60 intents and spans over 55 slot types~\cite{massive}. |
+| 36 | 418 | mcnemar1947 | McNemar's test does so: it discards the items on which both systems agree and asks whether the \emph{discordant} items, those one system answers correctly and the other does not, split evenly between the two directions~\cite{mcnemar1947}. |
+| 37 | 420 | edwards1948 | With few discordant items the exact binomial form of the test is used; with many, a chi-square approximation with a continuity correction~\cite{edwards1948}. |
+| 38 | 425 | dunn1961 | And when several comparisons are made from the same data, the chance that at least one reaches a nominal significance level by accident rises with their number, which the Bonferroni correction controls by dividing the significance level by the number of comparisons in the family~\cite{dunn1961}. |
 
 | key | title | year | identifier |
 |---|---|---|---|
@@ -161,34 +161,34 @@ bits` present |
 | line | level | title | prose words |
 |---|---|---|---|
 | 1 | chapter | Background | 166 |
-| 16 | section | Language models and the transformer decoder | 1102 |
-| 118 | section | Fine-tuning and low-rank adaptation | 512 |
-| 166 | section | Post-training quantisation and the GGUF formats | 718 |
-| 222 | section | Inference on a CPU-only single-board computer | 827 |
-| 287 | section | Grammar-constrained decoding | 549 |
-| 332 | section | Spoken-language understanding: intents and slots | 408 |
-| 369 | section | Evaluation metrics and paired comparison | 788 |
-| 432 | section | Conclusion | 134 |
+| 16 | section | Language models and the transformer decoder | 1103 |
+| 121 | section | Fine-tuning and low-rank adaptation | 512 |
+| 169 | section | Post-training quantisation and the GGUF formats | 718 |
+| 225 | section | Inference on a CPU-only single-board computer | 828 |
+| 292 | section | Grammar-constrained decoding | 549 |
+| 337 | section | Spoken-language understanding: intents and slots | 408 |
+| 374 | section | Evaluation metrics and paired comparison | 788 |
+| 437 | section | Conclusion | 134 |
 
 ### Numbers quoted from papers or tool documentation (citation agent: find each)
 
 | line | claim | must be found in |
 |---|---|---|
-| 206 | blocks of 32 | llamacpp (primary source, not the candidate notes) |
-| 207 | super-blocks of 256 | llamacpp (primary source, not the candidate notes) |
-| 206 | 8.5~bits per weight in
+| 209 | blocks of 32 | llamacpp (primary source, not the candidate notes) |
+| 210 | super-blocks of 256 | llamacpp (primary source, not the candidate notes) |
+| 209 | 8.5~bits per weight in
 all | llamacpp (primary source, not the candidate notes) |
-| 209 | 4.5~bits per weight at the four-bit level | llamacpp (primary source, not the candidate notes) |
-| 211 | to six
+| 212 | 4.5~bits per weight at the four-bit level | llamacpp (primary source, not the candidate notes) |
+| 214 | to six
 bits | llamacpp (primary source, not the candidate notes) |
-| 213 | not a multiple of 256 | llamacpp (primary source, not the candidate notes) |
-| 214 | five bits in place of four and eight in place of six | llamacpp (primary source, not the candidate notes) |
-| 146 | to four bits during training | qlora (primary source, not the candidate notes) |
-| 148 | adapters
+| 216 | not a multiple of 256 | llamacpp (primary source, not the candidate notes) |
+| 217 | five bits in place of four and eight in place of six | llamacpp (primary source, not the candidate notes) |
+| 149 | to four bits during training | qlora (primary source, not the candidate notes) |
+| 151 | adapters
 on every linear projection | qlora (primary source, not the candidate notes) |
-| 353 | a million utterances in 51 | massive (primary source, not the candidate notes) |
-| 353 | one of 60 intents | massive (primary source, not the candidate notes) |
-| 354 | 55 slot types | massive (primary source, not the candidate notes) |
+| 358 | a million utterances in 51 | massive (primary source, not the candidate notes) |
+| 358 | one of 60 intents | massive (primary source, not the candidate notes) |
+| 359 | 55 slot types | massive (primary source, not the candidate notes) |
 
 ### Definitions to verify (argument agent: each must be textbook-correct and consistent with the operational definition in Chapter 4's tab:metrics)
 
@@ -220,12 +220,12 @@ on every linear projection | qlora (primary source, not the candidate notes) |
 | 111 | 494 | recomputed by a claim on this line |
 | 112 | 514 | recomputed by a claim on this line |
 | 113 | 1{,}236 | recomputed by a claim on this line |
-| 173 | 32 | recomputed by a claim on this line |
-| 173 | 144 | recomputed by a claim on this line |
-| 173 | 4.5 | recomputed by a claim on this line |
-| 174 | 512 | recomputed by a claim on this line |
-| 206 | 8.5 | quoted from a paper (see "Numbers quoted from papers") |
-| 207 | 256 | quoted from a paper (see "Numbers quoted from papers") |
-| 209 | 4.5 | quoted from a paper (see "Numbers quoted from papers") |
-| 213 | 256 | quoted from a paper (see "Numbers quoted from papers") |
-| 216 | 256 | measured: results/gate3_parity.json:24, results/gate3_parity.json:37 |
+| 176 | 32 | recomputed by a claim on this line |
+| 176 | 144 | recomputed by a claim on this line |
+| 176 | 4.5 | recomputed by a claim on this line |
+| 177 | 512 | recomputed by a claim on this line |
+| 209 | 8.5 | quoted from a paper (see "Numbers quoted from papers") |
+| 210 | 256 | quoted from a paper (see "Numbers quoted from papers") |
+| 212 | 4.5 | quoted from a paper (see "Numbers quoted from papers") |
+| 216 | 256 | quoted from a paper (see "Numbers quoted from papers") |
+| 219 | 256 | measured: results/gate3_parity.json:24, results/gate3_parity.json:37 |
