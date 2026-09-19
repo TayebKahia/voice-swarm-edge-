@@ -80,7 +80,11 @@ paper_numbers = [("twenty-five quantised language", "sbc2025"), ("three \\glspl{
                  ("under one\npercent", "spqr"), ("eight billion parameters and above", "kurtic2025,kurt2026"),
                  ("has 1.5~billion parameters", "kurtic2025"), ("one million\nutterances in 51 languages", "massive"),
                  ("60 intents and 55 slot types", "massive"), ("258 to 580~million", "massive"),
-                 ("85.1--86.1", "massive"), ("73.6--76.8", "massive"), ("63.7--66.6", "massive")]
+                 ("85.1--86.1", "massive"), ("73.6--76.8", "massive"), ("63.7--66.6", "massive"),
+                 ("Seven intents, 2{,}242--2{,}300", "snips2018"), ("Slot F1 93.0", "snips2018"),
+                 ("1.4~GHz, 1~GB", "snips2018"), ("in 60~ms", "snips2018"),
+                 ("18 scenarios and 46 actions", "slurp2020"), ("72{,}277 recordings of 17{,}181", "slurp2020"),
+                 ("90.2, 87.0 and 84.8", "slurp2020"), ("SLU-F1 70.8", "slurp2020")]
 rows = ["| line | claim | must be found in |", "|---|---|---|"]
 for anchor, key in paper_numbers:
     where = r.ch.find(anchor)

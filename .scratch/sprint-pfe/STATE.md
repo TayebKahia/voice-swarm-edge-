@@ -2161,6 +2161,8 @@ to the world; uncited "no SBC serves 8 B"; Park misread twice; a false citation-
 confirmed by the verifier and applied with its anchor-safe wording, plus the factual MINORs (27
 edits), then the style items in a second pass (one name for the throughput constraint, one metric
 list per This-work row with safe-failure added to Ch1's C3, no sentence over 40 words, shorter Gap
-lead-ins, two figurative phrases removed). Examiner gap still open: why Table 3.1 holds one SBC benchmark
+lead-ins, two figurative phrases removed). Later the same night: Table 3.4 gained SLURP and Snips
+rows (primary pages verified by an agent at the author's delegation; ATIS rejected -- no intents or
+slots in the 1990 paper), and Method names the repository (private, to be opened). Examiner gap still open: why Table 3.1 holds one SBC benchmark
 (a scoping sentence, or an author-verified second row). Script 0 FAIL, 2 WARN justified; self-test
 PASSED; clean build 0/0/0/0, 79 pages. Details: .scratch/thesis-review/issues/16-master-soa.md.

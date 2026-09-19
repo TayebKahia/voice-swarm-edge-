@@ -183,3 +183,26 @@ Table 3.1 is a claim about the field, the author's to make).
 
 Final state: master_ch2.py 0 FAIL, 2 WARN (justified above), 59 PASS; master_ch1.py 0 FAIL,
 3 WARN (pre-existing acronym warns, unchanged), 42 PASS; clean build 0/0/0/0, 79 pages.
+
+### 2026-09-25 -- Table 3.4 widened; repository named (author's decisions)
+
+The author delegated the verification of the SLU candidates (slu-candidates.md Tier 2) and asked
+for the suitable ones to be added. A verification agent opened the primary pages; its report is
+`.scratch/thesis-bibliography/slu-rows-verified.md` (every cell VERIFIED with quote and location,
+or NOT ESTABLISHED). Added: SLURP (EMNLP 2020, `slurp2020`) and Snips (arXiv 2018, `snips2018`),
+as rows of tab:soa-slu with one sentence each in the prose, the critical comparison re-read
+against the new rows, the Synthesis, G2 and G3 adjusted. Not added: ATIS (the 1990 paper defines
+no intents, slots or understanding metric, so its row would be three dashes and the later
+relabelling would need a further source). Snips caution recorded: it ran a classical parser on a
+Raspberry Pi 3 in 2018, so the prose no longer says this work is the only row with hardware; it
+says it is the only one running a generative language model on a board under a stated budget, with
+the output constrained at decoding time. Eight paper-number anchors added to master_ch2.py for
+the two rows. The smollm2 "and others" author list stays, by the author's choice.
+
+Method gains a "Code and data availability" paragraph naming the repository
+(https://github.com/TayebKahia/voice-swarm-edge-, trailing hyphen confirmed by the author),
+private at the time of writing and to be made public. This closes the first of issue 03's two
+standing items; the GGUF converter commit remains unpinned and stated as such.
+
+State: master_ch2.py 0 FAIL, 2 WARN (justified), 67 PASS; master_ch3.py 0 FAIL, 4 WARN
+(pre-existing); clean build 0/0/0/0, 80 pages.
