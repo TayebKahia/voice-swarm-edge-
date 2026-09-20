@@ -205,13 +205,13 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 150 | 163.0 | recomputed by a claim on this line |
 | 162 | 3{,}540 | measured: results/table19_grammar_ablation.md:10, results/table19_grammar_ablation.md:11 |
 | 163 | 0.17 | measured: results/requirements_summary.md:24, results/wake_training.md:22 |
-| 209 | 6.5 | measured: results/table33_iso_parameter.md:16, thesis/generated/table33_iso_parameter.tex:19 |
-| 216 | 0.0023 | measured: results/table33_iso_parameter.md:16, results/mcnemar.md:70 |
+| 209 | 6.5 | measured: results/table33_iso_parameter.md:14, thesis/generated/table33_iso_parameter.tex:19 |
+| 216 | 0.0023 | measured: results/table33_iso_parameter.md:14, results/mcnemar.md:70 |
 | 230 | 0.000 | measured: results/nfr18_false_command.md:11, results/nfr18_false_command.md:13 |
-| 241 | 1.5 | measured: results/table18_quantisation_delta.md:15, results/table18_quantisation_delta.md:19 |
-| 242 | 1.6 | measured: results/thermal_headroom.md:19, results/table17_model_comparison.md:17 |
-| 242 | 1.69 | measured: results/thermal_headroom.md:19, thesis/generated/thermal_headroom.tex:21 |
-| 243 | 1.42 | measured: results/thermal_headroom.md:19, thesis/generated/thermal_headroom.tex:21 |
+| 241 | 1.5 | measured: results/table18_quantisation_delta.md:8, results/table18_quantisation_delta.md:12 |
+| 242 | 1.6 | measured: results/thermal_headroom.md:16, results/table17_model_comparison.md:10 |
+| 242 | 1.69 | measured: results/thermal_headroom.md:16, thesis/generated/thermal_headroom.tex:21 |
+| 243 | 1.42 | measured: results/thermal_headroom.md:16, thesis/generated/thermal_headroom.tex:21 |
 | 248 | 200 | measured: results/exp2_latency_budget.md:5, results/table18_quantisation_delta.md:3 |
 | 250 | 200 | measured: results/exp2_latency_budget.md:5, results/table18_quantisation_delta.md:3 |
 | 253 | 1.1 | recomputed by a claim on this line |
@@ -222,7 +222,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 289 | 0.590 | recomputed by a claim on this line |
 | 289 | 10 | recomputed by a claim on this line |
 | 290 | 0.935 | recomputed by a claim on this line |
-| 297 | 23.1 | measured: results/table16_asr_speaker_sensitivity.md:26, results/table16_asr_speaker_sensitivity.md:30 |
-| 300 | 6.2 | measured: results/table16_asr_speaker_sensitivity.md:11, results/exp2_analysis.md:73 |
-| 300 | 49.5 | measured: results/table16_asr_speaker_sensitivity.md:25, thesis/generated/table16_asr_speaker_sensitivity.tex:26 |
+| 297 | 23.1 | measured: results/table16_asr_speaker_sensitivity.md:24, results/table16_asr_speaker_sensitivity.md:28 |
+| 300 | 6.2 | measured: results/table16_asr_speaker_sensitivity.md:9, results/exp2_analysis.md:73 |
+| 300 | 49.5 | measured: results/table16_asr_speaker_sensitivity.md:23, thesis/generated/table16_asr_speaker_sensitivity.tex:26 |
 | 325 | 3{,}540 | measured: results/table19_grammar_ablation.md:10, results/table19_grammar_ablation.md:11 |

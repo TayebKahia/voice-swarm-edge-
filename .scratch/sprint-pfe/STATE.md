@@ -2207,3 +2207,10 @@ which now targets the same two-part shape. Build clean, 79 pages (the author's c
 breaks added one page back after the layout pass; its sparse pages -- 14, 25, 35, 58 -- are the
 author's choice and were not touched). The Ingénieur restructure is to run in a new session from
 that prompt.
+
+## Master captions shortened (Sat 26 Sep)
+Author's request. Generated tables: qualifications moved from the caption to a note under the rule
+in eval/tables.py and eval/exp0.py, outputs regenerated (no cell changed; test_tables.py passes).
+Hand-written: Pareto figure legend only (interpretation is in the prose), the dash convention stated
+once in the state-of-the-art introduction, dataset caption trimmed. Longest now: figure 78 words;
+every table at or under 43. Build 0/0/0/0, 79 pages; scripts 0 FAIL.
