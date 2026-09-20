@@ -336,7 +336,8 @@ without invalidating the reason the reflex path is permitted to skip interpretat
 
 Command-level correctness is still not the whole of the safety problem, because a stream of
 correct commands can produce an unsafe trajectory. Five aircraft converging on assigned formation
-slots have crossing paths by construction. Separation between them is maintained by an artificial
+slots can come close to one another on the way. Separation between them is maintained by an
+artificial
 potential field, a soft mechanism that shapes the velocity field so that vehicles repel one
 another. With discrete timesteps and bounded actuation, a vehicle can still cross a separation
 boundary within a single integration step. Potential fields also have failure modes identified as

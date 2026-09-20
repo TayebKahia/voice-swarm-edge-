@@ -83,7 +83,8 @@ Table~\ref{tab:stage-budget} defines it. The parse-path span ends later, when th
 the board has applied the command, so it includes the bus and the state-machine check. Both fall
 within the validation row of Table~\ref{tab:latency-budget}, whose p95 is under 1~ms, and the
 measured span therefore exceeds the defined one by at most that row. The keyword offset is the end
-of speech as the capture tool recorded it from the signal's energy, not a forced alignment.
+of the spoken keyword as the capture tool detected it from the signal's energy, not a forced
+alignment.
 
 \input{generated/exp2_latency_budget}
 
@@ -92,7 +93,8 @@ the keyword offset is 545~ms idle and 547~ms loaded, against 150~ms. The two sub
 Table~\ref{tab:latency-budget} locate the miss. The spotter's delay and the quantisation of audio
 into 80~ms frames account for 540~ms at p95 in both conditions, while the board's computation and
 publication account for 6~ms idle and 18~ms loaded. That offset is the capture tool's energy-based
-end of speech, and on some takes the command was published before it (6 of 78 idle, earliest
+estimate of where the keyword ends, and on some takes the command was published before it (6 of 78
+idle, earliest
 $-$234.7~ms; 4 of 78 loaded, earliest $-$234.0~ms), so the anchor itself is imprecise. The 540~ms
 therefore contains the spotter's decision delay, the quantisation into 80~ms frames and the anchor's
 error, which this measurement does not separate, but the miss does not lie on the board. On the

@@ -353,8 +353,11 @@ re-centred on its own centroid: left centred on the apex, its mean position woul
 commanded centre while the circle's and the line's lie on it, and the wedge would be given a longer
 approach than the other two shapes for a reason unrelated to its geometry. Vehicles are assigned to
 slots by minimising the total squared distance between each vehicle and its slot. A greedy
-assignment, each vehicle to its nearest free slot, routinely produces crossing paths, which sends
-two vehicles through the same volume. The assignment is computed once, when the formation is
+assignment, each vehicle to its nearest free slot, can send two vehicles through the same place at
+the same time. The optimal assignment rules this out only for straight, synchronised motion between
+well-spaced positions (Section~\ref{sec:bg-swarm}), which the potential-field and flocking terms and
+the backends' speed limit disturb, so separation still rests on the potential field and the clamp.
+The assignment is computed once, when the formation is
 commanded, and then held. Recomputed at every tick, it would let two vehicles exchange targets
 whenever noise made the exchange marginally cheaper, and the pair would fly through each other.
 
@@ -371,7 +374,7 @@ $6.0\,(1/d - 1/d_0)/d^2$ for a separation $d$ and an influence distance $d_0 = 1
 beyond it. The third term is a global form of the flock-centring and velocity-matching rules of
 flocking~\cite{reynolds1987}, weighted at 0.15 towards the swarm's centroid and 0.25 towards its
 mean velocity. Reynolds' rules act on each vehicle's nearby flockmates; this term uses the whole
-swarm, the central-force form his model avoids, which is acceptable here because the formation
+swarm, the whole-swarm form his model replaced, which is acceptable here because the formation
 slots, not flocking, organise the swarm. Flocking keeps the group together on the approach, before
 the slots dominate; its collision-avoidance rule is replaced by the potential field. Once the vehicles are near their slots, the formation term determines the
 trajectory and flocking contributes little. Its terms are therefore weighted low rather than
