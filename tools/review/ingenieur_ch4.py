@@ -38,7 +38,7 @@ from swarm import control, env as swarm_env, simulate  # noqa: E402
 from swarm.fsm import TABLE_9_LEGALITY, FlightState, FlightStateMachine  # noqa: E402
 from swarm.pyflyt_env import PHYSICS_HZ, PyFlytEnv  # noqa: E402
 
-r = Review("ingenieur_ch4", "ingenieur", INGENIEUR[3], [*INGENIEUR[:3], *INGENIEUR[4:]])
+r = Review("ingenieur_ch4", "ingenieur", INGENIEUR[4], [*INGENIEUR[:4], *INGENIEUR[5:]])  # Implementation, Chapter 5 since 26 Sep
 r.common()
 text = r.ch.text
 params: set[float] = set()   # every value a claim recomputed: the promise check exempts them
@@ -76,7 +76,7 @@ def judge(check: str, anchor: str, evidence: bool, message: str) -> None:
 
 
 # -- Outline and labels ------------------------------------------------------------------------------
-outline_check(r, 3, {"the audio chain": r"audio chain", "the runtime": r"^runtime$", "the command bus": r"command bus",
+outline_check(r, 4, {"the audio chain": r"audio chain", "the runtime": r"^runtime$", "the command bus": r"command bus",
                      "the flight state machine": r"state machine", "the swarm controller": r"swarm controller",
                      "the simulation backends": r"simulation backends"})
 r.expect("label", "\\label{chap:implementation}" in text, "carries \\label{chap:implementation}")

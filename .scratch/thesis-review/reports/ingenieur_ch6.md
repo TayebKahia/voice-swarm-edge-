@@ -10,8 +10,8 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | PASS | check_tex |  | tools/check_tex.py: no problems beyond cross-chapter \ref (resolved below) |
 | PASS | ref |  | every \ref resolves within the document |
 | PASS | cite |  | 2 distinct keys cited, all resolved |
-| PASS | heading |  | chapter titles use one capitalisation style: [('ch1_introduction', 'Introduction'), ('ch2_state_of_the_art', 'State of the art'), ('ch3_architecture', 'Architecture and design'), ('ch4_implementation', 'Implementation'), ('ch5_validation', 'Validation'), ('ch6_conclusion', 'Demonstration, limitations and conclusion')] |
-| PASS | outline |  | prd.md §3.1 item 6: Demonstration, limitations, future work, conclusion. |
+| PASS | heading |  | chapter titles use one capitalisation style: [('ch1_introduction', 'Introduction'), ('ch2_background', 'Background'), ('ch3_state_of_the_art', 'State of the art'), ('ch3_architecture', 'Architecture and design'), ('ch4_implementation', 'Implementation'), ('ch5_validation', 'Validation'), ('ch6_conclusion', 'Demonstration, limitations and conclusion')] |
+| PASS | outline |  | prd.md §3.1 item 7: Demonstration, limitations, future work, conclusion. |
 | PASS | outline |  | prd topic `demonstration protocol` -> section `Demonstration protocol` |
 | PASS | outline |  | prd topic `limitations` -> section `Limitations` |
 | PASS | outline |  | prd topic `future work` -> section `Future work` |
@@ -109,7 +109,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 36 | section | Demonstration protocol | 1328 |
 | 147 | section | Limitations | 1480 |
 | 271 | section | Future work | 746 |
-| 340 | section | Conclusion | 921 |
+| 340 | section | Conclusion | 922 |
 
 ### Codes used in this chapter (self-containment agent: is each one needed, or would a descriptive name read better?)
 
@@ -141,7 +141,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 184 | 432 | recomputed by a claim on this line |
 | 184 | 144 | recomputed by a claim on this line |
 | 184 | 150 | recomputed by a claim on this line |
-| 185 | 96 | measured: results/table16_asr_speaker_sensitivity.md:11, results/table16_asr_speaker_sensitivity.md:23 |
+| 185 | 96 | measured: results/table16_asr_speaker_sensitivity.md:9, results/table16_asr_speaker_sensitivity.md:21 |
 | 192 | 2.0 | recomputed by a claim on this line |
 | 193 | 3.0 | recomputed by a claim on this line |
 | 194 | 3.0 | measured: results/exp2_latency_budget.md:4, results/exp2_latency_budget.md:14 |
@@ -190,10 +190,10 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 265 | 0.000 | recomputed by a claim on this line |
 | 265 | 0.168 | recomputed by a claim on this line |
 | 265 | 0.10 | recomputed by a claim on this line |
-| 266 | 0.10 | measured: results/table16_asr_speaker_sensitivity.md:30, results/requirements_summary.md:24 |
+| 266 | 0.10 | measured: results/table16_asr_speaker_sensitivity.md:28, results/requirements_summary.md:24 |
 | 291 | 2.0 | measured: results/nfr18_false_command.md:14, results/nfr18_false_command.md:15 |
 | 297 | 50 | measured: results/exp2_latency_budget.md:11, results/exp2_latency_budget.md:17 |
-| 297 | 24 | measured: results/table16_asr_speaker_sensitivity.md:14, results/table16_asr_speaker_sensitivity.md:15 |
+| 297 | 24 | measured: results/table16_asr_speaker_sensitivity.md:12, results/table16_asr_speaker_sensitivity.md:13 |
 | 303 | 3{,}122 | measured: results/exp2_latency_budget.md:18, results/requirements_summary.md:20 |
 | 303 | 2{,}500 | measured: results/exp2_latency_budget.md:18, results/exp2_latency_budget.md:19 |
 | 304 | 1{,}195 | measured: results/exp2_latency_budget.md:29, results/requirements_summary.md:22 |
@@ -212,7 +212,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 357 | 3{,}122 | measured: results/exp2_latency_budget.md:18, results/requirements_summary.md:20 |
 | 357 | 3{,}602 | measured: results/exp2_latency_budget.md:19, results/exp2_analysis.md:20 |
 | 357 | 622 | DECLARED ONLY: .scratch/sprint-pfe/STATE.md:1444, .scratch/sprint-pfe/STATE.md:1542 |
-| 357 | 25 | measured: results/table16_asr_speaker_sensitivity.md:16, results/table16_asr_speaker_sensitivity.md:17 |
+| 357 | 25 | measured: results/table16_asr_speaker_sensitivity.md:14, results/table16_asr_speaker_sensitivity.md:15 |
 | 358 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:21 |
 | 358 | 545 | measured: results/exp2_latency_budget.md:21, results/requirements_summary.md:19 |
 | 358 | 547 | measured: results/exp2_latency_budget.md:24, results/requirements_summary.md:19 |
@@ -232,31 +232,31 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 367 | 6 | measured: results/exp2_latency_budget.md:23, results/exp2_latency_budget.md:23 |
 | 367 | 18 | measured: results/exp2_latency_budget.md:26, results/table18_quantisation_delta.md:1 |
 | 368 | 540 | measured: results/exp2_latency_budget.md:22, results/exp2_latency_budget.md:25 |
-| 368 | 80 | measured: results/table16_asr_speaker_sensitivity.md:22, results/wake_training.md:7 |
+| 368 | 80 | measured: results/table16_asr_speaker_sensitivity.md:20, results/wake_training.md:7 |
 | 372 | 5 | measured: results/exp2_latency_budget.md:3, results/exp2_latency_budget.md:23 |
 | 376 | 0.690 | measured: results/requirements_summary.md:25, results/exp3_pi_analysis.md:70 |
 | 376 | 0.625 | measured: results/table20_end_to_end.md:15, results/mcnemar.md:45 |
 | 376 | 0.750 | measured: results/table20_end_to_end.md:15, results/wake_training.json:1594 |
 | 377 | 0.650 | measured: results/requirements_summary.md:26, results/exp3_pi_analysis.md:62 |
-| 377 | 15 | measured: results/table16_asr_speaker_sensitivity.md:4, results/table16_asr_speaker_sensitivity.md:16 |
+| 377 | 15 | measured: results/table16_asr_speaker_sensitivity.md:4, results/table16_asr_speaker_sensitivity.md:14 |
 | 377 | 0.590 | measured: results/requirements_summary.md:26, results/exp3_pi_analysis.md:73 |
 | 377 | 0.520 | measured: results/exp3_analysis.md:74, results/table20_end_to_end.md:18 |
-| 377 | 0.660 | measured: results/table18_quantisation_delta.md:19, results/table17_model_comparison.md:31 |
-| 377 | 10 | measured: results/table16_asr_speaker_sensitivity.md:11, results/table16_asr_speaker_sensitivity.md:13 |
+| 377 | 0.660 | measured: results/table18_quantisation_delta.md:12, results/table17_model_comparison.md:24 |
+| 377 | 10 | measured: results/table16_asr_speaker_sensitivity.md:9, results/table16_asr_speaker_sensitivity.md:11 |
 | 377 | 0.485 | measured: results/exp3_pi_analysis.md:74, results/exp3_pi_analysis.md:113 |
 | 377 | 5 | measured: results/exp2_latency_budget.md:3, results/exp2_latency_budget.md:23 |
-| 378 | 23.3 | measured: results/table16_asr_speaker_sensitivity.md:19, results/table20_end_to_end.md:15 |
+| 378 | 23.3 | measured: results/table16_asr_speaker_sensitivity.md:17, results/table20_end_to_end.md:15 |
 | 378 | 28.8 | measured: results/table20_end_to_end.md:18, thesis/generated/table20_end_to_end.tex:15 |
-| 378 | 10 | measured: results/table16_asr_speaker_sensitivity.md:11, results/table16_asr_speaker_sensitivity.md:13 |
+| 378 | 10 | measured: results/table16_asr_speaker_sensitivity.md:9, results/table16_asr_speaker_sensitivity.md:11 |
 | 378 | 36.0 | measured: results/exp3_pi_analysis.md:43, results/table20_end_to_end.md:19 |
 | 378 | 5 | measured: results/exp2_latency_budget.md:3, results/exp2_latency_budget.md:23 |
 | 378 | 0.80 | measured: results/requirements_summary.md:25, results/exp4_formation.md:11 |
 | 379 | 0.65 | measured: results/requirements_summary.md:26, results/exp3_pi_analysis.md:62 |
-| 379 | 10 | measured: results/table16_asr_speaker_sensitivity.md:11, results/table16_asr_speaker_sensitivity.md:13 |
-| 380 | 0.935 | measured: results/table18_quantisation_delta.md:17, results/table18_quantisation_delta.md:17 |
+| 379 | 10 | measured: results/table16_asr_speaker_sensitivity.md:9, results/table16_asr_speaker_sensitivity.md:11 |
+| 380 | 0.935 | measured: results/table18_quantisation_delta.md:10, results/table18_quantisation_delta.md:10 |
 | 381 | 0.245 | measured: results/table20_end_to_end.md:15, results/wake_training.json:354 |
 | 381 | 0.345 | measured: results/table20_end_to_end.md:18, thesis/generated/table20_end_to_end.tex:15 |
-| 381 | 10 | measured: results/table16_asr_speaker_sensitivity.md:11, results/table16_asr_speaker_sensitivity.md:13 |
+| 381 | 10 | measured: results/table16_asr_speaker_sensitivity.md:9, results/table16_asr_speaker_sensitivity.md:11 |
 | 381 | 0.450 | measured: results/table20_end_to_end.md:19, results/wake_training.json:1354 |
 | 381 | 5 | measured: results/exp2_latency_budget.md:3, results/exp2_latency_budget.md:23 |
 | 384 | 0.032 | measured: results/table20_end_to_end.md:15, results/wake_training.json:208 |
@@ -270,4 +270,4 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 392 | 0.85 | recomputed by a claim on this line |
 | 393 | 4.32 | **UNTRACED** |
 | 406 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:21 |
-| 412 | 0.935 | measured: results/table18_quantisation_delta.md:17, results/table18_quantisation_delta.md:17 |
+| 412 | 0.935 | measured: results/table18_quantisation_delta.md:10, results/table18_quantisation_delta.md:10 |

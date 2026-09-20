@@ -684,8 +684,11 @@ class Review:
 # numbers: index 3 (ch3_method) is Chapter 4, and so on. Index == prd.md §3.1 item - 1.
 MASTER = [f"master/{c}.tex" for c in ("ch1_introduction", "ch2_background", "ch3_state_of_the_art",
                                        "ch3_method", "ch4_results", "ch5_discussion", "ch6_conclusion")]
-INGENIEUR = [f"ingenieur/{c}.tex" for c in ("ch1_introduction", "ch2_state_of_the_art", "ch3_architecture",
-                                             "ch4_implementation", "ch5_validation", "ch6_conclusion")]
+# Ingénieur since 26 Sep: seven chapters in two parts, like the Master. File names keep their historical
+# numbers (ch3_architecture.tex is Chapter 4), so index i is Chapter i+1, not file ch{i+1}.
+INGENIEUR = [f"ingenieur/{c}.tex" for c in ("ch1_introduction", "ch2_background", "ch3_state_of_the_art",
+                                             "ch3_architecture", "ch4_implementation", "ch5_validation",
+                                             "ch6_conclusion")]
 
 
 def outline_check(r: Review, index: int, topics: dict[str, str]) -> None:

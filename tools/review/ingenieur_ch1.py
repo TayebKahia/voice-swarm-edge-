@@ -72,7 +72,7 @@ r.number("Twelve \\glspl{fr}", n_fr, "FR rows in prd.md Table 11")
 r.number("twenty-one \\glspl{nfr}", n_nfr, "NFR rows in prd.md Table 12 (9a and 9b included)")
 fr_shown = sum(bool(re.search(rf"^{re.escape(n)} &", text, flags=re.M)) for n in FR_NAMES)
 r.number("The remaining six of the twelve", n_fr - fr_shown, f"{n_fr} - {fr_shown} tabulated here")
-r.text_claim("claim", "Five chapters follow", len(main_order("ingenieur")) - 1 == 5,
+r.text_claim("claim", "The rest of this document has six chapters", len(main_order("ingenieur")) - 1 == 6,
              f"{len(main_order('ingenieur')) - 1} chapters after this one in main_ingenieur.tex")
 
 # -- Hardware and controller facts against prd.md -----------------------------------------------
@@ -83,7 +83,7 @@ for anchor, needle in (("8~GB of memory", "8 GB"), ("four Cortex-A76 cores", "Co
 
 # -- Structure paragraph: chapters in order, labels as the header comment fixes them ------------
 refs = list(dict.fromkeys(re.findall(r"Chapter~\\ref\{(chap:[^}]*)\}", text[text.find("Structure of this document"):])))
-want = ["chap:state-of-the-art", "chap:architecture", "chap:implementation", "chap:validation", "chap:demonstration"]
+want = ["chap:background", "chap:state-of-the-art", "chap:architecture", "chap:implementation", "chap:validation", "chap:demonstration"]
 r.expect("outline", refs == want, f"structure paragraph order {refs}")
 
 # -- The chapter's own promise: no result quoted --------------------------------------------------

@@ -32,7 +32,9 @@ MUTATIONS = {
     "ingenieur_ch3": ("ingenieur/ch3_architecture.tex", "more than 50~m from the origin", "more than 60~m from the origin", "claim"),
     "ingenieur_ch4": ("ingenieur/ch4_implementation.tex", "closer than 0.80~m and moves", "closer than 0.60~m and moves", "claim"),
     "ingenieur_ch5": ("ingenieur/ch5_validation.tex", "keyword offset is 545~ms idle", "keyword offset is 454~ms idle", "claim"),
-    "ingenieur_ch2": ("ingenieur/ch2_state_of_the_art.tex", "\\section{Swarm control}",
+    "ingenieur_bg": ("ingenieur/ch2_background.tex", "no processor speed shortens it.",
+                     "no processor speed shortens it, and 450~ms suffices here.", "foundations"),
+    "ingenieur_ch2": ("ingenieur/ch3_state_of_the_art.tex", "\\section{Swarm control}",
                       "\\section{Swarm control}\nGrammars constrain decoding~\\cite{geng2023}.", "table3"),
     "ingenieur_ch6": ("ingenieur/ch6_conclusion.tex", "End-to-end latency (3{,}122~ms", "End-to-end latency (2{,}122~ms", "claim"),
 }
@@ -42,6 +44,12 @@ EXTRA = [
     # Background is foundations only: a result slipped into it must FAIL, and a moved passage repeated in Method must FAIL.
     ("master_bg", "master/ch2_background.tex", "and is bounded by arithmetic.", "and is bounded by arithmetic, at 27.93~tok/s here.", "foundations"),
     ("master_bg", "master/ch3_method.tex", "\\paragraph{Adaptation method.}", "\\paragraph{Adaptation method.} LoRA works by freezing the pretrained weight matrices.", "write-once"),
+    # The Ingenieur Background names the Master's foundations once; an explanation elsewhere must FAIL.
+    ("ingenieur_bg", "ingenieur/ch2_background.tex", "\\paragraph{Operating point.}",
+     "\\paragraph{Operating point.} Low-rank adaptation freezes the pretrained weights.", "write-once"),
+    # The Ingenieur state of the art: Research gaps may not introduce a source the themes did not review.
+    ("ingenieur_ch2", "ingenieur/ch3_state_of_the_art.tex", "\\paragraph{Conceded prior art.} Three",
+     "\\paragraph{Conceded prior art.} Simulation is routine~\\cite{pyflyt}. Three", "positioning"),
     ("master_ch5", "master/ch5_discussion.tex", "Only three configurations", "Under Exp-7, only three configurations", "code"),
     ("master_ch1", "master/ch1_introduction.tex", "\\gls{json}", "\\acrfull{json}", "acronym"),
     ("ingenieur_ch3", "ingenieur/ch3_architecture.tex", "\\texttt{takeoff} & \\texttt{LANDED} &",

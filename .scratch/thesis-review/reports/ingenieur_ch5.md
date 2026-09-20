@@ -10,8 +10,8 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | PASS | check_tex |  | tools/check_tex.py: no problems beyond cross-chapter \ref (resolved below) |
 | PASS | ref |  | every \ref resolves within the document |
 | PASS | cite |  | 7 distinct keys cited, all resolved |
-| PASS | heading |  | chapter titles use one capitalisation style: [('ch1_introduction', 'Introduction'), ('ch2_state_of_the_art', 'State of the art'), ('ch3_architecture', 'Architecture and design'), ('ch4_implementation', 'Implementation'), ('ch5_validation', 'Validation'), ('ch6_conclusion', 'Demonstration, limitations and conclusion')] |
-| PASS | outline |  | prd.md §3.1 item 5: Validation: Exp-2, Exp-3, Exp-4 and the keyword-spotter evaluation, with the statistical analysis; a closing summary of every requirement against its measurement. |
+| PASS | heading |  | chapter titles use one capitalisation style: [('ch1_introduction', 'Introduction'), ('ch2_background', 'Background'), ('ch3_state_of_the_art', 'State of the art'), ('ch3_architecture', 'Architecture and design'), ('ch4_implementation', 'Implementation'), ('ch5_validation', 'Validation'), ('ch6_conclusion', 'Demonstration, limitations and conclusion')] |
+| PASS | outline |  | prd.md §3.1 item 6: Validation: Exp-2, Exp-3, Exp-4 and the keyword-spotter evaluation, with the statistical analysis; a closing summary of every requirement against its measurement. |
 | PASS | outline |  | prd topic `Exp-2 (the latency experiment)` -> section `Latency experiment` |
 | PASS | outline |  | prd topic `the keyword-spotter evaluation` -> section `Keyword-spotter evaluation` |
 | PASS | outline |  | prd topic `Exp-3 (the acoustic-robustness experiment)` -> section `Acoustic-robustness experiment` |
@@ -293,7 +293,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | kramer1956 | Extension of Multiple Range Tests to Group Means with Unequal Numbers of Replications | 1956 | doi:10.2307/3001469 |
 | cochran1950 | The Comparison of Percentages in Matched Samples | 1950 | doi:10.1093/biomet/37.3-4.256 |
 | mcnemar1947 | Note on the Sampling Error of the Difference Between Correlated Proportions or Percentages | 1947 | doi:10.1007/BF02295996 |
-| edwards1948 | Note on the ``Correction for Continuity'' in Any $\chi^2$ for Between-Group Differences | 1948 | doi:10.1007/BF02289261 |
+| edwards1948 | Note on the ``Correction for Continuity'' in Testing the Significance of the Difference be | 1948 | doi:10.1007/BF02289261 |
 | dunn1961 | Multiple Comparisons among Means | 1961 | doi:10.1080/01621459.1961.10482090 |
 
 ### Section map
@@ -335,13 +335,13 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 96 | 234.7 | recomputed by a claim on this line |
 | 96 | 234.0 | recomputed by a claim on this line |
 | 96 | 540 | recomputed by a claim on this line |
-| 97 | 80 | measured: results/table16_asr_speaker_sensitivity.md:22, results/wake_training.md:7 |
+| 97 | 80 | measured: results/table16_asr_speaker_sensitivity.md:20, results/wake_training.md:7 |
 | 101 | 2 | recomputed by a claim on this line |
 | 102 | 80 | recomputed by a claim on this line |
 | 102 | 14.2 | recomputed by a claim on this line |
 | 103 | 22.9 | recomputed by a claim on this line |
 | 103 | 45.5 | recomputed by a claim on this line |
-| 104 | 80 | measured: results/table16_asr_speaker_sensitivity.md:22, results/wake_training.md:7 |
+| 104 | 80 | measured: results/table16_asr_speaker_sensitivity.md:20, results/wake_training.md:7 |
 | 106 | 18 | measured: results/exp2_latency_budget.md:26, results/table18_quantisation_delta.md:1 |
 | 108 | 74.2 | recomputed by a claim on this line |
 | 109 | 1{,}265 | recomputed by a claim on this line |
@@ -387,12 +387,12 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 162 | 2.33 | recomputed by a claim on this line |
 | 163 | 0.06 | measured: results/requirements_summary.md:23, results/wake_training.md:24 |
 | 163 | 12.98 | measured: results/requirements_summary.md:23, results/wake_training.md:24 |
-| 164 | 0.10 | measured: results/table16_asr_speaker_sensitivity.md:30, results/requirements_summary.md:24 |
+| 164 | 0.10 | measured: results/table16_asr_speaker_sensitivity.md:28, results/requirements_summary.md:24 |
 | 166 | 0.168 | recomputed by a claim on this line |
 | 166 | 0.9977 | recomputed by a claim on this line |
 | 167 | 0.999 | recomputed by a claim on this line |
 | 176 | 0.999 | recomputed by a claim on this line |
-| 180 | 80 | measured: results/table16_asr_speaker_sensitivity.md:22, results/wake_training.md:7 |
+| 180 | 80 | measured: results/table16_asr_speaker_sensitivity.md:20, results/wake_training.md:7 |
 | 181 | 1.0 | measured: results/nfr18_false_command.md:10, results/nfr18_false_command.md:11 |
 | 192 | 0.88 | recomputed by a claim on this line |
 | 202 | 300 | recomputed by a claim on this line |
@@ -401,9 +401,9 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 204 | 0.999 | recomputed by a claim on this line |
 | 205 | 0.999 | measured: results/wake_training.md:5, results/wake_training.md:39 |
 | 206 | 95 | measured: results/exp2_latency_budget.md:7, results/exp2_latency_budget.md:11 |
-| 208 | 0.10 | measured: results/table16_asr_speaker_sensitivity.md:30, results/requirements_summary.md:24 |
-| 208 | 0.88 | measured: results/golden_error_intents.md:15, results/table17_model_comparison.md:29 |
-| 209 | 80 | measured: results/table16_asr_speaker_sensitivity.md:22, results/wake_training.md:7 |
+| 208 | 0.10 | measured: results/table16_asr_speaker_sensitivity.md:28, results/requirements_summary.md:24 |
+| 208 | 0.88 | measured: results/golden_error_intents.md:15, results/table17_model_comparison.md:22 |
+| 209 | 80 | measured: results/table16_asr_speaker_sensitivity.md:20, results/wake_training.md:7 |
 | 209 | 1.0 | measured: results/nfr18_false_command.md:10, results/nfr18_false_command.md:11 |
 | 214 | 0.027 | recomputed by a claim on this line |
 | 215 | 300 | recomputed by a claim on this line |
@@ -479,7 +479,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 293 | 6.03 | recomputed by a claim on this line |
 | 293 | 8.6 | recomputed by a claim on this line |
 | 294 | 5 | recomputed by a claim on this line |
-| 295 | 15 | measured: results/table16_asr_speaker_sensitivity.md:4, results/table16_asr_speaker_sensitivity.md:16 |
+| 295 | 15 | measured: results/table16_asr_speaker_sensitivity.md:4, results/table16_asr_speaker_sensitivity.md:14 |
 | 297 | 200 | measured: results/exp2_latency_budget.md:5, results/table18_quantisation_delta.md:3 |
 | 299 | 200 | recomputed by a claim on this line |
 | 302 | 61.05 | recomputed by a claim on this line |
@@ -488,7 +488,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 306 | 5 | recomputed by a claim on this line |
 | 306 | 15 | recomputed by a claim on this line |
 | 306 | 5 | recomputed by a claim on this line |
-| 307 | 10 | measured: results/table16_asr_speaker_sensitivity.md:11, results/table16_asr_speaker_sensitivity.md:13 |
+| 307 | 10 | measured: results/table16_asr_speaker_sensitivity.md:9, results/table16_asr_speaker_sensitivity.md:11 |
 | 307 | 5 | measured: results/exp2_latency_budget.md:3, results/exp2_latency_budget.md:23 |
 | 308 | 0.0051 | recomputed by a claim on this line |
 | 308 | 0.0046 | recomputed by a claim on this line |
@@ -497,7 +497,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 309 | 10 | recomputed by a claim on this line |
 | 309 | 0.0053 | recomputed by a claim on this line |
 | 309 | 0.0046 | recomputed by a claim on this line |
-| 310 | 10 | measured: results/table16_asr_speaker_sensitivity.md:11, results/table16_asr_speaker_sensitivity.md:13 |
+| 310 | 10 | measured: results/table16_asr_speaker_sensitivity.md:9, results/table16_asr_speaker_sensitivity.md:11 |
 | 313 | 0.032 | recomputed by a claim on this line |
 | 314 | 0.014 | recomputed by a claim on this line |
 | 314 | 0.039 | recomputed by a claim on this line |
@@ -520,7 +520,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 348 | 80.1 | recomputed by a claim on this line |
 | 349 | 5 | measured: results/exp2_latency_budget.md:3, results/exp2_latency_budget.md:23 |
 | 349 | 5 | measured: results/exp2_latency_budget.md:3, results/exp2_latency_budget.md:23 |
-| 350 | 10 | measured: results/table16_asr_speaker_sensitivity.md:11, results/table16_asr_speaker_sensitivity.md:13 |
+| 350 | 10 | measured: results/table16_asr_speaker_sensitivity.md:9, results/table16_asr_speaker_sensitivity.md:11 |
 | 362 | 150 | recomputed by a claim on this line |
 | 363 | 50 | recomputed by a claim on this line |
 | 364 | 0.5 | measured: results/nfr18_false_command.md:12, results/nfr18_false_command.md:13 |

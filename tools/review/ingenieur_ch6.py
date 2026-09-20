@@ -36,11 +36,11 @@ from lib import (  # noqa: E402
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from swarm.control import CLAMP_DISTANCE, COLLISION_DISTANCE  # noqa: E402
 
-r = Review("ingenieur_ch6", "ingenieur", INGENIEUR[5], INGENIEUR[:5])
+r = Review("ingenieur_ch6", "ingenieur", INGENIEUR[6], INGENIEUR[:6])  # closing chapter, Chapter 7 since 26 Sep
 r.common()
 text, prose = r.ch.text, r.ch.prose()
 
-outline_check(r, 5, {
+outline_check(r, 6, {
     "demonstration protocol": r"demonstration",
     "limitations": r"limitations",
     "future work": r"future work",
@@ -152,7 +152,7 @@ r.expect("claim", "never had to discard a late result" in text, "no late result 
 r.expect("claim", "neither class triggered on the other's" in text, "zero cross-triggers stated")
 
 # -- Number inheritance: no new measurement introduced in Ch6 ---------------------------------
-earlier = {round(n.value, n.places) for c in INGENIEUR[:5] for n in numbers(Chapter.load("ingenieur", c))}
+earlier = {round(n.value, n.places) for c in INGENIEUR[:6] for n in numbers(Chapter.load("ingenieur", c))}
 for p in Path(THESIS / "generated").glob("*.tex"):
     raw = p.read_text(encoding="utf-8")
     c_dummy = Chapter("ingenieur", p, raw, raw.splitlines())

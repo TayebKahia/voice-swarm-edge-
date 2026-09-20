@@ -35,11 +35,11 @@ from lib import INGENIEUR, REPO, RESULTS, THESIS, Review, csv_rows, md_table, ou
 import numpy as np  # noqa: E402
 from scipy import stats  # noqa: E402
 
-r = Review("ingenieur_ch5", "ingenieur", INGENIEUR[4], [*INGENIEUR[:4], *INGENIEUR[5:]])
+r = Review("ingenieur_ch5", "ingenieur", INGENIEUR[5], [*INGENIEUR[:5], *INGENIEUR[6:]])  # Validation, Chapter 6 since 26 Sep
 r.common()
 text = r.ch.text
 
-outline_check(r, 4, {"Exp-2 (the latency experiment)": r"latency experiment",
+outline_check(r, 5, {"Exp-2 (the latency experiment)": r"latency experiment",
                      "the keyword-spotter evaluation": r"keyword-spotter evaluation",
                      "Exp-3 (the acoustic-robustness experiment)": r"acoustic-robustness",
                      "Exp-4 (the formation-control experiment)": r"formation-control",

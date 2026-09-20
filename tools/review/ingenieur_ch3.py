@@ -27,7 +27,7 @@ from schema.schema import ENVELOPE, INTENTS, POS_MAX_NORM, SWARM_SIZE  # noqa: E
 from schema.validate import _clamp_pos  # noqa: E402
 from swarm.fsm import TABLE_9_LEGALITY, FlightState  # noqa: E402
 
-r = Review("ingenieur_ch3", "ingenieur", INGENIEUR[2], [*INGENIEUR[:2], *INGENIEUR[3:]])
+r = Review("ingenieur_ch3", "ingenieur", INGENIEUR[3], [*INGENIEUR[:3], *INGENIEUR[4:]])  # Architecture, Chapter 4 since 26 Sep
 r.common()
 text = r.ch.text
 
@@ -60,13 +60,13 @@ def plain(cell: str) -> str:
     return re.sub(r"\s+", " ", re.sub(r"\\textbf\{(.*)\}", r"\1", cell)).strip()
 
 
-outline_check(r, 2, {"the dual-path decomposition": r"dual-path", "the Branch A membership rule": r"membership",
+outline_check(r, 3, {"the dual-path decomposition": r"dual-path", "the Branch A membership rule": r"membership",
                      "the three validation layers": r"validation layers", "the latency budget": r"latency budget",
-                     "resource allocation": r"resource allocation"})
-extra = [t for lvl, t, _ in r.ch.sections() if lvl == "section"
-         and not re.search(r"dual-path|membership|validation layers|latency budget|resource allocation", t, flags=re.I)]
-r.expect("outline", not extra, "no sections beyond prd.md §3.1 item 3" if not extra
-         else f"sections beyond prd.md §3.1 item 3: {extra}", warn=True)
+                     "resource allocation": r"resource allocation", "the speech components": r"speech components"})
+extra = [t for lvl, t, _ in r.ch.sections() if lvl == "section" and not re.search(
+    r"dual-path|membership|validation layers|latency budget|resource allocation|speech components", t, flags=re.I)]
+r.expect("outline", not extra, "no sections beyond prd.md §3.1 item 4" if not extra
+         else f"sections beyond prd.md §3.1 item 4: {extra}", warn=True)
 r.expect("label", "\\label{chap:architecture}" in text, "carries \\label{chap:architecture}")
 
 # -- Labels: tab:latency-budget belongs to the generated table Ch5 inputs ----------------------------

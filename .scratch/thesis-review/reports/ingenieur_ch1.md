@@ -11,7 +11,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | PASS | check_tex |  | tools/check_tex.py: no problems beyond cross-chapter \ref (resolved below) |
 | PASS | ref |  | every \ref resolves within the document |
 | PASS | cite |  | 10 distinct keys cited, all resolved |
-| PASS | heading |  | chapter titles use one capitalisation style: [('ch1_introduction', 'Introduction'), ('ch2_state_of_the_art', 'State of the art'), ('ch3_architecture', 'Architecture and design'), ('ch4_implementation', 'Implementation'), ('ch5_validation', 'Validation'), ('ch6_conclusion', 'Demonstration, limitations and conclusion')] |
+| PASS | heading |  | chapter titles use one capitalisation style: [('ch1_introduction', 'Introduction'), ('ch2_background', 'Background'), ('ch3_state_of_the_art', 'State of the art'), ('ch3_architecture', 'Architecture and design'), ('ch4_implementation', 'Implementation'), ('ch5_validation', 'Validation'), ('ch6_conclusion', 'Demonstration, limitations and conclusion')] |
 | PASS | outline |  | prd.md §3.1 item 1: Introduction: operational context, engineering requirements, the safety problem, objectives, contribution, structure of the document. |
 | PASS | outline |  | prd topic `operational context` -> section `Operational context` |
 | PASS | outline |  | prd topic `engineering requirements` -> section `Engineering requirements` |
@@ -22,7 +22,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | PASS | label |  | carries \label{chap:introduction} |
 | PASS | contribution |  | the contribution matches prd.md §2.1 C4 verbatim |
 | PASS | contribution |  | C1-C3 not claimed here (Master's, Table 2) |
-| PASS | outline |  | structure paragraph order ['chap:state-of-the-art', 'chap:architecture', 'chap:implementation', 'chap:validation', 'chap:demonstration'] |
+| PASS | outline |  | structure paragraph order ['chap:background', 'chap:state-of-the-art', 'chap:architecture', 'chap:implementation', 'chap:validation', 'chap:demonstration'] |
 | PASS | promise |  | no measured result quoted (the chapter promises targets only) |
 | PASS | table3 |  | Lim et al. named as the baseline (Ch2 owns the positioning) |
 | PASS | numbers |  | 0 significant number(s) found in no source file -- see the number trace |
@@ -68,7 +68,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | PASS | rq | 389 | RQ2 matches prd.md §2 verbatim |
 | PASS | rq | 395 | RQ3 matches prd.md §2 verbatim |
 | PASS | claim | 422 | prd.md §2.1 lists 4 contributions |
-| PASS | claim | 459 | 5 chapters after this one in main_ingenieur.tex |
+| PASS | claim | 459 | 6 chapters after this one in main_ingenieur.tex |
 
 ### Citation sheet (for the citation agent: open each identifier, judge SUPPORTS / PARTIAL / DOES NOT SUPPORT per row)
 
@@ -83,7 +83,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 7 | 284 | avizienis2004 | The dependability taxonomy calls a system that fails only in such specified modes fail-controlled, and one whose failures are, to an acceptable extent, all minor, fail-safe~\cite{avizienis2004}. |
 | 8 | 343 | koren1991 | Potential fields also have failure modes identified as inherent to the method~\cite{koren1991}: trap situations at local minima where attractive and repulsive terms cancel, oscillation near obstacles and in narrow passages, and no passage between closely spaced obstacles. |
 | 9 | 438 | relays2s, mira | Running a fast path beside a slower one is a familiar pattern: arrangements that pair a fast responsive path with a slower, higher-quality one, with a gate or a cancellable commitment between them, recur in real-time spoken dialogue~\cite{relays2s,mira}. |
-| 10 | 461 | lim2025 | Chapter~\ref{chap:state-of-the-art} reviews voice-controlled \gls{uav} systems, positions this work against its baseline, the natural-language drone-control agent of Lim et al.~\cite{lim2025}, by design point rather than by measurement, reviews the swarm-control model and the offline speech components the system builds |
+| 10 | 466 | lim2025 | It states three research gaps, concedes the published systems that cover parts of this work, and positions it against its baseline, the natural-language drone-control agent of Lim et al.~\cite{lim2025}, by design point rather than by measurement. |
 
 | key | title | year | identifier |
 |---|---|---|---|
@@ -108,7 +108,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 246 | section | The safety problem | 1791 |
 | 379 | section | Objectives | 414 |
 | 420 | section | Contribution | 359 |
-| 457 | section | Structure of this document | 304 |
+| 457 | section | Structure of this document | 384 |
 
 ### Codes used in this chapter (self-containment agent: is each one needed, or would a descriptive name read better?)
 
@@ -158,24 +158,24 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 47 | 8 | measured: results/nfr18_false_command.md:11, results/nfr18_false_command.md:13 |
 | 78 | 50 | measured: results/exp2_latency_budget.md:11, results/exp2_latency_budget.md:17 |
 | 134 | 1.3 | measured: results/wire_format_tokens.md:16, results/mcnemar.csv:17 |
-| 134 | 0.7 | measured: results/table18_quantisation_delta.md:19, results/table33_iso_parameter.md:12 |
+| 134 | 0.7 | measured: results/table18_quantisation_delta.md:12, results/table33_iso_parameter.md:10 |
 | 139 | 2 | measured: results/nfr18_false_command.md:12, results/nfr18_false_command.md:13 |
 | 140 | 50 | measured: results/exp2_latency_budget.md:11, results/exp2_latency_budget.md:17 |
-| 178 | 1.35 | measured: results/table17_model_comparison.md:17 /1000, results/table17_model_comparison.md:18 /1000 |
+| 178 | 1.35 | measured: results/table17_model_comparison.md:10 /1000, results/table17_model_comparison.md:11 /1000 |
 | 178 | 0.65 | measured: results/requirements_summary.md:26, results/exp3_pi_analysis.md:62 |
 | 182 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:21 |
 | 183 | 2{,}500 | measured: results/exp2_latency_budget.md:18, results/exp2_latency_budget.md:19 |
 | 185 | 300 | measured: results/exp2_latency_budget.md:29, results/table16_asr_speaker_sensitivity.md:3 |
-| 187 | 0.10 | measured: results/table16_asr_speaker_sensitivity.md:30, results/requirements_summary.md:24 |
+| 187 | 0.10 | measured: results/table16_asr_speaker_sensitivity.md:28, results/requirements_summary.md:24 |
 | 188 | 0.80 | measured: results/requirements_summary.md:25, results/exp4_formation.md:11 |
-| 189 | 10 | measured: results/table16_asr_speaker_sensitivity.md:11, results/table16_asr_speaker_sensitivity.md:13 |
+| 189 | 10 | measured: results/table16_asr_speaker_sensitivity.md:9, results/table16_asr_speaker_sensitivity.md:11 |
 | 189 | 0.65 | measured: results/requirements_summary.md:26, results/exp3_pi_analysis.md:62 |
 | 191 | 0.5 | measured: results/nfr18_false_command.md:12, results/nfr18_false_command.md:13 |
 | 191 | 0.85 | measured: results/requirements_summary.md:28, results/exp4_formation.md:13 |
-| 192 | 100 | measured: results/thermal_headroom.md:13, results/thermal_headroom.md:15 |
+| 192 | 100 | measured: results/thermal_headroom.md:10, results/thermal_headroom.md:12 |
 | 204 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:21 |
 | 205 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:21 |
-| 219 | 10 | measured: results/table16_asr_speaker_sensitivity.md:11, results/table16_asr_speaker_sensitivity.md:13 |
+| 219 | 10 | measured: results/table16_asr_speaker_sensitivity.md:9, results/table16_asr_speaker_sensitivity.md:11 |
 | 220 | 5 | measured: results/exp2_latency_budget.md:3, results/exp2_latency_budget.md:23 |
 | 300 | 2{,}500 | measured: results/exp2_latency_budget.md:18, results/exp2_latency_budget.md:19 |
 | 309 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:21 |
