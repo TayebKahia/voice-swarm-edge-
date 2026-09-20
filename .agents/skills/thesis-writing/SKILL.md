@@ -197,8 +197,8 @@ author says the supervisor asked for it.
 3. **State of the art** (`ch3_state_of_the_art.tex`, `\label{chap:state-of-the-art}`) — four
    themes, each its own section in the Master's four-part form (taxonomy sentence, ONE comparison
    table along fixed axes whose last row is "This work", a `\paragraph{Critical comparison.}` that
-   reads the table column by column and compares the studies *to each other*): voice- and
-   language-controlled UAV systems (Lim et al., `\cite{lim2025}`, is a row); fast-path and
+   reads the table column by column and compares the studies *to each other*): language interfaces
+   to robots, voice-controlled UAV systems among them (Lim et al., `\cite{lim2025}`, is a row); fast-path and
    dual-path architectures; swarm control; offline speech components. Close with one **Research
    gaps** section: Synthesis, then numbered gaps G1--G3, each closed by a part of C4 or an
    architecture decision of Chapter 4. The studies are compared to this work only there, which is
