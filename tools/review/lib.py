@@ -680,7 +680,7 @@ class Review:
         return 1 if count["FAIL"] else 0
 
 
-# Seven chapters in three parts since 25 Sep (prd.md §3.1). File names keep their historical
+# Seven chapters in two parts since 26 Sep (three on 25 Sep; prd.md §3.1). File names keep their historical
 # numbers: index 3 (ch3_method) is Chapter 4, and so on. Index == prd.md §3.1 item - 1.
 MASTER = [f"master/{c}.tex" for c in ("ch1_introduction", "ch2_background", "ch3_state_of_the_art",
                                        "ch3_method", "ch4_results", "ch5_discussion", "ch6_conclusion")]

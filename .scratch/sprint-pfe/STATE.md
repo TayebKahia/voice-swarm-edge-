@@ -2196,3 +2196,14 @@ pages, still 0/0/0/0, all scripts unchanged. The shared preamble change also reb
 clean at 77 pages (was 78); its own layout pass is not done (sparse pages at 22-23, 33, 43, 48
 noted, not examined). Remaining Master layout: nothing found; part pages and chapter ends are by
 design.
+
+## Master parts: three -> two (Sat 26 Sep, morning)
+Prof. Khaldi asked for the Background and the State of the art to share one part. Master now:
+Introduction | Part I "Background and state of the art" (Ch2, Ch3) | Part II "Contribution" (Ch4-6)
+| Conclusion. Chapter numbers, files and contents unchanged. Updated: main_master.tex, Ch1's
+structure paragraph, prd.md §3.1 and Table 2 (dated rationale), SKILL.md's Master blueprint, a
+lib.py comment, and the saved Ingénieur prompt (.scratch/sprint-pfe/ingenieur-restructure-prompt.md),
+which now targets the same two-part shape. Build clean, 79 pages (the author's c4a11f1 hard page
+breaks added one page back after the layout pass; its sparse pages -- 14, 25, 35, 58 -- are the
+author's choice and were not touched). The Ingénieur restructure is to run in a new session from
+that prompt.

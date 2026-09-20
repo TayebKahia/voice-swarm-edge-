@@ -109,7 +109,7 @@ chapter counts, topics, and closing structure differ. Never add, merge, or reord
 what `prd.md` §3.1 specifies; if a chapter seems to need splitting or combining, change `prd.md`
 first, then the scaffold, then the prose — never the prose alone.
 
-### Mémoire de Master — seven chapters in three parts (`thesis/master/`)
+### Mémoire de Master — seven chapters in two parts (`thesis/master/`)
 
 Restructured on 25 Sep 2026 after the supervisor meeting (prd.md §3.1 records why). Introduction
 and Conclusion sit outside the parts, as in the two ESI reference theses under
@@ -119,9 +119,9 @@ and Conclusion sit outside the parts, as in the two ESI reference theses under
 
 1. **Introduction** — the edge-inference problem; why structured output matters for robot
    control; formal Research Questions in a quote block; Contributions (C1–C3) as bullets; a short
-   document-outline paragraph naming the three parts.
+   document-outline paragraph naming the two parts.
 
-*Part I — Background.*
+*Part I — Background and state of the art.* (one part for both, at the supervisor's request of 26 Sep)
 
 2. **Background** (`ch2_background.tex`, `\label{chap:background}`) — foundations only, at the level
    a jury member outside the sub-field needs: the transformer decoder and its seven projections
@@ -135,7 +135,6 @@ and Conclusion sit outside the parts, as in the two ESI reference theses under
    `tab:metrics`. The Q8\_0/Q4\_K\_M construction, the GBNF mechanism and the LoRA/QLoRA
    description were moved here from the old Chapters 2 and 3 and must not be re-stated there.
 
-*Part II — State of the art.*
 
 3. **State of the art** (`ch3_state_of_the_art.tex`, `\label{chap:state-of-the-art}`) — the
    chapter the supervisor grades first. Four themes, each its own section: edge LLM inference and
@@ -151,7 +150,7 @@ and Conclusion sit outside the parts, as in the two ESI reference theses under
    The bibliography stays a closed set; a table row needing a source not in
    `thesis/references.bib` is a `\TODO{}` for the author, not an invented entry.
 
-*Part III — Contribution.*
+*Part II — Contribution.*
 
 4. **Method** — command schema and grammar (formal spec), label-first dataset construction, the
    LoRA recipe, the quantisation procedure, the evaluation protocol and definitions of record.
