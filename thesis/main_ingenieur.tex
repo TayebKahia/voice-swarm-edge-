@@ -11,9 +11,8 @@
 %  XeLaTeX (or LuaLaTeX) is REQUIRED -- polyglossia + an Arabic font render the
 %  Arabic abstract. pdflatex will NOT build this.
 %
-%  Chapter structure is prd.md 3.1 verbatim (six chapters). Chapters not yet
-%  written are listed commented-out below with their prd.md titles, so the
-%  outline stays visible and the document still compiles.
+%  Chapter structure is prd.md 3.1 verbatim: seven chapters in two parts, as
+%  the Master has had since 26 Sep (restructured 26 Sep; prd.md 3.1 says why).
 % =============================================================================
 \documentclass[openany,12pt,oneside]{extreport}
 
@@ -56,21 +55,26 @@
 \clearpage
 
 % -- Chapters (prd.md 3.1) ----------------------------------------------------
+%  Introduction and the closing chapter sit outside the parts, as in the Master
+%  and the ESI PFE report template. File names keep their historical numbers:
+%  ch2_background is Chapter 2, ch3_state_of_the_art Chapter 3, then each of
+%  ch3..ch6 is one higher than its file name. Never hardcode a chapter number.
 \input{ingenieur/ch1_introduction}
-\input{ingenieur/ch2_state_of_the_art}
-\input{ingenieur/ch3_architecture}     % Architecture and design: dual-path
-%                                      % decomposition, reflex-path membership
-%                                      % rule, three validation layers, latency
-%                                      % budget, resource allocation
-\input{ingenieur/ch4_implementation}   % Implementation: audio chain, runtime,
-%                                      % command bus, state machine, swarm
-%                                      % controller, both simulation backends
-\input{ingenieur/ch5_validation}       % Validation: the three experiments and
-%                                      % the keyword-spotter evaluation, with
-%                                      % the statistical analysis
-\input{ingenieur/ch6_conclusion}       % Demonstration, limitations, future work,
-%                                      % conclusion (ONE chapter -- do not split
-%                                      % it the way the Master's was)
+
+\part{Background and state of the art}
+\input{ingenieur/ch2_background}         % Chapter 2
+\input{ingenieur/ch3_state_of_the_art}   % Chapter 3
+
+\part{Contribution}
+\input{ingenieur/ch3_architecture}       % Chapter 4: dual-path decomposition,
+%                                        % membership rule, validation layers,
+%                                        % latency budget, resource allocation
+\input{ingenieur/ch4_implementation}     % Chapter 5
+\input{ingenieur/ch5_validation}         % Chapter 6
+
+\input{ingenieur/ch6_conclusion}         % Chapter 7, outside the parts:
+%                                        % demonstration, limitations, future
+%                                        % work, conclusion (ONE chapter)
 
 % -- Bibliography -------------------------------------------------------------
 %  The contents entry and its hyperref anchor go BEFORE \printbibliography (issue 17): placed

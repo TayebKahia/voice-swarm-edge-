@@ -169,21 +169,57 @@ and Conclusion sit outside the parts, as in the two ESI reference theses under
    caveats belong here — a limitation surfacing while drafting this chapter belongs in Chapter 6,
    not here.
 
-### Mémoire d'Ingénieur — six chapters (`thesis/ingenieur/`)
+### Mémoire d'Ingénieur — seven chapters in two parts (`thesis/ingenieur/`)
 
-1. **Introduction** — operational context, engineering requirements, the safety problem.
-2. **State of the art** — voice-controlled UAV systems; positioning against Lim et al.
-   (`\cite{lim2025}`); swarm control; offline speech components; the gap this document fills.
-   This is the *only* document that discusses voice-UAV literature (Table 3).
-3. **Architecture and design** — the dual-path decomposition, the Branch A membership rule, the
-   three validation layers, the latency budget, resource allocation.
-4. **Implementation** — audio chain, runtime, command bus, state machine, swarm controller, both
-   simulation backends.
-5. **Validation** — Exp-2, Exp-3, Exp-4 with the statistical analysis. Pipeline-latency metrics,
-   including time-to-first-token / preemption latency (spike S7), belong here — not in the
-   Master's Results chapter.
-6. **Demonstration, limitations, future work, conclusion** — one combined chapter, per `prd.md`
-   §3.1. Do not split this the way the Master's was split unless `prd.md` changes again.
+Restructured on 26 Sep 2026 to the Master's two-part shape (prd.md §3.1 records why). Introduction
+and the closing chapter sit outside the parts. File names keep their historical numbers:
+`ch2_background.tex` is Chapter 2, `ch3_state_of_the_art.tex` Chapter 3, `ch3_architecture.tex`
+Chapter 4, `ch4_implementation.tex` Chapter 5, `ch5_validation.tex` Chapter 6,
+`ch6_conclusion.tex` Chapter 7. Never hardcode a chapter number in prose; `\ref{chap:...}`. The
+ESI PFE template's "Project Management" chapter is deliberately absent; do not add it unless the
+author says the supervisor asked for it.
+
+1. **Introduction** — operational context, engineering requirements, the safety problem,
+   objectives, the contribution (C4), a structure paragraph naming the two parts.
+
+*Part I — Background and state of the art.*
+
+2. **Background** (`ch2_background.tex`, `\label{chap:background}`) — foundations only, for a jury
+   member outside the sub-field: speech pipelines (keyword spotting, voice activity detection,
+   speech recognition, endpointing); multirotor UAVs and the flight controller; swarm
+   control (formations, separation, potential fields as an idea, software-in-the-loop simulation);
+   real-time systems and latency budgets (percentiles, preemption, budget allocation); the
+   single-board computer; state machines and command buses. **No results, no design decisions, no
+   positioning**: what *this* system chose belongs in Chapters 4--5, what the *literature* measured
+   in Chapter 3. Anything the Master's Background defines (language models, LoRA, quantisation,
+   GBNF, intent/slot SLU, metrics) gets ONE sentence and a cross-reference to the Mémoire
+   de Master; never re-explain it (write-once, prd.md Table 3).
+3. **State of the art** (`ch3_state_of_the_art.tex`, `\label{chap:state-of-the-art}`) — four
+   themes, each its own section in the Master's four-part form (taxonomy sentence, ONE comparison
+   table along fixed axes whose last row is "This work", a `\paragraph{Critical comparison.}` that
+   reads the table column by column and compares the studies *to each other*): voice- and
+   language-controlled UAV systems (Lim et al., `\cite{lim2025}`, is a row); fast-path and
+   dual-path architectures; swarm control; offline speech components. Close with one **Research
+   gaps** section: Synthesis, then numbered gaps G1--G3, each closed by a part of C4 or an
+   architecture decision of Chapter 4. The studies are compared to this work only there, which is
+   why the positioning against Lim et al. lives there and not in its own section. A dash in a table
+   marks what the review did not establish from the source; a wrong cell is a BLOCKER. This is the
+   *only* document that discusses voice-UAV literature (Table 3); constrained decoding and
+   quantisation literature get one sentence and a cross-reference to the Master.
+
+*Part II — Contribution.*
+
+4. **Architecture and design** (`ch3_architecture.tex`) — the dual-path decomposition, the Branch A
+   membership rule, the three validation layers, the latency budget, resource allocation.
+5. **Implementation** (`ch4_implementation.tex`) — audio chain, runtime, command bus, state
+   machine, swarm controller, both simulation backends.
+6. **Validation** (`ch5_validation.tex`) — Exp-2, Exp-3, Exp-4 and the keyword-spotter evaluation
+   with the statistical analysis. Pipeline-latency metrics, including time-to-first-token /
+   preemption latency, belong here — not in the Master's Results chapter.
+
+7. **Demonstration, limitations, future work, conclusion** (`ch6_conclusion.tex`,
+   `\label{chap:demonstration}`) — one combined chapter, per `prd.md` §3.1. Do not split this the
+   way the Master's was split unless `prd.md` changes again.
 
 ---
 
@@ -217,13 +253,10 @@ and Conclusion sit outside the parts, as in the two ESI reference theses under
      clears that thesis's intermediates, `-C` also removes its PDF. Always name the thesis:
      `.latexmkrc` refuses a run that names none or both, since either would share one folder.
    - **A new chapter needs the filename its `main_*.tex` already names,** then uncommenting that
-     line. Still to write: `master/ch6_conclusion`; `ingenieur/`: `ch3_architecture`,
-     `ch4_implementation`, `ch5_validation`, `ch6_conclusion`. Give each a `\label{chap:...}`
-     matching what other chapters already `\ref`. Outstanding labels: Master `chap:conclusion`;
-     Ingénieur `chap:architecture`, `chap:implementation`, `chap:validation`, and
-     `chap:demonstration` -- the Ingénieur's combined Ch6 is `\ref`'d as `chap:demonstration`
-     (three times in its Ch1), not `chap:conclusion`. To refresh this list, diff
-     `grep -ho '\\ref{chap:[^}]*}'` against `grep -ho '\\label{chap:[^}]*}'` per document.
+     line, and a `\label{chap:...}` matching what other chapters already `\ref`. The Ingénieur's
+     combined closing chapter is `\ref`'d as `chap:demonstration`, not `chap:conclusion`. To find
+     outstanding labels, diff `grep -ho '\\ref{chap:[^}]*}'` against
+     `grep -ho '\\label{chap:[^}]*}'` per document.
    - **When referring to the companion document,** always say "the \emph{Mémoire d'Ingénieur}" (or
      "\emph{Mémoire de Master}") — never a paraphrase like "the companion report." Naming a
      specific chapter number across documents is fragile: the two are compiled separately with no
