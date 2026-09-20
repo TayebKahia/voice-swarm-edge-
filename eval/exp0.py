@@ -185,10 +185,8 @@ def _table(
         f"### Table 16: Speech-recognition word error rate by accent bucket, {condition}",
         "",
         f"Word error rate of `whisper.cpp` `tiny.en`, {condition}, on {clips} validated Common Voice",
-        f"English clips bucketed by the corpus's accent metadata ({len(buckets)} buckets), and on the",
-        "author's recorded drone commands. Intervals are 95% bootstrap intervals over utterances;",
-        "a bucket under ten utterances reports `n too small`. S / D / I: substitutions, deletions",
-        "and insertions. Source: `results/exp0.csv`.",
+        f"English clips in {len(buckets)} accent buckets from the corpus's metadata, and on the",
+        "author's recorded drone commands.",
         "",
         "| Accent bucket | n | words | WER % | 95% CI | S / D / I |",
         "| :--- | ---: | ---: | ---: | :--- | :--- |",
@@ -219,6 +217,12 @@ def _table(
             "",
             prompted_gap,
         ]
+    lines += [
+        "",
+        "Intervals are 95% bootstrap intervals over utterances; a bucket under ten utterances",
+        "reports `n too small`. S / D / I: substitutions, deletions and insertions. Source:",
+        "`results/exp0.csv`.",
+    ]
     return "\n".join(lines) + "\n"
 
 

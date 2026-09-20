@@ -184,17 +184,10 @@ def table17(surface_b: list[dict]) -> str:
     lines = [
         "### Table 17: Model comparison on the deployed surface",
         "",
-        "The deployed surface: each quantised artefact decoded by `llama.cpp` under the [GBNF](#acr:gbnf)",
-        "grammar. Accuracy columns are fractions, scored on the workstation from",
-        "`results/surface_b.csv` over 240 (`test_synth`), 200 (`test_golden`) and 150 (`test_ood`)",
-        "items; Safe-fail is the share of errors that resolve to `unknown` or `hover`.",
-        f"Latency, throughput and memory are from `results/{EXP1.name}`, measured on the Raspberry",
-        f"Pi 5 with an active cooler fitted ({_cooled_run_state()};",
-        "the uncooled run is in [Table](#tab:thermal-headroom)). p50/p95 is the language-model prefill",
-        "and decode stages combined, 60 trials per configuration; Mem. is the peak resident",
-        "set of the language-model process, in GiB. Only Q4_K_M was timed on the board, so a Q8_0 row carries `--`",
-        "there. Slot-F1 is `--` on `test_ood`, whose 150 references carry no slots; what the models",
-        "emit there is reported by the false-command rate, [Table](#tab:false-command).",
+        "Each quantised artefact decoded by `llama.cpp` under the [GBNF](#acr:gbnf) grammar.",
+        "Accuracy columns are fractions over 240 (`test_synth`), 200 (`test_golden`) and 150",
+        "(`test_ood`) items, scored on the workstation; latency, throughput and memory were",
+        "measured on the cooled Raspberry Pi 5, 60 trials per configuration.",
         "",
         "| Model | Quant | Split | Intent-F1 | Slot-F1 | [EM](#acr:em) | Safe-fail | Schema-valid | p50/p95 (ms) | tok/s | Mem. (GiB) |",
         "| :--- | :--- | :--- | ---: | ---: | ---: | ---: | ---: | :--- | ---: | :--- |",
@@ -223,6 +216,18 @@ def table17(surface_b: list[dict]) -> str:
             f"| {_frac(_f(row['safe_failure_rate']))} "
             f"| {_frac(_f(row['schema_validity']))} | {latency} | {tok_s} | {rss_str} |"
         )
+    # The qualifications a reader needs to read the cells sit under the rule as a note, so the
+    # caption stays short (author's request, 26 Sep); the caption keeps what the table shows and n.
+    lines += [
+        "",
+        "Safe-fail is the share of errors that resolve to `unknown` or `hover`; p50/p95 is the",
+        "language-model prefill and decode stages combined; Mem. is the peak resident set of the",
+        "language-model process, in GiB. Only Q4_K_M was timed on the board, so a Q8_0 row carries",
+        "`--` there; Slot-F1 is `--` on `test_ood`, whose 150 references carry no slots, and",
+        "[Table](#tab:false-command) reports what the models emit there. Active cooler fitted,",
+        f"{_cooled_run_state()}; the uncooled run is in [Table](#tab:thermal-headroom). Sources:",
+        f"`results/surface_b.csv` (accuracy) and `results/{EXP1.name}` (timing).",
+    ]
     return "\n".join(lines) + "\n"
 
 
@@ -236,15 +241,7 @@ def table18(surface_a: list[dict], surface_b: list[dict], split: str) -> str:
         f"### Table 18: Quantisation delta --- exact match on `{split}`",
         "",
         f"Exact match on `{split}` ({n_items} items) of each fine-tuned fp16 model on the reference",
-        "surface (base model plus adapter under `transformers` on a Kaggle T4, no grammar)",
-        "against its quantised artefacts on the deployed surface (`llama.cpp` under the [GBNF](#acr:gbnf)",
-        "grammar, scored on the workstation). Numeric format, runtime, grammar and decoding",
-        "settings change together, and for Llama-3.2-1B the checkpoint as well, so the delta",
-        "measures the *deployment pipeline*, not weight precision alone. b and c are the items",
-        "only the reference and only the deployed artefact get right; p is the exact McNemar",
-        f"test, an exploratory family of {len(tests)} corrected to \u03b1 = "
-        f"{'--' if alpha is None else f'{alpha:.4f}'}; no pair reaches it. Sources:",
-        "`train/kaggle_out/surface_a.csv`, `results/surface_b.csv`, `results/mcnemar.csv`.",
+        "surface against its quantised artefacts on the deployed surface.",
         "",
         "| Model | Quant | Reference [EM](#acr:em) | Deployed [EM](#acr:em) | Delta (pp) | b / c | p |",
         "| :--- | :--- | ---: | ---: | ---: | ---: | ---: |",
@@ -259,6 +256,18 @@ def table18(surface_a: list[dict], surface_b: list[dict], split: str) -> str:
         p_value = "--" if test is None else f"{float(test['p_value']):.2f}"
         lines.append(f"| {row['model']} | {row['quant']} | {_frac(before)} | {_frac(after)} "
                      f"| {delta} | {counts} | {p_value} |")
+    lines += [
+        "",
+        "Reference surface: base model plus adapter under `transformers` on a Kaggle T4, no",
+        "grammar. Deployed surface: `llama.cpp` under the [GBNF](#acr:gbnf) grammar, scored on the",
+        "workstation. Numeric format, runtime, grammar and decoding settings change together, and",
+        "for Llama-3.2-1B the checkpoint as well, so the delta measures the *deployment pipeline*,",
+        "not weight precision alone. b and c are the items only the reference and only the",
+        "deployed artefact get right; p is the exact McNemar test, an exploratory family of",
+        f"{len(tests)} corrected to \u03b1 = {'--' if alpha is None else f'{alpha:.4f}'}; no pair",
+        "reaches it. Sources:",
+        "`train/kaggle_out/surface_a.csv`, `results/surface_b.csv`, `results/mcnemar.csv`.",
+    ]
     return "\n".join(lines) + "\n"
 
 
@@ -642,11 +651,9 @@ def table33(surface_a: list[dict]) -> str:
     lines = [
         "### Table 33: Exact match of the four fine-tuned models on the reference surface",
         "",
-        "Exact match of each fine-tuned fp16 model on the reference surface (base model plus",
-        "adapter under `transformers` on a Kaggle T4, greedy, no grammar), by split: 240",
-        "(`test_synth`), 200 (`test_golden`) and 150 (`test_ood`) items. Source:",
-        "`train/kaggle_out/surface_a.csv`; parameter counts and families from",
-        "`train/configs/*.yaml`. Ordered by parameter count.",
+        "Exact match of each fine-tuned fp16 model on the reference surface, by split: 240",
+        "(`test_synth`), 200 (`test_golden`) and 150 (`test_ood`) items; ordered by parameter",
+        "count.",
         "",
         "| Model | Params | Family | " + " | ".join(SPLITS) + " |",
         "| :--- | ---: | :--- | " + " | ".join("---:" for _ in SPLITS) + " |",
@@ -710,6 +717,12 @@ def table33(surface_a: list[dict]) -> str:
             "**under an identical three-epoch budget**, not one of capability.",
         ]
     lines += [""]
+    lines += [
+        "Reference surface: base model plus adapter under `transformers` on a Kaggle T4, greedy,",
+        "no grammar. Source: `train/kaggle_out/surface_a.csv`; parameter counts and families from",
+        "`train/configs/*.yaml`.",
+        "",
+    ]
     return "\n".join(lines)
 
 
@@ -724,12 +737,9 @@ def thermal_headroom(cooled: dict[str, dict], throttled: dict[str, dict]) -> str
     lines = [
         "### Thermal headroom: cooled and uncooled benchmark runs",
         "",
-        "The multi-model benchmark's run of record (`results/exp1_cooled.csv`, active cooler",
-        "fitted) against an earlier run without active cooling (`results/exp1.csv`). The protocol",
-        "is otherwise identical: same board, same three Q4_K_M artefacts, 60 scored trials per",
-        "configuration after a ten-minute warm-up, cores 1\u20133 pinned, `performance` governor,",
-        "swap disabled. Accuracy is not repeated: it is scored on the workstation and does not",
-        "depend on the board's clock.",
+        "The multi-model benchmark's run of record with the active cooler fitted",
+        "(`results/exp1_cooled.csv`) against an earlier run without it (`results/exp1.csv`), on",
+        "the same board with the same three Q4_K_M artefacts and protocol.",
         "",
         "| Config | Run | Throttled trials | Max temp. (\u00b0C) | Decode p95 (ms) | [SLM](#acr:slm) total p95 (ms) | tok/s |",
         "| :--- | :--- | :--- | ---: | ---: | ---: | ---: |",
@@ -757,7 +767,9 @@ def thermal_headroom(cooled: dict[str, dict], throttled: dict[str, dict]) -> str
         worst = max(shares)
         verdicts.append(f"{run}, worst configuration {100 * worst:.0f}% "
                         f"({'meets' if worst <= 0.05 else 'misses'})")
-    notes = []
+    notes = ["Protocol: 60 scored trials per configuration after a ten-minute warm-up, cores "
+             "1\u20133 pinned, `performance` governor, swap disabled. Accuracy is not repeated: "
+             "it is scored on the workstation and does not depend on the board's clock."]
     if verdicts:
         notes.append("**Throttling** (share of trials with a non-zero throttle flag, budget 5%): "
                      + "; ".join(verdicts) + ".")

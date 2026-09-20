@@ -1,11 +1,8 @@
 ### Thermal headroom: cooled and uncooled benchmark runs
 
-The multi-model benchmark's run of record (`results/exp1_cooled.csv`, active cooler
-fitted) against an earlier run without active cooling (`results/exp1.csv`). The protocol
-is otherwise identical: same board, same three Q4_K_M artefacts, 60 scored trials per
-configuration after a ten-minute warm-up, cores 1–3 pinned, `performance` governor,
-swap disabled. Accuracy is not repeated: it is scored on the workstation and does not
-depend on the board's clock.
+The multi-model benchmark's run of record with the active cooler fitted
+(`results/exp1_cooled.csv`) against an earlier run without it (`results/exp1.csv`), on
+the same board with the same three Q4_K_M artefacts and protocol.
 
 | Config | Run | Throttled trials | Max temp. (°C) | Decode p95 (ms) | [SLM](#acr:slm) total p95 (ms) | tok/s |
 | :--- | :--- | :--- | ---: | ---: | ---: | ---: |
@@ -16,5 +13,5 @@ depend on the board's clock.
 | smollm2-360m-instruct Q4_K_M | cooled | 0% | 74.1 | 785.5 | 894.2 | 40.63 |
 | smollm2-360m-instruct Q4_K_M | uncooled | 100% | 91.1 | 1338.9 | 1610.2 | 24.11 |
 
-**Throttling** (share of trials with a non-zero throttle flag, budget 5%): cooled, worst configuration 0% (meets); uncooled, worst configuration 100% (misses). **Cooled relative to uncooled**: llama-3.2-1b-instruct Q4_K_M, decode p95 −25.1% and throughput +35.2%; qwen2.5-0.5b-instruct Q4_K_M, decode p95 −32.0% and throughput +54.1%; smollm2-360m-instruct Q4_K_M, decode p95 −41.3% and throughput +68.5%. The uncooled run was capped at 1.5 GHz against the 2.4 GHz the `performance` governor sets, a clock ratio of at least 1.6×; the clock actually held was not logged. The largest throughput gain, 1.69× on smollm2-360m-instruct, is accounted for by the clock alone only if the throttled clock fell below 1.42 GHz.
+Protocol: 60 scored trials per configuration after a ten-minute warm-up, cores 1–3 pinned, `performance` governor, swap disabled. Accuracy is not repeated: it is scored on the workstation and does not depend on the board's clock. **Throttling** (share of trials with a non-zero throttle flag, budget 5%): cooled, worst configuration 0% (meets); uncooled, worst configuration 100% (misses). **Cooled relative to uncooled**: llama-3.2-1b-instruct Q4_K_M, decode p95 −25.1% and throughput +35.2%; qwen2.5-0.5b-instruct Q4_K_M, decode p95 −32.0% and throughput +54.1%; smollm2-360m-instruct Q4_K_M, decode p95 −41.3% and throughput +68.5%. The uncooled run was capped at 1.5 GHz against the 2.4 GHz the `performance` governor sets, a clock ratio of at least 1.6×; the clock actually held was not logged. The largest throughput gain, 1.69× on smollm2-360m-instruct, is accounted for by the clock alone only if the throttled clock fell below 1.42 GHz.
 

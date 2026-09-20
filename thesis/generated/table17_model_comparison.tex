@@ -3,7 +3,7 @@
   \centering
   \scriptsize
   \setlength{\tabcolsep}{2pt}
-  \caption[Model comparison on the deployed surface]{The deployed surface: each quantised artefact decoded by \texttt{llama.cpp} under the \acrshort{gbnf} grammar. Accuracy columns are fractions, scored on the workstation from \texttt{results/surface\_b.csv} over 240 (\texttt{test\_synth}), 200 (\texttt{test\_golden}) and 150 (\texttt{test\_ood}) items; Safe-fail is the share of errors that resolve to \texttt{unknown} or \texttt{hover}. Latency, throughput and memory are from \texttt{results/exp1\_cooled.csv}, measured on the Raspberry Pi 5 with an active cooler fitted (0 of 180 scored trials throttled, 67.5--74.1 \textdegree{}C; the uncooled run is in Table~\ref{tab:thermal-headroom}). p50/p95 is the language-model prefill and decode stages combined, 60 trials per configuration; Mem. is the peak resident set of the language-model process, in GiB. Only Q4\_K\_M was timed on the board, so a Q8\_0 row carries \texttt{--} there. Slot-F1 is \texttt{--} on \texttt{test\_ood}, whose 150 references carry no slots; what the models emit there is reported by the false-command rate, Table~\ref{tab:false-command}.}
+  \caption[Model comparison on the deployed surface]{Each quantised artefact decoded by \texttt{llama.cpp} under the \acrshort{gbnf} grammar. Accuracy columns are fractions over 240 (\texttt{test\_synth}), 200 (\texttt{test\_golden}) and 150 (\texttt{test\_ood}) items, scored on the workstation; latency, throughput and memory were measured on the cooled Raspberry Pi 5, 60 trials per configuration.}
   \label{tab:model-comparison}
   \begin{tabular}{lllrrrrrlrl}
     \toprule
@@ -29,4 +29,6 @@
     SmolLM2-360M & Q8\_0 & \texttt{test\_ood} & 0.755 & -- & 0.607 & 0.068 & 1.000 & -- & -- & -- \\
     \bottomrule
   \end{tabular}
+  \par\medskip
+  \begin{minipage}{\textwidth}\footnotesize\raggedright Safe-fail is the share of errors that resolve to \texttt{unknown} or \texttt{hover}; p50/p95 is the language-model prefill and decode stages combined; Mem. is the peak resident set of the language-model process, in GiB. Only Q4\_K\_M was timed on the board, so a Q8\_0 row carries \texttt{--} there; Slot-F1 is \texttt{--} on \texttt{test\_ood}, whose 150 references carry no slots, and Table~\ref{tab:false-command} reports what the models emit there. Active cooler fitted, 0 of 180 scored trials throttled, 67.5--74.1 \textdegree{}C; the uncooled run is in Table~\ref{tab:thermal-headroom}. Sources: \texttt{results/surface\_b.csv} (accuracy) and \texttt{results/exp1\_cooled.csv} (timing).\end{minipage}
 \end{table}

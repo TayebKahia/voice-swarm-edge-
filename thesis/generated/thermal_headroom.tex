@@ -3,7 +3,7 @@
   \centering
   \scriptsize
   \setlength{\tabcolsep}{3pt}
-  \caption[Thermal headroom: cooled and uncooled benchmark runs]{The multi-model benchmark's run of record (\texttt{results/exp1\_cooled.csv}, active cooler fitted) against an earlier run without active cooling (\texttt{results/exp1.csv}). The protocol is otherwise identical: same board, same three Q4\_K\_M artefacts, 60 scored trials per configuration after a ten-minute warm-up, cores 1--3 pinned, \texttt{performance} governor, swap disabled. Accuracy is not repeated: it is scored on the workstation and does not depend on the board's clock.}
+  \caption[Thermal headroom: cooled and uncooled benchmark runs]{The multi-model benchmark's run of record with the active cooler fitted (\texttt{results/exp1\_cooled.csv}) against an earlier run without it (\texttt{results/exp1.csv}), on the same board with the same three Q4\_K\_M artefacts and protocol.}
   \label{tab:thermal-headroom}
   \begin{tabular}{lllrrrr}
     \toprule
@@ -18,5 +18,5 @@
     \bottomrule
   \end{tabular}
   \par\medskip
-  \begin{minipage}{\textwidth}\footnotesize\raggedright \textbf{Throttling} (share of trials with a non-zero throttle flag, budget 5\%): cooled, worst configuration 0\% (meets); uncooled, worst configuration 100\% (misses). \textbf{Cooled relative to uncooled}: Llama-3.2-1B Q4\_K\_M, decode p95 $-$25.1\% and throughput +35.2\%; Qwen2.5-0.5B Q4\_K\_M, decode p95 $-$32.0\% and throughput +54.1\%; SmolLM2-360M Q4\_K\_M, decode p95 $-$41.3\% and throughput +68.5\%. The uncooled run was capped at 1.5 GHz against the 2.4 GHz the \texttt{performance} governor sets, a clock ratio of at least 1.6$\times$; the clock actually held was not logged. The largest throughput gain, 1.69$\times$ on SmolLM2-360M, is accounted for by the clock alone only if the throttled clock fell below 1.42 GHz.\end{minipage}
+  \begin{minipage}{\textwidth}\footnotesize\raggedright Protocol: 60 scored trials per configuration after a ten-minute warm-up, cores 1--3 pinned, \texttt{performance} governor, swap disabled. Accuracy is not repeated: it is scored on the workstation and does not depend on the board's clock. \textbf{Throttling} (share of trials with a non-zero throttle flag, budget 5\%): cooled, worst configuration 0\% (meets); uncooled, worst configuration 100\% (misses). \textbf{Cooled relative to uncooled}: Llama-3.2-1B Q4\_K\_M, decode p95 $-$25.1\% and throughput +35.2\%; Qwen2.5-0.5B Q4\_K\_M, decode p95 $-$32.0\% and throughput +54.1\%; SmolLM2-360M Q4\_K\_M, decode p95 $-$41.3\% and throughput +68.5\%. The uncooled run was capped at 1.5 GHz against the 2.4 GHz the \texttt{performance} governor sets, a clock ratio of at least 1.6$\times$; the clock actually held was not logged. The largest throughput gain, 1.69$\times$ on SmolLM2-360M, is accounted for by the clock alone only if the throttled clock fell below 1.42 GHz.\end{minipage}
 \end{table}

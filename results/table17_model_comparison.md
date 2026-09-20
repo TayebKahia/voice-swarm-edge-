@@ -1,16 +1,9 @@
 ### Table 17: Model comparison on the deployed surface
 
-The deployed surface: each quantised artefact decoded by `llama.cpp` under the [GBNF](#acr:gbnf)
-grammar. Accuracy columns are fractions, scored on the workstation from
-`results/surface_b.csv` over 240 (`test_synth`), 200 (`test_golden`) and 150 (`test_ood`)
-items; Safe-fail is the share of errors that resolve to `unknown` or `hover`.
-Latency, throughput and memory are from `results/exp1_cooled.csv`, measured on the Raspberry
-Pi 5 with an active cooler fitted (0 of 180 scored trials throttled, 67.5–74.1 °C;
-the uncooled run is in [Table](#tab:thermal-headroom)). p50/p95 is the language-model prefill
-and decode stages combined, 60 trials per configuration; Mem. is the peak resident
-set of the language-model process, in GiB. Only Q4_K_M was timed on the board, so a Q8_0 row carries `--`
-there. Slot-F1 is `--` on `test_ood`, whose 150 references carry no slots; what the models
-emit there is reported by the false-command rate, [Table](#tab:false-command).
+Each quantised artefact decoded by `llama.cpp` under the [GBNF](#acr:gbnf) grammar.
+Accuracy columns are fractions over 240 (`test_synth`), 200 (`test_golden`) and 150
+(`test_ood`) items, scored on the workstation; latency, throughput and memory were
+measured on the cooled Raspberry Pi 5, 60 trials per configuration.
 
 | Model | Quant | Split | Intent-F1 | Slot-F1 | [EM](#acr:em) | Safe-fail | Schema-valid | p50/p95 (ms) | tok/s | Mem. (GiB) |
 | :--- | :--- | :--- | ---: | ---: | ---: | ---: | ---: | :--- | ---: | :--- |
@@ -32,3 +25,11 @@ emit there is reported by the false-command rate, [Table](#tab:false-command).
 | smollm2-360m-instruct | Q8_0 | `test_synth` | 0.980 | 0.886 | 0.812 | 0.000 | 1.000 | -- | -- | -- |
 | smollm2-360m-instruct | Q8_0 | `test_golden` | 0.972 | 0.866 | 0.790 | 0.000 | 1.000 | -- | -- | -- |
 | smollm2-360m-instruct | Q8_0 | `test_ood` | 0.755 | -- | 0.607 | 0.068 | 1.000 | -- | -- | -- |
+
+Safe-fail is the share of errors that resolve to `unknown` or `hover`; p50/p95 is the
+language-model prefill and decode stages combined; Mem. is the peak resident set of the
+language-model process, in GiB. Only Q4_K_M was timed on the board, so a Q8_0 row carries
+`--` there; Slot-F1 is `--` on `test_ood`, whose 150 references carry no slots, and
+[Table](#tab:false-command) reports what the models emit there. Active cooler fitted,
+0 of 180 scored trials throttled, 67.5–74.1 °C; the uncooled run is in [Table](#tab:thermal-headroom). Sources:
+`results/surface_b.csv` (accuracy) and `results/exp1_cooled.csv` (timing).

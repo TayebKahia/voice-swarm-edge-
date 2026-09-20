@@ -3,7 +3,7 @@
   \centering
   \footnotesize
   \setlength{\tabcolsep}{5pt}
-  \caption[Quantisation delta --- exact match on \texttt{test\_golden}]{Exact match on \texttt{test\_golden} (200 items) of each fine-tuned fp16 model on the reference surface (base model plus adapter under \texttt{transformers} on a Kaggle T4, no grammar) against its quantised artefacts on the deployed surface (\texttt{llama.cpp} under the \acrshort{gbnf} grammar, scored on the workstation). Numeric format, runtime, grammar and decoding settings change together, and for Llama-3.2-1B the checkpoint as well, so the delta measures the \emph{deployment pipeline}, not weight precision alone. b and c are the items only the reference and only the deployed artefact get right; p is the exact McNemar test, an exploratory family of 6 corrected to $\alpha$ = 0.0083; no pair reaches it. Sources: \texttt{train/kaggle\_out/surface\_a.csv}, \texttt{results/surface\_b.csv}, \texttt{results/mcnemar.csv}.}
+  \caption[Quantisation delta --- exact match on \texttt{test\_golden}]{Exact match on \texttt{test\_golden} (200 items) of each fine-tuned fp16 model on the reference surface against its quantised artefacts on the deployed surface.}
   \label{tab:quantisation-delta}
   \begin{tabular}{llrrrrr}
     \toprule
@@ -17,4 +17,6 @@
     SmolLM2-360M & Q8\_0 & 0.775 & 0.790 & +1.5 & 0 / 3 & 0.25 \\
     \bottomrule
   \end{tabular}
+  \par\medskip
+  \begin{minipage}{\textwidth}\footnotesize\raggedright Reference surface: base model plus adapter under \texttt{transformers} on a Kaggle T4, no grammar. Deployed surface: \texttt{llama.cpp} under the \acrshort{gbnf} grammar, scored on the workstation. Numeric format, runtime, grammar and decoding settings change together, and for Llama-3.2-1B the checkpoint as well, so the delta measures the \emph{deployment pipeline}, not weight precision alone. b and c are the items only the reference and only the deployed artefact get right; p is the exact McNemar test, an exploratory family of 6 corrected to $\alpha$ = 0.0083; no pair reaches it. Sources: \texttt{train/kaggle\_out/surface\_a.csv}, \texttt{results/surface\_b.csv}, \texttt{results/mcnemar.csv}.\end{minipage}
 \end{table}

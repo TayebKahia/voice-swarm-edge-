@@ -1,10 +1,8 @@
 ### Table 16: Speech-recognition word error rate by accent bucket, unprompted decoder
 
 Word error rate of `whisper.cpp` `tiny.en`, unprompted decoder, on 300 validated Common Voice
-English clips bucketed by the corpus's accent metadata (15 buckets), and on the
-author's recorded drone commands. Intervals are 95% bootstrap intervals over utterances;
-a bucket under ten utterances reports `n too small`. S / D / I: substitutions, deletions
-and insertions. Source: `results/exp0.csv`.
+English clips in 15 accent buckets from the corpus's metadata, and on the
+author's recorded drone commands.
 
 | Accent bucket | n | words | WER % | 95% CI | S / D / I |
 | :--- | ---: | ---: | ---: | :--- | :--- |
@@ -28,3 +26,7 @@ and insertions. Source: `results/exp0.csv`.
 The author's WER is lower than 7 of the 15 accent buckets (53rd percentile of the bucket distribution). The comparison is indicative, not matched: the author read drone commands and the Common Voice speakers read general English, so the two figures are over different text. No pass/fail is claimed: the speaker-sensitivity requirement asks for a position, not a threshold.
 
 Domain prompt on Common Voice: 22.4% → 22.9% (+0.5 pp). Domain prompt on the author's commands: 23.1% → 23.0% (−0.1 pp). The deployed configuration keeps the prompt; this table positions the author without it, because only the unprompted pass puts both speakers under the same condition.
+
+Intervals are 95% bootstrap intervals over utterances; a bucket under ten utterances
+reports `n too small`. S / D / I: substitutions, deletions and insertions. Source:
+`results/exp0.csv`.
