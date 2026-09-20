@@ -1,7 +1,7 @@
 % Introduction --- section structure from prd.md 3.1, ownership from Table 3.
 %
 % Label convention for this document, fixed here so later chapters match:
-%   chap:introduction  chap:state-of-the-art  chap:architecture
+%   chap:introduction  chap:background  chap:state-of-the-art  chap:architecture
 %   chap:implementation  chap:validation  chap:demonstration
 
 \chapter{Introduction}
@@ -456,23 +456,29 @@ claimed by the \emph{M\'emoire de Master}.
 
 \section{Structure of this document}
 \label{sec:structure}
-Five chapters follow. Chapter~\ref{chap:state-of-the-art} reviews voice-controlled \gls{uav}
-systems, positions this work against its baseline, the natural-language drone-control agent of Lim
-et al.~\cite{lim2025}, by design point rather than by measurement, reviews the swarm-control model
-and the offline speech components the system builds on, and states the gap this document fills.
+The rest of this document has six chapters: five in two parts, and a closing chapter outside
+them. Part~I holds Chapter~\ref{chap:background}, which sets out the foundations the document relies
+on: speech pipelines, multirotor vehicles and their control, swarm control, latency budgets and the
+sharing of a four-core processor, and the state machine and command bus that carry a command; and
+Chapter~\ref{chap:state-of-the-art}, which compares voice-controlled \gls{uav} systems,
+fast-path architectures, swarm controllers and speech front ends to one another. It states three
+research gaps, concedes the published systems that cover parts of this work, and positions it
+against its baseline, the natural-language drone-control agent of Lim et al.~\cite{lim2025}, by
+design point rather than by measurement. Part~II is the contribution.
 Chapter~\ref{chap:architecture} presents the design: the dual-path decomposition, the membership
-rule of the reflex path derived rather than asserted, the three validation layers, the
-stage-by-stage latency budget and the allocation of a four-core processor between paths that must
-not starve one another. Chapter~\ref{chap:implementation} describes what was built --- the audio
-chain from recorded input, the runtime and its command bus, the flight state machine, the swarm
-controller and both simulation backends. Chapter~\ref{chap:validation} reports the three
-experiments and the keyword-spotter evaluation that test the design against the requirements of
-Section~\ref{sec:engineering-requirements}: the latency experiment, on preemption and latency under
-load; the acoustic-robustness experiment, on parse-path accuracy from audio as the \gls{snr} falls;
-and the formation-control experiment, on formation quality, each with its statistical analysis.
-Chapter~\ref{chap:demonstration} sets out the protocol of the live demonstration planned for the
-defence, states the limitations the measurements expose and the work this system leaves to be
-done, and answers the two research questions.
+rule of the reflex path derived rather than asserted, the three validation layers, the stage-by-stage
+latency budget, the allocation of a four-core processor between paths that must not starve one
+another, and the speech components chosen for each stage. Chapter~\ref{chap:implementation}
+describes what was built --- the audio chain from recorded input, the runtime and its command bus,
+the flight state machine, the swarm controller and both simulation backends.
+Chapter~\ref{chap:validation} reports the three experiments and the keyword-spotter evaluation that
+test the design against the requirements of Section~\ref{sec:engineering-requirements}: the latency
+experiment, on preemption and latency under load; the acoustic-robustness experiment, on parse-path
+accuracy from audio as the \gls{snr} falls; and the formation-control experiment, on formation
+quality, each with its statistical analysis. Chapter~\ref{chap:demonstration}, outside the parts,
+sets out the protocol of the live demonstration planned for the defence, states the limitations the
+measurements expose and the work this system leaves to be done, and answers the two research
+questions.
 
 The engineering problem is therefore to deliver a spoken command to five aircraft within the
 parse-path budget, to stop them by voice within the reflex-path budget, and to place every check
