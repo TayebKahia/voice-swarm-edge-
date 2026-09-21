@@ -113,9 +113,7 @@ opposes gravity, and differences in thrust and torque between them tilt and turn
 A quadrotor cannot push itself sideways directly. To move horizontally it tilts, so that part of
 its thrust points in the direction of travel, and to stop it tilts the other way. Hovering is the
 state in which the thrust balances the weight and the airframe is level. It is not a state of rest
-for the motors, which keep turning to hold the vehicle up. \TODO{a multirotor-dynamics reference,
-e.g.\ Mahony, Kumar and Corke, IEEE Robotics \& Automation Magazine 2012 --- not in
-references.bib; add and verify, then cite here}
+for the motors, which keep turning to hold the vehicle up~\cite{mahony2012}.
 
 \paragraph{Energy of a moving vehicle.} A flying vehicle carries kinetic energy in its velocity and
 potential energy in its height. A command that stops horizontal motion removes kinetic energy, and
@@ -129,11 +127,8 @@ airframe at several hundred cycles per second. Outer loops regulate velocity and
 slowly, by requesting an attitude and a thrust from the inner ones. Software commanding a vehicle
 from outside therefore does not drive the rotors. It sends a \emph{setpoint} --- a target position,
 velocity or acceleration --- to the outermost loop that accepts one, and the flight controller
-tracks it. Open-source flight-control software exposes such setpoint interfaces, and so do
-simulators that model the flight controller~\cite{pyflyt}. \TODO{a flight-stack source for the
-nested loops, their rates and the setpoint interfaces, e.g.\ the PX4 Autopilot user guide, pages
-Controller Diagrams and multicopter filter tuning --- not in references.bib; add and verify, then
-cite here}
+tracks it. Open-source flight-control software exposes such setpoint interfaces~\cite{px4userguide}, and so do
+simulators that model the flight controller~\cite{pyflyt}.
 
 \paragraph{PID control.} The loops of a flight controller, and many controllers built above them,
 use the \gls{pid} law. For an error $e(t)$ between a setpoint and the measured value, the command is
@@ -147,8 +142,7 @@ caused by a constant disturbance. The derivative term opposes the rate at which 
 and so damps the approach. When the output saturates, the integral keeps accumulating error the
 actuator cannot act on, and the controlled value overshoots while that surplus unwinds after the
 saturation ends. This \emph{integral wind-up} is limited by bounding the integral, among other
-methods. \TODO{a feedback-control textbook for the PID law and
-critical damping, e.g.\ Astrom and Murray, \emph{Feedback Systems} --- not in references.bib}
+methods~\cite{astrom2008}.
 
 \paragraph{The double integrator.} The simplest model of a vehicle treats it as a point mass whose
 acceleration is commanded directly, so that velocity is the integral of acceleration and position
@@ -190,9 +184,7 @@ two vehicles through the same place at the same time. Minimising the total squar
 vehicles at once, an instance of the linear assignment problem, prevents such a meeting under two
 conditions. The vehicles move in straight lines and arrive together, and their starting positions,
 like their slots, are spaced widely enough for their size. Two paths may then still cross, but the
-vehicles reach the crossing at different times. \TODO{Turpin, Michael and Kumar, ``CAPT: Concurrent
-assignment and planning of trajectories for multiple robots'', International Journal of Robotics
-Research 33(1), 2014 --- not in references.bib; add and verify, then cite here}
+vehicles reach the crossing at different times~\cite{turpin2014}.
 
 \paragraph{Separation and potential fields.} Separation is the requirement that no two vehicles
 come closer than a set distance. An \emph{artificial potential field} treats obstacles, including
@@ -206,9 +198,7 @@ $d$ is
 \end{equation}
 where $\eta$ sets its strength and $d_0$ the distance beyond which it has no effect. The magnitude
 of the resulting force is $\eta\,(1/d - 1/d_0)/d^2$, which grows without bound as $d$ approaches
-zero. \TODO{Khatib, the original artificial-potential-field formulation (ICRA 1985, or the journal
-version of 1986; Koren and Borenstein cite the 1985 paper) --- not in references.bib; add and
-verify, then cite eq:apf} Potential fields have failure modes identified as
+zero~\cite{khatib1986}. Potential fields have failure modes identified as
 inherent to the method: trap situations at local minima where attraction and repulsion cancel,
 oscillation near obstacles and in narrow passages, and no passage between closely spaced
 obstacles~\cite{koren1991}. A force also acts only through the dynamics. A closing pair stops short
@@ -235,9 +225,7 @@ A real-time system is one whose correctness depends on when its results are prod
 what they are. A result delivered after its deadline is a failure even if its content is right. In
 a \emph{hard} real-time system a missed deadline is a failure of the system, even if the late result
 is right. In a \emph{soft} one it degrades the service, and requirements state how rarely a deadline
-may be missed rather than promising that it never is. \TODO{a real-time systems textbook for the
-hard/soft distinction and preemptive scheduling, e.g.\ Buttazzo, \emph{Hard Real-Time Computing
-Systems} --- not in references.bib}
+may be missed rather than promising that it never is~\cite{buttazzo2011}.
 
 \paragraph{Latency as a distribution.} The latency of an operation is the time between two defined
 events, and it is fixed only once both events are named: a figure measured from the start of an
@@ -292,8 +280,7 @@ scheduling policies, which give a thread strict priority over ordinary threads. 
 does allow a program to restrict a process or a thread to a subset of the cores, a setting called
 \emph{processor affinity}. A thread restricted to one core, while every other thread is restricted
 to the rest, has that core to itself, apart from kernel work and interrupts, which affinity set by a
-program does not move. \TODO{a source for Linux scheduling policies and processor affinity, e.g.\
-the sched(7) and sched\_setaffinity(2) manual pages --- not in references.bib}
+program does not move~\cite{love2010}.
 
 \paragraph{Shared resources.} Affinity separates computation, not everything the cores share. The
 cores of a system-on-chip draw on the same memory bandwidth and, depending on the design, the same
@@ -315,16 +302,13 @@ action taken. An input that has no transition from the current state is rejected
 The legality of every input in every state can then be written as a table, with one row per state
 and one column per input, and the machine can be tested exhaustively by visiting every cell of that
 table. Placed before an actuator, such a machine is a gate: it admits a command only if the system's
-current state can accept it, whatever produced the command. \TODO{a source for finite-state
-machines in control software, e.g.\ Harel, ``Statecharts'', Science of Computer Programming 1987 ---
-not in references.bib}
+current state can accept it, whatever produced the command~\cite{harel1987}.
 
 \paragraph{Publish and subscribe.} A command bus decouples the stages that produce commands from the
 stage that consumes them. Producers \emph{publish} messages to the bus without addressing any
 receiver, and consumers receive them without addressing any sender, so either side can be replaced
-without changing the other. A message may still name its origin in its content. \TODO{a survey of
-publish/subscribe, e.g.\ Eugster et al., ``The many faces of publish/subscribe'', ACM Computing
-Surveys 2003 --- not in references.bib} A message is commonly serialised as text, for instance as a
+without changing the other. A message may still name its origin in its content~\cite{eugster2003}. A
+message is commonly serialised as text, for instance as a
 \gls{json} object, and carried over a network protocol. The \gls{udp} carries each message as one
 self-contained datagram, with no connection to set up and no retransmission. It adds little delay,
 but it neither guarantees delivery nor preserves order.
