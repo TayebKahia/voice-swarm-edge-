@@ -2214,3 +2214,44 @@ in eval/tables.py and eval/exp0.py, outputs regenerated (no cell changed; test_t
 Hand-written: Pareto figure legend only (interpretation is in the prose), the dash convention stated
 once in the state-of-the-art introduction, dataset caption trimmed. Longest now: figure 78 words;
 every table at or under 43. Build 0/0/0/0, 79 pages; scripts 0 FAIL.
+
+## Ingénieur RESTRUCTURE (Sat 26 Sep) -- seven chapters in two parts; Background written; SoA rebuilt; issues 18-19 closed
+Author's request, mirroring the Master (Khaldi's notes of 25-26 Sep). Structure confirmed with the
+author: 1 Introduction | Part I "Background and state of the art": 2 Background (NEW), 3 State of
+the art (rebuilt) | Part II "Contribution" (not the template's "Design & Implementation"): 4
+Architecture, 5 Implementation, 6 Validation | 7 Demonstration, limitations and conclusion (outside).
+No Project Management chapter (supervisor did not ask). Files keep historical numbers
+(ch3_architecture.tex is Chapter 4); prose uses \ref only.
+- prd.md §3.1 (Ingénieur, dated rationale), Table 2 chapter count, Table 3 Ingénieur chapter numbers
+  + a new foundations row; SKILL.md Ingénieur blueprint rewritten. (prd untracked by design.)
+- b8ee6db restructure + Background (speech pipelines; multirotors, PID, double integrator; swarm
+  control, slot assignment, potential fields; real-time/latency budgets; the Pi as a shared host;
+  FSMs and command buses; the Master's foundations one sentence each in sec:bg-master).
+- c3fe8d5 SoA rebuilt: four themes with one table each (tab:voice-uav-survey, tab:soa-dual-path NEW,
+  tab:soa-swarm, tab:soa-speech) + Critical comparison; Research gaps = Synthesis, Conceded prior art
+  (CommandSwarm, SkySim, MIRA), G1 fast-path membership -> C4 clause 2; G2 a budgeted stop -> C4 clause
+  1 via dual-path + latency budget; G3 one-board execution -> core allocation; Lim et al. baseline and
+  tab:lim-positioning moved into the gaps. Component justification moved to Ch4 sec:component-choices.
+- 3e109c1 tools/review re-pointed (INGENIEUR list, indices), ingenieur_ch2 rewritten for the new shape,
+  ingenieur_bg.py NEW; selftest +3 planted errors, PASSED.
+- Issue 18 (6d40ad4): 1 BLOCKER -- squared-distance assignment does NOT stop paths crossing (it gives a
+  minimum-separation property under synchronised straight-line motion, CAPT); fixed in Ch2, Ch1
+  ("crossing paths by construction") and Ch5; 6 MAJOR (direct pipeline + endpointing wait; WER owned
+  by the Master; percentiles owned here; flight-stack cites; Reynolds' central force; Ch6's "end of
+  speech" for the keyword end), 23 MINOR. Issue 19 (84e04be, 8386de4): 7 BLOCKER, all wrong facts
+  about sources (MIRA reports a 466 ms stop; Silva/Burke out-of-band kill; Torkamani's edge tier runs
+  offline; CommandSwarm's classifier precedes generation and it is not the latest speech system; the
+  swarm This-work row claimed 50 Hz + clamp on the physics backend), 6 MAJOR, 24 MINOR; section 1
+  retitled "Language interfaces to robots". G2 now promises measurement, never that 150 ms is met.
+- Build: 0 errors, 0 undefined, 0 Float too large, 0 overfull; 91 pages (was 77). A keep-section-whole
+  oscillation on Ch5 "Command bus" (p61 <-> p62, latexmk never converged) is held by \noautobreak --
+  revisit in the layout pass. No hardcoded Ingénieur chapter number found in the Master.
+OPEN FOR THE AUTHOR:
+- Nine \TODO sources in the Background to add and verify (multirotor dynamics; PX4 guide; feedback
+  control; CAPT, Turpin/Michael/Kumar 2014; Khatib 1985/86; a real-time systems text; sched(7) and
+  sched_setaffinity(2); Harel statecharts; a publish/subscribe survey) -- or reword those sentences.
+- One sentence on how the SoA studies were selected (scopes every silence claim; issue 19 m15).
+- Examiner question with no answer anywhere: why processor affinity alone, not a real-time
+  scheduling policy or core isolation.
+- Ch5's "not built" statements about the demo chain (known since 24 Sep, left as deposited).
+NEXT: issue 20 (whole-document pass, running), then the Ingénieur layout pass.
