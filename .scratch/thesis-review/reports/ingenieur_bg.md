@@ -8,9 +8,9 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 |---|---|---|---|
 | WARN | acronym | 57 | long form `voice activity detection` spelled out -- \gls{vad}? |
 | WARN | acronym | 84 | long form `signal-to-noise ratio` spelled out -- \gls{snr}? |
-| WARN | acronym | 268 | long form `single-board computer` spelled out -- \gls{sbc}? |
-| WARN | absolute | 277 | `guarantee` -- earned? ...it aims at throughput and fairness, and it gives no timing guarantee to any one thread: a thread that is ready to run c... |
-| WARN | absolute | 314 | `guarantees` -- earned? ...and no retransmission. It adds little delay, but it neither guarantees delivery nor preserves order. \paragraph{Orderin... |
+| WARN | acronym | 271 | long form `single-board computer` spelled out -- \gls{sbc}? |
+| WARN | absolute | 280 | `guarantee` -- earned? ...it aims at throughput and fairness, and it gives no timing guarantee to any one thread: a thread that is ready to run c... |
+| WARN | absolute | 319 | `guarantees` -- earned? ...and no retransmission. It adds little delay, but it neither guarantees delivery nor preserves order. \paragraph{Orderin... |
 | PASS | check_tex |  | tools/check_tex.py: no problems beyond cross-chapter \ref (resolved below) |
 | PASS | ref |  | every \ref resolves within the document |
 | PASS | cite |  | 19 distinct keys cited, all resolved |
@@ -80,14 +80,14 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 13 | 204 | koren1991 | Potential fields have failure modes identified as inherent to the method: trap situations at local minima where attraction and repulsion cancel, oscillation near obstacles and in narrow passages, and no passage between closely spaced obstacles~\cite{koren1991}. |
 | 14 | 217 | pyflyt | PyFlyt, for instance, provides \gls{uav} simulation environments for reinforcement-learning research on the Bullet physics engine~\cite{pyflyt}. |
 | 15 | 228 | buttazzo2011 | In a \emph{soft} one it degrades the service, and requirements state how rarely a deadline may be missed rather than promising that it never is~\cite{buttazzo2011}. |
-| 16 | 283 | love2010 | A thread restricted to one core, while every other thread is restricted to the rest, has that core to itself, apart from kernel work and interrupts, which affinity set by a program does not move~\cite{love2010}. |
-| 17 | 305 | harel1987 | Placed before an actuator, such a machine is a gate: it admits a command only if the system's current state can accept it, whatever produced the command~\cite{harel1987}. |
-| 18 | 310 | eugster2003 | A message may still name its origin in its content~\cite{eugster2003}. |
-| 19 | 329 | vaswani2017 | A language model assigns probabilities to token sequences and generates text one token at a time with a transformer decoder~\cite{vaswani2017}, and an \gls{slm} is such a model at the small end of the scale. |
-| 20 | 331 | lora | \Gls{lora} fits such a model to a task by training a small number of added parameters while its original weights stay frozen~\cite{lora}. |
-| 21 | 333 | llamacpp | Post-training quantisation stores the weights at reduced precision, and the \gls{gguf}\glsadd{ggml} formats Q8\_0 and Q4\_K\_M of \texttt{llama.cpp}~\cite{llamacpp} are the two levels that document compares. |
-| 22 | 337 | qin2021 | A spoken command, once transcribed, is parsed into an intent and a set of slot values, the frame of spoken-language understanding~\cite{qin2021}. |
-| 23 | 341 | mcnemar1947 | The parser is scored by \gls{em}, by intent and slot F1, by schema validity, and by the false-command and safe-failure rates, and two parsers are compared on the same items by McNemar's paired test~\cite{mcnemar1947}. |
+| 16 | 286 | love2010 | A thread restricted to one core, while every other thread is restricted to the rest, has that core to itself, apart from kernel work and interrupts, which affinity set by a program does not move~\cite{love2010}. |
+| 17 | 310 | harel1987 | Placed before an actuator, such a machine is a gate: it admits a command only if the system's current state can accept it, whatever produced the command~\cite{harel1987}. |
+| 18 | 315 | eugster2003 | A message may still name its origin in its content~\cite{eugster2003}. |
+| 19 | 336 | vaswani2017 | A language model assigns probabilities to token sequences and generates text one token at a time with a transformer decoder~\cite{vaswani2017}, and an \gls{slm} is such a model at the small end of the scale. |
+| 20 | 338 | lora | \Gls{lora} fits such a model to a task by training a small number of added parameters while its original weights stay frozen~\cite{lora}. |
+| 21 | 340 | llamacpp | Post-training quantisation stores the weights at reduced precision, and the \gls{gguf}\glsadd{ggml} formats Q8\_0 and Q4\_K\_M of \texttt{llama.cpp}~\cite{llamacpp} are the two levels that document compares. |
+| 22 | 344 | qin2021 | A spoken command, once transcribed, is parsed into an intent and a set of slot values, the frame of spoken-language understanding~\cite{qin2021}. |
+| 23 | 348 | mcnemar1947 | The parser is scored by \gls{em}, by intent and slot F1, by schema validity, and by the false-command and safe-failure rates, and two parsers are compared on the same items by McNemar's paired test~\cite{mcnemar1947}. |
 
 | key | title | year | identifier |
 |---|---|---|---|
@@ -119,11 +119,11 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 26 | section | Speech pipelines | 974 |
 | 107 | section | Multirotor vehicles and flight control | 592 |
 | 159 | section | Swarm control | 702 |
-| 222 | section | Real-time systems and latency budgets | 576 |
-| 268 | section | The single-board computer as a host | 276 |
-| 293 | section | State machines and command buses | 344 |
-| 324 | section | Foundations defined in the \emph{M\'emoire de Master | 247 |
-| 343 | section | Conclusion | 150 |
+| 222 | section | Real-time systems and latency budgets | 577 |
+| 271 | section | The single-board computer as a host | 277 |
+| 298 | section | State machines and command buses | 345 |
+| 331 | section | Foundations defined in the \emph{M\'emoire de Master | 247 |
+| 350 | section | Conclusion | 150 |
 
 ### Numbers quoted from sources (citation agent: find each)
 

@@ -2273,4 +2273,21 @@ added via \glsadd{ggml}), 46 cited = 46 printed.
 - Background \TODOs: all nine placeholders resolved with publisher-verified primary citations in references.bib
   (mahony2012, px4userguide, astrom2008, turpin2014, khatib1986, buttazzo2011, love2010, harel1987, eugster2003).
 Clean build: 0 errors, 0 undefined citations or references, 0 overfull, 92 pages.
-NEXT: Ingénieur layout pass (B13).
+
+## Ingénieur LAYOUT pass (B13, Ingénieur half; Sat 26 Sep) -- DONE
+Per-page text-line survey and visual check on main_ingenieur.pdf. Three causes of whitespace resolved:
+1. Chapter 2 cascade: sections 2.5, 2.6, and 2.7 were each moved to new pages by the keep-section-whole
+   rule, leaving three consecutive half-empty pages (pp. 30-32). Applying \noautobreak before Section 2.5,
+   2.6, and 2.7 allows natural flow, consolidating Chapter 2 from 9 sparse pages to 8 balanced pages.
+2. Chapter 1 hand-placed \clearpage before Section 1.3 (The safety problem) removed: Section 1.3 now
+   flows directly onto page 17, eliminating the ~40% white space and balancing the chapter.
+3. Chapter 7 hand-placed \clearpage before Section 7.4 (Conclusion) removed: Conclusion now starts
+   directly below Future Work, eliminating the half-empty page 84.
+4. Ch5 Command bus \noautobreak confirmed and retained to stabilize section start at the top of the page.
+Ingénieur build: 92 -> 90 pages total (PDF p. 90, arabic 89), 0 errors, 0 undefined citations or references,
+0 overfull boxes. All chapter scripts pass with 0 FAIL.
+REMAINING DEPOSIT ITEMS FOR AUTHOR:
+- One sentence on how the SoA studies were selected (scopes every silence claim; issue 19 m15).
+- Examiner question with no answer anywhere: why processor affinity alone, not a real-time
+  scheduling policy or core isolation.
+- Ch5's "not built" statements about the demo chain (known since 24 Sep, left as deposited).
