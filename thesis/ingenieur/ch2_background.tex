@@ -265,6 +265,9 @@ by the longest interval between checks, plus the time needed to release what the
 It helps the urgent work only if that work can run while the work to be withdrawn still holds the
 processor, for instance on a core of its own.
 
+% \noautobreak: the keep-section-whole rule would start this section on a new page
+% and leave the rest of the page under Section 2.4 blank (layout pass, B13).
+\noautobreak
 \section{The single-board computer as a host}
 \label{sec:bg-sbc}
 The \emph{M\'emoire de Master} describes the \gls{sbc} of this work, the Raspberry~Pi~5, and
@@ -290,6 +293,8 @@ until the clock falls. On a board with four cores, a program with a tight deadli
 that saturates memory bandwidth interfere through these resources however their threads are
 placed.
 
+% \noautobreak: let Section 2.6 flow naturally rather than leaving page 31 half-empty
+\noautobreak
 \section{State machines and command buses}
 \label{sec:bg-fsm}
 Two software structures carry a command from the stage that produces it to the stage that acts on
@@ -321,6 +326,8 @@ number, and the consumer can compare the numbers of any two messages to tell whi
 first. A consumer can then discard a message made stale by one issued after it, whatever their
 order of arrival.
 
+% \noautobreak: let Section 2.7 flow naturally
+\noautobreak
 \section{Foundations defined in the \emph{M\'emoire de Master}}
 \label{sec:bg-master}
 The language model on which the parse of a spoken command depends is the subject of the
