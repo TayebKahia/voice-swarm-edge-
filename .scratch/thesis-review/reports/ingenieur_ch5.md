@@ -301,7 +301,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | line | level | title | prose words |
 |---|---|---|---|
 | 14 | chapter | Validation | 564 |
-| 61 | section | Latency experiment | 1459 |
+| 61 | section | Latency experiment | 1464 |
 | 173 | section | Keyword-spotter evaluation | 845 |
 | 242 | section | Acoustic-robustness experiment | 1423 |
 | 353 | section | Formation-control experiment | 608 |

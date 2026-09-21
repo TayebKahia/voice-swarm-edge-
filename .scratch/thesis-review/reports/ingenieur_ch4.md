@@ -179,65 +179,65 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | PASS | claim | 344 | `The backends limit speed to 3~m/s, above the validator's ceiling of 2.0~m/s` -> written 2.0, source gives 2.00 (schema ENVELOPE['speed'] upper bound) |
 | PASS | claim | 351 | `trailing at $30^\circ$ either side` -> written 30, source gives 30.00 (control.py wedge half_angle) |
 | PASS | controller | 355 | assign_slots: Hungarian on squared distance |
-| PASS | claim | 363 | `gains $k_p = 2.0$` -> written 2.0, source gives 2.00 (ControlGains.kp) |
-| PASS | claim | 363 | `$k_i = 0.05$` -> written 0.05, source gives 0.05 (ControlGains.ki) |
-| PASS | claim | 363 | `$k_d = 3.0$` -> written 3.0, source gives 3.00 (ControlGains.kd) |
-| PASS | claim | 364 | `the integral is limited to $\pm 2.0$~m\,s` -> written 2.0, source gives 2.00 (ControlGains.integral_limit) |
-| PASS | claim | 365 | `which is $2\sqrt{k_p} \approx 2.83$` -> written 2.83, source gives 2.83 (2 sqrt(kp)) |
-| PASS | claim | 366 | `oscillates across the 0.5~m tolerance` -> written 0.5, source gives 0.50 (swarm/simulate.py SLOT_TOLERANCE) |
-| PASS | claim | 367 | `during the final 5~s of a trial` -> written 5, source gives 5.00 (swarm/simulate.py FINAL_WINDOW_SECONDS) |
-| PASS | claim | 369 | `repels each pair of vehicles closer than 1.5~m` -> written 1.5, source gives 1.50 (ControlGains.separation_radius) |
-| PASS | claim | 370 | `$6.0\,(1/d - 1/d_0)/d^2$` -> written 6.0, source gives 6.00 (ControlGains.separation_gain) |
-| PASS | claim | 370 | `an influence distance $d_0 = 1.5$~m` -> written 1.5, source gives 1.50 (ControlGains.separation_radius) |
-| PASS | claim | 372 | `weighted at 0.15 towards the swarm's centroid` -> written 0.15, source gives 0.15 (ControlGains.cohesion_gain) |
-| PASS | claim | 372 | `and 0.25 towards its mean velocity` -> written 0.25, source gives 0.25 (ControlGains.alignment_gain) |
-| PASS | claim | 384 | `the clamp finds every pair closer than 0.80~m` -> written 0.80, source gives 0.80 (control.py CLAMP_DISTANCE) |
-| PASS | claim | 386 | `so the clamp repeats the pass, up to 64 times` -> written 64, source gives 64.00 (separation_clamp iterations default) |
-| PASS | controller | 386 | separation_clamp on a chain of three: closest pair 0.800000 m >= 0.8 after the sweeps |
-| PASS | controller | 387 | after the clamp the adjacent pairs' closing speeds are [-0.0, 0.0] (none approaching) |
-| PASS | controller | 390 | coincident pair: deterministic separation |
-| PASS | controller | 391 | loop: step, env.step, clamp; the next tick's controller.step sees the clamped state |
-| PASS | claim | 393 | `The clamp distance of 0.80~m is a choice` -> written 0.80, source gives 0.80 (CLAMP_DISTANCE) |
-| PASS | claim | 395 | `a pair closer than 0.35~m` -> written 0.35, source gives 0.35 (control.py COLLISION_DISTANCE) |
-| PASS | controller | 398 | chain of three: 2 interventions (the two pairs too close on entry; later sweeps not counted) |
-| PASS | controller | 399 | run_trial counts collisions after separation_clamp |
-| PASS | controller | 402 | run_trial writes back only for NumpyEnv; test_pyflyt applies no clamp |
-| PASS | claim | 411 | `advances the simulation by one control tick of 20~ms` -> written 20, source gives 20.00 (DEFAULT_DT (kinematic backend)) |
-| PASS | claim | 416 | `It limits the commanded acceleration to 4~m/s$^2$` -> written 4, source gives 4.00 (EnvLimits.max_accel) |
-| PASS | claim | 417 | `the speed to 3~m/s` -> written 3, source gives 3.00 (EnvLimits.max_speed) |
-| PASS | backends | 417 | _clip_norm scales the row |
-| PASS | backends | 419 | NumpyEnv.step from rest with a = 1: x = 0.000400 = a dt^2 (semi-implicit) |
-| PASS | claim | 420 | `standard deviation 0.5~m about the point` -> written 0.5, source gives 0.50 (NumpyEnv spawn_sigma) |
-| PASS | backends | 420 | NumpyEnv centroid (0.0, 0.0, 2.0) |
-| PASS | claim | 420 | `The backend runs a 60~s trial of five` -> written 60, source gives 60.00 (TrialSpec.duration_seconds) |
-| PASS | claim | 420 | `The backend runs a 60~s trial of five` -> written 5, source gives 5.00 (TrialSpec.n) |
-| PASS | backends | 421 | kinematic backend is point-mass double integration |
-| PASS | backends | 425 | requirements.txt and environment.yml pin PyFlyt 0.29.0 |
-| PASS | backends | 428 | PyFlytEnv clips accel and speed |
-| PASS | backends | 429 | PyFlytEnv mode 6 (velocity) |
-| PASS | backends | 429 | yaw-rate setpoint 0 |
-| PASS | backends | 431 | PyFlytEnv integrates its own commanded velocity |
-| PASS | claim | 435 | `The physics runs at 240~Hz` -> written 240, source gives 240.00 (swarm/pyflyt_env.py PHYSICS_HZ) |
-| PASS | backends | 435 | test guards against steady-state altitude droop |
-| PASS | claim | 436 | `a whole number of physics steps, five` -> written 5, source gives 5.00 (round(PHYSICS_HZ * DEFAULT_DT)) |
-| PASS | claim | 437 | `each tick advances 10 physics steps` -> written 10, source gives 10.00 (steps * updates_per_step (QuadX 120 Hz attitude loop)) |
-| PASS | claim | 437 | `physics steps (41.67~ms), so the effective` -> written 41.67, source gives 41.67 (simulated clock step duration in ms) |
-| PASS | claim | 438 | `effective control rate is 24~Hz` -> written 24, source gives 24.00 (1 / tick_s (simulated clock rate)) |
-| PASS | claim | 438 | `rather than the nominal 48~Hz or 50~Hz` -> written 48, source gives 48.00 (PyFlytEnv.effective_control_hz) |
-| PASS | claim | 438 | `rather than the nominal 48~Hz or 50~Hz` -> written 50, source gives 50.00 (1 / DEFAULT_DT) |
-| PASS | claim | 438 | `the 600 ticks evaluate 25~s` -> written 600, source gives 600.00 (ticks = round(HOVER_SECONDS / dt)) |
-| PASS | claim | 438 | `the 600 ticks evaluate 25~s` -> written 25, source gives 25.00 (simulated seconds = ticks * tick_s) |
-| PASS | backends | 453 | test_pyflyt._fly seed default 42, and no test passes another |
-| PASS | claim | 455 | `(12~s at the nominal tick` -> written 12, source gives 12.00 (test_pyflyt.py HOVER_SECONDS) |
-| PASS | claim | 455 | `for 600 ticks (12~s` -> written 600, source gives 600.00 (HOVER_SECONDS / nominal 20 ms tick) |
-| PASS | claim | 455 | `the test's 85\% threshold with $N=5$` -> written 85, source gives 85.00 (test_pyflyt.py FA threshold) |
-| PASS | claim | 455 | `the test's 85\% threshold with $N=5$` -> written 5, source gives 5.00 (SwarmEnv DEFAULT_N) |
-| PASS | claim | 455 | `within 0.5~m of their slots` -> written 0.5, source gives 0.50 (test_pyflyt.py TOLERANCE) |
-| PASS | backends | 455 | 85% on 5 vehicles requires all 5 |
-| PASS | backends | 455 | sink test: min z > 1.0 m |
-| PASS | backends | 456 | test_the_same_controller_and_gains_drive_both_backends; _fly builds SwarmController with default gains |
-| PASS | claim | 457 | `All five tests pass` -> written 5, source gives 5.00 (test_pyflyt.py ['test_pyflyt_holds_the_formation', 'test_pyflyt_does_not_sink_under_a_station_keeping_command', 'test_the_same_controller_and_gains_drive_both_backends'] (the first parametrised over SHAPES)) |
-| PASS | backends | 461 | no clamp on the PyFlyt path |
+| PASS | claim | 365 | `gains $k_p = 2.0$` -> written 2.0, source gives 2.00 (ControlGains.kp) |
+| PASS | claim | 365 | `$k_i = 0.05$` -> written 0.05, source gives 0.05 (ControlGains.ki) |
+| PASS | claim | 365 | `$k_d = 3.0$` -> written 3.0, source gives 3.00 (ControlGains.kd) |
+| PASS | claim | 366 | `the integral is limited to $\pm 2.0$~m\,s` -> written 2.0, source gives 2.00 (ControlGains.integral_limit) |
+| PASS | claim | 367 | `which is $2\sqrt{k_p} \approx 2.83$` -> written 2.83, source gives 2.83 (2 sqrt(kp)) |
+| PASS | claim | 368 | `oscillates across the 0.5~m tolerance` -> written 0.5, source gives 0.50 (swarm/simulate.py SLOT_TOLERANCE) |
+| PASS | claim | 369 | `during the final 5~s of a trial` -> written 5, source gives 5.00 (swarm/simulate.py FINAL_WINDOW_SECONDS) |
+| PASS | claim | 371 | `repels each pair of vehicles closer than 1.5~m` -> written 1.5, source gives 1.50 (ControlGains.separation_radius) |
+| PASS | claim | 372 | `$6.0\,(1/d - 1/d_0)/d^2$` -> written 6.0, source gives 6.00 (ControlGains.separation_gain) |
+| PASS | claim | 372 | `an influence distance $d_0 = 1.5$~m` -> written 1.5, source gives 1.50 (ControlGains.separation_radius) |
+| PASS | claim | 374 | `weighted at 0.15 towards the swarm's centroid` -> written 0.15, source gives 0.15 (ControlGains.cohesion_gain) |
+| PASS | claim | 374 | `and 0.25 towards its mean velocity` -> written 0.25, source gives 0.25 (ControlGains.alignment_gain) |
+| PASS | claim | 386 | `the clamp finds every pair closer than 0.80~m` -> written 0.80, source gives 0.80 (control.py CLAMP_DISTANCE) |
+| PASS | claim | 388 | `so the clamp repeats the pass, up to 64 times` -> written 64, source gives 64.00 (separation_clamp iterations default) |
+| PASS | controller | 388 | separation_clamp on a chain of three: closest pair 0.800000 m >= 0.8 after the sweeps |
+| PASS | controller | 389 | after the clamp the adjacent pairs' closing speeds are [-0.0, 0.0] (none approaching) |
+| PASS | controller | 392 | coincident pair: deterministic separation |
+| PASS | controller | 393 | loop: step, env.step, clamp; the next tick's controller.step sees the clamped state |
+| PASS | claim | 395 | `The clamp distance of 0.80~m is a choice` -> written 0.80, source gives 0.80 (CLAMP_DISTANCE) |
+| PASS | claim | 397 | `a pair closer than 0.35~m` -> written 0.35, source gives 0.35 (control.py COLLISION_DISTANCE) |
+| PASS | controller | 400 | chain of three: 2 interventions (the two pairs too close on entry; later sweeps not counted) |
+| PASS | controller | 401 | run_trial counts collisions after separation_clamp |
+| PASS | controller | 404 | run_trial writes back only for NumpyEnv; test_pyflyt applies no clamp |
+| PASS | claim | 413 | `advances the simulation by one control tick of 20~ms` -> written 20, source gives 20.00 (DEFAULT_DT (kinematic backend)) |
+| PASS | claim | 418 | `It limits the commanded acceleration to 4~m/s$^2$` -> written 4, source gives 4.00 (EnvLimits.max_accel) |
+| PASS | claim | 419 | `the speed to 3~m/s` -> written 3, source gives 3.00 (EnvLimits.max_speed) |
+| PASS | backends | 419 | _clip_norm scales the row |
+| PASS | backends | 421 | NumpyEnv.step from rest with a = 1: x = 0.000400 = a dt^2 (semi-implicit) |
+| PASS | claim | 422 | `standard deviation 0.5~m about the point` -> written 0.5, source gives 0.50 (NumpyEnv spawn_sigma) |
+| PASS | backends | 422 | NumpyEnv centroid (0.0, 0.0, 2.0) |
+| PASS | claim | 422 | `The backend runs a 60~s trial of five` -> written 60, source gives 60.00 (TrialSpec.duration_seconds) |
+| PASS | claim | 422 | `The backend runs a 60~s trial of five` -> written 5, source gives 5.00 (TrialSpec.n) |
+| PASS | backends | 423 | kinematic backend is point-mass double integration |
+| PASS | backends | 427 | requirements.txt and environment.yml pin PyFlyt 0.29.0 |
+| PASS | backends | 430 | PyFlytEnv clips accel and speed |
+| PASS | backends | 431 | PyFlytEnv mode 6 (velocity) |
+| PASS | backends | 431 | yaw-rate setpoint 0 |
+| PASS | backends | 433 | PyFlytEnv integrates its own commanded velocity |
+| PASS | claim | 437 | `The physics runs at 240~Hz` -> written 240, source gives 240.00 (swarm/pyflyt_env.py PHYSICS_HZ) |
+| PASS | backends | 437 | test guards against steady-state altitude droop |
+| PASS | claim | 438 | `a whole number of physics steps, five` -> written 5, source gives 5.00 (round(PHYSICS_HZ * DEFAULT_DT)) |
+| PASS | claim | 439 | `each tick advances 10 physics steps` -> written 10, source gives 10.00 (steps * updates_per_step (QuadX 120 Hz attitude loop)) |
+| PASS | claim | 439 | `physics steps (41.67~ms), so the effective` -> written 41.67, source gives 41.67 (simulated clock step duration in ms) |
+| PASS | claim | 440 | `effective control rate is 24~Hz` -> written 24, source gives 24.00 (1 / tick_s (simulated clock rate)) |
+| PASS | claim | 440 | `rather than the nominal 48~Hz or 50~Hz` -> written 48, source gives 48.00 (PyFlytEnv.effective_control_hz) |
+| PASS | claim | 440 | `rather than the nominal 48~Hz or 50~Hz` -> written 50, source gives 50.00 (1 / DEFAULT_DT) |
+| PASS | claim | 440 | `the 600 ticks evaluate 25~s` -> written 600, source gives 600.00 (ticks = round(HOVER_SECONDS / dt)) |
+| PASS | claim | 440 | `the 600 ticks evaluate 25~s` -> written 25, source gives 25.00 (simulated seconds = ticks * tick_s) |
+| PASS | backends | 455 | test_pyflyt._fly seed default 42, and no test passes another |
+| PASS | claim | 457 | `(12~s at the nominal tick` -> written 12, source gives 12.00 (test_pyflyt.py HOVER_SECONDS) |
+| PASS | claim | 457 | `for 600 ticks (12~s` -> written 600, source gives 600.00 (HOVER_SECONDS / nominal 20 ms tick) |
+| PASS | claim | 457 | `the test's 85\% threshold with $N=5$` -> written 85, source gives 85.00 (test_pyflyt.py FA threshold) |
+| PASS | claim | 457 | `the test's 85\% threshold with $N=5$` -> written 5, source gives 5.00 (SwarmEnv DEFAULT_N) |
+| PASS | claim | 457 | `within 0.5~m of their slots` -> written 0.5, source gives 0.50 (test_pyflyt.py TOLERANCE) |
+| PASS | backends | 457 | 85% on 5 vehicles requires all 5 |
+| PASS | backends | 457 | sink test: min z > 1.0 m |
+| PASS | backends | 458 | test_the_same_controller_and_gains_drive_both_backends; _fly builds SwarmController with default gains |
+| PASS | claim | 459 | `All five tests pass` -> written 5, source gives 5.00 (test_pyflyt.py ['test_pyflyt_holds_the_formation', 'test_pyflyt_does_not_sink_under_a_station_keeping_command', 'test_the_same_controller_and_gains_drive_both_backends'] (the first parametrised over SHAPES)) |
+| PASS | backends | 463 | no clamp on the PyFlyt path |
 
 ### Citation sheet (for the citation agent: open each identifier, judge SUPPORTS / PARTIAL / DOES NOT SUPPORT per row)
 
@@ -249,8 +249,8 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 4 | 121 | piper | The corpus, synthetic positives rendered by three \gls{tts} voices~\cite{piper} and negatives of read speech, isolated command words and hand-written near-misses, is constructed in the \emph{M\'emoire de Master}. |
 | 5 | 157 | whispercpp | \paragraph{Speech recognition.} \texttt{whisper.cpp}~\cite{whispercpp} is run as a separate process for each utterance, with the \texttt{tiny.en} model, three threads, and an initial prompt that lists the command vocabulary. |
 | 6 | 164 | llamacpp | \paragraph{Parser.} The language model is served by \texttt{llama-server}~\cite{llamacpp}, a persistent process started once, with the model loaded, a single decoding slot, three threads and a context of 512 tokens. |
-| 7 | 372 | reynolds1987 | The third term is a global form of the flock-centring and velocity-matching rules of flocking~\cite{reynolds1987}, weighted at 0.15 towards the swarm's centroid and 0.25 towards its mean velocity. |
-| 8 | 426 | pyflyt | \paragraph{Physics backend.} The second backend runs five quadrotors in PyFlyt~0.29.0, on the Bullet physics engine~\cite{pyflyt}, with rigid-body dynamics, rotor dynamics and PyFlyt's own attitude control. |
+| 7 | 374 | reynolds1987 | The third term is a global form of the flock-centring and velocity-matching rules of flocking~\cite{reynolds1987}, weighted at 0.15 towards the swarm's centroid and 0.25 towards its mean velocity. |
+| 8 | 428 | pyflyt | \paragraph{Physics backend.} The second backend runs five quadrotors in PyFlyt~0.29.0, on the Bullet physics engine~\cite{pyflyt}, with rigid-body dynamics, rotor dynamics and PyFlyt's own attitude control. |
 
 | key | title | year | identifier |
 |---|---|---|---|
@@ -272,8 +272,8 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 148 | section | Runtime | 1012 |
 | 231 | section | Command bus | 496 |
 | 271 | section | Flight state machine | 771 |
-| 329 | section | Swarm controller | 1029 |
-| 406 | section | Simulation backends | 777 |
+| 329 | section | Swarm controller | 1073 |
+| 408 | section | Simulation backends | 777 |
 
 ### For the argument agent
 
@@ -340,30 +340,30 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 332 | 20 | recomputed by a claim on this line |
 | 332 | 50 | recomputed by a claim on this line |
 | 344 | 2.0 | recomputed by a claim on this line |
-| 363 | 2.0 | recomputed by a claim on this line |
-| 363 | 0.05 | recomputed by a claim on this line |
-| 363 | 3.0 | recomputed by a claim on this line |
-| 364 | 2.0 | recomputed by a claim on this line |
-| 365 | 2.83 | recomputed by a claim on this line |
-| 366 | 0.5 | recomputed by a claim on this line |
-| 369 | 1.5 | recomputed by a claim on this line |
-| 370 | 6.0 | recomputed by a claim on this line |
-| 370 | 1.5 | recomputed by a claim on this line |
-| 372 | 0.15 | recomputed by a claim on this line |
-| 372 | 0.25 | recomputed by a claim on this line |
-| 384 | 0.80 | recomputed by a claim on this line |
-| 393 | 0.80 | recomputed by a claim on this line |
-| 395 | 0.35 | recomputed by a claim on this line |
-| 411 | 20 | recomputed by a claim on this line |
-| 420 | 0.5 | recomputed by a claim on this line |
-| 425 | 0.29 | measured: results/mcnemar.md:28, results/wake_training.json:349 |
-| 435 | 240 | recomputed by a claim on this line |
-| 437 | 41.67 | recomputed by a claim on this line |
-| 438 | 24 | recomputed by a claim on this line |
-| 438 | 48 | recomputed by a claim on this line |
-| 438 | 50 | recomputed by a claim on this line |
-| 438 | 600 | recomputed by a claim on this line |
-| 440 | 50 | measured: results/exp2_latency_budget.md:11, results/exp2_latency_budget.md:17 |
-| 455 | 600 | recomputed by a claim on this line |
-| 455 | 85 | recomputed by a claim on this line |
-| 455 | 0.5 | recomputed by a claim on this line |
+| 365 | 2.0 | recomputed by a claim on this line |
+| 365 | 0.05 | recomputed by a claim on this line |
+| 365 | 3.0 | recomputed by a claim on this line |
+| 366 | 2.0 | recomputed by a claim on this line |
+| 367 | 2.83 | recomputed by a claim on this line |
+| 368 | 0.5 | recomputed by a claim on this line |
+| 371 | 1.5 | recomputed by a claim on this line |
+| 372 | 6.0 | recomputed by a claim on this line |
+| 372 | 1.5 | recomputed by a claim on this line |
+| 374 | 0.15 | recomputed by a claim on this line |
+| 374 | 0.25 | recomputed by a claim on this line |
+| 386 | 0.80 | recomputed by a claim on this line |
+| 395 | 0.80 | recomputed by a claim on this line |
+| 397 | 0.35 | recomputed by a claim on this line |
+| 413 | 20 | recomputed by a claim on this line |
+| 422 | 0.5 | recomputed by a claim on this line |
+| 427 | 0.29 | measured: results/mcnemar.md:28, results/wake_training.json:349 |
+| 437 | 240 | recomputed by a claim on this line |
+| 439 | 41.67 | recomputed by a claim on this line |
+| 440 | 24 | recomputed by a claim on this line |
+| 440 | 48 | recomputed by a claim on this line |
+| 440 | 50 | recomputed by a claim on this line |
+| 440 | 600 | recomputed by a claim on this line |
+| 442 | 50 | measured: results/exp2_latency_budget.md:11, results/exp2_latency_budget.md:17 |
+| 457 | 600 | recomputed by a claim on this line |
+| 457 | 85 | recomputed by a claim on this line |
+| 457 | 0.5 | recomputed by a claim on this line |

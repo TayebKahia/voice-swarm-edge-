@@ -95,6 +95,11 @@ script reports the new value against the source rather than "anchor not found".
 | 12 | Ingénieur Ch4 (432, 8 cites) | argument + citation/presentation + verifier | implementation chapter with no measured figure; the script checks every number against the module it describes, so the agents read the code-level claims and the promises to and from Ch1, Ch3, Ch5 and Ch6 |
 | 13 | Ingénieur Ch5 (402, 3 cites) | argument/statistics + citation/presentation + verifier | results chapter; the script recomputes every figure from results/ (252 PASS) and checks the fixed verdict words, so the agents read located causes vs interpretation, the statistics, and the promises from Ch1 and Ch4 |
 | 15 | Master Ch2 Background (~425, 23 cites) | citation + argument + verifier | new chapter (25 Sep restructure); foundations only, so the argument agent checks textbook correctness and that nothing is a result or a decision; 23 papers/tool docs to open |
+| 16 | Master Ch3 State of the art (rebuilt 25 Sep) | citation + argument + verifier | tables are claims about their sources: every cell checked |
+| 17 | Whole-document, Master (seven chapters) | 1 reviewer + verifier | Template B repeated after the restructure |
+| 18 | Ingénieur Ch2 Background (344, 10 cites; 26 Sep restructure) | citation + argument + verifier | as 15: foundations only, textbook correctness, write-once against the Master's Background |
+| 19 | Ingénieur Ch3 State of the art (512, 89 cites; rebuilt 26 Sep) | citation + argument + verifier | as 16: four tables, every cell a claim; gaps G1-G3 mapped onto C4 and Chapter 4 |
+| 20 | Whole-document, Ingénieur (seven chapters, two parts) | 1 reviewer + verifier | Template B repeated after the restructure; blocked by 18 and 19 |
 
 ## Self-containment and headings (D11, D12)
 
