@@ -78,10 +78,10 @@ all` present |
 bits` present |
 | PASS | paper-number | 216 | anchor `not a multiple of 256` present |
 | PASS | paper-number | 217 | anchor `five bits in place of four and eight in place of six` present |
-| PASS | write-once | 309 | token-masking mechanism (new statement of the old Ch2 paragraph): stated in the Background (`sets the logits of every other`) |
-| PASS | paper-number | 358 | anchor `a million utterances in 51` present |
-| PASS | paper-number | 358 | anchor `one of 60 intents` present |
-| PASS | paper-number | 359 | anchor `55 slot types` present |
+| PASS | write-once | 308 | token-masking mechanism (new statement of the old Ch2 paragraph): stated in the Background (`sets the logits of every other`) |
+| PASS | paper-number | 357 | anchor `a million utterances in 51` present |
+| PASS | paper-number | 357 | anchor `one of 60 intents` present |
+| PASS | paper-number | 358 | anchor `55 slot types` present |
 
 ### Citation sheet (for the citation agent: open each identifier, judge SUPPORTS / PARTIAL / DOES NOT SUPPORT per row)
 
@@ -114,14 +114,14 @@ bits` present |
 | 25 | 241 | llamacpp | \paragraph{The llama.cpp runtime.} \texttt{llama.cpp} is a C/C++ inference engine for transformer language models, built on the \gls{ggml} tensor library, that runs on a \gls{cpu} without a \gls{gpu} driver or a Python interpreter~\cite{llamacpp}. |
 | 26 | 258 | awq | First, under that bound a smaller model or a lower-precision format decodes faster in proportion to the bytes it saves, which is the rationale for weight-only quantisation as a means to decode throughput~\cite{awq}; how closely a given processor approaches the bound, given the arithmetic its low-bit kernels add, is a m |
 | 27 | 269 | rpiosdocs | \paragraph{Thermal state and clock frequency.} A system-on-chip regulates its own temperature by lowering its clock frequency when a threshold is reached, a behaviour called \emph{thermal throttling}, and the board used here exposes a flag that records whether throttling occurred~\cite{rpiosdocs}. |
-| 28 | 315 | willard2023, koo2024 | Formulations that compile a regular expression or a context-free grammar into an automaton over the vocabulary make this check efficient, with correctness results for the language classes the construction covers~\cite{willard2023,koo2024}. |
-| 29 | 317 | llamacpp | Formulations that compile a regular expression or a context-free grammar into an automaton over the vocabulary make this check efficient, with correctness results for the language classes the construction covers~\cite{willard2023,koo2024}. \Gls{gbnf} is the \gls{bnf} dialect in which \texttt{llama.cpp} accepts a gramma |
-| 30 | 320 | llamacpp | The per-step cost depends on the grammar's structure, and the runtime's documentation warns that some rule shapes make sampling slow~\cite{llamacpp}. |
-| 31 | 344 | whisper | The \gls{stt} stage in this work is a model of the Whisper family, an encoder--decoder transformer trained on a large corpus of weakly supervised audio-transcript pairs~\cite{whisper}, served by a C/C++ port of the same kind as the language-model runtime~\cite{whispercpp}. |
-| 32 | 345 | whispercpp | The \gls{stt} stage in this work is a model of the Whisper family, an encoder--decoder transformer trained on a large corpus of weakly supervised audio-transcript pairs~\cite{whisper}, served by a C/C++ port of the same kind as the language-model runtime~\cite{whispercpp}. |
-| 33 | 353 | qin2021 | \paragraph{The semantic frame.} Spoken-language understanding treats the meaning of a task-oriented utterance as a \emph{semantic frame}: an \emph{intent}, drawn from a fixed set of actions the system can perform, and a set of \emph{slots}, each a key with a value extracted from the utterance~\cite{qin2021}. |
-| 34 | 357 | qin2021 | Intent detection is a classification problem over the utterance; slot filling is traditionally a sequence-labelling problem over its words, and the field's methods are classified by whether the two are modelled separately or jointly~\cite{qin2021}. |
-| 35 | 359 | massive | Benchmark corpora define the frame the same way: MASSIVE, for instance, labels a million utterances in 51 languages with one of 60 intents and spans over 55 slot types~\cite{massive}. |
+| 28 | 314 | willard2023, koo2024 | Formulations that compile a regular expression or a context-free grammar into an automaton over the vocabulary make this check efficient, with correctness results for the language classes the construction covers~\cite{willard2023,koo2024}. |
+| 29 | 316 | llamacpp | Formulations that compile a regular expression or a context-free grammar into an automaton over the vocabulary make this check efficient, with correctness results for the language classes the construction covers~\cite{willard2023,koo2024}. \Gls{gbnf} is the \gls{bnf} dialect in which \texttt{llama.cpp} accepts a gramma |
+| 30 | 319 | llamacpp | The per-step cost depends on the grammar's structure, and the runtime's documentation warns that some rule shapes make sampling slow~\cite{llamacpp}. |
+| 31 | 343 | whisper | The \gls{stt} stage in this work is a model of the Whisper family, an encoder--decoder transformer trained on a large corpus of weakly supervised audio-transcript pairs~\cite{whisper}, served by a C/C++ port of the same kind as the language-model runtime~\cite{whispercpp}. |
+| 32 | 344 | whispercpp | The \gls{stt} stage in this work is a model of the Whisper family, an encoder--decoder transformer trained on a large corpus of weakly supervised audio-transcript pairs~\cite{whisper}, served by a C/C++ port of the same kind as the language-model runtime~\cite{whispercpp}. |
+| 33 | 352 | qin2021 | \paragraph{The semantic frame.} Spoken-language understanding treats the meaning of a task-oriented utterance as a \emph{semantic frame}: an \emph{intent}, drawn from a fixed set of actions the system can perform, and a set of \emph{slots}, each a key with a value extracted from the utterance~\cite{qin2021}. |
+| 34 | 356 | qin2021 | Intent detection is a classification problem over the utterance; slot filling is traditionally a sequence-labelling problem over its words, and the field's methods are classified by whether the two are modelled separately or jointly~\cite{qin2021}. |
+| 35 | 358 | massive | Benchmark corpora define the frame the same way: MASSIVE, for instance, labels a million utterances in 51 languages with one of 60 intents and spans over 55 slot types~\cite{massive}. |
 | 36 | 418 | mcnemar1947 | McNemar's test does so: it discards the items on which both systems agree and asks whether the \emph{discordant} items, those one system answers correctly and the other does not, split evenly between the two directions~\cite{mcnemar1947}. |
 | 37 | 420 | edwards1948 | With few discordant items the exact binomial form of the test is used; with many, a chi-square approximation with a continuity correction~\cite{edwards1948}. |
 | 38 | 425 | dunn1961 | And when several comparisons are made from the same data, the chance that at least one reaches a nominal significance level by accident rises with their number, which the Bonferroni correction controls by dividing the significance level by the number of comparisons in the family~\cite{dunn1961}. |
@@ -165,8 +165,8 @@ bits` present |
 | 121 | section | Fine-tuning and low-rank adaptation | 512 |
 | 169 | section | Post-training quantisation and the GGUF formats | 718 |
 | 225 | section | Inference on a CPU-only single-board computer | 828 |
-| 292 | section | Grammar-constrained decoding | 549 |
-| 337 | section | Spoken-language understanding: intents and slots | 408 |
+| 291 | section | Grammar-constrained decoding | 549 |
+| 336 | section | Spoken-language understanding: intents and slots | 409 |
 | 374 | section | Evaluation metrics and paired comparison | 788 |
 | 437 | section | Conclusion | 134 |
 
@@ -186,9 +186,9 @@ bits | llamacpp (primary source, not the candidate notes) |
 | 149 | to four bits during training | qlora (primary source, not the candidate notes) |
 | 151 | adapters
 on every linear projection | qlora (primary source, not the candidate notes) |
-| 358 | a million utterances in 51 | massive (primary source, not the candidate notes) |
-| 358 | one of 60 intents | massive (primary source, not the candidate notes) |
-| 359 | 55 slot types | massive (primary source, not the candidate notes) |
+| 357 | a million utterances in 51 | massive (primary source, not the candidate notes) |
+| 357 | one of 60 intents | massive (primary source, not the candidate notes) |
+| 358 | 55 slot types | massive (primary source, not the candidate notes) |
 
 ### Definitions to verify (argument agent: each must be textbook-correct and consistent with the operational definition in Chapter 4's tab:metrics)
 

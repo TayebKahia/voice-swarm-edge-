@@ -93,7 +93,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 
 | line | as written | trace |
 |---|---|---|
-| 21 | 1.5 | measured: results/table18_quantisation_delta.md:15, results/table18_quantisation_delta.md:19 |
+| 21 | 1.5 | measured: results/table18_quantisation_delta.md:10, results/table18_quantisation_delta.md:14 |
 | 27 | 1{,}100 | recomputed by a claim on this line |
 | 31 | 27.93 | recomputed by a claim on this line |
 | 31 | 14.53 | recomputed by a claim on this line |

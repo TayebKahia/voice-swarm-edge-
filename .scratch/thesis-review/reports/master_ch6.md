@@ -117,7 +117,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 53 | 3{,}540 | measured: results/table19_grammar_ablation.md:10, results/table19_grammar_ablation.md:11 |
 | 57 | 0.17 | recomputed by a claim on this line |
 | 65 | 590 | recomputed by a claim on this line |
-| 66 | 0.935 | measured: results/table18_quantisation_delta.md:17, results/table18_quantisation_delta.md:17 |
+| 66 | 0.935 | measured: results/table18_quantisation_delta.md:10, results/table18_quantisation_delta.md:10 |
 | 70 | 200 | measured: results/exp2_latency_budget.md:5, results/table18_quantisation_delta.md:3 |
 | 73 | 1.5 | recomputed by a claim on this line |
 | 73 | 1.5 | recomputed by a claim on this line |

@@ -2254,4 +2254,23 @@ OPEN FOR THE AUTHOR:
 - Examiner question with no answer anywhere: why processor affinity alone, not a real-time
   scheduling policy or core isolation.
 - Ch5's "not built" statements about the demo chain (known since 24 Sep, left as deposited).
-NEXT: issue 20 (whole-document pass, running), then the Ingénieur layout pass.
+
+## Ingénieur WHOLE-DOCUMENT pass repeated (Sat 26 Sep) -- issue 20 closed
+Template B on the seven-chapter Ingénieur (issue 10 had run it on the six-chapter one). Reviewer +
+verifier. PASS on the golden thread (RQ2, RQ3, C4 -> G1-G3 -> Ch4 -> Ch5 -> Ch6 -> Ch7), headline
+numbers identical everywhere, three abstracts agree, scope from Ch1 alone, 22 acronym keys (GGML
+added via \glsadd{ggml}), 46 cited = 46 printed.
+- 1 MAJOR (Gap G2 latency claim vs conceded MIRA: rephrased "held to" to "specified and measured against";
+  MIRA 466 ms median compared directly with 965 ms keyword onset median in Ch7, clarifying the reflex adds
+  a derived membership rule and localized diagnosis rather than raw speed over MIRA).
+- 10 MINOR on Ingénieur: component duplication replaced with Section 3.4 cross-references in Ch4; abstracts
+  refined across EN, FR, AR for rejection (no-op on ground, hold in flight) and latency attribution (decision
+  delay + quantisation + anchor error); consumer unit test cited for ordering rule in Ch6 and Table 6.3;
+  allowances phrasing corrected in Ch7; RQ3 synthesis sentence added to Ch3; Master canonical comparison
+  cross-referenced in Ch6; controller terms convergence attribution corrected in Ch7; collision avoidance
+  future work aligned with soft-mechanism arguments; 10 dB failure breakdown completed to 82.
+- 6 NITs applied (emph on Mémoire de Master, gap closer ordering, an SLM, end of speech, deployment constraints,
+  explicit out-of-scope sentence in Ch1).
+- 1 MINOR on Master deferred (speech pipeline text, Master review completed in Issue 17).
+Clean build: 0 errors, 0 undefined citations or references, 0 overfull, 91 pages.
+NEXT: Ingénieur layout pass (B13).
