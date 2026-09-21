@@ -117,7 +117,8 @@ Section~\ref{sec:command-bus} never had to discard a late result. In both condit
 \emph{swarm abort} takes all fired the abort class, and 38 of the 40 \emph{swarm hold} takes fired
 the hold class. The two misses are one take, missed on both of its replays. No take fired the other
 class, in either condition. The preemption behaviour and the class matrix together satisfy the
-verification that the reflex-path requirement names. While listening to the 200 golden-set
+verification that the reflex-path requirement names. The ordering rule, which no trial needed, is
+verified by the consumer's unit tests (Section~\ref{sec:command-bus}). While listening to the 200 golden-set
 utterances, the reflex path fired once, a \texttt{hover} during an utterance commanding a landing.
 That error is on the fail-safe side of Section~\ref{sec:membership-rule}. The spotter scored the
 same recordings without a false accept in the keyword-spotter evaluation, and the records do not
@@ -257,7 +258,9 @@ validator. They are passed once clean and once at each of 20, 15, 10 and 5~dB \g
 noise from the evaluation partition of the DREGON recordings~\cite{dregon} mixed digitally at a
 level set against the active speech. A sixth condition passes each utterance's reference transcript
 through the same parser. Its \gls{em} is the parser's accuracy on exactly these items, so \gls{em}
-minus \gls{crr} is the accuracy that the speech stage costs. An utterance the endpointer splits into
+minus \gls{crr} is the accuracy that the speech stage costs; a dispatched command is correct when
+it matches the reference under the canonical comparison that the \emph{M\'emoire de Master} defines,
+the same comparison as its \gls{em}. An utterance the endpointer splits into
 several segments counts as recognised only if every command it dispatched is correct. The run of
 record is the cooled board's; the audio is replayed faster than real time, one segment after
 another, so that the experiment measures accuracy rather than scheduling.
@@ -283,7 +286,8 @@ the whole fall from clean audio is the speech stage's: its cost rises from 0.245
 [0.280, 0.410] at 10~dB and 0.450 [0.380, 0.520] at 5~dB. The \gls{wer} rises with it, from 23.3\%
 clean to 28.8\% at 10~dB and 36.0\% at 5~dB. At 10~dB, recognition errors that change the intent
 rise from 5 to 19 and those that corrupt a slot from 23 to 30, while the parser's own errors stay at
-12 and the failures assigned to splits fall from 22 to 20. Taken over the whole curve, the \gls{crr}
+12 and the failures assigned to splits fall from 22 to 20, and one utterance transcribed perfectly
+was misparsed. Taken over the whole curve, the \gls{crr}
 holds at 0.65 or above down to 15~dB on the point estimate (0.650 exactly), and at no level on the
 interval's lower bound; it reaches 0.80 at no level. The clean \gls{wer} matches, within a fraction
 of a point, the figure that the speaker-sensitivity experiment of the \emph{M\'emoire de Master}
@@ -417,9 +421,9 @@ is planned for the defence, under the protocol of Section~\ref{sec:demonstration
 
 \input{generated/requirements_summary}
 
-Each of the five misses has a located cause. Reflex latency is missed in the spotter's delay after
-the keyword offset, not in the board's computation, which is 18~ms at p95 while the parse
-path decodes (Section~\ref{sec:latency-experiment}). End-to-end latency is missed in speech
+Each of the five misses has a located cause. Reflex latency is missed after the keyword offset,
+in the spotter's decision delay, the frame quantisation and the anchor's error, not in the board's
+computation, which is 18~ms at p95 while the parse path decodes (Section~\ref{sec:latency-experiment}). End-to-end latency is missed in speech
 recognition and in prefill without a cached prefix, and its re-baseline to the measured figure is
 recorded as a re-baseline, not as the requirement met (Section~\ref{sec:latency-experiment}).
 Preemption recovery is missed in the time the language-model server takes to release its slot after

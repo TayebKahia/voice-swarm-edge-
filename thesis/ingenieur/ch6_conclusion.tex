@@ -158,8 +158,9 @@ accelerations under semi-implicit double integration (Section~\ref{sec:simulatio
 omits rotor dynamics, aerodynamic downwash, ground effect, battery voltage discharge, and motor
 saturation. Furthermore, it incorporates no environmental disturbances such as ambient wind or gust
 perturbations. The convergence times (median 4.06~s for the circle, 3.26~s for the line, and 2.30~s for
-the wedge) and trajectory profiles therefore evaluate the algorithmic logic of the potential field
-under idealised kinematics rather than the flight envelope of physical aircraft.
+the wedge) and trajectory profiles therefore evaluate the controller -- the formation law, the
+potential field and the flocking terms -- under idealised kinematics rather than the flight envelope
+of physical aircraft.
 
 \paragraph{Transfer to rigid-body dynamics.} Transfer of the swarm controller to rigid-body physics is
 not established (Section~\ref{sec:simulation-backends}). The physics backend, constructed on
@@ -287,9 +288,10 @@ reliability distributions across multiple trials.
 position rewriting, the geometric separation clamp must be replaced with an active collision avoidance
 mechanism compatible with physical quadrotors and rigid-body simulators. In physical flight, position
 states cannot be overwritten. Collision avoidance must be formulated at the acceleration, velocity, or
-rotor thrust level, incorporating repulsive potential fields~\cite{koren1991} or velocity obstacles with
-kinematic feasibility constraints. Such a formulation must explicitly enforce the 2.0~m/s speed ceiling
-during formation reconfigurations, bounding vehicle velocities within the safety envelope.
+rotor thrust level with kinematic feasibility constraints, since the potential field already
+present is a soft mechanism whose failure modes are known~\cite{koren1991}. Such a formulation must
+explicitly enforce the 2.0~m/s speed ceiling during formation reconfigurations, bounding vehicle
+velocities within the safety envelope.
 
 \paragraph{Rigid-body simulation and transfer to airframes.} Following the limitation that transfer to
 rigid-body dynamics is unestablished, the swarm controller must be comprehensively evaluated under
@@ -359,10 +361,10 @@ path does not meet its 150~ms p95 budget, reaching 545~ms idle and 547~ms loaded
 and preemption recovery reaches 1{,}195~ms at p95 against its 300~ms budget.
 
 The second clause is answered by the per-stage latency attribution of Table~\ref{tab:latency-budget},
-which accounts for every stage of both paths. On the parse path, three stages meet their budget
-allocations: endpointing silence (480~ms against 500~ms), \gls{slm} decode (915~ms against 1{,}100~ms),
-and validation with the state-machine check (under 1~ms against 50~ms). Two stages account for the 622~ms
-shortfall: speech recognition, which takes 1{,}449~ms against its 1{,}200~ms allowance, and prompt
+which accounts for every stage of both paths. On the parse path, three stages meet their
+allowances: endpointing silence (480~ms against 500~ms), \gls{slm} decode (915~ms against 1{,}100~ms),
+and validation with the state-machine check (under 1~ms against 50~ms). The shortfall lies in two
+stages: speech recognition, which takes 1{,}449~ms against its 1{,}200~ms allowance, and prompt
 prefill, which takes 751~ms against its 250~ms allowance because the deployed runtime does not cache the
 prompt prefix. On the reflex path, board computation and publication require 6~ms idle and 18~ms loaded;
 the remaining 540~ms combines the spotter's decision delay, the 80~ms frame quantisation and the error
@@ -397,13 +399,17 @@ discriminate between the formations; convergence time is the figure that does
 \paragraph{System contribution.} The contribution this document claims
 (Section~\ref{sec:contributions}) is the membership rule of the reflex path, derived from the cost of a
 false accept and the value of the time saved rather than chosen by preference, together with the latency
-budget of its own that the path is held to while the language model decodes. The rule admits exactly two
+budget of its own against which the path is specified and measured while the language model decodes. The rule admits exactly two
 classes, whose false accepts move the swarm towards a safer state at a cost to the mission rather than to
 safety, and it states the condition a third class would have to meet to be admitted, which is what makes
 it auditable. Running a fast path beside the language model is not itself claimed
 (Section~\ref{sec:research-gaps}). In the latency experiment the reflex path cancelled 78 of 78 in-progress
 decodes, the command bus never had to discard a late result, and neither class triggered on the other's
 phrase; its latency nevertheless misses the 150~ms budget (Section~\ref{sec:latency-experiment}).
+Measured from the onset of the keyword, the reflex takes 965~ms at the median (Table~\ref{tab:latency-budget}),
+longer than the 466~ms that MIRA's gate reports from speech onset (Section~\ref{sec:soa-dual-path}).
+What the reflex adds over that gate is therefore not speed but a trigger restricted to two commands by a derived rule,
+and a budget against which its latency is located; that budget is missed in the spotter's detection, not on the board.
 
 \paragraph{Relation to the \emph{M\'emoire de Master}.} Research Question~1 (RQ1), concerning the accuracy--efficiency
 Pareto trade-off across quantised \glspl{slm} on \glspl{sbc}, is answered in the

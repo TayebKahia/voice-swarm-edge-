@@ -456,7 +456,8 @@ dominate the parse path. The decode allowance is sized for the short wire format
 schema, in which absent slots are omitted rather than written as nulls. The prefill allowance of
 250~ms assumes the cached fixed prefix of Section~\ref{sec:dual-path}, which reduces prefill to the
 transcript's own tokens. The two language-model rows together allow 1{,}350~ms, and the
-\emph{M\'emoire de Master} applies that combined figure as the deployment constraint of its model
+\emph{M\'emoire de Master} applies that combined figure, beside the decode allowance and a
+throughput floor derived from it, as deployment constraints of its model
 comparison. The allowances are ceilings, not shares of the end-to-end target. The four that follow
 $T_0$ sum to 2{,}600~ms, more than the 2{,}500~ms they sit inside, so a run in which every stage
 reaches its ceiling at once misses the end-to-end target. That target is judged on the measured
@@ -540,8 +541,8 @@ the full deployed stack was not measured against its memory ceiling
 for each component is measured on this device, and Chapter~\ref{chap:validation} reports it.
 
 \paragraph{Keyword spotter.} The reflex budget of 150~ms rests on the keyword spotter.
-openWakeWord~\cite{oww} supplies a frozen feature front end that turns audio into one speech
-embedding per 80~ms frame, over which small classifier heads can be trained for arbitrary phrases.
+openWakeWord~\cite{oww} was chosen for the property Section~\ref{sec:speech-components} describes:
+classifier heads trained over a frozen embedding front end.
 That property decided the choice. The phrases \texttt{swarm hold} and \texttt{swarm abort} occur in
 no public corpus used here, so the heads had to be trained on synthetic positives, and heads that
 are small networks over a fixed embedding can be trained that way without training an acoustic
@@ -552,20 +553,19 @@ operating point and Section~\ref{sec:latency-experiment} the reflex latency, idl
 
 \paragraph{Endpointer.} The endpointer's cost appears twice: as computation on the core it shares
 with the spotter, and as the silence it must wait for before it declares the end of speech (the
-wait of Section~\ref{sec:bg-speech}). Silero \gls{vad}~\cite{silero} is a pre-trained neural
-voice-activity detector distributed as an ONNX model that processes 32~ms windows with a recurrent
-state. It runs here on ONNX Runtime directly, on one thread and without the PyTorch dependency of
-its own wrapper (Section~\ref{sec:audio-chain}). The wait is set by the silence threshold derived in
-Section~\ref{sec:latency-budget}, not by the model. What the model has to supply is a speech
-probability for each window, computed cheaply enough that the spotter and the endpointer together
-complete each 80~ms frame within 80~ms on core~0; the latency experiment measures that margin
-(Section~\ref{sec:latency-experiment}).
+wait of Section~\ref{sec:bg-speech}). Silero \gls{vad}~\cite{silero}
+(Section~\ref{sec:speech-components}) runs here on ONNX Runtime directly, on one thread and without
+the PyTorch dependency of its own wrapper (Section~\ref{sec:audio-chain}). The wait is set by the
+silence threshold derived in Section~\ref{sec:latency-budget}, not by the model. What the model has
+to supply is a speech probability for each window, computed cheaply enough that the spotter and the
+endpointer together complete each 80~ms frame within 80~ms on core~0; the latency experiment
+measures that margin (Section~\ref{sec:latency-experiment}).
 
 \paragraph{Speech recognition.} Speech recognition is the largest row of the parse-path budget,
-1{,}200~ms at p95 on three threads (Table~\ref{tab:stage-budget}). The recogniser is Whisper's
-smallest English-only model, \texttt{tiny.en}, with 39 million parameters~\cite{whisper}, run by
-\texttt{whisper.cpp}~\cite{whispercpp} in C and C++ on the \gls{cpu}, with no Python runtime on the
-inference path. The smallest model was chosen because recognition and decoding run in sequence on
+1{,}200~ms at p95 on three threads (Table~\ref{tab:stage-budget}). The recogniser is
+\texttt{tiny.en}, Whisper's smallest English-only model (Section~\ref{sec:speech-components}), run
+by \texttt{whisper.cpp}~\cite{whispercpp} in C and C++ on the \gls{cpu}, with no Python runtime on
+the inference path. The smallest model was chosen because recognition and decoding run in sequence on
 the same three cores, so every millisecond the recogniser spends is a millisecond the end-to-end
 budget of 2{,}500~ms cannot give to the language model. The accuracy cost of the smallest model is
 the risk this choice carries, and it is measured rather than assumed. The \emph{M\'emoire de Master}

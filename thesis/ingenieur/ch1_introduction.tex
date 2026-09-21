@@ -88,7 +88,8 @@ reported here therefore characterise the command pipeline and the controller, th
 kinematic simulator without rotor dynamics (Chapter~\ref{chap:validation}). They do not
 characterise a spoken command carried through to simulated flight, nor airframe behaviour in wind,
 and Chapter~\ref{chap:demonstration} returns to each of these as a limitation rather than leaving
-it implicit.
+it implicit. Physical flight, vision input and languages other than English are outside the scope
+of both documents.
 
 \section{Engineering requirements}
 \label{sec:engineering-requirements}
@@ -180,7 +181,7 @@ together throughout.}
 Criterion & Requirement & Budget & Measured by \\
 \midrule
 Reflex latency & Reflex-path latency, from keyword offset, measured both idle and during parse-path inference & p95 $\leq$ 150~ms & Latency experiment \\
-End-to-end latency & Parse-path latency, from end-of-speech & p95 $\leq$ 2{,}500~ms & Latency experiment \\
+End-to-end latency & Parse-path latency, from the end of speech & p95 $\leq$ 2{,}500~ms & Latency experiment \\
 Per-stage attribution & Per-stage latency instrumented and reported against the per-stage budget of Section~\ref{sec:latency-budget} & Every stage, p50/p95/p99 & Latency experiment \\
 Preemption recovery & Time from a reflex-path trigger until the parse path can accept a new utterance & p95 $\leq$ 300~ms & Latency experiment \\
 Keyword false accepts & False accepts, aggregated over both reflex-path classes, on ambient-speech negatives & $\leq$ 1 per hour & Keyword-spotter evaluation \\
@@ -198,7 +199,7 @@ Table~\ref{tab:nonfunctional-requirements} contains one pair of budgets that det
 architecture before any component is chosen. The reflex budget and the parse budget are not one
 budget with two tolerances, and they are not anchored at the same instant: reflex latency is
 measured from the keyword offset, the instant the spoken keyword ends, and end-to-end latency from
-end-of-speech, the moment the endpointer declares the utterance over; both end when the command is
+the end of speech, the moment the endpointer declares the utterance over; both end when the command is
 handed to the command bus on the device. A path that transcribes and parses a complete utterance
 cannot begin until the endpointer has declared the utterance over, a wait that alone exceeds
 150~ms, and transcription and decoding are then each budgeted at about a second on this device

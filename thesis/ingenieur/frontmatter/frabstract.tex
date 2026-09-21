@@ -19,15 +19,16 @@ modèle de langage~; une règle d'appartenance, dérivée du coût d'une fausse 
 valeur du temps gagné, admet exactement ces deux classes et aucune commande de déplacement. Sur le
 chemin d'analyse, chaque énoncé est délimité, transcrit puis analysé par un modèle Qwen2.5-0.5B dont
 le décodage est contraint par une grammaire. Un validateur sémantique et une machine à états de vol
-vérifient chaque commande, et tout rejet se traduit par un maintien. Un contrôleur de formation,
-doté d'une contrainte géométrique de séparation appliquée à l'intégrateur, pilote cinq drones
-simulés.
+vérifient chaque commande, et aucun rejet ne produit de mouvement : en vol, il se traduit par un
+maintien. Un contrôleur de formation, doté d'une contrainte géométrique de séparation appliquée à
+l'intégrateur, pilote cinq drones simulés.
 
 \vspace{0.3cm}
 \noindent Le chemin réflexe a annulé 78 des 78~décodages en cours, sans déclenchement croisé entre
 ses classes, mais sa latence au 95\textsuperscript{e}~centile, 545~ms au repos et 547~ms sous
-charge, dépasse le budget de 150~ms, en raison du délai du détecteur après le mot-clé et non du
-calcul. Le chemin d'analyse atteint 3\,122~ms au 95\textsuperscript{e}~centile pour un budget de
+charge, dépasse le budget de 150~ms après la fin du mot-clé, en raison du délai de décision du
+détecteur, de la quantification en trames et de l'erreur de repère, et non du calcul. Le chemin
+d'analyse atteint 3\,122~ms au 95\textsuperscript{e}~centile pour un budget de
 2\,500~ms, l'écart se situant dans la reconnaissance vocale et dans un préremplissage de l'invite
 sans mise en cache. Le taux de reconnaissance des commandes est de 0,690 sur un signal propre et
 de 0,590 à 10~dB, en deçà des cibles de 0,80 et 0,65, et seuls 2 des 62~échecs sur signal propre

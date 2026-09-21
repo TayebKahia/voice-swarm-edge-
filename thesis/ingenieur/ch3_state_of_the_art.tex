@@ -403,9 +403,12 @@ concurrently with slow ones, gated by a verifier or by preemption~\cite{relays2s
 Language-model planners have been placed above a potential-field layer that keeps vehicles
 apart~\cite{skysim2026}. Speech has been recognised offline and a local language model run beside
 it, on a desktop computer and on an edge board, each with a
-\gls{gpu}~\cite{sikorski2025,torkamani2025}. The tables leave three gaps, stated below in the order
-the design of Chapter~\ref{chap:architecture} closes them, after the published systems that already
-cover parts of this work are conceded by name.
+\gls{gpu}~\cite{sikorski2025,torkamani2025}. Of the systems that take speech, one evaluates its
+recogniser under distortion~\cite{contreras2020}, and none reports in which direction its errors go
+as noise rises or measures the formation its commands produce; the second and third research
+questions of Section~\ref{sec:objectives} measure both, as evaluation rather than as gaps. The tables
+leave three gaps, stated below, each with the part of the design of Chapter~\ref{chap:architecture}
+that closes it, after the published systems that already cover parts of this work are conceded by name.
 
 \paragraph{Conceded prior art.} Three systems cover parts of this work, and none of those parts is
 claimed here. CommandSwarm covers spoken commands to a group of robots with the model's output
@@ -446,11 +449,11 @@ CommandSwarm lists emergency stop mechanisms only among the safeguards a real de
 require~\cite{commandswarm2026}. MIRA's gate does stop motion and preempt the slower path, once
 speech during the robot's playback has lasted 450~ms, at a median of 466~ms from speech
 onset~\cite{mira}. It reacts to any sustained speech rather than to a command, and states no latency
-target against which that median is judged. No reviewed system, therefore, holds a stop to a latency
-budget of its own. The first clause of the contribution closes this gap: a reflex path that preempts
-language-model inference, with a budget of 150~ms at p95 from the keyword offset that must hold
-while the model decodes. Its preemption is conceded to MIRA; the budget is what is claimed. The
-dual-path decomposition (Section~\ref{sec:dual-path}) and the latency budget
+target against which that median is judged. No reviewed system, therefore, specifies a latency budget
+of its own for a stop. The first clause of the contribution addresses this gap: a reflex path that
+preempts language-model inference, with a budget of 150~ms at p95 from the keyword offset specified
+and measured while the model decodes. Its preemption is conceded to MIRA; the budget is what is claimed.
+The dual-path decomposition (Section~\ref{sec:dual-path}) and the latency budget
 (Section~\ref{sec:latency-budget}) specify it. Section~\ref{sec:latency-experiment} measures it
 against that budget, idle and under load, and reports whether it is met and where a miss lies.
 

@@ -17,14 +17,15 @@ keyword spotter maps \emph{swarm hold} and \emph{swarm abort} directly to a hold
 preempts language-model inference; a membership rule derived from the cost of a false accept and the
 value of the time saved admits exactly these two classes and no movement command. On the parse path,
 each utterance is endpointed, transcribed and parsed by a grammar-constrained Qwen2.5-0.5B model. A
-semantic validator and a flight state machine check every command, and a rejection becomes a hold.
-A formation controller with a geometric separation clamp at the integrator flies five simulated
-drones.
+semantic validator and a flight state machine check every command, and a rejection never becomes
+motion: in flight it becomes a hold. A formation controller with a geometric separation clamp at the
+integrator flies five simulated drones.
 
 \vspace{0.3cm}
 \noindent The reflex path cancelled 78 of 78 in-flight decodes with no cross-trigger between its
-classes, but its p95 latency, 545~ms idle and 547~ms under load, misses the 150~ms budget in the
-spotter's delay after the keyword rather than in computation. The parse path reaches 3{,}122~ms at
+classes, but its p95 latency, 545~ms idle and 547~ms under load, misses the 150~ms budget after the
+keyword offset, in the spotter's decision delay, the frame quantisation and the anchor's error,
+rather than in computation. The parse path reaches 3{,}122~ms at
 p95 against 2{,}500~ms, the shortfall located in speech recognition and in an uncached prompt
 prefill. Command recognition is 0.690 on clean audio and 0.590 at 10~dB, below its targets of 0.80
 and 0.65, and only 2 of 62 clean-audio failures resolve to a hold or to \texttt{unknown}. Zero

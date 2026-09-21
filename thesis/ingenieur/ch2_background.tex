@@ -337,15 +337,15 @@ number, and the consumer can compare the numbers of any two messages to tell whi
 first. A consumer can then discard a message made stale by one issued after it, whatever their
 order of arrival.
 
-\section{Foundations defined in the M\'emoire de Master}
+\section{Foundations defined in the \emph{M\'emoire de Master}}
 \label{sec:bg-master}
 The language model on which the parse of a spoken command depends is the subject of the
 \emph{M\'emoire de Master}, whose Background chapter defines its foundations. They are named here in
 one sentence each and not repeated. A language model assigns probabilities to token sequences and
-generates text one token at a time with a transformer decoder~\cite{vaswani2017}, and a \gls{slm} is
+generates text one token at a time with a transformer decoder~\cite{vaswani2017}, and an \gls{slm} is
 such a model at the small end of the scale. \Gls{lora} fits such a model to a task by training a
 small number of added parameters while its original weights stay frozen~\cite{lora}. Post-training
-quantisation stores the weights at reduced precision, and the \gls{gguf} formats Q8\_0 and Q4\_K\_M
+quantisation stores the weights at reduced precision, and the \gls{gguf}\glsadd{ggml} formats Q8\_0 and Q4\_K\_M
 of \texttt{llama.cpp}~\cite{llamacpp} are the two levels that document compares. Grammar-constrained
 decoding under a \gls{gbnf} grammar masks, at each step, every token that would take the output
 outside a formal language. Every output is then a string of that language or, if cut off at a token
