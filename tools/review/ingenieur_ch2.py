@@ -22,7 +22,7 @@ r.common()
 text = r.ch.text
 
 # -- Shape: four themes with a comparison table each, then Research gaps ------------------------
-TOPICS = {"voice- and language-controlled UAV systems": r"voice-controlled",
+TOPICS = {"language interfaces to robots (voice-controlled UAV systems among them)": r"language interfaces",
           "fast-path and dual-path architectures": r"dual-path", "swarm control": r"^swarm control$",
           "offline speech components": r"offline speech"}
 outline_check(r, 2, TOPICS)
