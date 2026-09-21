@@ -8,7 +8,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 |---|---|---|---|
 | WARN | numbers |  | 10 significant number(s) found in no source file -- see the number trace |
 | WARN | acronym | 71 | `UAV` typed by hand 3x (lines 71, 199, 223) -- \gls{uav} (the first \gls expands itself) |
-| WARN | acronym | 79 | `LLM` typed by hand 3x (lines 79, 484, 503) -- \gls{llm} (the first \gls expands itself) |
+| WARN | acronym | 79 | `LLM` typed by hand 3x (lines 79, 487, 506) -- \gls{llm} (the first \gls expands itself) |
 | PASS | check_tex |  | tools/check_tex.py: no problems beyond cross-chapter \ref (resolved below) |
 | PASS | ref |  | every \ref resolves within the document |
 | PASS | cite |  | 29 distinct keys cited, all resolved |
@@ -76,10 +76,10 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | PASS | paper-number | 341 | anchor `80~ms frame` present |
 | PASS | paper-number | 343 | anchor `32~ms windows` present |
 | PASS | float | 357 | tab:soa-speech referenced before it appears (line 344) |
-| PASS | paper-number | 481 | anchor `temperature of 0.2` present |
-| PASS | paper-number | 484 | anchor `in 38\%` present |
-| PASS | paper-number | 485 | anchor `40\%, is obtained` present |
-| PASS | float | 497 | tab:lim-positioning referenced before it appears (line 487) |
+| PASS | paper-number | 484 | anchor `temperature of 0.2` present |
+| PASS | paper-number | 487 | anchor `in 38\%` present |
+| PASS | paper-number | 488 | anchor `40\%, is obtained` present |
+| PASS | float | 500 | tab:lim-positioning referenced before it appears (line 490) |
 
 ### Citation sheet (for the citation agent: open each identifier, judge SUPPORTS / PARTIAL / DOES NOT SUPPORT per row)
 
@@ -168,22 +168,23 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 81 | 402 | relays2s, mira | Fast paths have run concurrently with slow ones, gated by a verifier or by preemption~\cite{relays2s,mira}. |
 | 82 | 404 | skysim2026 | Fast paths have run concurrently with slow ones, gated by a verifier or by preemption~\cite{relays2s,mira}. Language-model planners have been placed above a potential-field layer that keeps vehicles apart~\cite{skysim2026}. |
 | 83 | 406 | sikorski2025, torkamani2025 | Speech has been recognised offline and a local language model run beside it, on a desktop computer and on an edge board, each with a \gls{gpu}~\cite{sikorski2025,torkamani2025}. |
-| 84 | 412 | commandswarm2026 | CommandSwarm covers spoken commands to a group of robots with the model's output checked deterministically before it takes effect~\cite{commandswarm2026}. |
-| 85 | 417 | skysim2026 | Its authors conclude that parser acceptance and safety filtering remain necessary execution gates and that generation quality alone is not sufficient, the position of Section~\ref{sec:safety-problem} reached independently. SkySim covers the separation of a planner from a lower layer that keeps vehicles apart at the con |
-| 86 | 419 | mira | MIRA covers an uninterpreted stop followed by a hold, preemption of the slower path, and a control-rate safety layer corresponding to the separation clamp at the integrator of this system~\cite{mira}. |
-| 87 | 421 | landau2017, contreras2020 | MIRA covers an uninterpreted stop followed by a hold, preemption of the slower path, and a control-rate safety layer corresponding to the separation clamp at the integrator of this system~\cite{mira}. Constraining what the operator may say is likewise established practice~\cite{landau2017,contreras2020}, and validation |
-| 88 | 422 | silva2026 | MIRA covers an uninterpreted stop followed by a hold, preemption of the slower path, and a control-rate safety layer corresponding to the separation clamp at the integrator of this system~\cite{mira}. Constraining what the operator may say is likewise established practice~\cite{landau2017,contreras2020}, and validation |
-| 89 | 423 | llm2swarm2024 | Like SkySim, and outside both categories of Strobel et al.~\cite{llm2swarm2024}, this system uses one model instance, on the operator's device, to map an utterance to a formation-level command for a conventional controller. |
-| 90 | 442 | silva2026, lim2025 | The stops that bypass that path are a human's: Silva and Burke's safety pilot disarms by radio, and Lim et al.'s operator switches to position mode~\cite{silva2026,lim2025}. |
-| 91 | 443 | skysim2026 | The layered design nearest to this one routes every command through a planner whose latency runs to tens of seconds~\cite{skysim2026}. |
-| 92 | 444 | typefly2024 | TypeFly answers the latency of generation by shortening the path every command takes~\cite{typefly2024}, and CommandSwarm lists emergency stop mechanisms only among the safeguards a real deployment should require~\cite{commandswarm2026}. |
-| 93 | 446 | commandswarm2026 | TypeFly answers the latency of generation by shortening the path every command takes~\cite{typefly2024}, and CommandSwarm lists emergency stop mechanisms only among the safeguards a real deployment should require~\cite{commandswarm2026}. |
-| 94 | 448 | mira | MIRA's gate does stop motion and preempt the slower path, once speech during the robot's playback has lasted 450~ms, at a median of 466~ms from speech onset~\cite{mira}. |
-| 95 | 462 | sikorski2025 | The offline arm of Sikorski et al.\ runs on a desktop computer with a \gls{gpu}, and its authors describe the offline model's limitations as significant~\cite{sikorski2025}. |
-| 96 | 465 | torkamani2025 | The nearest chain, that of Torkamani and Zarin, can run a tiny Whisper model and TinyLlama on a Jetson board with a \gls{gpu}, but prefers the cloud whenever the board's metrics allow~\cite{torkamani2025}. |
-| 97 | 468 | llm2swarm2024 | Strobel et al.\ ran TinyLlama on a Raspberry~Pi~5 only as a preliminary test of generation speed, without speech~\cite{llm2swarm2024}. |
-| 98 | 475 | lim2025 | \paragraph{The baseline.} The agent of Lim et al.~\cite{lim2025} is the baseline for this document because, among the systems reviewed, it is the one nearest to this one in the part of the design the \emph{M\'emoire de Master} fixes. |
-| 99 | 494 | lim2025 | \begin{table}[htbp] \centering \footnotesize \caption[Design points of Lim et al.\ and of this work]{Design points of the agent of Lim et al.~\cite{lim2025} and of this work. |
+| 84 | 407 | contreras2020 | Of the systems that take speech, one evaluates its recogniser under distortion~\cite{contreras2020}, and none reports in which direction its errors go as noise rises or measures the formation its commands produce; the second and third research questions of Section~\ref{sec:objectives} measure both, as evaluation rather |
+| 85 | 415 | commandswarm2026 | CommandSwarm covers spoken commands to a group of robots with the model's output checked deterministically before it takes effect~\cite{commandswarm2026}. |
+| 86 | 420 | skysim2026 | Its authors conclude that parser acceptance and safety filtering remain necessary execution gates and that generation quality alone is not sufficient, the position of Section~\ref{sec:safety-problem} reached independently. SkySim covers the separation of a planner from a lower layer that keeps vehicles apart at the con |
+| 87 | 422 | mira | MIRA covers an uninterpreted stop followed by a hold, preemption of the slower path, and a control-rate safety layer corresponding to the separation clamp at the integrator of this system~\cite{mira}. |
+| 88 | 424 | landau2017, contreras2020 | MIRA covers an uninterpreted stop followed by a hold, preemption of the slower path, and a control-rate safety layer corresponding to the separation clamp at the integrator of this system~\cite{mira}. Constraining what the operator may say is likewise established practice~\cite{landau2017,contreras2020}, and validation |
+| 89 | 425 | silva2026 | MIRA covers an uninterpreted stop followed by a hold, preemption of the slower path, and a control-rate safety layer corresponding to the separation clamp at the integrator of this system~\cite{mira}. Constraining what the operator may say is likewise established practice~\cite{landau2017,contreras2020}, and validation |
+| 90 | 426 | llm2swarm2024 | Like SkySim, and outside both categories of Strobel et al.~\cite{llm2swarm2024}, this system uses one model instance, on the operator's device, to map an utterance to a formation-level command for a conventional controller. |
+| 91 | 445 | silva2026, lim2025 | The stops that bypass that path are a human's: Silva and Burke's safety pilot disarms by radio, and Lim et al.'s operator switches to position mode~\cite{silva2026,lim2025}. |
+| 92 | 446 | skysim2026 | The layered design nearest to this one routes every command through a planner whose latency runs to tens of seconds~\cite{skysim2026}. |
+| 93 | 447 | typefly2024 | TypeFly answers the latency of generation by shortening the path every command takes~\cite{typefly2024}, and CommandSwarm lists emergency stop mechanisms only among the safeguards a real deployment should require~\cite{commandswarm2026}. |
+| 94 | 449 | commandswarm2026 | TypeFly answers the latency of generation by shortening the path every command takes~\cite{typefly2024}, and CommandSwarm lists emergency stop mechanisms only among the safeguards a real deployment should require~\cite{commandswarm2026}. |
+| 95 | 451 | mira | MIRA's gate does stop motion and preempt the slower path, once speech during the robot's playback has lasted 450~ms, at a median of 466~ms from speech onset~\cite{mira}. |
+| 96 | 465 | sikorski2025 | The offline arm of Sikorski et al.\ runs on a desktop computer with a \gls{gpu}, and its authors describe the offline model's limitations as significant~\cite{sikorski2025}. |
+| 97 | 468 | torkamani2025 | The nearest chain, that of Torkamani and Zarin, can run a tiny Whisper model and TinyLlama on a Jetson board with a \gls{gpu}, but prefers the cloud whenever the board's metrics allow~\cite{torkamani2025}. |
+| 98 | 471 | llm2swarm2024 | Strobel et al.\ ran TinyLlama on a Raspberry~Pi~5 only as a preliminary test of generation speed, without speech~\cite{llm2swarm2024}. |
+| 99 | 478 | lim2025 | \paragraph{The baseline.} The agent of Lim et al.~\cite{lim2025} is the baseline for this document because, among the systems reviewed, it is the one nearest to this one in the part of the design the \emph{M\'emoire de Master} fixes. |
+| 100 | 497 | lim2025 | \begin{table}[htbp] \centering \footnotesize \caption[Design points of Lim et al.\ and of this work]{Design points of the agent of Lim et al.~\cite{lim2025} and of this work. |
 
 | key | title | year | identifier |
 |---|---|---|---|
@@ -226,7 +227,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 161 | section | Fast-path and dual-path architectures | 1071 |
 | 248 | section | Swarm control | 785 |
 | 315 | section | Offline speech components | 869 |
-| 392 | section | Research gaps | 1886 |
+| 392 | section | Research gaps | 1941 |
 
 ### Numbers quoted from papers (citation agent: find each in the paper)
 
@@ -262,9 +263,9 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 338 | 39 million | whisper (primary source, not the candidate notes) |
 | 341 | 80~ms frame | oww (primary source, not the candidate notes) |
 | 343 | 32~ms windows | silero (primary source, not the candidate notes) |
-| 484 | in 38\% | lim2025 (primary source, not the candidate notes) |
-| 485 | 40\%, is obtained | lim2025 (primary source, not the candidate notes) |
-| 481 | temperature of 0.2 | lim2025 (primary source, not the candidate notes) |
+| 487 | in 38\% | lim2025 (primary source, not the candidate notes) |
+| 488 | 40\%, is obtained | lim2025 (primary source, not the candidate notes) |
+| 484 | temperature of 0.2 | lim2025 (primary source, not the candidate notes) |
 
 ### For the citation agent
 
@@ -349,12 +350,12 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 383 | 7 | measured: results/table16_asr_speaker_sensitivity.md:19, results/table16_asr_speaker_sensitivity.md:21 |
 | 388 | 7 | measured: results/table16_asr_speaker_sensitivity.md:19, results/table16_asr_speaker_sensitivity.md:21 |
 | 388 | 100 | measured: results/thermal_headroom.md:10, results/thermal_headroom.md:12 |
-| 447 | 450 | measured: results/wake_training.md:32, results/exp3_pi_analysis.md:3 |
-| 447 | 466 | measured: results/wake_training.json:2473 x100, results/wake_training.json:2481 x100 |
-| 451 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:21 |
-| 480 | 3080 | measured: results/exp4.csv:2 x100, results/exp4.csv:3 x100 |
-| 481 | 0.2 | quoted from a paper (see "Numbers quoted from papers") |
-| 484 | 38 | quoted from a paper (see "Numbers quoted from papers") |
-| 485 | 40 | quoted from a paper (see "Numbers quoted from papers") |
-| 505 | 0.2 | measured: results/nfr18_false_command.md:10, results/nfr18_false_command.md:11 |
-| 506 | 3080 | measured: results/exp4.csv:2 x100, results/exp4.csv:3 x100 |
+| 450 | 450 | measured: results/wake_training.md:32, results/exp3_pi_analysis.md:3 |
+| 450 | 466 | measured: results/wake_training.json:2473 x100, results/wake_training.json:2481 x100 |
+| 454 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:21 |
+| 483 | 3080 | measured: results/exp4.csv:2 x100, results/exp4.csv:3 x100 |
+| 484 | 0.2 | quoted from a paper (see "Numbers quoted from papers") |
+| 487 | 38 | quoted from a paper (see "Numbers quoted from papers") |
+| 488 | 40 | quoted from a paper (see "Numbers quoted from papers") |
+| 508 | 0.2 | measured: results/nfr18_false_command.md:10, results/nfr18_false_command.md:11 |
+| 509 | 3080 | measured: results/exp4.csv:2 x100, results/exp4.csv:3 x100 |

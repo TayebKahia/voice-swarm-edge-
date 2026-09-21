@@ -2247,9 +2247,7 @@ No Project Management chapter (supervisor did not ask). Files keep historical nu
   oscillation on Ch5 "Command bus" (p61 <-> p62, latexmk never converged) is held by \noautobreak --
   revisit in the layout pass. No hardcoded Ingénieur chapter number found in the Master.
 OPEN FOR THE AUTHOR:
-- Nine \TODO sources in the Background to add and verify (multirotor dynamics; PX4 guide; feedback
-  control; CAPT, Turpin/Michael/Kumar 2014; Khatib 1985/86; a real-time systems text; sched(7) and
-  sched_setaffinity(2); Harel statecharts; a publish/subscribe survey) -- or reword those sentences.
+- [RESOLVED Sat 26 Sep] Nine \TODO sources in the Background added and verified with publisher DOIs/URLs (mahony2012, px4userguide, astrom2008, turpin2014, khatib1986, buttazzo2011, love2010, harel1987, eugster2003). All bib house rules met; ingenieur_bg.py 0 FAIL.
 - One sentence on how the SoA studies were selected (scopes every silence claim; issue 19 m15).
 - Examiner question with no answer anywhere: why processor affinity alone, not a real-time
   scheduling policy or core isolation.
@@ -2272,5 +2270,7 @@ added via \glsadd{ggml}), 46 cited = 46 printed.
 - 6 NITs applied (emph on Mémoire de Master, gap closer ordering, an SLM, end of speech, deployment constraints,
   explicit out-of-scope sentence in Ch1).
 - 1 MINOR on Master deferred (speech pipeline text, Master review completed in Issue 17).
-Clean build: 0 errors, 0 undefined citations or references, 0 overfull, 91 pages.
+- Background \TODOs: all nine placeholders resolved with publisher-verified primary citations in references.bib
+  (mahony2012, px4userguide, astrom2008, turpin2014, khatib1986, buttazzo2011, love2010, harel1987, eugster2003).
+Clean build: 0 errors, 0 undefined citations or references, 0 overfull, 92 pages.
 NEXT: Ingénieur layout pass (B13).
