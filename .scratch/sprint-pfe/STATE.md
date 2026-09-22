@@ -2287,7 +2287,7 @@ Per-page text-line survey and visual check on main_ingenieur.pdf. Three causes o
 Ingénieur build: 92 -> 90 pages total (PDF p. 90, arabic 89), 0 errors, 0 undefined citations or references,
 0 overfull boxes. All chapter scripts pass with 0 FAIL.
 REMAINING DEPOSIT ITEMS FOR AUTHOR:
-- One sentence on how the SoA studies were selected (scopes every silence claim; issue 19 m15).
+- [RESOLVED Sat 26 Sep] One sentence on how the SoA studies were selected added to Ch3 introduction (searches of IEEE Xplore, ACM DL, arXiv 2017-2026; empirical latency/check/edge deployment inclusion criteria; issue 19 m15 closed).
 - Examiner question with no answer anywhere: why processor affinity alone, not a real-time
-  scheduling policy or core isolation.
+  scheduling policy or core isolation (oral defense answer prepared: userspace feasibility, memory/cache interference mechanism, Exp-2 empirical evidence).
 - Ch5's "not built" statements about the demo chain (known since 24 Sep, left as deposited).
