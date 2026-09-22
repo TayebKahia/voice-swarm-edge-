@@ -2289,7 +2289,9 @@ Ingénieur build: 92 -> 90 pages total (PDF p. 90, arabic 89), 0 errors, 0 undef
 REMAINING DEPOSIT ITEMS FOR AUTHOR:
 - [RESOLVED Sat 26 Sep] One sentence on how the SoA studies were selected added to Ch3 introduction (searches of IEEE Xplore, ACM DL, arXiv 2017-2026; empirical latency/check/edge deployment inclusion criteria; issue 19 m15 closed).
 - [RESOLVED Sat 26 Sep] Supervisor request (Mr. Khaldi): Table 6.3 (End-to-end command-to-formation pipeline latency across formations) added to Chapter 6 (generated/table_formation_latency.tex). Compiles empirical Exp-2 Pi 5 edge stages with Exp-4 kinematic convergence across Circle, Line, Wedge, and Reflex Hold.
+- [RESOLVED Sat 26 Sep] Caption streamlining pass: all figure and table captions reviewed and shortened across Ingénieur chapters (Figure 4.1 from 139 to 45 words, Figure 6.1 from 155 to 62 words, and all table captions to under 38 words). Document maintains exactly 90 pages, 0 errors, 0 warnings.
 - Examiner question with no answer anywhere: why processor affinity alone, not a real-time
   scheduling policy or core isolation (oral defense answer prepared: userspace feasibility, memory/cache interference mechanism, Exp-2 empirical evidence).
 - Ch5's "not built" statements about the demo chain (known since 24 Sep, left as deposited).
+
 
