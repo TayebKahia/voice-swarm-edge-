@@ -7,8 +7,8 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | status | check | line | finding |
 |---|---|---|---|
 | WARN | numbers |  | 10 significant number(s) found in no source file -- see the number trace |
-| WARN | acronym | 75 | `UAV` typed by hand 3x (lines 75, 203, 227) -- \gls{uav} (the first \gls expands itself) |
-| WARN | acronym | 83 | `LLM` typed by hand 3x (lines 83, 491, 510) -- \gls{llm} (the first \gls expands itself) |
+| WARN | acronym | 75 | `UAV` typed by hand 3x (lines 75, 198, 217) -- \gls{uav} (the first \gls expands itself) |
+| WARN | acronym | 83 | `LLM` typed by hand 3x (lines 83, 474, 493) -- \gls{llm} (the first \gls expands itself) |
 | PASS | check_tex |  | tools/check_tex.py: no problems beyond cross-chapter \ref (resolved below) |
 | PASS | ref |  | every \ref resolves within the document |
 | PASS | cite |  | 29 distinct keys cited, all resolved |
@@ -52,34 +52,34 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | PASS | paper-number | 80 | anchor `three real quadcopters` present |
 | PASS | paper-number | 90 | anchor `Q5\_K\_M` present |
 | PASS | paper-number | 102 | anchor `six general-purpose language models` present |
-| PASS | float | 120 | tab:voice-uav-survey referenced before it appears (line 46) |
-| PASS | paper-number | 136 | anchor `6.7--14B` present |
-| PASS | paper-number | 178 | anchor `0.81 at 1.233~s` present |
-| PASS | paper-number | 178 | anchor `0.99 at
+| PASS | float | 115 | tab:voice-uav-survey referenced before it appears (line 46) |
+| PASS | paper-number | 131 | anchor `6.7--14B` present |
+| PASS | paper-number | 173 | anchor `0.81 at 1.233~s` present |
+| PASS | paper-number | 173 | anchor `0.99 at
 0.021~s` present |
-| PASS | paper-number | 180 | anchor `93\% at 7~ms` present |
-| PASS | paper-number | 181 | anchor `79\% at 202~ms` present |
-| PASS | paper-number | 183 | anchor `82\% and 59\%` present |
-| PASS | paper-number | 183 | anchor `106~ms on a` present |
-| PASS | paper-number | 193 | anchor `1{,}006~ms to 81~ms` present |
-| PASS | float | 217 | tab:soa-dual-path referenced before it appears (line 205) |
-| PASS | paper-number | 268 | anchor `20~Hz` present |
-| PASS | paper-number | 269 | anchor `0.5~m/s` present |
-| PASS | paper-number | 269 | anchor `3, 10 and 30` present |
-| PASS | paper-number | 273 | anchor `34~s for 3 drones` present |
-| PASS | paper-number | 273 | anchor `above 100~s` present |
-| PASS | float | 288 | tab:soa-swarm referenced before it appears (line 279) |
-| PASS | paper-number | 334 | anchor `about 4.0~s` present |
-| PASS | paper-number | 335 | anchor `about 5.2~s` present |
-| PASS | paper-number | 341 | anchor `680{,}000 hours` present |
-| PASS | paper-number | 342 | anchor `39 million` present |
-| PASS | paper-number | 345 | anchor `80~ms frame` present |
-| PASS | paper-number | 347 | anchor `32~ms windows` present |
-| PASS | float | 361 | tab:soa-speech referenced before it appears (line 348) |
-| PASS | paper-number | 488 | anchor `temperature of 0.2` present |
-| PASS | paper-number | 491 | anchor `in 38\%` present |
-| PASS | paper-number | 492 | anchor `40\%, is obtained` present |
-| PASS | float | 504 | tab:lim-positioning referenced before it appears (line 494) |
+| PASS | paper-number | 175 | anchor `93\% at 7~ms` present |
+| PASS | paper-number | 176 | anchor `79\% at 202~ms` present |
+| PASS | paper-number | 178 | anchor `82\% and 59\%` present |
+| PASS | paper-number | 178 | anchor `106~ms on a` present |
+| PASS | paper-number | 188 | anchor `1{,}006~ms to 81~ms` present |
+| PASS | float | 207 | tab:soa-dual-path referenced before it appears (line 200) |
+| PASS | paper-number | 258 | anchor `20~Hz` present |
+| PASS | paper-number | 259 | anchor `0.5~m/s` present |
+| PASS | paper-number | 259 | anchor `3, 10 and 30` present |
+| PASS | paper-number | 263 | anchor `34~s for 3 drones` present |
+| PASS | paper-number | 263 | anchor `above 100~s` present |
+| PASS | float | 278 | tab:soa-swarm referenced before it appears (line 269) |
+| PASS | paper-number | 324 | anchor `about 4.0~s` present |
+| PASS | paper-number | 325 | anchor `about 5.2~s` present |
+| PASS | paper-number | 331 | anchor `680{,}000 hours` present |
+| PASS | paper-number | 332 | anchor `39 million` present |
+| PASS | paper-number | 335 | anchor `80~ms frame` present |
+| PASS | paper-number | 337 | anchor `32~ms windows` present |
+| PASS | float | 344 | tab:soa-speech referenced before it appears (line 338) |
+| PASS | paper-number | 471 | anchor `temperature of 0.2` present |
+| PASS | paper-number | 474 | anchor `in 38\%` present |
+| PASS | paper-number | 475 | anchor `40\%, is obtained` present |
+| PASS | float | 487 | tab:lim-positioning referenced before it appears (line 477) |
 
 ### Citation sheet (for the citation agent: open each identifier, judge SUPPORTS / PARTIAL / DOES NOT SUPPORT per row)
 
@@ -102,89 +102,89 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 15 | 106 | iannoli2026 | They find that the models still struggle to execute even simple swarm tasks reliably without explicit grounding and execution support, and that task-specific planning tools and runtime guardrails substantially improve robustness~\cite{iannoli2026}. |
 | 16 | 107 | skysim2026 | SkySim plans waypoints for a swarm with a cloud-hosted model above a potential-field layer~\cite{skysim2026}, and CommandSwarm turns speech or text into behaviour trees for a robotic swarm, gated by a deterministic parser~\cite{commandswarm2026}; Section~\ref{sec:swarm-control-sota} compares their control layers. |
 | 17 | 108 | commandswarm2026 | SkySim plans waypoints for a swarm with a cloud-hosted model above a potential-field layer~\cite{skysim2026}, and CommandSwarm turns speech or text into behaviour trees for a robotic swarm, gated by a deterministic parser~\cite{commandswarm2026}; Section~\ref{sec:swarm-control-sota} compares their control layers. |
-| 18 | 125 | landau2017 | \midrule Landau and van Delden~\cite{landau2017} & Speech & One \gls{uav} & Nuance recogniser; no language model & Regular-expression command language \\ |
-| 19 | 126 | contreras2020 | Contreras et al.~\cite{contreras2020} & Speech & One simulated \gls{uav} & Cloud recogniser; no language model & Matching against domain phonemes \\ |
-| 20 | 127 | chatgptrobotics2024 | Vemprala et al.~\cite{chatgptrobotics2024} & Text & Robots, including aerial & ChatGPT, remote & Human on the loop \\ |
-| 21 | 128 | typefly2024 | TypeFly~\cite{typefly2024} & Text & One \gls{uav} & GPT-4, remote & Plan language; no check stated \\ |
-| 22 | 129 | silva2026 | Silva and Burke~\cite{silva2026} & --- & \glspl{uav} & Mostly cloud models & Server-side validation; geofence \\ |
-| 23 | 130 | lim2025 | Lim et al.~\cite{lim2025} & Text & One \gls{uav} & Open models, local \gls{gpu} workstation & Prompt format; temperature 0.2 \\ |
-| 24 | 131 | sikorski2025 | Sikorski et al.~\cite{sikorski2025} & Speech & One ground robot & GPT-4-Turbo, remote, or LLaMA~2-7B on a control computer & Validity test, unspecified \\ |
-| 25 | 132 | torkamani2025 | Torkamani and Zarin~\cite{torkamani2025} & Speech & Internet-of-Things devices & Edge (Jetson) or cloud, routed at run time & Rule-based validation and repair \\ |
-| 26 | 133 | swarmchat2025 | SwarmChat~\cite{swarmchat2025} & Speech, text, teleoperation & Robot swarm & Modules based on language models; --- & Rule-based intent keywords \\ |
-| 27 | 134 | iannoli2026 | Iannoli et al.~\cite{iannoli2026} & Text & \gls{uav} swarm & Six general-purpose models; --- & Planning tools; runtime guardrails \\ |
-| 28 | 135 | skysim2026 | SkySim~\cite{skysim2026} & Text & \gls{uav} swarm, 3--30 & Gemini 3.5 Pro, remote & Waypoint bounds; potential-field layer \\ |
-| 29 | 136 | commandswarm2026 | Command\-Swarm~\cite{commandswarm2026} & Speech or text & Robot swarm & Open models of 6.7--14B, 4-bit; --- & Primitive whitelist; parser; safety classifier \\ |
-| 30 | 179 | simoes2024 | The cascade reaches an accuracy of 0.81 at 1.233~s, the direct classifier 0.99 at 0.021~s~\cite{simoes2024}. |
-| 31 | 184 | henry2026 | On the full spontaneous test set the figures are 82\% and 59\%, and the 7~ms is measured on a \gls{gpu} (106~ms on a \gls{cpu})~\cite{henry2026}. |
-| 32 | 188 | dualattn2023 | The wake-word frames receive the cheaper branch, in order to save computation~\cite{dualattn2023}. |
-| 33 | 194 | relays2s | A lightweight learned verifier decides whether the fast draft is committed, and the 90th-percentile latency of the first chunk falls from 1{,}006~ms to 81~ms on synthetic dialogues, excluding speech synthesis and network time~\cite{relays2s}. |
-| 34 | 195 | mira | MIRA combines low-latency barge-in preemption and streaming response generation with deliberative turn decisions in a dual-timescale interaction policy~\cite{mira}. |
-| 35 | 204 | chatwithuav2025 | \paragraph{A split by function.} Chat with UAV divides planning and execution between two language-model agents~\cite{chatwithuav2025}. |
-| 36 | 222 | simoes2024 | \midrule Sim\~oes et al.~\cite{simoes2024} & Direct speech-to-command classifier; recognition then a language model & Alternatives & The command & --- & 0.021~s; 1.233~s \\ |
-| 37 | 223 | henry2026 | Henry et al.~\cite{henry2026} & Transcription-free intent recogniser; Whisper then CamemBERT-Large & Alternatives & The intent & --- & 7~ms (\gls{gpu}), 106~ms (\gls{cpu}); 202~ms \\ |
-| 38 | 224 | dualattn2023 | Sahai et al.~\cite{dualattn2023} & Cheaper attention branch; full branch, in one recognition model & One model, per frame & Nothing; wake-word spotting picks the branch per frame & Computation & --- \\ |
-| 39 | 225 | relays2s | RelayS2S~\cite{relays2s} & Duplex speech-to-speech draft; recognition then a language model & Concurrent; learned verifier & The opening of a response, if committed & Responsiveness & 81~ms; 1{,}006~ms at p90, first chunk \\ |
-| 40 | 226 | mira | MIRA~\cite{mira} & Barge-in gate on voice activity; deliberative turn decisions & Concurrent; preemption & One action: abort the response and stop motion & Barge-in & 466~ms, median from speech onset; --- \\ |
-| 41 | 227 | chatwithuav2025 | Chat with UAV~\cite{chatwithuav2025} & None: planning agent and execution agent, both language models & Split by function & --- & --- & --- \\ |
-| 42 | 257 | reynolds1987 | The first two are foundations, set out in Section~\ref{sec:bg-swarm}: Reynolds' flocking rules~\cite{reynolds1987} and the artificial potential field, whose failure modes Koren and Borenstein identify as inherent to the method~\cite{koren1991}. |
-| 43 | 259 | koren1991 | The first two are foundations, set out in Section~\ref{sec:bg-swarm}: Reynolds' flocking rules~\cite{reynolds1987} and the artificial potential field, whose failure modes Koren and Borenstein identify as inherent to the method~\cite{koren1991}. |
-| 44 | 267 | llm2swarm2024 | They describe their contribution as mainly conceptual, demonstrated in simulated showcases and in a preliminary test that ran TinyLlama on a Raspberry~Pi~5~\cite{llm2swarm2024}. |
-| 45 | 270 | skysim2026 | SkySim places a cloud-hosted planner, Gemini 3.5 Pro, above an artificial-potential-field layer running at 20~Hz that repels vehicles from one another, with speed saturated at 0.5~m/s, for swarms of 3, 10 and 30 simulated drones in Gazebo with ROS~2~\cite{skysim2026}. |
-| 46 | 274 | skysim2026 | The mean planning latency rises from 34~s for 3 drones to 50~s for 10, with outliers above 100~s, a latency its authors judge unsuitable for time-critical missions~\cite{skysim2026}. |
-| 47 | 277 | commandswarm2026 | It targets a PyGame-based swarm simulator but scores its generated trees by text-similarity metrics and parser acceptance rather than executing them~\cite{commandswarm2026}. |
-| 48 | 278 | iannoli2026 | Iannoli et al.\ run general-purpose models in ArduPilot software-in-the-loop simulation with planning tools and runtime guardrails~\cite{iannoli2026}. |
-| 49 | 293 | reynolds1987 | \midrule Reynolds~\cite{reynolds1987} & Three local rules: separation, velocity matching, centring & Collision-avoidance rule & None & --- \\ |
-| 50 | 294 | koren1991 | Koren and Borenstein~\cite{koren1991} & --- & Potential field; failure modes analysed & None & --- \\ |
-| 51 | 295 | llm2swarm2024 | Strobel et al.~\cite{llm2swarm2024} & --- & --- & Indirect: synthesises and validates controllers; or direct: one instance per robot & Mainly conceptual; ARGoS showcases; TinyLlama timed on a Raspberry~Pi~5 \\ |
-| 52 | 296 | skysim2026 | SkySim~\cite{skysim2026} & Waypoints from the planner & Potential-field layer at 20~Hz; speed saturated at 0.5~m/s & Remote planner above the control layer; geofence in the planner & Gazebo with ROS~2; 3, 10 and 30 drones \\ |
-| 53 | 297 | iannoli2026 | Iannoli et al.~\cite{iannoli2026} & --- & --- & General-purpose models with planning tools and runtime guardrails & ArduPilot software-in-the-loop; four missions \\ |
-| 54 | 298 | commandswarm2026 | Command\-Swarm~\cite{commandswarm2026} & Behaviour trees of whitelisted primitives & --- & Generates the tree; a safety classifier screens the command before generation, a parser the tree after & Trees scored, not executed \\ |
-| 55 | 311 | koren1991 | It is a potential field, the method whose failure modes the analysis of Koren and Borenstein catalogues, including the absence of a passage between closely spaced obstacles~\cite{koren1991}. |
-| 56 | 325 | oww | For two of the open components described below, openWakeWord~\cite{oww} and Silero~\gls{vad}~\cite{silero}, no peer-reviewed description was found at all; both are software releases and are cited as such. |
-| 57 | 326 | silero | For two of the open components described below, openWakeWord~\cite{oww} and Silero~\gls{vad}~\cite{silero}, no peer-reviewed description was found at all; both are software releases and are cited as such. |
-| 58 | 330 | landau2017 | \paragraph{Recognisers in the reviewed systems.} The fixed-language systems use a recogniser as a service: the Nuance platform for Landau and van Delden~\cite{landau2017}, and a cloud recogniser corrected against domain phonemes for Contreras et al.~\cite{contreras2020}. |
-| 59 | 331 | contreras2020 | \paragraph{Recognisers in the reviewed systems.} The fixed-language systems use a recogniser as a service: the Nuance platform for Landau and van Delden~\cite{landau2017}, and a cloud recogniser corrected against domain phonemes for Contreras et al.~\cite{contreras2020}. |
-| 60 | 332 | sikorski2025 | Sikorski et al.\ recognise speech offline with VOSK~\cite{sikorski2025}, and Torkamani and Zarin with a tiny 8-bit Whisper model, run through faster-whisper on a Jetson board~\cite{torkamani2025}. |
-| 61 | 333 | torkamani2025 | Sikorski et al.\ recognise speech offline with VOSK~\cite{sikorski2025}, and Torkamani and Zarin with a tiny 8-bit Whisper model, run through faster-whisper on a Jetson board~\cite{torkamani2025}. |
-| 62 | 336 | commandswarm2026 | Whisper-medium speech translation, at about 5.2~s, was the rejected alternative~\cite{commandswarm2026}. |
-| 63 | 338 | henry2026, simoes2024 | The cascade of Henry et al.\ transcribes with Whisper before an intent classifier, and their direct recogniser and the classifier of Sim\~oes et al.\ decide without a transcript~\cite{henry2026,simoes2024}. |
-| 64 | 339 | mira | MIRA's interruption gate reacts to voice activity alone, without transcription~\cite{mira}. |
-| 65 | 342 | whisper | \paragraph{Open components.} Whisper is trained on 680{,}000 hours of weakly supervised audio, and its smallest English-only model, \texttt{tiny.en}, has 39 million parameters~\cite{whisper}. |
-| 66 | 343 | whispercpp | \paragraph{Open components.} Whisper is trained on 680{,}000 hours of weakly supervised audio, and its smallest English-only model, \texttt{tiny.en}, has 39 million parameters~\cite{whisper}. \texttt{whisper.cpp}~\cite{whispercpp} runs Whisper models in C and C++ on the \gls{cpu}, with no Python runtime on the inferenc |
-| 67 | 346 | oww | openWakeWord supplies a frozen feature front end that turns audio into one speech embedding per 80~ms frame, over which small classifier heads can be trained for arbitrary phrases~\cite{oww}. |
-| 68 | 347 | silero | Silero \gls{vad} is a pre-trained neural voice-activity detector distributed as an ONNX model that processes 32~ms windows with a recurrent state~\cite{silero}. |
-| 69 | 366 | landau2017 | \midrule Landau and van Delden~\cite{landau2017} & Nuance platform & --- & No & --- \\ |
-| 70 | 367 | contreras2020 | Contreras et al.~\cite{contreras2020} & Cloud recogniser, corrected against domain phonemes & No & No & --- \\ |
-| 71 | 368 | simoes2024 | Sim\~oes et al.~\cite{simoes2024} & Recognition then a language model & --- & Direct classifier & Whole pipeline 1.233~s (cascade), 0.021~s (direct); --- \\ |
-| 72 | 369 | henry2026 | Henry et al.~\cite{henry2026} & Whisper, then CamemBERT-Large & --- & Direct intent recogniser & 202~ms (cascade); 7~ms on a \gls{gpu}, 106~ms on a \gls{cpu} (direct) \\ |
-| 73 | 370 | sikorski2025 | Sikorski et al.~\cite{sikorski2025} & VOSK & Yes & No & --- \\ |
-| 74 | 371 | torkamani2025 | Torkamani and Zarin~\cite{torkamani2025} & Whisper tiny, 8-bit, via faster-whisper & Yes & No & ---; Jetson Xavier~NX \\ |
-| 75 | 372 | commandswarm2026 | Command\-Swarm~\cite{commandswarm2026} & SeamlessM4T v2-large; Whisper-medium rejected & Not claimed & No & About 4.0~s and 5.2~s per utterance; unstated hardware \\ |
-| 76 | 373 | mira | MIRA~\cite{mira} & Not named & --- & Gate on voice activity & Endpointing 10.0~ms, gate 466~ms (medians); host unstated \\ |
-| 77 | 393 | henry2026 | None allocates a latency budget to its speech stage; Henry et al.\ set their 7~ms against a 100~ms end-to-end limit they cite for teleoperation~\cite{henry2026}. |
-| 78 | 402 | torkamani2025, silva2026, skysim2026, commandswarm2026 | Deterministic, automated checks appear in recent systems~\cite{torkamani2025,silva2026,skysim2026,commandswarm2026}, beside runtime guardrails that re-prompt the model~\cite{iannoli2026}. |
-| 79 | 403 | iannoli2026 | Deterministic, automated checks appear in recent systems~\cite{torkamani2025,silva2026,skysim2026,commandswarm2026}, beside runtime guardrails that re-prompt the model~\cite{iannoli2026}. |
-| 80 | 405 | simoes2024, henry2026 | Transcription-free paths have been timed at one to two orders of magnitude below a cascade, with no loss of accuracy on the tasks measured, on a \gls{gpu} or on hardware the study does not state~\cite{simoes2024,henry2026}. |
-| 81 | 406 | relays2s, mira | Fast paths have run concurrently with slow ones, gated by a verifier or by preemption~\cite{relays2s,mira}. |
-| 82 | 408 | skysim2026 | Fast paths have run concurrently with slow ones, gated by a verifier or by preemption~\cite{relays2s,mira}. Language-model planners have been placed above a potential-field layer that keeps vehicles apart~\cite{skysim2026}. |
-| 83 | 410 | sikorski2025, torkamani2025 | Speech has been recognised offline and a local language model run beside it, on a desktop computer and on an edge board, each with a \gls{gpu}~\cite{sikorski2025,torkamani2025}. |
-| 84 | 411 | contreras2020 | Of the systems that take speech, one evaluates its recogniser under distortion~\cite{contreras2020}, and none reports in which direction its errors go as noise rises or measures the formation its commands produce; the second and third research questions of Section~\ref{sec:objectives} measure both, as evaluation rather |
-| 85 | 419 | commandswarm2026 | CommandSwarm covers spoken commands to a group of robots with the model's output checked deterministically before it takes effect~\cite{commandswarm2026}. |
-| 86 | 424 | skysim2026 | Its authors conclude that parser acceptance and safety filtering remain necessary execution gates and that generation quality alone is not sufficient, the position of Section~\ref{sec:safety-problem} reached independently. SkySim covers the separation of a planner from a lower layer that keeps vehicles apart at the con |
-| 87 | 426 | mira | MIRA covers an uninterpreted stop followed by a hold, preemption of the slower path, and a control-rate safety layer corresponding to the separation clamp at the integrator of this system~\cite{mira}. |
-| 88 | 428 | landau2017, contreras2020 | MIRA covers an uninterpreted stop followed by a hold, preemption of the slower path, and a control-rate safety layer corresponding to the separation clamp at the integrator of this system~\cite{mira}. Constraining what the operator may say is likewise established practice~\cite{landau2017,contreras2020}, and validation |
-| 89 | 429 | silva2026 | MIRA covers an uninterpreted stop followed by a hold, preemption of the slower path, and a control-rate safety layer corresponding to the separation clamp at the integrator of this system~\cite{mira}. Constraining what the operator may say is likewise established practice~\cite{landau2017,contreras2020}, and validation |
-| 90 | 430 | llm2swarm2024 | Like SkySim, and outside both categories of Strobel et al.~\cite{llm2swarm2024}, this system uses one model instance, on the operator's device, to map an utterance to a formation-level command for a conventional controller. |
-| 91 | 449 | silva2026, lim2025 | The stops that bypass that path are a human's: Silva and Burke's safety pilot disarms by radio, and Lim et al.'s operator switches to position mode~\cite{silva2026,lim2025}. |
-| 92 | 450 | skysim2026 | The layered design nearest to this one routes every command through a planner whose latency runs to tens of seconds~\cite{skysim2026}. |
-| 93 | 451 | typefly2024 | TypeFly answers the latency of generation by shortening the path every command takes~\cite{typefly2024}, and CommandSwarm lists emergency stop mechanisms only among the safeguards a real deployment should require~\cite{commandswarm2026}. |
-| 94 | 453 | commandswarm2026 | TypeFly answers the latency of generation by shortening the path every command takes~\cite{typefly2024}, and CommandSwarm lists emergency stop mechanisms only among the safeguards a real deployment should require~\cite{commandswarm2026}. |
-| 95 | 455 | mira | MIRA's gate does stop motion and preempt the slower path, once speech during the robot's playback has lasted 450~ms, at a median of 466~ms from speech onset~\cite{mira}. |
-| 96 | 469 | sikorski2025 | The offline arm of Sikorski et al.\ runs on a desktop computer with a \gls{gpu}, and its authors describe the offline model's limitations as significant~\cite{sikorski2025}. |
-| 97 | 472 | torkamani2025 | The nearest chain, that of Torkamani and Zarin, can run a tiny Whisper model and TinyLlama on a Jetson board with a \gls{gpu}, but prefers the cloud whenever the board's metrics allow~\cite{torkamani2025}. |
-| 98 | 475 | llm2swarm2024 | Strobel et al.\ ran TinyLlama on a Raspberry~Pi~5 only as a preliminary test of generation speed, without speech~\cite{llm2swarm2024}. |
-| 99 | 482 | lim2025 | \paragraph{The baseline.} The agent of Lim et al.~\cite{lim2025} is the baseline for this document because, among the systems reviewed, it is the one nearest to this one in the part of the design the \emph{M\'emoire de Master} fixes. |
-| 100 | 501 | lim2025 | \begin{table}[htbp] \centering \footnotesize \caption[Design points of Lim et al.\ and of this work]{Design points of the agent of Lim et al.~\cite{lim2025} and of this work. |
+| 18 | 120 | landau2017 | \midrule Landau and van Delden~\cite{landau2017} & Speech & One \gls{uav} & Nuance recogniser; no language model & Regular-expression command language \\ |
+| 19 | 121 | contreras2020 | Contreras et al.~\cite{contreras2020} & Speech & One simulated \gls{uav} & Cloud recogniser; no language model & Matching against domain phonemes \\ |
+| 20 | 122 | chatgptrobotics2024 | Vemprala et al.~\cite{chatgptrobotics2024} & Text & Robots, including aerial & ChatGPT, remote & Human on the loop \\ |
+| 21 | 123 | typefly2024 | TypeFly~\cite{typefly2024} & Text & One \gls{uav} & GPT-4, remote & Plan language; no check stated \\ |
+| 22 | 124 | silva2026 | Silva and Burke~\cite{silva2026} & --- & \glspl{uav} & Mostly cloud models & Server-side validation; geofence \\ |
+| 23 | 125 | lim2025 | Lim et al.~\cite{lim2025} & Text & One \gls{uav} & Open models, local \gls{gpu} workstation & Prompt format; temperature 0.2 \\ |
+| 24 | 126 | sikorski2025 | Sikorski et al.~\cite{sikorski2025} & Speech & One ground robot & GPT-4-Turbo, remote, or LLaMA~2-7B on a control computer & Validity test, unspecified \\ |
+| 25 | 127 | torkamani2025 | Torkamani and Zarin~\cite{torkamani2025} & Speech & Internet-of-Things devices & Edge (Jetson) or cloud, routed at run time & Rule-based validation and repair \\ |
+| 26 | 128 | swarmchat2025 | SwarmChat~\cite{swarmchat2025} & Speech, text, teleoperation & Robot swarm & Modules based on language models; --- & Rule-based intent keywords \\ |
+| 27 | 129 | iannoli2026 | Iannoli et al.~\cite{iannoli2026} & Text & \gls{uav} swarm & Six general-purpose models; --- & Planning tools; runtime guardrails \\ |
+| 28 | 130 | skysim2026 | SkySim~\cite{skysim2026} & Text & \gls{uav} swarm, 3--30 & Gemini 3.5 Pro, remote & Waypoint bounds; potential-field layer \\ |
+| 29 | 131 | commandswarm2026 | Command\-Swarm~\cite{commandswarm2026} & Speech or text & Robot swarm & Open models of 6.7--14B, 4-bit; --- & Primitive whitelist; parser; safety classifier \\ |
+| 30 | 174 | simoes2024 | The cascade reaches an accuracy of 0.81 at 1.233~s, the direct classifier 0.99 at 0.021~s~\cite{simoes2024}. |
+| 31 | 179 | henry2026 | On the full spontaneous test set the figures are 82\% and 59\%, and the 7~ms is measured on a \gls{gpu} (106~ms on a \gls{cpu})~\cite{henry2026}. |
+| 32 | 183 | dualattn2023 | The wake-word frames receive the cheaper branch, in order to save computation~\cite{dualattn2023}. |
+| 33 | 189 | relays2s | A lightweight learned verifier decides whether the fast draft is committed, and the 90th-percentile latency of the first chunk falls from 1{,}006~ms to 81~ms on synthetic dialogues, excluding speech synthesis and network time~\cite{relays2s}. |
+| 34 | 190 | mira | MIRA combines low-latency barge-in preemption and streaming response generation with deliberative turn decisions in a dual-timescale interaction policy~\cite{mira}. |
+| 35 | 199 | chatwithuav2025 | \paragraph{A split by function.} Chat with UAV divides planning and execution between two language-model agents~\cite{chatwithuav2025}. |
+| 36 | 212 | simoes2024 | \midrule Sim\~oes et al.~\cite{simoes2024} & Direct speech-to-command classifier; recognition then a language model & Alternatives & The command & --- & 0.021~s; 1.233~s \\ |
+| 37 | 213 | henry2026 | Henry et al.~\cite{henry2026} & Transcription-free intent recogniser; Whisper then CamemBERT-Large & Alternatives & The intent & --- & 7~ms (\gls{gpu}), 106~ms (\gls{cpu}); 202~ms \\ |
+| 38 | 214 | dualattn2023 | Sahai et al.~\cite{dualattn2023} & Cheaper attention branch; full branch, in one recognition model & One model, per frame & Nothing; wake-word spotting picks the branch per frame & Computation & --- \\ |
+| 39 | 215 | relays2s | RelayS2S~\cite{relays2s} & Duplex speech-to-speech draft; recognition then a language model & Concurrent; learned verifier & The opening of a response, if committed & Responsiveness & 81~ms; 1{,}006~ms at p90, first chunk \\ |
+| 40 | 216 | mira | MIRA~\cite{mira} & Barge-in gate on voice activity; deliberative turn decisions & Concurrent; preemption & One action: abort the response and stop motion & Barge-in & 466~ms, median from speech onset; --- \\ |
+| 41 | 217 | chatwithuav2025 | Chat with UAV~\cite{chatwithuav2025} & None: planning agent and execution agent, both language models & Split by function & --- & --- & --- \\ |
+| 42 | 247 | reynolds1987 | The first two are foundations, set out in Section~\ref{sec:bg-swarm}: Reynolds' flocking rules~\cite{reynolds1987} and the artificial potential field, whose failure modes Koren and Borenstein identify as inherent to the method~\cite{koren1991}. |
+| 43 | 249 | koren1991 | The first two are foundations, set out in Section~\ref{sec:bg-swarm}: Reynolds' flocking rules~\cite{reynolds1987} and the artificial potential field, whose failure modes Koren and Borenstein identify as inherent to the method~\cite{koren1991}. |
+| 44 | 257 | llm2swarm2024 | They describe their contribution as mainly conceptual, demonstrated in simulated showcases and in a preliminary test that ran TinyLlama on a Raspberry~Pi~5~\cite{llm2swarm2024}. |
+| 45 | 260 | skysim2026 | SkySim places a cloud-hosted planner, Gemini 3.5 Pro, above an artificial-potential-field layer running at 20~Hz that repels vehicles from one another, with speed saturated at 0.5~m/s, for swarms of 3, 10 and 30 simulated drones in Gazebo with ROS~2~\cite{skysim2026}. |
+| 46 | 264 | skysim2026 | The mean planning latency rises from 34~s for 3 drones to 50~s for 10, with outliers above 100~s, a latency its authors judge unsuitable for time-critical missions~\cite{skysim2026}. |
+| 47 | 267 | commandswarm2026 | It targets a PyGame-based swarm simulator but scores its generated trees by text-similarity metrics and parser acceptance rather than executing them~\cite{commandswarm2026}. |
+| 48 | 268 | iannoli2026 | Iannoli et al.\ run general-purpose models in ArduPilot software-in-the-loop simulation with planning tools and runtime guardrails~\cite{iannoli2026}. |
+| 49 | 283 | reynolds1987 | \midrule Reynolds~\cite{reynolds1987} & Three local rules: separation, velocity matching, centring & Collision-avoidance rule & None & --- \\ |
+| 50 | 284 | koren1991 | Koren and Borenstein~\cite{koren1991} & --- & Potential field; failure modes analysed & None & --- \\ |
+| 51 | 285 | llm2swarm2024 | Strobel et al.~\cite{llm2swarm2024} & --- & --- & Indirect: synthesises and validates controllers; or direct: one instance per robot & Mainly conceptual; ARGoS showcases; TinyLlama timed on a Raspberry~Pi~5 \\ |
+| 52 | 286 | skysim2026 | SkySim~\cite{skysim2026} & Waypoints from the planner & Potential-field layer at 20~Hz; speed saturated at 0.5~m/s & Remote planner above the control layer; geofence in the planner & Gazebo with ROS~2; 3, 10 and 30 drones \\ |
+| 53 | 287 | iannoli2026 | Iannoli et al.~\cite{iannoli2026} & --- & --- & General-purpose models with planning tools and runtime guardrails & ArduPilot software-in-the-loop; four missions \\ |
+| 54 | 288 | commandswarm2026 | Command\-Swarm~\cite{commandswarm2026} & Behaviour trees of whitelisted primitives & --- & Generates the tree; a safety classifier screens the command before generation, a parser the tree after & Trees scored, not executed \\ |
+| 55 | 301 | koren1991 | It is a potential field, the method whose failure modes the analysis of Koren and Borenstein catalogues, including the absence of a passage between closely spaced obstacles~\cite{koren1991}. |
+| 56 | 315 | oww | For two of the open components described below, openWakeWord~\cite{oww} and Silero~\gls{vad}~\cite{silero}, no peer-reviewed description was found at all; both are software releases and are cited as such. |
+| 57 | 316 | silero | For two of the open components described below, openWakeWord~\cite{oww} and Silero~\gls{vad}~\cite{silero}, no peer-reviewed description was found at all; both are software releases and are cited as such. |
+| 58 | 320 | landau2017 | \paragraph{Recognisers in the reviewed systems.} The fixed-language systems use a recogniser as a service: the Nuance platform for Landau and van Delden~\cite{landau2017}, and a cloud recogniser corrected against domain phonemes for Contreras et al.~\cite{contreras2020}. |
+| 59 | 321 | contreras2020 | \paragraph{Recognisers in the reviewed systems.} The fixed-language systems use a recogniser as a service: the Nuance platform for Landau and van Delden~\cite{landau2017}, and a cloud recogniser corrected against domain phonemes for Contreras et al.~\cite{contreras2020}. |
+| 60 | 322 | sikorski2025 | Sikorski et al.\ recognise speech offline with VOSK~\cite{sikorski2025}, and Torkamani and Zarin with a tiny 8-bit Whisper model, run through faster-whisper on a Jetson board~\cite{torkamani2025}. |
+| 61 | 323 | torkamani2025 | Sikorski et al.\ recognise speech offline with VOSK~\cite{sikorski2025}, and Torkamani and Zarin with a tiny 8-bit Whisper model, run through faster-whisper on a Jetson board~\cite{torkamani2025}. |
+| 62 | 326 | commandswarm2026 | Whisper-medium speech translation, at about 5.2~s, was the rejected alternative~\cite{commandswarm2026}. |
+| 63 | 328 | henry2026, simoes2024 | The cascade of Henry et al.\ transcribes with Whisper before an intent classifier, and their direct recogniser and the classifier of Sim\~oes et al.\ decide without a transcript~\cite{henry2026,simoes2024}. |
+| 64 | 329 | mira | MIRA's interruption gate reacts to voice activity alone, without transcription~\cite{mira}. |
+| 65 | 332 | whisper | \paragraph{Open components.} Whisper is trained on 680{,}000 hours of weakly supervised audio, and its smallest English-only model, \texttt{tiny.en}, has 39 million parameters~\cite{whisper}. |
+| 66 | 333 | whispercpp | \paragraph{Open components.} Whisper is trained on 680{,}000 hours of weakly supervised audio, and its smallest English-only model, \texttt{tiny.en}, has 39 million parameters~\cite{whisper}. \texttt{whisper.cpp}~\cite{whispercpp} runs Whisper models in C and C++ on the \gls{cpu}, with no Python runtime on the inferenc |
+| 67 | 336 | oww | openWakeWord supplies a frozen feature front end that turns audio into one speech embedding per 80~ms frame, over which small classifier heads can be trained for arbitrary phrases~\cite{oww}. |
+| 68 | 337 | silero | Silero \gls{vad} is a pre-trained neural voice-activity detector distributed as an ONNX model that processes 32~ms windows with a recurrent state~\cite{silero}. |
+| 69 | 349 | landau2017 | \midrule Landau and van Delden~\cite{landau2017} & Nuance platform & --- & No & --- \\ |
+| 70 | 350 | contreras2020 | Contreras et al.~\cite{contreras2020} & Cloud recogniser, corrected against domain phonemes & No & No & --- \\ |
+| 71 | 351 | simoes2024 | Sim\~oes et al.~\cite{simoes2024} & Recognition then a language model & --- & Direct classifier & Whole pipeline 1.233~s (cascade), 0.021~s (direct); --- \\ |
+| 72 | 352 | henry2026 | Henry et al.~\cite{henry2026} & Whisper, then CamemBERT-Large & --- & Direct intent recogniser & 202~ms (cascade); 7~ms on a \gls{gpu}, 106~ms on a \gls{cpu} (direct) \\ |
+| 73 | 353 | sikorski2025 | Sikorski et al.~\cite{sikorski2025} & VOSK & Yes & No & --- \\ |
+| 74 | 354 | torkamani2025 | Torkamani and Zarin~\cite{torkamani2025} & Whisper tiny, 8-bit, via faster-whisper & Yes & No & ---; Jetson Xavier~NX \\ |
+| 75 | 355 | commandswarm2026 | Command\-Swarm~\cite{commandswarm2026} & SeamlessM4T v2-large; Whisper-medium rejected & Not claimed & No & About 4.0~s and 5.2~s per utterance; unstated hardware \\ |
+| 76 | 356 | mira | MIRA~\cite{mira} & Not named & --- & Gate on voice activity & Endpointing 10.0~ms, gate 466~ms (medians); host unstated \\ |
+| 77 | 376 | henry2026 | None allocates a latency budget to its speech stage; Henry et al.\ set their 7~ms against a 100~ms end-to-end limit they cite for teleoperation~\cite{henry2026}. |
+| 78 | 385 | torkamani2025, silva2026, skysim2026, commandswarm2026 | Deterministic, automated checks appear in recent systems~\cite{torkamani2025,silva2026,skysim2026,commandswarm2026}, beside runtime guardrails that re-prompt the model~\cite{iannoli2026}. |
+| 79 | 386 | iannoli2026 | Deterministic, automated checks appear in recent systems~\cite{torkamani2025,silva2026,skysim2026,commandswarm2026}, beside runtime guardrails that re-prompt the model~\cite{iannoli2026}. |
+| 80 | 388 | simoes2024, henry2026 | Transcription-free paths have been timed at one to two orders of magnitude below a cascade, with no loss of accuracy on the tasks measured, on a \gls{gpu} or on hardware the study does not state~\cite{simoes2024,henry2026}. |
+| 81 | 389 | relays2s, mira | Fast paths have run concurrently with slow ones, gated by a verifier or by preemption~\cite{relays2s,mira}. |
+| 82 | 391 | skysim2026 | Fast paths have run concurrently with slow ones, gated by a verifier or by preemption~\cite{relays2s,mira}. Language-model planners have been placed above a potential-field layer that keeps vehicles apart~\cite{skysim2026}. |
+| 83 | 393 | sikorski2025, torkamani2025 | Speech has been recognised offline and a local language model run beside it, on a desktop computer and on an edge board, each with a \gls{gpu}~\cite{sikorski2025,torkamani2025}. |
+| 84 | 394 | contreras2020 | Of the systems that take speech, one evaluates its recogniser under distortion~\cite{contreras2020}, and none reports in which direction its errors go as noise rises or measures the formation its commands produce; the second and third research questions of Section~\ref{sec:objectives} measure both, as evaluation rather |
+| 85 | 402 | commandswarm2026 | CommandSwarm covers spoken commands to a group of robots with the model's output checked deterministically before it takes effect~\cite{commandswarm2026}. |
+| 86 | 407 | skysim2026 | Its authors conclude that parser acceptance and safety filtering remain necessary execution gates and that generation quality alone is not sufficient, the position of Section~\ref{sec:safety-problem} reached independently. SkySim covers the separation of a planner from a lower layer that keeps vehicles apart at the con |
+| 87 | 409 | mira | MIRA covers an uninterpreted stop followed by a hold, preemption of the slower path, and a control-rate safety layer corresponding to the separation clamp at the integrator of this system~\cite{mira}. |
+| 88 | 411 | landau2017, contreras2020 | MIRA covers an uninterpreted stop followed by a hold, preemption of the slower path, and a control-rate safety layer corresponding to the separation clamp at the integrator of this system~\cite{mira}. Constraining what the operator may say is likewise established practice~\cite{landau2017,contreras2020}, and validation |
+| 89 | 412 | silva2026 | MIRA covers an uninterpreted stop followed by a hold, preemption of the slower path, and a control-rate safety layer corresponding to the separation clamp at the integrator of this system~\cite{mira}. Constraining what the operator may say is likewise established practice~\cite{landau2017,contreras2020}, and validation |
+| 90 | 413 | llm2swarm2024 | Like SkySim, and outside both categories of Strobel et al.~\cite{llm2swarm2024}, this system uses one model instance, on the operator's device, to map an utterance to a formation-level command for a conventional controller. |
+| 91 | 432 | silva2026, lim2025 | The stops that bypass that path are a human's: Silva and Burke's safety pilot disarms by radio, and Lim et al.'s operator switches to position mode~\cite{silva2026,lim2025}. |
+| 92 | 433 | skysim2026 | The layered design nearest to this one routes every command through a planner whose latency runs to tens of seconds~\cite{skysim2026}. |
+| 93 | 434 | typefly2024 | TypeFly answers the latency of generation by shortening the path every command takes~\cite{typefly2024}, and CommandSwarm lists emergency stop mechanisms only among the safeguards a real deployment should require~\cite{commandswarm2026}. |
+| 94 | 436 | commandswarm2026 | TypeFly answers the latency of generation by shortening the path every command takes~\cite{typefly2024}, and CommandSwarm lists emergency stop mechanisms only among the safeguards a real deployment should require~\cite{commandswarm2026}. |
+| 95 | 438 | mira | MIRA's gate does stop motion and preempt the slower path, once speech during the robot's playback has lasted 450~ms, at a median of 466~ms from speech onset~\cite{mira}. |
+| 96 | 452 | sikorski2025 | The offline arm of Sikorski et al.\ runs on a desktop computer with a \gls{gpu}, and its authors describe the offline model's limitations as significant~\cite{sikorski2025}. |
+| 97 | 455 | torkamani2025 | The nearest chain, that of Torkamani and Zarin, can run a tiny Whisper model and TinyLlama on a Jetson board with a \gls{gpu}, but prefers the cloud whenever the board's metrics allow~\cite{torkamani2025}. |
+| 98 | 458 | llm2swarm2024 | Strobel et al.\ ran TinyLlama on a Raspberry~Pi~5 only as a preliminary test of generation speed, without speech~\cite{llm2swarm2024}. |
+| 99 | 465 | lim2025 | \paragraph{The baseline.} The agent of Lim et al.~\cite{lim2025} is the baseline for this document because, among the systems reviewed, it is the one nearest to this one in the part of the design the \emph{M\'emoire de Master} fixes. |
+| 100 | 484 | lim2025 | \begin{table}[htbp] \centering \footnotesize \caption[Design points of Lim et al.\ and of this work]{Design points of the agent of Lim et al.~\cite{lim2025} and of this work. |
 
 | key | title | year | identifier |
 |---|---|---|---|
@@ -223,11 +223,11 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | line | level | title | prose words |
 |---|---|---|---|
 | 17 | chapter | State of the art | 231 |
-| 36 | section | Language interfaces to robots | 1543 |
-| 165 | section | Fast-path and dual-path architectures | 1071 |
-| 252 | section | Swarm control | 785 |
-| 319 | section | Offline speech components | 869 |
-| 396 | section | Research gaps | 1941 |
+| 36 | section | Language interfaces to robots | 1496 |
+| 160 | section | Fast-path and dual-path architectures | 1004 |
+| 242 | section | Swarm control | 785 |
+| 309 | section | Offline speech components | 789 |
+| 379 | section | Research gaps | 1941 |
 
 ### Numbers quoted from papers (citation agent: find each in the paper)
 
@@ -243,29 +243,29 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 80 | three real quadcopters | silva2026 (primary source, not the candidate notes) |
 | 90 | Q5\_K\_M | sikorski2025 (primary source, not the candidate notes) |
 | 102 | six general-purpose language models | iannoli2026 (primary source, not the candidate notes) |
-| 178 | 0.81 at 1.233~s | simoes2024 (primary source, not the candidate notes) |
-| 178 | 0.99 at
+| 173 | 0.81 at 1.233~s | simoes2024 (primary source, not the candidate notes) |
+| 173 | 0.99 at
 0.021~s | simoes2024 (primary source, not the candidate notes) |
-| 180 | 93\% at 7~ms | henry2026 (primary source, not the candidate notes) |
-| 181 | 79\% at 202~ms | henry2026 (primary source, not the candidate notes) |
-| 183 | 82\% and 59\% | henry2026 (primary source, not the candidate notes) |
-| 183 | 106~ms on a | henry2026 (primary source, not the candidate notes) |
-| 193 | 1{,}006~ms to 81~ms | relays2s (primary source, not the candidate notes) |
-| 268 | 20~Hz | skysim2026 (primary source, not the candidate notes) |
-| 269 | 0.5~m/s | skysim2026 (primary source, not the candidate notes) |
-| 269 | 3, 10 and 30 | skysim2026 (primary source, not the candidate notes) |
-| 273 | 34~s for 3 drones | skysim2026 (primary source, not the candidate notes) |
-| 273 | above 100~s | skysim2026 (primary source, not the candidate notes) |
-| 334 | about 4.0~s | commandswarm2026 (primary source, not the candidate notes) |
-| 335 | about 5.2~s | commandswarm2026 (primary source, not the candidate notes) |
-| 136 | 6.7--14B | commandswarm2026 (primary source, not the candidate notes) |
-| 341 | 680{,}000 hours | whisper (primary source, not the candidate notes) |
-| 342 | 39 million | whisper (primary source, not the candidate notes) |
-| 345 | 80~ms frame | oww (primary source, not the candidate notes) |
-| 347 | 32~ms windows | silero (primary source, not the candidate notes) |
-| 491 | in 38\% | lim2025 (primary source, not the candidate notes) |
-| 492 | 40\%, is obtained | lim2025 (primary source, not the candidate notes) |
-| 488 | temperature of 0.2 | lim2025 (primary source, not the candidate notes) |
+| 175 | 93\% at 7~ms | henry2026 (primary source, not the candidate notes) |
+| 176 | 79\% at 202~ms | henry2026 (primary source, not the candidate notes) |
+| 178 | 82\% and 59\% | henry2026 (primary source, not the candidate notes) |
+| 178 | 106~ms on a | henry2026 (primary source, not the candidate notes) |
+| 188 | 1{,}006~ms to 81~ms | relays2s (primary source, not the candidate notes) |
+| 258 | 20~Hz | skysim2026 (primary source, not the candidate notes) |
+| 259 | 0.5~m/s | skysim2026 (primary source, not the candidate notes) |
+| 259 | 3, 10 and 30 | skysim2026 (primary source, not the candidate notes) |
+| 263 | 34~s for 3 drones | skysim2026 (primary source, not the candidate notes) |
+| 263 | above 100~s | skysim2026 (primary source, not the candidate notes) |
+| 324 | about 4.0~s | commandswarm2026 (primary source, not the candidate notes) |
+| 325 | about 5.2~s | commandswarm2026 (primary source, not the candidate notes) |
+| 131 | 6.7--14B | commandswarm2026 (primary source, not the candidate notes) |
+| 331 | 680{,}000 hours | whisper (primary source, not the candidate notes) |
+| 332 | 39 million | whisper (primary source, not the candidate notes) |
+| 335 | 80~ms frame | oww (primary source, not the candidate notes) |
+| 337 | 32~ms windows | silero (primary source, not the candidate notes) |
+| 474 | in 38\% | lim2025 (primary source, not the candidate notes) |
+| 475 | 40\%, is obtained | lim2025 (primary source, not the candidate notes) |
+| 471 | temperature of 0.2 | lim2025 (primary source, not the candidate notes) |
 
 ### For the citation agent
 
@@ -291,73 +291,73 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 74 | 1.5 | quoted from a paper (see "Numbers quoted from papers") |
 | 79 | 1{,}000 | quoted from a paper (see "Numbers quoted from papers") |
 | 79 | 110 | quoted from a paper (see "Numbers quoted from papers") |
-| 130 | 0.2 | measured: results/nfr18_false_command.md:10, results/nfr18_false_command.md:11 |
-| 135 | 3.5 | measured: thesis/generated/requirements_summary.tex:8, results/exp2.csv:9 |
-| 136 | 6.7 | quoted from a paper (see "Numbers quoted from papers") |
-| 138 | 0.5 | measured: results/nfr18_false_command.md:12, results/nfr18_false_command.md:13 |
-| 178 | 0.81 | quoted from a paper (see "Numbers quoted from papers") |
-| 178 | 1.233 | quoted from a paper (see "Numbers quoted from papers") |
-| 178 | 0.99 | quoted from a paper (see "Numbers quoted from papers") |
-| 179 | 0.021 | measured: results/wake_training.json:652, results/wake_training.json:731 |
-| 180 | 93 | quoted from a paper (see "Numbers quoted from papers") |
-| 180 | 7 | quoted from a paper (see "Numbers quoted from papers") |
-| 181 | 79 | quoted from a paper (see "Numbers quoted from papers") |
-| 181 | 202 | quoted from a paper (see "Numbers quoted from papers") |
-| 183 | 82 | quoted from a paper (see "Numbers quoted from papers") |
-| 183 | 59 | quoted from a paper (see "Numbers quoted from papers") |
-| 183 | 7 | quoted from a paper (see "Numbers quoted from papers") |
-| 183 | 106 | quoted from a paper (see "Numbers quoted from papers") |
-| 193 | 1{,}006 | quoted from a paper (see "Numbers quoted from papers") |
-| 193 | 81 | quoted from a paper (see "Numbers quoted from papers") |
-| 222 | 0.021 | measured: results/wake_training.json:652, results/wake_training.json:731 |
-| 222 | 1.233 | **UNTRACED** |
-| 223 | 7 | measured: results/table16_asr_speaker_sensitivity.md:19, results/table16_asr_speaker_sensitivity.md:21 |
-| 223 | 106 | **UNTRACED** |
-| 223 | 202 | **UNTRACED** |
-| 225 | 81 | measured: results/limitation_abstention.md:79, results/table17_model_comparison.md:12 x100 |
-| 225 | 1{,}006 | **UNTRACED** |
-| 226 | 466 | measured: results/wake_training.json:2473 x100, results/wake_training.json:2481 x100 |
-| 229 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:21 |
-| 229 | 2{,}500 | measured: results/exp2_latency_budget.md:18, results/exp2_latency_budget.md:19 |
-| 243 | 21 | measured: results/exp3_pi_analysis.md:73, results/exp3_pi_analysis.md:83 |
-| 244 | 1{,}233 | **UNTRACED** |
-| 244 | 7 | measured: results/table16_asr_speaker_sensitivity.md:19, results/table16_asr_speaker_sensitivity.md:21 |
-| 244 | 202 | **UNTRACED** |
-| 245 | 7 | measured: results/table16_asr_speaker_sensitivity.md:19, results/table16_asr_speaker_sensitivity.md:21 |
-| 245 | 106 | **UNTRACED** |
-| 248 | 466 | measured: results/wake_training.json:2473 x100, results/wake_training.json:2481 x100 |
-| 249 | 450 | measured: results/wake_training.md:32, results/exp3_pi_analysis.md:3 |
-| 267 | 3.5 | measured: thesis/generated/requirements_summary.tex:8, results/exp2.csv:9 |
-| 268 | 20 | quoted from a paper (see "Numbers quoted from papers") |
-| 269 | 0.5 | quoted from a paper (see "Numbers quoted from papers") |
-| 273 | 100 | quoted from a paper (see "Numbers quoted from papers") |
-| 296 | 20 | measured: results/table16_asr_speaker_sensitivity.md:24, results/exp3_pi_analysis.md:15 |
-| 296 | 0.5 | measured: results/nfr18_false_command.md:12, results/nfr18_false_command.md:13 |
-| 300 | 50 | measured: results/exp2_latency_budget.md:11, results/exp2_latency_budget.md:17 |
-| 300 | 24 | measured: results/table16_asr_speaker_sensitivity.md:12, results/table16_asr_speaker_sensitivity.md:13 |
-| 334 | 4.0 | quoted from a paper (see "Numbers quoted from papers") |
-| 335 | 5.2 | quoted from a paper (see "Numbers quoted from papers") |
-| 341 | 680{,}000 | quoted from a paper (see "Numbers quoted from papers") |
-| 345 | 80 | quoted from a paper (see "Numbers quoted from papers") |
-| 347 | 32 | quoted from a paper (see "Numbers quoted from papers") |
-| 368 | 1.233 | **UNTRACED** |
-| 368 | 0.021 | measured: results/wake_training.json:652, results/wake_training.json:731 |
-| 369 | 202 | **UNTRACED** |
-| 369 | 7 | measured: results/table16_asr_speaker_sensitivity.md:19, results/table16_asr_speaker_sensitivity.md:21 |
-| 369 | 106 | **UNTRACED** |
-| 372 | 4.0 | measured: results/nfr18_false_command.md:10, results/nfr18_false_command.md:12 |
-| 372 | 5.2 | measured: results/wake_training.json:163 x100, results/wake_training.json:510 x100 |
-| 373 | 10.0 | measured: results/table16_asr_speaker_sensitivity.md:9, results/table16_asr_speaker_sensitivity.md:11 |
-| 373 | 466 | measured: results/wake_training.json:2473 x100, results/wake_training.json:2481 x100 |
-| 387 | 7 | measured: results/table16_asr_speaker_sensitivity.md:19, results/table16_asr_speaker_sensitivity.md:21 |
-| 392 | 7 | measured: results/table16_asr_speaker_sensitivity.md:19, results/table16_asr_speaker_sensitivity.md:21 |
-| 392 | 100 | measured: results/thermal_headroom.md:10, results/thermal_headroom.md:12 |
-| 454 | 450 | measured: results/wake_training.md:32, results/exp3_pi_analysis.md:3 |
-| 454 | 466 | measured: results/wake_training.json:2473 x100, results/wake_training.json:2481 x100 |
-| 458 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:21 |
-| 487 | 3080 | measured: results/exp4.csv:2 x100, results/exp4.csv:3 x100 |
-| 488 | 0.2 | quoted from a paper (see "Numbers quoted from papers") |
-| 491 | 38 | quoted from a paper (see "Numbers quoted from papers") |
-| 492 | 40 | quoted from a paper (see "Numbers quoted from papers") |
-| 512 | 0.2 | measured: results/nfr18_false_command.md:10, results/nfr18_false_command.md:11 |
-| 513 | 3080 | measured: results/exp4.csv:2 x100, results/exp4.csv:3 x100 |
+| 125 | 0.2 | measured: results/nfr18_false_command.md:10, results/nfr18_false_command.md:11 |
+| 130 | 3.5 | measured: thesis/generated/requirements_summary.tex:8, results/exp2.csv:9 |
+| 131 | 6.7 | quoted from a paper (see "Numbers quoted from papers") |
+| 133 | 0.5 | measured: results/nfr18_false_command.md:12, results/nfr18_false_command.md:13 |
+| 173 | 0.81 | quoted from a paper (see "Numbers quoted from papers") |
+| 173 | 1.233 | quoted from a paper (see "Numbers quoted from papers") |
+| 173 | 0.99 | quoted from a paper (see "Numbers quoted from papers") |
+| 174 | 0.021 | measured: results/wake_training.json:652, results/wake_training.json:731 |
+| 175 | 93 | quoted from a paper (see "Numbers quoted from papers") |
+| 175 | 7 | quoted from a paper (see "Numbers quoted from papers") |
+| 176 | 79 | quoted from a paper (see "Numbers quoted from papers") |
+| 176 | 202 | quoted from a paper (see "Numbers quoted from papers") |
+| 178 | 82 | quoted from a paper (see "Numbers quoted from papers") |
+| 178 | 59 | quoted from a paper (see "Numbers quoted from papers") |
+| 178 | 7 | quoted from a paper (see "Numbers quoted from papers") |
+| 178 | 106 | quoted from a paper (see "Numbers quoted from papers") |
+| 188 | 1{,}006 | quoted from a paper (see "Numbers quoted from papers") |
+| 188 | 81 | quoted from a paper (see "Numbers quoted from papers") |
+| 212 | 0.021 | measured: results/wake_training.json:652, results/wake_training.json:731 |
+| 212 | 1.233 | **UNTRACED** |
+| 213 | 7 | measured: results/table16_asr_speaker_sensitivity.md:19, results/table16_asr_speaker_sensitivity.md:21 |
+| 213 | 106 | **UNTRACED** |
+| 213 | 202 | **UNTRACED** |
+| 215 | 81 | measured: results/limitation_abstention.md:79, results/table17_model_comparison.md:12 x100 |
+| 215 | 1{,}006 | **UNTRACED** |
+| 216 | 466 | measured: results/wake_training.json:2473 x100, results/wake_training.json:2481 x100 |
+| 219 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:21 |
+| 219 | 2{,}500 | measured: results/exp2_latency_budget.md:18, results/exp2_latency_budget.md:19 |
+| 233 | 21 | measured: results/exp3_pi_analysis.md:73, results/exp3_pi_analysis.md:83 |
+| 234 | 1{,}233 | **UNTRACED** |
+| 234 | 7 | measured: results/table16_asr_speaker_sensitivity.md:19, results/table16_asr_speaker_sensitivity.md:21 |
+| 234 | 202 | **UNTRACED** |
+| 235 | 7 | measured: results/table16_asr_speaker_sensitivity.md:19, results/table16_asr_speaker_sensitivity.md:21 |
+| 235 | 106 | **UNTRACED** |
+| 238 | 466 | measured: results/wake_training.json:2473 x100, results/wake_training.json:2481 x100 |
+| 239 | 450 | measured: results/wake_training.md:32, results/exp3_pi_analysis.md:3 |
+| 257 | 3.5 | measured: thesis/generated/requirements_summary.tex:8, results/exp2.csv:9 |
+| 258 | 20 | quoted from a paper (see "Numbers quoted from papers") |
+| 259 | 0.5 | quoted from a paper (see "Numbers quoted from papers") |
+| 263 | 100 | quoted from a paper (see "Numbers quoted from papers") |
+| 286 | 20 | measured: results/table16_asr_speaker_sensitivity.md:24, results/exp3_pi_analysis.md:15 |
+| 286 | 0.5 | measured: results/nfr18_false_command.md:12, results/nfr18_false_command.md:13 |
+| 290 | 50 | measured: results/exp2_latency_budget.md:11, results/exp2_latency_budget.md:17 |
+| 290 | 24 | measured: results/table16_asr_speaker_sensitivity.md:12, results/table16_asr_speaker_sensitivity.md:13 |
+| 324 | 4.0 | quoted from a paper (see "Numbers quoted from papers") |
+| 325 | 5.2 | quoted from a paper (see "Numbers quoted from papers") |
+| 331 | 680{,}000 | quoted from a paper (see "Numbers quoted from papers") |
+| 335 | 80 | quoted from a paper (see "Numbers quoted from papers") |
+| 337 | 32 | quoted from a paper (see "Numbers quoted from papers") |
+| 351 | 1.233 | **UNTRACED** |
+| 351 | 0.021 | measured: results/wake_training.json:652, results/wake_training.json:731 |
+| 352 | 202 | **UNTRACED** |
+| 352 | 7 | measured: results/table16_asr_speaker_sensitivity.md:19, results/table16_asr_speaker_sensitivity.md:21 |
+| 352 | 106 | **UNTRACED** |
+| 355 | 4.0 | measured: results/nfr18_false_command.md:10, results/nfr18_false_command.md:12 |
+| 355 | 5.2 | measured: results/wake_training.json:163 x100, results/wake_training.json:510 x100 |
+| 356 | 10.0 | measured: results/table16_asr_speaker_sensitivity.md:9, results/table16_asr_speaker_sensitivity.md:11 |
+| 356 | 466 | measured: results/wake_training.json:2473 x100, results/wake_training.json:2481 x100 |
+| 370 | 7 | measured: results/table16_asr_speaker_sensitivity.md:19, results/table16_asr_speaker_sensitivity.md:21 |
+| 375 | 7 | measured: results/table16_asr_speaker_sensitivity.md:19, results/table16_asr_speaker_sensitivity.md:21 |
+| 375 | 100 | measured: results/thermal_headroom.md:10, results/thermal_headroom.md:12 |
+| 437 | 450 | measured: results/wake_training.md:32, results/exp3_pi_analysis.md:3 |
+| 437 | 466 | measured: results/wake_training.json:2473 x100, results/wake_training.json:2481 x100 |
+| 441 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:21 |
+| 470 | 3080 | measured: results/exp4.csv:2 x100, results/exp4.csv:3 x100 |
+| 471 | 0.2 | quoted from a paper (see "Numbers quoted from papers") |
+| 474 | 38 | quoted from a paper (see "Numbers quoted from papers") |
+| 475 | 40 | quoted from a paper (see "Numbers quoted from papers") |
+| 495 | 0.2 | measured: results/nfr18_false_command.md:10, results/nfr18_false_command.md:11 |
+| 496 | 3080 | measured: results/exp4.csv:2 x100, results/exp4.csv:3 x100 |

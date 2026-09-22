@@ -6,7 +6,7 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 
 | status | check | line | finding |
 |---|---|---|---|
-| WARN | acronym | 225 | `RMS` typed by hand 1x (lines 225) -- \gls{rms} (the first \gls expands itself) |
+| WARN | acronym | 215 | `RMS` typed by hand 1x (lines 215) -- \gls{rms} (the first \gls expands itself) |
 | PASS | check_tex |  | tools/check_tex.py: no problems beyond cross-chapter \ref (resolved below) |
 | PASS | ref |  | every \ref resolves within the document |
 | PASS | cite |  | 7 distinct keys cited, all resolved |
@@ -122,170 +122,170 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | PASS | claim | 196 | FRR non-decreasing across the flat range |
 | PASS | figure | 202 | ../results/figure_keyword_curve.pdf is vector |
 | PASS | figure | 202 | ../results/figure_keyword_curve.pdf exists |
-| PASS | claim | 205 | `the 300 synthetic test takes of` -> written 300, source gives 300.00 (caption n) |
-| PASS | claim | 206 | `0.429~h of ambient speech, summed` -> written 0.429, source gives 0.429 (caption hours) |
-| PASS | claim | 207 | `selection grid from 0.05` -> written 0.05, source gives 0.05 (caption grid start) |
-| PASS | float | 214 | fig:keyword-curve referenced before it appears (line 187) |
-| PASS | claim | 217 | `the hold class misses 0.027` -> written 0.027, source gives 0.027 (test FRR hold) |
-| PASS | claim | 218 | `of its 300 test takes` -> written 300, source gives 300.00 (test n hold) |
-| PASS | claim | 218 | `the abort class 0.007` -> written 0.007, source gives 0.007 (test FRR abort) |
-| PASS | claim | 218 | cross-triggers {'swarm_hold': {'swarm_hold': 292, 'swarm_abort': 1}, 'swarm_abort': {'swarm_hold': 0, 'swarm_abort': 298}} |
-| PASS | claim | 220 | `the rates are 0.027 and 0.000` -> written 0.027, source gives 0.027 (val FRR hold) |
-| PASS | claim | 220 | `0.027 and 0.000 over 150` -> written 0.000, source gives 0.000 (val FRR abort) |
-| PASS | claim | 220 | `over 150 takes per class` -> written 150, source gives 150.00 (val n) |
-| PASS | claim | 223 | `is 188~ms at p95 for the hold` -> written 188, source gives 188.00 (wake_training.md test hold delay p95) |
-| PASS | claim | 223 | `131~ms for the abort class` -> written 131, source gives 131.00 (test abort delay p95) |
-| PASS | claim | 225 | `it is 550~ms and 430` -> written 550, source gives 550.00 (author hold delay p95) |
-| PASS | claim | 225 | `550~ms and 430~ms` -> written 430, source gives 430.00 (author abort delay p95) |
-| PASS | claim | 230 | `speech, 0.429~h long` -> written 0.429, source gives 0.429 (test ambient hours) |
-| PASS | claim | 230 | test ambient events {'swarm_hold': 0, 'swarm_abort': 1} |
-| PASS | claim | 231 | `That is 2.33 per hour` -> written 2.33, source gives 2.33 (per hour) |
-| PASS | claim | 231 | `Poisson interval of [0.06,` -> written 0.06, source gives 0.06 (CI low) |
-| PASS | claim | 232 | `12.98], against a budget` -> written 12.98, source gives 12.98 (CI high) |
-| PASS | verdict | 236 | interval straddles 1/h |
-| PASS | claim | 237 | `The validation stream, 0.167~h` -> written 0.167, source gives 0.167 (val ambient hours) |
-| PASS | claim | 238 | `interval of [0.00, 22.13]` -> written 22.13, source gives 22.13 (val CI high) |
-| PASS | claim | 239 | `produced none in 0.304~h` -> written 0.304, source gives 0.304 (golden hours) |
-| PASS | claim | 240 | `produced 34 false accepts in 0.100` -> written 34, source gives 34.00 (near-miss events) |
-| PASS | claim | 240 | `in 0.100~h, 31 of them` -> written 0.100, source gives 0.100 (near-miss hours) |
-| PASS | claim | 240 | `31 of them on the hold head` -> written 31, source gives 31.00 (near-miss hold) |
-| PASS | float | 268 | tab:end-to-end referenced before it appears (line 251) |
-| PASS | claim | 270 | `in clean audio is 0.690` -> written 0.690, source gives 0.690 (clean CRR) |
-| PASS | claim | 271 | `interval of [0.625, 0.750]` -> written 0.625, source gives 0.625 (clean CRR lo) |
-| PASS | claim | 271 | `[0.625, 0.750], against` -> written 0.750, source gives 0.750 (clean CRR hi) |
-| PASS | claim | 272 | `reaches an \gls{em} of 0.935` -> written 0.935, source gives 0.935 (EM on reference text) |
-| PASS | claim | 272 | `costs 0.245 [0.185, 0.310]` -> written 0.245, source gives 0.245 (EM - CRR clean) |
-| PASS | claim | 272 | `0.245 [0.185, 0.310] of` -> written 0.185, source gives 0.185 (lo) |
-| PASS | claim | 273 | `0.245 [0.185, 0.310] of` -> written 0.310, source gives 0.310 (hi) |
-| PASS | claim | 273 | `Each of the 62 failed` -> written 62, source gives 62.00 (clean failures) |
-| PASS | claim | 274 | `splits account for 22` -> written 22, source gives 22.00 (split cause, clean) |
-| PASS | claim | 274 | `23 of the 200 utterances were split` -> written 23, source gives 23.00 (clean splits) |
-| PASS | claim | 274 | `all 23 failed` -> written 23, source gives 23.00 (split items failed) |
-| PASS | claim | 276 | `wrong accounts for 23` -> written 23, source gives 23.00 (ASR right intent wrong slot) |
-| PASS | claim | 277 | `changed the intent for 5` -> written 5, source gives 5.00 (ASR wrong intent) |
-| PASS | claim | 277 | `reference text for 12` -> written 12, source gives 12.00 (parser wrong on text) |
-| PASS | claim | 277 | perfect + wrong = 0 |
-| PASS | claim | 279 | `the clean \gls{crr} is 0.730` -> written 0.730, source gives 0.730 (last-segment CRR) |
-| PASS | claim | 281 | `at 11.5\% of the golden set` -> written 11.5, source gives 11.50 (split rate) |
-| PASS | claim | 283 | `at 10~dB the \gls{crr} is 0.590` -> written 0.590, source gives 0.590 (10 dB CRR) |
-| PASS | claim | 283 | `0.590 [0.520, 0.660]` -> written 0.520, source gives 0.520 (lo) |
-| PASS | claim | 284 | `[0.520, 0.660], against` -> written 0.660, source gives 0.660 (hi) |
-| PASS | claim | 285 | `rises from 0.245 clean` -> written 0.245, source gives 0.245 (EM-CRR clean) |
-| PASS | claim | 285 | `to 0.345 [0.280, 0.410]` -> written 0.345, source gives 0.345 (EM-CRR 10) |
-| PASS | claim | 286 | `0.345 [0.280, 0.410] at` -> written 0.410, source gives 0.410 (hi) |
-| PASS | claim | 286 | `and 0.450 [0.380, 0.520] at 5` -> written 0.450, source gives 0.450 (EM-CRR 5) |
-| PASS | claim | 286 | `from 23.3\% clean` -> written 23.3, source gives 23.33 (WER clean) |
-| PASS | claim | 287 | `to 28.8\% at 10~dB` -> written 28.8, source gives 28.76 (WER 10) |
-| PASS | claim | 287 | `and 36.0\% at 5~dB` -> written 36.0, source gives 36.00 (WER 5) |
-| PASS | claim | 288 | `rise from 5 to 19` -> written 19, source gives 19.00 (ASR wrong intent 10 dB) |
-| PASS | claim | 288 | `from 23 to 30` -> written 30, source gives 30.00 (ASR slot 10 dB) |
-| PASS | claim | 289 | `errors stay at 12` -> written 12, source gives 12.00 (parser on text 10 dB) |
-| PASS | claim | 289 | `splits fall from 22 to 20` -> written 20, source gives 20.00 (split cause 10 dB) |
-| PASS | claim | 291 | `down to 15~dB on the point` -> written 15, source gives 15.00 (exp3_pi_analysis.md envelope) |
-| PASS | claim | 291 | `(0.650 exactly)` -> written 0.650, source gives 0.650 (15 dB CRR) |
-| PASS | claim | 292 | clean WER 23.3% vs Master's prompted 23.0% (table16) |
-| PASS | ownership | 293 | the Master's author-voice WER is cited without its number |
-| PASS | claim | 299 | `$F(4, 995) = 6.03$` -> written 6.03, source gives 6.03 (exp3_pi_analysis.md F) |
-| PASS | claim | 299 | p = 8.6e-05 |
-| PASS | claim | 300 | Tukey p < 0.05: [('15 dB', '5 dB'), ('20 dB', '5 dB'), ('clean', '5 dB')] |
-| PASS | claim | 305 | `grouped into 12 command patterns` -> written 12, source gives 12.00 (template patterns) |
-| PASS | claim | 308 | `($Q = 61.05$` -> written 61.05, source gives 61.05 (Cochran's Q) |
-| PASS | claim | 309 | `4 degrees of freedom` -> written 4, source gives 4.00 (df) |
-| PASS | claim | 309 | p = 1.7e-12 |
-| PASS | claim | 312 | McNemar significant: [('15 dB', '5 dB'), ('20 dB', '5 dB'), ('clean', '10 dB'), ('clean', '5 dB')] |
-| PASS | claim | 312 | `$\alpha = 0.0050$, separates` -> written 0.0050, source gives 0.0050 (Bonferroni over 10 pairs) |
-| PASS | claim | 314 | `10~dB with 5~dB is not significant, at $p = 0.0051$ (exact binomial $p = 0.0046$)` -> written 0.0051, source gives 0.0051 (McNemar 10 vs 5) |
-| PASS | claim | 314 | `10~dB with 5~dB is not significant, at $p = 0.0051$ (exact binomial $p = 0.0046$)` -> written 0.0046, source gives 0.0046 (exact McNemar 10 vs 5) |
-| PASS | claim | 315 | `20~dB against 10~dB, at $p = 0.0053$ (exact binomial $p = 0.0046$)` -> written 0.0053, source gives 0.0053 (McNemar 20 vs 10) |
-| PASS | claim | 315 | `20~dB against 10~dB, at $p = 0.0053$ (exact binomial $p = 0.0046$)` -> written 0.0046, source gives 0.0046 (exact McNemar 20 vs 10) |
-| PASS | claim | 319 | `It is 0.032 in clean audio` -> written 0.032, source gives 0.032 (clean safe-failure rate) |
-| PASS | claim | 320 | `(2 of 62 failures)` -> written 2, source gives 2.00 (clean safe failures) |
-| PASS | claim | 320 | `between 0.014 and 0.039` -> written 0.014, source gives 0.014 (min over SNR) |
-| PASS | claim | 320 | `0.014 and 0.039 at every` -> written 0.039, source gives 0.039 (max over SNR) |
-| PASS | verdict | 321 | all below 0.70 |
-| PASS | claim | 322 | `grows from 62 clean to 103` -> written 103, source gives 103.00 (5 dB failures) |
-| PASS | claim | 323 | `safe failures stay between one and four` -> written 1, source gives 1.00 (min safe count) |
-| PASS | claim | 323 | `between one and four` -> written 4, source gives 4.00 (max safe count) |
-| PASS | claim | 326 | `measured on text input, 0.053` -> written 0.053, source gives 0.053 (Master's pooled safe-failure rate (ADR-0006 baseline)) |
-| PASS | claim | 328 | `condition of this experiment has 13 failures and no safe` -> written 13, source gives 13.00 (reference text failures) |
-| PASS | claim | 329 | max 0.039 < 0.0530 |
-| PASS | claim | 340 | text condition raw_differs 0 |
-| PASS | claim | 341 | `Between two and six transcripts differ` -> written 2, source gives 2.00 (min transcript differences) |
-| PASS | claim | 341 | `two and six transcripts` -> written 6, source gives 6.00 (max) |
-| PASS | claim | 342 | 10 dB flips +1/-1 |
-| PASS | claim | 343 | 5 dB flips 0/-2 |
-| PASS | claim | 343 | `5~dB \gls{crr} is 0.485 on the board` -> written 0.485, source gives 0.485 (Pi 5 dB CRR) |
-| PASS | claim | 344 | `against 0.495 on the workstation` -> written 0.495, source gives 0.495 (workstation 5 dB CRR) |
-| PASS | claim | 348 | Table 20's last column named a stage sum |
-| PASS | claim | 350 | `recogniser running on four unpinned threads` -> written 4, source gives 4.00 (unpinned threads) |
-| PASS | claim | 351 | `rises from 2{,}869~ms clean` -> written 2869, source gives 2869.27 (stage-sum p95 clean) |
-| PASS | claim | 352 | `2{,}977~ms at 5~dB` -> written 2977, source gives 2977.07 (stage-sum p95 5 dB) |
-| PASS | claim | 352 | `an increase of 108~ms` -> written 108, source gives 108.00 (2977 - 2869) |
-| PASS | claim | 353 | `stayed between 54.3` -> written 54.3, source gives 54.30 (soc.log min) |
-| PASS | claim | 354 | `and 80.1~$^{\circ}$C over the run` -> written 80.1, source gives 80.10 (soc.log max) |
-| PASS | claim | 354 | first flagged sample 17:45:13 |
-| PASS | claim | 368 | `circle of radius 5~m` -> written 5, source gives 5.00 (circle radius) |
-| PASS | claim | 368 | `and the wedge at 2~m spacing` -> written 2, source gives 2.00 (formation spacing) |
-| PASS | claim | 368 | `spacing, 50 trials each` -> written 50, source gives 50.00 (trials per shape) |
-| PASS | claim | 368 | `for 150 trials of 60~s` -> written 150, source gives 150.00 (trials) |
-| PASS | claim | 369 | seed = trial x 42 on every row |
-| PASS | ownership | 372 | Ch4's collision distance, clamp distance and pass limit are referenced, not restated |
-| PASS | verdict | 378 | 0 collisions, Ch1's locked phrasing |
-| PASS | claim | 380 | `the clamp made 432 interventions` -> written 432, source gives 432.00 (clamp interventions) |
-| PASS | claim | 380 | `150 in the circle trials` -> written 150, source gives 150.00 (circle) |
-| PASS | claim | 380 | `141 in the line` -> written 141, source gives 141.00 (line) |
-| PASS | claim | 380 | `and 141 in the wedge` -> written 141, source gives 141.00 (wedge) |
-| PASS | claim | 381 | `between none and 14 in a single trial` -> written 14, source gives 14.00 (max per trial) |
-| PASS | claim | 381 | `with 6 trials needing none` -> written 6, source gives 6.00 (trials with none) |
-| PASS | claim | 386 | `0.800~m, is the clamp distance` -> written 0.800, source gives 0.800 (closest approach) |
-| PASS | claim | 387 | `needed in 144 of the 150` -> written 144, source gives 144.00 (trials with an intervention) |
-| PASS | claim | 389 | `formation accuracy is 1.000 in every` -> written 1.000, source gives 1.000 (min FA) |
-| PASS | claim | 390 | all converged |
-| PASS | claim | 391 | `the slowest after 4.32~s` -> written 4.32, source gives 4.32 (slowest convergence) |
-| PASS | claim | 391 | 60 - 4.32 |
-| PASS | claim | 393 | FA constant |
-| PASS | claim | 396 | `slot is 0.29~m in the circle` -> written 0.29, source gives 0.29 (final slot error circle) |
-| PASS | claim | 396 | `0.13~m in the line` -> written 0.13, source gives 0.13 (line) |
-| PASS | claim | 396 | `and 0.07~m in the wedge` -> written 0.07, source gives 0.07 (wedge) |
-| PASS | claim | 397 | spread 2.7 mm |
-| PASS | claim | 400 | `Its median is 4.06~s` -> written 4.06, source gives 4.06 (circle median convergence) |
-| PASS | claim | 400 | `3.26~s for the line` -> written 3.26, source gives 3.26 (line median convergence) |
-| PASS | claim | 400 | `range 4.00--4.08` -> written 4.00, source gives 4.00 (circle IQR low, exp4_formation.md) |
-| PASS | claim | 400 | `4.00--4.08~s)` -> written 4.08, source gives 4.08 (circle IQR high, exp4_formation.md) |
-| PASS | claim | 400 | `(3.21--3.32` -> written 3.21, source gives 3.21 (line IQR low, exp4_formation.md) |
-| PASS | claim | 400 | `3.21--3.32~s)` -> written 3.32, source gives 3.32 (line IQR high, exp4_formation.md) |
-| PASS | claim | 401 | `2.30~s for the wedge` -> written 2.30, source gives 2.30 (wedge median convergence) |
-| PASS | claim | 401 | `(2.21--2.38` -> written 2.21, source gives 2.21 (wedge IQR low, exp4_formation.md) |
-| PASS | claim | 401 | `2.21--2.38~s)` -> written 2.38, source gives 2.38 (wedge IQR high, exp4_formation.md) |
-| PASS | claim | 402 | `$F(2, 147) = 3500.7$` -> written 3500.7, source gives 3500.69 (scipy f_oneway) |
-| PASS | claim | 402 | p = 1.03e-124 |
-| PASS | claim | 403 | `the circle takes 0.795~s` -> written 0.795, source gives 0.795 (Tukey circle - line) |
-| PASS | claim | 404 | `(95\% interval [0.745, 0.845])` -> written 0.745, source gives 0.745 (lo) |
-| PASS | claim | 404 | `[0.745, 0.845])` -> written 0.845, source gives 0.845 (hi) |
-| PASS | claim | 404 | `and 1.755~s longer` -> written 1.755, source gives 1.755 (circle - wedge) |
-| PASS | claim | 404 | `([1.705, 1.805])` -> written 1.705, source gives 1.705 (lo) |
-| PASS | claim | 405 | `the line 0.960~s longer` -> written 0.960, source gives 0.960 (line - wedge) |
-| PASS | claim | 405 | Tukey p: [2.154e-14, 2.154e-14, 2.154e-14] |
-| PASS | float | 410 | tab:formation-latency referenced before it appears (line 408) |
-| PASS | claim | 422 | `Of the seventeen criteria` -> written 17, source gives 17.00 (rows of the summary table) |
-| PASS | claim | 422 | `seven are met` -> written 7, source gives 7.00 (Met) |
-| PASS | claim | 422 | `five are missed` -> written 5, source gives 5.00 (Missed) |
-| PASS | claim | 422 | `two are not demonstrated` -> written 2, source gives 2.00 (Not demonstrated) |
-| PASS | claim | 422 | `Two more have not been run` -> written 2, source gives 2.00 (Not yet run) |
-| PASS | claim | 424 | verdicts: {'Not yet run': 2, 'Met': 7, 'Planned for the defence': 1, 'Missed': 5, 'Not demonstrated': 2} |
-| PASS | float | 427 | tab:requirements-summary referenced before it appears (line 419) |
+| PASS | claim | 203 | `the 300 synthetic test takes of` -> written 300, source gives 300.00 (caption n) |
+| PASS | claim | 203 | `0.429~h of ambient speech, summed` -> written 0.429, source gives 0.429 (caption hours) |
+| PASS | claim | 203 | `selection grid from 0.05` -> written 0.05, source gives 0.05 (caption grid start) |
+| PASS | float | 204 | fig:keyword-curve referenced before it appears (line 187) |
+| PASS | claim | 207 | `the hold class misses 0.027` -> written 0.027, source gives 0.027 (test FRR hold) |
+| PASS | claim | 208 | `of its 300 test takes` -> written 300, source gives 300.00 (test n hold) |
+| PASS | claim | 208 | `the abort class 0.007` -> written 0.007, source gives 0.007 (test FRR abort) |
+| PASS | claim | 208 | cross-triggers {'swarm_hold': {'swarm_hold': 292, 'swarm_abort': 1}, 'swarm_abort': {'swarm_hold': 0, 'swarm_abort': 298}} |
+| PASS | claim | 210 | `the rates are 0.027 and 0.000` -> written 0.027, source gives 0.027 (val FRR hold) |
+| PASS | claim | 210 | `0.027 and 0.000 over 150` -> written 0.000, source gives 0.000 (val FRR abort) |
+| PASS | claim | 210 | `over 150 takes per class` -> written 150, source gives 150.00 (val n) |
+| PASS | claim | 213 | `is 188~ms at p95 for the hold` -> written 188, source gives 188.00 (wake_training.md test hold delay p95) |
+| PASS | claim | 213 | `131~ms for the abort class` -> written 131, source gives 131.00 (test abort delay p95) |
+| PASS | claim | 215 | `it is 550~ms and 430` -> written 550, source gives 550.00 (author hold delay p95) |
+| PASS | claim | 215 | `550~ms and 430~ms` -> written 430, source gives 430.00 (author abort delay p95) |
+| PASS | claim | 220 | `speech, 0.429~h long` -> written 0.429, source gives 0.429 (test ambient hours) |
+| PASS | claim | 220 | test ambient events {'swarm_hold': 0, 'swarm_abort': 1} |
+| PASS | claim | 221 | `That is 2.33 per hour` -> written 2.33, source gives 2.33 (per hour) |
+| PASS | claim | 221 | `Poisson interval of [0.06,` -> written 0.06, source gives 0.06 (CI low) |
+| PASS | claim | 222 | `12.98], against a budget` -> written 12.98, source gives 12.98 (CI high) |
+| PASS | verdict | 226 | interval straddles 1/h |
+| PASS | claim | 227 | `The validation stream, 0.167~h` -> written 0.167, source gives 0.167 (val ambient hours) |
+| PASS | claim | 228 | `interval of [0.00, 22.13]` -> written 22.13, source gives 22.13 (val CI high) |
+| PASS | claim | 229 | `produced none in 0.304~h` -> written 0.304, source gives 0.304 (golden hours) |
+| PASS | claim | 230 | `produced 34 false accepts in 0.100` -> written 34, source gives 34.00 (near-miss events) |
+| PASS | claim | 230 | `in 0.100~h, 31 of them` -> written 0.100, source gives 0.100 (near-miss hours) |
+| PASS | claim | 230 | `31 of them on the hold head` -> written 31, source gives 31.00 (near-miss hold) |
+| PASS | float | 258 | tab:end-to-end referenced before it appears (line 241) |
+| PASS | claim | 260 | `in clean audio is 0.690` -> written 0.690, source gives 0.690 (clean CRR) |
+| PASS | claim | 261 | `interval of [0.625, 0.750]` -> written 0.625, source gives 0.625 (clean CRR lo) |
+| PASS | claim | 261 | `[0.625, 0.750], against` -> written 0.750, source gives 0.750 (clean CRR hi) |
+| PASS | claim | 262 | `reaches an \gls{em} of 0.935` -> written 0.935, source gives 0.935 (EM on reference text) |
+| PASS | claim | 262 | `costs 0.245 [0.185, 0.310]` -> written 0.245, source gives 0.245 (EM - CRR clean) |
+| PASS | claim | 262 | `0.245 [0.185, 0.310] of` -> written 0.185, source gives 0.185 (lo) |
+| PASS | claim | 263 | `0.245 [0.185, 0.310] of` -> written 0.310, source gives 0.310 (hi) |
+| PASS | claim | 263 | `Each of the 62 failed` -> written 62, source gives 62.00 (clean failures) |
+| PASS | claim | 264 | `splits account for 22` -> written 22, source gives 22.00 (split cause, clean) |
+| PASS | claim | 264 | `23 of the 200 utterances were split` -> written 23, source gives 23.00 (clean splits) |
+| PASS | claim | 264 | `all 23 failed` -> written 23, source gives 23.00 (split items failed) |
+| PASS | claim | 266 | `wrong accounts for 23` -> written 23, source gives 23.00 (ASR right intent wrong slot) |
+| PASS | claim | 267 | `changed the intent for 5` -> written 5, source gives 5.00 (ASR wrong intent) |
+| PASS | claim | 267 | `reference text for 12` -> written 12, source gives 12.00 (parser wrong on text) |
+| PASS | claim | 267 | perfect + wrong = 0 |
+| PASS | claim | 269 | `the clean \gls{crr} is 0.730` -> written 0.730, source gives 0.730 (last-segment CRR) |
+| PASS | claim | 271 | `at 11.5\% of the golden set` -> written 11.5, source gives 11.50 (split rate) |
+| PASS | claim | 273 | `at 10~dB the \gls{crr} is 0.590` -> written 0.590, source gives 0.590 (10 dB CRR) |
+| PASS | claim | 273 | `0.590 [0.520, 0.660]` -> written 0.520, source gives 0.520 (lo) |
+| PASS | claim | 274 | `[0.520, 0.660], against` -> written 0.660, source gives 0.660 (hi) |
+| PASS | claim | 275 | `rises from 0.245 clean` -> written 0.245, source gives 0.245 (EM-CRR clean) |
+| PASS | claim | 275 | `to 0.345 [0.280, 0.410]` -> written 0.345, source gives 0.345 (EM-CRR 10) |
+| PASS | claim | 276 | `0.345 [0.280, 0.410] at` -> written 0.410, source gives 0.410 (hi) |
+| PASS | claim | 276 | `and 0.450 [0.380, 0.520] at 5` -> written 0.450, source gives 0.450 (EM-CRR 5) |
+| PASS | claim | 276 | `from 23.3\% clean` -> written 23.3, source gives 23.33 (WER clean) |
+| PASS | claim | 277 | `to 28.8\% at 10~dB` -> written 28.8, source gives 28.76 (WER 10) |
+| PASS | claim | 277 | `and 36.0\% at 5~dB` -> written 36.0, source gives 36.00 (WER 5) |
+| PASS | claim | 278 | `rise from 5 to 19` -> written 19, source gives 19.00 (ASR wrong intent 10 dB) |
+| PASS | claim | 278 | `from 23 to 30` -> written 30, source gives 30.00 (ASR slot 10 dB) |
+| PASS | claim | 279 | `errors stay at 12` -> written 12, source gives 12.00 (parser on text 10 dB) |
+| PASS | claim | 279 | `splits fall from 22 to 20` -> written 20, source gives 20.00 (split cause 10 dB) |
+| PASS | claim | 281 | `down to 15~dB on the point` -> written 15, source gives 15.00 (exp3_pi_analysis.md envelope) |
+| PASS | claim | 281 | `(0.650 exactly)` -> written 0.650, source gives 0.650 (15 dB CRR) |
+| PASS | claim | 282 | clean WER 23.3% vs Master's prompted 23.0% (table16) |
+| PASS | ownership | 283 | the Master's author-voice WER is cited without its number |
+| PASS | claim | 289 | `$F(4, 995) = 6.03$` -> written 6.03, source gives 6.03 (exp3_pi_analysis.md F) |
+| PASS | claim | 289 | p = 8.6e-05 |
+| PASS | claim | 290 | Tukey p < 0.05: [('15 dB', '5 dB'), ('20 dB', '5 dB'), ('clean', '5 dB')] |
+| PASS | claim | 295 | `grouped into 12 command patterns` -> written 12, source gives 12.00 (template patterns) |
+| PASS | claim | 298 | `($Q = 61.05$` -> written 61.05, source gives 61.05 (Cochran's Q) |
+| PASS | claim | 299 | `4 degrees of freedom` -> written 4, source gives 4.00 (df) |
+| PASS | claim | 299 | p = 1.7e-12 |
+| PASS | claim | 302 | McNemar significant: [('15 dB', '5 dB'), ('20 dB', '5 dB'), ('clean', '10 dB'), ('clean', '5 dB')] |
+| PASS | claim | 302 | `$\alpha = 0.0050$, separates` -> written 0.0050, source gives 0.0050 (Bonferroni over 10 pairs) |
+| PASS | claim | 304 | `10~dB with 5~dB is not significant, at $p = 0.0051$ (exact binomial $p = 0.0046$)` -> written 0.0051, source gives 0.0051 (McNemar 10 vs 5) |
+| PASS | claim | 304 | `10~dB with 5~dB is not significant, at $p = 0.0051$ (exact binomial $p = 0.0046$)` -> written 0.0046, source gives 0.0046 (exact McNemar 10 vs 5) |
+| PASS | claim | 305 | `20~dB against 10~dB, at $p = 0.0053$ (exact binomial $p = 0.0046$)` -> written 0.0053, source gives 0.0053 (McNemar 20 vs 10) |
+| PASS | claim | 305 | `20~dB against 10~dB, at $p = 0.0053$ (exact binomial $p = 0.0046$)` -> written 0.0046, source gives 0.0046 (exact McNemar 20 vs 10) |
+| PASS | claim | 309 | `It is 0.032 in clean audio` -> written 0.032, source gives 0.032 (clean safe-failure rate) |
+| PASS | claim | 310 | `(2 of 62 failures)` -> written 2, source gives 2.00 (clean safe failures) |
+| PASS | claim | 310 | `between 0.014 and 0.039` -> written 0.014, source gives 0.014 (min over SNR) |
+| PASS | claim | 310 | `0.014 and 0.039 at every` -> written 0.039, source gives 0.039 (max over SNR) |
+| PASS | verdict | 311 | all below 0.70 |
+| PASS | claim | 312 | `grows from 62 clean to 103` -> written 103, source gives 103.00 (5 dB failures) |
+| PASS | claim | 313 | `safe failures stay between one and four` -> written 1, source gives 1.00 (min safe count) |
+| PASS | claim | 313 | `between one and four` -> written 4, source gives 4.00 (max safe count) |
+| PASS | claim | 316 | `measured on text input, 0.053` -> written 0.053, source gives 0.053 (Master's pooled safe-failure rate (ADR-0006 baseline)) |
+| PASS | claim | 318 | `condition of this experiment has 13 failures and no safe` -> written 13, source gives 13.00 (reference text failures) |
+| PASS | claim | 319 | max 0.039 < 0.0530 |
+| PASS | claim | 330 | text condition raw_differs 0 |
+| PASS | claim | 331 | `Between two and six transcripts differ` -> written 2, source gives 2.00 (min transcript differences) |
+| PASS | claim | 331 | `two and six transcripts` -> written 6, source gives 6.00 (max) |
+| PASS | claim | 332 | 10 dB flips +1/-1 |
+| PASS | claim | 333 | 5 dB flips 0/-2 |
+| PASS | claim | 333 | `5~dB \gls{crr} is 0.485 on the board` -> written 0.485, source gives 0.485 (Pi 5 dB CRR) |
+| PASS | claim | 334 | `against 0.495 on the workstation` -> written 0.495, source gives 0.495 (workstation 5 dB CRR) |
+| PASS | claim | 338 | Table 20's last column named a stage sum |
+| PASS | claim | 340 | `recogniser running on four unpinned threads` -> written 4, source gives 4.00 (unpinned threads) |
+| PASS | claim | 341 | `rises from 2{,}869~ms clean` -> written 2869, source gives 2869.27 (stage-sum p95 clean) |
+| PASS | claim | 342 | `2{,}977~ms at 5~dB` -> written 2977, source gives 2977.07 (stage-sum p95 5 dB) |
+| PASS | claim | 342 | `an increase of 108~ms` -> written 108, source gives 108.00 (2977 - 2869) |
+| PASS | claim | 343 | `stayed between 54.3` -> written 54.3, source gives 54.30 (soc.log min) |
+| PASS | claim | 344 | `and 80.1~$^{\circ}$C over the run` -> written 80.1, source gives 80.10 (soc.log max) |
+| PASS | claim | 344 | first flagged sample 17:45:13 |
+| PASS | claim | 358 | `circle of radius 5~m` -> written 5, source gives 5.00 (circle radius) |
+| PASS | claim | 358 | `and the wedge at 2~m spacing` -> written 2, source gives 2.00 (formation spacing) |
+| PASS | claim | 358 | `spacing, 50 trials each` -> written 50, source gives 50.00 (trials per shape) |
+| PASS | claim | 358 | `for 150 trials of 60~s` -> written 150, source gives 150.00 (trials) |
+| PASS | claim | 359 | seed = trial x 42 on every row |
+| PASS | ownership | 362 | Ch4's collision distance, clamp distance and pass limit are referenced, not restated |
+| PASS | verdict | 368 | 0 collisions, Ch1's locked phrasing |
+| PASS | claim | 370 | `the clamp made 432 interventions` -> written 432, source gives 432.00 (clamp interventions) |
+| PASS | claim | 370 | `150 in the circle trials` -> written 150, source gives 150.00 (circle) |
+| PASS | claim | 370 | `141 in the line` -> written 141, source gives 141.00 (line) |
+| PASS | claim | 370 | `and 141 in the wedge` -> written 141, source gives 141.00 (wedge) |
+| PASS | claim | 371 | `between none and 14 in a single trial` -> written 14, source gives 14.00 (max per trial) |
+| PASS | claim | 371 | `with 6 trials needing none` -> written 6, source gives 6.00 (trials with none) |
+| PASS | claim | 376 | `0.800~m, is the clamp distance` -> written 0.800, source gives 0.800 (closest approach) |
+| PASS | claim | 377 | `needed in 144 of the 150` -> written 144, source gives 144.00 (trials with an intervention) |
+| PASS | claim | 379 | `formation accuracy is 1.000 in every` -> written 1.000, source gives 1.000 (min FA) |
+| PASS | claim | 380 | all converged |
+| PASS | claim | 381 | `the slowest after 4.32~s` -> written 4.32, source gives 4.32 (slowest convergence) |
+| PASS | claim | 381 | 60 - 4.32 |
+| PASS | claim | 383 | FA constant |
+| PASS | claim | 386 | `slot is 0.29~m in the circle` -> written 0.29, source gives 0.29 (final slot error circle) |
+| PASS | claim | 386 | `0.13~m in the line` -> written 0.13, source gives 0.13 (line) |
+| PASS | claim | 386 | `and 0.07~m in the wedge` -> written 0.07, source gives 0.07 (wedge) |
+| PASS | claim | 387 | spread 2.7 mm |
+| PASS | claim | 390 | `Its median is 4.06~s` -> written 4.06, source gives 4.06 (circle median convergence) |
+| PASS | claim | 390 | `3.26~s for the line` -> written 3.26, source gives 3.26 (line median convergence) |
+| PASS | claim | 390 | `range 4.00--4.08` -> written 4.00, source gives 4.00 (circle IQR low, exp4_formation.md) |
+| PASS | claim | 390 | `4.00--4.08~s)` -> written 4.08, source gives 4.08 (circle IQR high, exp4_formation.md) |
+| PASS | claim | 390 | `(3.21--3.32` -> written 3.21, source gives 3.21 (line IQR low, exp4_formation.md) |
+| PASS | claim | 390 | `3.21--3.32~s)` -> written 3.32, source gives 3.32 (line IQR high, exp4_formation.md) |
+| PASS | claim | 391 | `2.30~s for the wedge` -> written 2.30, source gives 2.30 (wedge median convergence) |
+| PASS | claim | 391 | `(2.21--2.38` -> written 2.21, source gives 2.21 (wedge IQR low, exp4_formation.md) |
+| PASS | claim | 391 | `2.21--2.38~s)` -> written 2.38, source gives 2.38 (wedge IQR high, exp4_formation.md) |
+| PASS | claim | 392 | `$F(2, 147) = 3500.7$` -> written 3500.7, source gives 3500.69 (scipy f_oneway) |
+| PASS | claim | 392 | p = 1.03e-124 |
+| PASS | claim | 393 | `the circle takes 0.795~s` -> written 0.795, source gives 0.795 (Tukey circle - line) |
+| PASS | claim | 394 | `(95\% interval [0.745, 0.845])` -> written 0.745, source gives 0.745 (lo) |
+| PASS | claim | 394 | `[0.745, 0.845])` -> written 0.845, source gives 0.845 (hi) |
+| PASS | claim | 394 | `and 1.755~s longer` -> written 1.755, source gives 1.755 (circle - wedge) |
+| PASS | claim | 394 | `([1.705, 1.805])` -> written 1.705, source gives 1.705 (lo) |
+| PASS | claim | 395 | `the line 0.960~s longer` -> written 0.960, source gives 0.960 (line - wedge) |
+| PASS | claim | 395 | Tukey p: [2.154e-14, 2.154e-14, 2.154e-14] |
+| PASS | float | 400 | tab:formation-latency referenced before it appears (line 398) |
+| PASS | claim | 412 | `Of the seventeen criteria` -> written 17, source gives 17.00 (rows of the summary table) |
+| PASS | claim | 412 | `seven are met` -> written 7, source gives 7.00 (Met) |
+| PASS | claim | 412 | `five are missed` -> written 5, source gives 5.00 (Missed) |
+| PASS | claim | 412 | `two are not demonstrated` -> written 2, source gives 2.00 (Not demonstrated) |
+| PASS | claim | 412 | `Two more have not been run` -> written 2, source gives 2.00 (Not yet run) |
+| PASS | claim | 414 | verdicts: {'Not yet run': 2, 'Met': 7, 'Planned for the defence': 1, 'Missed': 5, 'Not demonstrated': 2} |
+| PASS | float | 417 | tab:requirements-summary referenced before it appears (line 409) |
 
 ### Citation sheet (for the citation agent: open each identifier, judge SUPPORTS / PARTIAL / DOES NOT SUPPORT per row)
 
 | # | line | keys | sentence the citation must support |
 |---|---|---|---|
 | 1 | 132 | llamacpp | It registers a closed connection by polling once per second (\texttt{llama-server}'s HTTP polling interval~\cite{llamacpp}), and only then releases its single slot. |
-| 2 | 258 | dregon | They are passed once clean and once at each of 20, 15, 10 and 5~dB \gls{snr}, with rotor noise from the evaluation partition of the DREGON recordings~\cite{dregon} mixed digitally at a level set against the active speech. |
-| 3 | 300 | kramer1956 | \paragraph{Tests across the noise levels.} The test fixed before measurement, a one-way analysis of variance on the arcsine-transformed \gls{crr}, rejects equality across the five conditions: $F(4, 995) = 6.03$, $p = 8.6 \times 10^{-5}$. Tukey's honestly-significant-difference comparison~\cite{kramer1956} separates 5~d |
-| 4 | 308 | cochran1950 | Cochran's $Q$~\cite{cochran1950} rejects equality across the five conditions ($Q = 61.05$, 4 degrees of freedom, $p = 1.7 \times 10^{-12}$). |
-| 5 | 309 | mcnemar1947 | McNemar's test~\cite{mcnemar1947} on each of the ten pairs, in the project's form (exact binomial below 25 discordant pairs, with Edwards' continuity correction~\cite{edwards1948} from 25 upwards), at the Bonferroni-corrected level~\cite{dunn1961} of $\alpha = 0.0050$, separates clean from 10 and 5~dB, and 20 and 15~dB |
-| 6 | 311 | edwards1948 | McNemar's test~\cite{mcnemar1947} on each of the ten pairs, in the project's form (exact binomial below 25 discordant pairs, with Edwards' continuity correction~\cite{edwards1948} from 25 upwards), at the Bonferroni-corrected level~\cite{dunn1961} of $\alpha = 0.0050$, separates clean from 10 and 5~dB, and 20 and 15~dB |
-| 7 | 311 | dunn1961 | McNemar's test~\cite{mcnemar1947} on each of the ten pairs, in the project's form (exact binomial below 25 discordant pairs, with Edwards' continuity correction~\cite{edwards1948} from 25 upwards), at the Bonferroni-corrected level~\cite{dunn1961} of $\alpha = 0.0050$, separates clean from 10 and 5~dB, and 20 and 15~dB |
+| 2 | 248 | dregon | They are passed once clean and once at each of 20, 15, 10 and 5~dB \gls{snr}, with rotor noise from the evaluation partition of the DREGON recordings~\cite{dregon} mixed digitally at a level set against the active speech. |
+| 3 | 290 | kramer1956 | \paragraph{Tests across the noise levels.} The test fixed before measurement, a one-way analysis of variance on the arcsine-transformed \gls{crr}, rejects equality across the five conditions: $F(4, 995) = 6.03$, $p = 8.6 \times 10^{-5}$. Tukey's honestly-significant-difference comparison~\cite{kramer1956} separates 5~d |
+| 4 | 298 | cochran1950 | Cochran's $Q$~\cite{cochran1950} rejects equality across the five conditions ($Q = 61.05$, 4 degrees of freedom, $p = 1.7 \times 10^{-12}$). |
+| 5 | 299 | mcnemar1947 | McNemar's test~\cite{mcnemar1947} on each of the ten pairs, in the project's form (exact binomial below 25 discordant pairs, with Edwards' continuity correction~\cite{edwards1948} from 25 upwards), at the Bonferroni-corrected level~\cite{dunn1961} of $\alpha = 0.0050$, separates clean from 10 and 5~dB, and 20 and 15~dB |
+| 6 | 301 | edwards1948 | McNemar's test~\cite{mcnemar1947} on each of the ten pairs, in the project's form (exact binomial below 25 discordant pairs, with Edwards' continuity correction~\cite{edwards1948} from 25 upwards), at the Bonferroni-corrected level~\cite{dunn1961} of $\alpha = 0.0050$, separates clean from 10 and 5~dB, and 20 and 15~dB |
+| 7 | 301 | dunn1961 | McNemar's test~\cite{mcnemar1947} on each of the ten pairs, in the project's form (exact binomial below 25 discordant pairs, with Edwards' continuity correction~\cite{edwards1948} from 25 upwards), at the Bonferroni-corrected level~\cite{dunn1961} of $\alpha = 0.0050$, separates clean from 10 and 5~dB, and 20 and 15~dB |
 
 | key | title | year | identifier |
 |---|---|---|---|
@@ -303,10 +303,10 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 |---|---|---|---|
 | 14 | chapter | Validation | 564 |
 | 61 | section | Latency experiment | 1483 |
-| 176 | section | Keyword-spotter evaluation | 845 |
-| 245 | section | Acoustic-robustness experiment | 1457 |
-| 359 | section | Formation-control experiment | 785 |
-| 417 | section | Summary against the requirements | 356 |
+| 176 | section | Keyword-spotter evaluation | 750 |
+| 235 | section | Acoustic-robustness experiment | 1457 |
+| 349 | section | Formation-control experiment | 785 |
+| 407 | section | Summary against the requirements | 356 |
 
 ### What only a reader can judge
 
@@ -396,189 +396,185 @@ FAIL = the chapter disagrees with its sources or will break the build. WARN = a 
 | 183 | 80 | measured: results/table16_asr_speaker_sensitivity.md:20, results/wake_training.md:7 |
 | 184 | 1.0 | measured: results/nfr18_false_command.md:10, results/nfr18_false_command.md:11 |
 | 195 | 0.88 | recomputed by a claim on this line |
-| 205 | 300 | recomputed by a claim on this line |
-| 206 | 0.429 | recomputed by a claim on this line |
-| 207 | 0.05 | recomputed by a claim on this line |
-| 207 | 0.999 | recomputed by a claim on this line |
-| 208 | 0.999 | measured: results/wake_training.md:5, results/wake_training.md:39 |
-| 209 | 95 | measured: results/exp2_latency_budget.md:7, results/exp2_latency_budget.md:11 |
-| 211 | 0.10 | measured: results/table16_asr_speaker_sensitivity.md:28, results/requirements_summary.md:24 |
-| 211 | 0.88 | measured: results/golden_error_intents.md:15, results/table17_model_comparison.md:22 |
-| 212 | 80 | measured: results/table16_asr_speaker_sensitivity.md:20, results/wake_training.md:7 |
-| 212 | 1.0 | measured: results/nfr18_false_command.md:10, results/nfr18_false_command.md:11 |
-| 217 | 0.027 | recomputed by a claim on this line |
-| 218 | 300 | recomputed by a claim on this line |
-| 218 | 0.007 | recomputed by a claim on this line |
-| 218 | 300 | recomputed by a claim on this line |
-| 220 | 0.027 | recomputed by a claim on this line |
-| 220 | 0.000 | recomputed by a claim on this line |
-| 220 | 150 | recomputed by a claim on this line |
-| 223 | 188 | recomputed by a claim on this line |
-| 223 | 131 | recomputed by a claim on this line |
-| 225 | 20 | recomputed by a claim on this line |
-| 225 | 5 | recomputed by a claim on this line |
-| 225 | 550 | recomputed by a claim on this line |
-| 225 | 430 | recomputed by a claim on this line |
-| 230 | 0.429 | recomputed by a claim on this line |
-| 231 | 2.33 | recomputed by a claim on this line |
-| 231 | 95 | recomputed by a claim on this line |
-| 231 | 0.06 | recomputed by a claim on this line |
-| 232 | 12.98 | recomputed by a claim on this line |
-| 233 | 0.050 | measured: results/nfr18_false_command.md:5, results/requirements_summary.md:24 |
-| 233 | 0.001 | measured: results/exp3_pi_analysis.md:21, results/exp3_analysis.md:18 |
-| 233 | 0.249 | measured: results/wake_real_voice.md:9, results/wake_real_voice.json:11 |
-| 233 | 0.000 | measured: results/nfr18_false_command.md:11, results/nfr18_false_command.md:13 |
-| 233 | 0.000 | measured: results/nfr18_false_command.md:11, results/nfr18_false_command.md:13 |
-| 233 | 0.168 | measured: results/wake_real_voice.md:10, results/wake_real_voice.json:28 |
-| 237 | 0.167 | recomputed by a claim on this line |
-| 237 | 0.00 | recomputed by a claim on this line |
-| 238 | 22.13 | recomputed by a claim on this line |
-| 239 | 0.304 | recomputed by a claim on this line |
-| 240 | 0.100 | recomputed by a claim on this line |
-| 254 | 200 | measured: results/exp2_latency_budget.md:5, results/table18_quantisation_delta.md:3 |
-| 255 | 450 | measured: results/wake_training.md:32, results/exp3_pi_analysis.md:3 |
-| 257 | 5 | measured: results/exp2_latency_budget.md:3, results/exp2_latency_budget.md:23 |
-| 270 | 0.690 | recomputed by a claim on this line |
-| 271 | 95 | recomputed by a claim on this line |
-| 271 | 0.625 | recomputed by a claim on this line |
-| 271 | 0.750 | recomputed by a claim on this line |
-| 271 | 0.80 | recomputed by a claim on this line |
-| 272 | 0.935 | recomputed by a claim on this line |
-| 272 | 0.245 | recomputed by a claim on this line |
-| 272 | 0.185 | recomputed by a claim on this line |
-| 273 | 0.310 | recomputed by a claim on this line |
-| 274 | 200 | recomputed by a claim on this line |
-| 279 | 0.730 | recomputed by a claim on this line |
-| 279 | 0.80 | recomputed by a claim on this line |
-| 280 | 450 | measured: results/wake_training.md:32, results/exp3_pi_analysis.md:3 |
-| 281 | 11.5 | recomputed by a claim on this line |
-| 283 | 10 | recomputed by a claim on this line |
-| 283 | 0.590 | recomputed by a claim on this line |
-| 283 | 0.520 | recomputed by a claim on this line |
-| 284 | 0.660 | recomputed by a claim on this line |
-| 284 | 0.65 | recomputed by a claim on this line |
-| 285 | 0.245 | recomputed by a claim on this line |
-| 285 | 0.345 | recomputed by a claim on this line |
-| 286 | 0.280 | recomputed by a claim on this line |
-| 286 | 0.410 | recomputed by a claim on this line |
-| 286 | 10 | recomputed by a claim on this line |
-| 286 | 0.450 | recomputed by a claim on this line |
-| 286 | 0.380 | recomputed by a claim on this line |
-| 286 | 0.520 | recomputed by a claim on this line |
-| 286 | 5 | recomputed by a claim on this line |
-| 286 | 23.3 | recomputed by a claim on this line |
-| 287 | 28.8 | recomputed by a claim on this line |
-| 287 | 10 | recomputed by a claim on this line |
-| 287 | 36.0 | recomputed by a claim on this line |
-| 287 | 5 | recomputed by a claim on this line |
-| 287 | 10 | recomputed by a claim on this line |
-| 291 | 0.65 | recomputed by a claim on this line |
-| 291 | 15 | recomputed by a claim on this line |
-| 291 | 0.650 | recomputed by a claim on this line |
-| 292 | 0.80 | recomputed by a claim on this line |
-| 299 | 995 | recomputed by a claim on this line |
-| 299 | 6.03 | recomputed by a claim on this line |
-| 299 | 8.6 | recomputed by a claim on this line |
-| 300 | 5 | recomputed by a claim on this line |
-| 301 | 15 | measured: results/table16_asr_speaker_sensitivity.md:4, results/table16_asr_speaker_sensitivity.md:14 |
-| 303 | 200 | measured: results/exp2_latency_budget.md:5, results/table18_quantisation_delta.md:3 |
-| 305 | 200 | recomputed by a claim on this line |
-| 308 | 61.05 | recomputed by a claim on this line |
-| 309 | 1.7 | recomputed by a claim on this line |
-| 312 | 0.0050 | recomputed by a claim on this line |
+| 203 | 300 | recomputed by a claim on this line |
+| 203 | 0.429 | recomputed by a claim on this line |
+| 203 | 0.05 | recomputed by a claim on this line |
+| 203 | 0.999 | recomputed by a claim on this line |
+| 203 | 0.999 | recomputed by a claim on this line |
+| 203 | 95 | recomputed by a claim on this line |
+| 207 | 0.027 | recomputed by a claim on this line |
+| 208 | 300 | recomputed by a claim on this line |
+| 208 | 0.007 | recomputed by a claim on this line |
+| 208 | 300 | recomputed by a claim on this line |
+| 210 | 0.027 | recomputed by a claim on this line |
+| 210 | 0.000 | recomputed by a claim on this line |
+| 210 | 150 | recomputed by a claim on this line |
+| 213 | 188 | recomputed by a claim on this line |
+| 213 | 131 | recomputed by a claim on this line |
+| 215 | 20 | recomputed by a claim on this line |
+| 215 | 5 | recomputed by a claim on this line |
+| 215 | 550 | recomputed by a claim on this line |
+| 215 | 430 | recomputed by a claim on this line |
+| 220 | 0.429 | recomputed by a claim on this line |
+| 221 | 2.33 | recomputed by a claim on this line |
+| 221 | 95 | recomputed by a claim on this line |
+| 221 | 0.06 | recomputed by a claim on this line |
+| 222 | 12.98 | recomputed by a claim on this line |
+| 223 | 0.050 | measured: results/nfr18_false_command.md:5, results/requirements_summary.md:24 |
+| 223 | 0.001 | measured: results/exp3_pi_analysis.md:21, results/exp3_analysis.md:18 |
+| 223 | 0.249 | measured: results/wake_real_voice.md:9, results/wake_real_voice.json:11 |
+| 223 | 0.000 | measured: results/nfr18_false_command.md:11, results/nfr18_false_command.md:13 |
+| 223 | 0.000 | measured: results/nfr18_false_command.md:11, results/nfr18_false_command.md:13 |
+| 223 | 0.168 | measured: results/wake_real_voice.md:10, results/wake_real_voice.json:28 |
+| 227 | 0.167 | recomputed by a claim on this line |
+| 227 | 0.00 | recomputed by a claim on this line |
+| 228 | 22.13 | recomputed by a claim on this line |
+| 229 | 0.304 | recomputed by a claim on this line |
+| 230 | 0.100 | recomputed by a claim on this line |
+| 244 | 200 | measured: results/exp2_latency_budget.md:5, results/table18_quantisation_delta.md:3 |
+| 245 | 450 | measured: results/wake_training.md:32, results/exp3_pi_analysis.md:3 |
+| 247 | 5 | measured: results/exp2_latency_budget.md:3, results/exp2_latency_budget.md:23 |
+| 260 | 0.690 | recomputed by a claim on this line |
+| 261 | 95 | recomputed by a claim on this line |
+| 261 | 0.625 | recomputed by a claim on this line |
+| 261 | 0.750 | recomputed by a claim on this line |
+| 261 | 0.80 | recomputed by a claim on this line |
+| 262 | 0.935 | recomputed by a claim on this line |
+| 262 | 0.245 | recomputed by a claim on this line |
+| 262 | 0.185 | recomputed by a claim on this line |
+| 263 | 0.310 | recomputed by a claim on this line |
+| 264 | 200 | recomputed by a claim on this line |
+| 269 | 0.730 | recomputed by a claim on this line |
+| 269 | 0.80 | recomputed by a claim on this line |
+| 270 | 450 | measured: results/wake_training.md:32, results/exp3_pi_analysis.md:3 |
+| 271 | 11.5 | recomputed by a claim on this line |
+| 273 | 10 | recomputed by a claim on this line |
+| 273 | 0.590 | recomputed by a claim on this line |
+| 273 | 0.520 | recomputed by a claim on this line |
+| 274 | 0.660 | recomputed by a claim on this line |
+| 274 | 0.65 | recomputed by a claim on this line |
+| 275 | 0.245 | recomputed by a claim on this line |
+| 275 | 0.345 | recomputed by a claim on this line |
+| 276 | 0.280 | recomputed by a claim on this line |
+| 276 | 0.410 | recomputed by a claim on this line |
+| 276 | 10 | recomputed by a claim on this line |
+| 276 | 0.450 | recomputed by a claim on this line |
+| 276 | 0.380 | recomputed by a claim on this line |
+| 276 | 0.520 | recomputed by a claim on this line |
+| 276 | 5 | recomputed by a claim on this line |
+| 276 | 23.3 | recomputed by a claim on this line |
+| 277 | 28.8 | recomputed by a claim on this line |
+| 277 | 10 | recomputed by a claim on this line |
+| 277 | 36.0 | recomputed by a claim on this line |
+| 277 | 5 | recomputed by a claim on this line |
+| 277 | 10 | recomputed by a claim on this line |
+| 281 | 0.65 | recomputed by a claim on this line |
+| 281 | 15 | recomputed by a claim on this line |
+| 281 | 0.650 | recomputed by a claim on this line |
+| 282 | 0.80 | recomputed by a claim on this line |
+| 289 | 995 | recomputed by a claim on this line |
+| 289 | 6.03 | recomputed by a claim on this line |
+| 289 | 8.6 | recomputed by a claim on this line |
+| 290 | 5 | recomputed by a claim on this line |
+| 291 | 15 | measured: results/table16_asr_speaker_sensitivity.md:4, results/table16_asr_speaker_sensitivity.md:14 |
+| 293 | 200 | measured: results/exp2_latency_budget.md:5, results/table18_quantisation_delta.md:3 |
+| 295 | 200 | recomputed by a claim on this line |
+| 298 | 61.05 | recomputed by a claim on this line |
+| 299 | 1.7 | recomputed by a claim on this line |
+| 302 | 0.0050 | recomputed by a claim on this line |
+| 302 | 5 | recomputed by a claim on this line |
+| 302 | 15 | recomputed by a claim on this line |
+| 302 | 5 | recomputed by a claim on this line |
+| 303 | 10 | measured: results/table16_asr_speaker_sensitivity.md:9, results/table16_asr_speaker_sensitivity.md:11 |
+| 303 | 5 | measured: results/exp2_latency_budget.md:3, results/exp2_latency_budget.md:23 |
+| 304 | 0.0051 | recomputed by a claim on this line |
+| 304 | 0.0046 | recomputed by a claim on this line |
+| 304 | 0.0050 | recomputed by a claim on this line |
+| 305 | 20 | recomputed by a claim on this line |
+| 305 | 10 | recomputed by a claim on this line |
+| 305 | 0.0053 | recomputed by a claim on this line |
+| 305 | 0.0046 | recomputed by a claim on this line |
+| 306 | 10 | measured: results/table16_asr_speaker_sensitivity.md:9, results/table16_asr_speaker_sensitivity.md:11 |
+| 309 | 0.032 | recomputed by a claim on this line |
+| 310 | 0.014 | recomputed by a claim on this line |
+| 310 | 0.039 | recomputed by a claim on this line |
+| 310 | 0.70 | recomputed by a claim on this line |
+| 312 | 103 | recomputed by a claim on this line |
 | 312 | 5 | recomputed by a claim on this line |
-| 312 | 15 | recomputed by a claim on this line |
-| 312 | 5 | recomputed by a claim on this line |
-| 313 | 10 | measured: results/table16_asr_speaker_sensitivity.md:9, results/table16_asr_speaker_sensitivity.md:11 |
-| 313 | 5 | measured: results/exp2_latency_budget.md:3, results/exp2_latency_budget.md:23 |
-| 314 | 0.0051 | recomputed by a claim on this line |
-| 314 | 0.0046 | recomputed by a claim on this line |
-| 314 | 0.0050 | recomputed by a claim on this line |
-| 315 | 20 | recomputed by a claim on this line |
-| 315 | 10 | recomputed by a claim on this line |
-| 315 | 0.0053 | recomputed by a claim on this line |
-| 315 | 0.0046 | recomputed by a claim on this line |
-| 316 | 10 | measured: results/table16_asr_speaker_sensitivity.md:9, results/table16_asr_speaker_sensitivity.md:11 |
-| 319 | 0.032 | recomputed by a claim on this line |
-| 320 | 0.014 | recomputed by a claim on this line |
-| 320 | 0.039 | recomputed by a claim on this line |
-| 320 | 0.70 | recomputed by a claim on this line |
-| 322 | 103 | recomputed by a claim on this line |
-| 322 | 5 | recomputed by a claim on this line |
-| 326 | 0.053 | recomputed by a claim on this line |
-| 327 | 200 | measured: results/exp2_latency_budget.md:5, results/table18_quantisation_delta.md:3 |
-| 340 | 200 | recomputed by a claim on this line |
-| 342 | 10 | recomputed by a claim on this line |
-| 343 | 5 | recomputed by a claim on this line |
-| 343 | 5 | recomputed by a claim on this line |
-| 343 | 0.485 | recomputed by a claim on this line |
-| 344 | 0.495 | recomputed by a claim on this line |
-| 351 | 2{,}869 | recomputed by a claim on this line |
-| 352 | 2{,}977 | recomputed by a claim on this line |
-| 352 | 5 | recomputed by a claim on this line |
-| 352 | 108 | recomputed by a claim on this line |
-| 353 | 54.3 | recomputed by a claim on this line |
-| 354 | 80.1 | recomputed by a claim on this line |
-| 355 | 5 | measured: results/exp2_latency_budget.md:3, results/exp2_latency_budget.md:23 |
-| 355 | 5 | measured: results/exp2_latency_budget.md:3, results/exp2_latency_budget.md:23 |
-| 356 | 10 | measured: results/table16_asr_speaker_sensitivity.md:9, results/table16_asr_speaker_sensitivity.md:11 |
-| 368 | 150 | recomputed by a claim on this line |
-| 369 | 50 | recomputed by a claim on this line |
-| 370 | 0.5 | measured: results/nfr18_false_command.md:12, results/nfr18_false_command.md:13 |
-| 374 | 0.5 | measured: results/nfr18_false_command.md:12, results/nfr18_false_command.md:13 |
-| 375 | 0.85 | measured: results/requirements_summary.md:28, results/exp4_formation.md:13 |
-| 378 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:21 |
-| 380 | 432 | recomputed by a claim on this line |
+| 316 | 0.053 | recomputed by a claim on this line |
+| 317 | 200 | measured: results/exp2_latency_budget.md:5, results/table18_quantisation_delta.md:3 |
+| 330 | 200 | recomputed by a claim on this line |
+| 332 | 10 | recomputed by a claim on this line |
+| 333 | 5 | recomputed by a claim on this line |
+| 333 | 5 | recomputed by a claim on this line |
+| 333 | 0.485 | recomputed by a claim on this line |
+| 334 | 0.495 | recomputed by a claim on this line |
+| 341 | 2{,}869 | recomputed by a claim on this line |
+| 342 | 2{,}977 | recomputed by a claim on this line |
+| 342 | 5 | recomputed by a claim on this line |
+| 342 | 108 | recomputed by a claim on this line |
+| 343 | 54.3 | recomputed by a claim on this line |
+| 344 | 80.1 | recomputed by a claim on this line |
+| 345 | 5 | measured: results/exp2_latency_budget.md:3, results/exp2_latency_budget.md:23 |
+| 345 | 5 | measured: results/exp2_latency_budget.md:3, results/exp2_latency_budget.md:23 |
+| 346 | 10 | measured: results/table16_asr_speaker_sensitivity.md:9, results/table16_asr_speaker_sensitivity.md:11 |
+| 358 | 150 | recomputed by a claim on this line |
+| 359 | 50 | recomputed by a claim on this line |
+| 360 | 0.5 | measured: results/nfr18_false_command.md:12, results/nfr18_false_command.md:13 |
+| 364 | 0.5 | measured: results/nfr18_false_command.md:12, results/nfr18_false_command.md:13 |
+| 365 | 0.85 | measured: results/requirements_summary.md:28, results/exp4_formation.md:13 |
+| 368 | 150 | measured: results/nfr18_false_command.md:3, results/exp2_latency_budget.md:21 |
+| 370 | 432 | recomputed by a claim on this line |
+| 370 | 150 | recomputed by a claim on this line |
+| 370 | 141 | recomputed by a claim on this line |
+| 370 | 141 | recomputed by a claim on this line |
+| 376 | 0.800 | recomputed by a claim on this line |
+| 377 | 144 | recomputed by a claim on this line |
+| 377 | 150 | recomputed by a claim on this line |
+| 379 | 1.000 | recomputed by a claim on this line |
 | 380 | 150 | recomputed by a claim on this line |
-| 380 | 141 | recomputed by a claim on this line |
-| 380 | 141 | recomputed by a claim on this line |
-| 386 | 0.800 | recomputed by a claim on this line |
-| 387 | 144 | recomputed by a claim on this line |
-| 387 | 150 | recomputed by a claim on this line |
-| 389 | 1.000 | recomputed by a claim on this line |
-| 390 | 150 | recomputed by a claim on this line |
-| 390 | 0.85 | recomputed by a claim on this line |
-| 391 | 4.32 | recomputed by a claim on this line |
-| 392 | 0.5 | measured: results/nfr18_false_command.md:12, results/nfr18_false_command.md:13 |
-| 396 | 0.29 | recomputed by a claim on this line |
-| 396 | 0.13 | recomputed by a claim on this line |
-| 396 | 0.07 | recomputed by a claim on this line |
-| 400 | 4.06 | recomputed by a claim on this line |
-| 400 | 4.00 | recomputed by a claim on this line |
-| 400 | 4.08 | recomputed by a claim on this line |
-| 400 | 3.26 | recomputed by a claim on this line |
-| 400 | 3.21 | recomputed by a claim on this line |
-| 400 | 3.32 | recomputed by a claim on this line |
-| 401 | 2.30 | recomputed by a claim on this line |
-| 401 | 2.21 | recomputed by a claim on this line |
-| 401 | 2.38 | recomputed by a claim on this line |
-| 402 | 147 | recomputed by a claim on this line |
-| 402 | 3500.7 | recomputed by a claim on this line |
-| 402 | 1.0 | recomputed by a claim on this line |
-| 402 | 124 | recomputed by a claim on this line |
-| 403 | 0.795 | recomputed by a claim on this line |
-| 404 | 95 | recomputed by a claim on this line |
-| 404 | 0.745 | recomputed by a claim on this line |
-| 404 | 0.845 | recomputed by a claim on this line |
-| 404 | 1.755 | recomputed by a claim on this line |
-| 404 | 1.705 | recomputed by a claim on this line |
-| 404 | 1.805 | recomputed by a claim on this line |
-| 405 | 0.960 | recomputed by a claim on this line |
-| 405 | 0.910 | recomputed by a claim on this line |
-| 405 | 1.010 | recomputed by a claim on this line |
-| 408 | 4.4 | measured: thesis/generated/table_formation_latency.tex:14, results/gate3_parity.json:53 /1024 |
-| 408 | 4.7 | measured: results/exp2_analysis.md:84, results/wake_training.json:2473 |
-| 408 | 480 | measured: results/exp2_latency_budget.md:13, results/exp2_latency_budget.md:13 |
-| 408 | 1.28 | measured: results/exp2_latency_budget.md:28 /1000, results/exp2_analysis.md:28 /1000 |
-| 408 | 1.35 | measured: results/table17_model_comparison.md:10 /1000, results/table17_model_comparison.md:11 /1000 |
-| 408 | 1.30 | measured: thesis/generated/table_formation_latency.tex:12 /1000, results/exp0.csv:27 /1000 |
-| 408 | 1.39 | measured: results/wake_training.json:166 x100, thesis/generated/table_formation_latency.tex:13 /1000 |
-| 408 | 3 | measured: results/nfr18_false_command.md:10, results/nfr18_false_command.md:11 |
-| 408 | 1.76 | measured: results/wake_training.json:580 x100 |
-| 408 | 0.96 | measured: results/table33_iso_parameter.md:12, results/exp4_formation.md:21 |
-| 408 | 9.84 | measured: thesis/generated/table_formation_latency.tex:14 |
-| 408 | 11.20 | measured: thesis/generated/table_formation_latency.tex:13 |
-| 408 | 11.68 | measured: thesis/generated/table_formation_latency.tex:12 |
-| 408 | 0.30 | measured: results/wake_training.md:26, results/wake_training.json:25 |
-| 408 | 1.00 | measured: results/nfr18_false_command.md:10, results/nfr18_false_command.md:11 |
-| 431 | 18 | measured: results/exp2_latency_budget.md:26, results/table18_quantisation_delta.md:1 |
+| 380 | 0.85 | recomputed by a claim on this line |
+| 381 | 4.32 | recomputed by a claim on this line |
+| 382 | 0.5 | measured: results/nfr18_false_command.md:12, results/nfr18_false_command.md:13 |
+| 386 | 0.29 | recomputed by a claim on this line |
+| 386 | 0.13 | recomputed by a claim on this line |
+| 386 | 0.07 | recomputed by a claim on this line |
+| 390 | 4.06 | recomputed by a claim on this line |
+| 390 | 4.00 | recomputed by a claim on this line |
+| 390 | 4.08 | recomputed by a claim on this line |
+| 390 | 3.26 | recomputed by a claim on this line |
+| 390 | 3.21 | recomputed by a claim on this line |
+| 390 | 3.32 | recomputed by a claim on this line |
+| 391 | 2.30 | recomputed by a claim on this line |
+| 391 | 2.21 | recomputed by a claim on this line |
+| 391 | 2.38 | recomputed by a claim on this line |
+| 392 | 147 | recomputed by a claim on this line |
+| 392 | 3500.7 | recomputed by a claim on this line |
+| 392 | 1.0 | recomputed by a claim on this line |
+| 392 | 124 | recomputed by a claim on this line |
+| 393 | 0.795 | recomputed by a claim on this line |
+| 394 | 95 | recomputed by a claim on this line |
+| 394 | 0.745 | recomputed by a claim on this line |
+| 394 | 0.845 | recomputed by a claim on this line |
+| 394 | 1.755 | recomputed by a claim on this line |
+| 394 | 1.705 | recomputed by a claim on this line |
+| 394 | 1.805 | recomputed by a claim on this line |
+| 395 | 0.960 | recomputed by a claim on this line |
+| 395 | 0.910 | recomputed by a claim on this line |
+| 395 | 1.010 | recomputed by a claim on this line |
+| 398 | 4.4 | measured: thesis/generated/table_formation_latency.tex:14, results/gate3_parity.json:53 /1024 |
+| 398 | 4.7 | measured: results/exp2_analysis.md:84, results/wake_training.json:2473 |
+| 398 | 480 | measured: results/exp2_latency_budget.md:13, results/exp2_latency_budget.md:13 |
+| 398 | 1.28 | measured: results/exp2_latency_budget.md:28 /1000, results/exp2_analysis.md:28 /1000 |
+| 398 | 1.35 | measured: results/table17_model_comparison.md:10 /1000, results/table17_model_comparison.md:11 /1000 |
+| 398 | 1.30 | measured: thesis/generated/table_formation_latency.tex:12 /1000, results/exp0.csv:27 /1000 |
+| 398 | 1.39 | measured: results/wake_training.json:166 x100, thesis/generated/table_formation_latency.tex:13 /1000 |
+| 398 | 3 | measured: results/nfr18_false_command.md:10, results/nfr18_false_command.md:11 |
+| 398 | 1.76 | measured: results/wake_training.json:580 x100 |
+| 398 | 0.96 | measured: results/table33_iso_parameter.md:12, results/exp4_formation.md:21 |
+| 398 | 9.84 | measured: thesis/generated/table_formation_latency.tex:14 |
+| 398 | 11.20 | measured: thesis/generated/table_formation_latency.tex:13 |
+| 398 | 11.68 | measured: thesis/generated/table_formation_latency.tex:12 |
+| 398 | 0.30 | measured: results/wake_training.md:26, results/wake_training.json:25 |
+| 398 | 1.00 | measured: results/nfr18_false_command.md:10, results/nfr18_false_command.md:11 |
+| 421 | 18 | measured: results/exp2_latency_budget.md:26, results/table18_quantisation_delta.md:1 |
