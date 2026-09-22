@@ -2,7 +2,7 @@
   \centering
   \scriptsize
   \setlength{\tabcolsep}{2.5pt}
-  \caption[End-to-end command-to-formation pipeline latency across formations]{Empirical end-to-end pipeline latency across three formation geometries and the reflex safety brake. Voice front-end and cognitive parsing latencies are measured on the Raspberry~Pi~5 (\texttt{drone-pi}) using Silero~VAD, Whisper \texttt{tiny.en}, and \texttt{qwen2.5-0.5b-instruct-Q4\_K\_M}. Network bus hop is the dispatch over Zenoh to the simulation workstation. Swarm execution reports median convergence times ($t_\text{conv}$) over 50 trials per formation on the kinematic backend (Section~\ref{sec:formation-control}). Post-speech total accounts for the 480~ms VAD endpointing wait.}
+  \caption[End-to-end command-to-formation pipeline latency across formations]{Empirical end-to-end pipeline latency from voice onset to swarm convergence across three formation geometries and the reflex brake, combining Exp-2 Pi~5 edge timings with Exp-4 kinematic convergence.}
   \label{tab:formation-latency}
   \begin{tabular}{lrrrrrrrr}
     \toprule

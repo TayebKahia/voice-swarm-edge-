@@ -124,13 +124,7 @@ measurement, and no requirement is quoted here with a measured value attached to
 
 \begin{table}[htbp]
 \centering
-\caption[Functional requirements driving this document]{Functional requirements driving this
-document. Each row names a capability the system must provide and the artefact that demonstrates
-it. The remaining six of the twelve concern the grammar, the dataset, the fine-tuning, the export
-pipeline, the canonicaliser, which normalises each parsed command to one serialised form, and the
-per-trial results record; the first five are stated in the \emph{M\'emoire de Master}, and the last
-is common to both documents. \emph{Network} and \emph{networking disabled} exclude the
-device--workstation link (Section~\ref{sec:operational-context}).}
+\caption[Functional requirements driving this document]{Functional requirements driving this document, with the capability and demonstrating artefact. The remaining six of the twelve requirements belong to the grammar, dataset, fine-tuning, and export pipelines stated in the \emph{M\'emoire de Master}.}
 \label{tab:functional-requirements}
 \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.6cm} >{\hsize=1.3\hsize}X >{\hsize=0.7\hsize}X@{}}
 \toprule
@@ -165,16 +159,7 @@ matter of restraint.
 
 \begin{table}[htbp]
 \centering
-\caption[Non-functional requirements driving this document]{Non-functional requirements driving
-this document, each with the budget it must meet or the quantity it must report. \emph{Measured by}
-names the experiment or evaluation of Section~\ref{sec:engineering-requirements} that produces the
-measurement, or the test that verifies it. p50, p95 and p99 denote the 50th, 95th and 99th
-percentiles, computed by nearest rank on the sorted sample. \acrshort{crr}: \acrlong{crr} on the
-golden set (Section~\ref{sec:operational-context}); \acrshort{snr}: \acrlong{snr}. \emph{Network}
-excludes the device--workstation link (Section~\ref{sec:operational-context}). A criterion shared
-with the \emph{M\'emoire de Master} has the same name there, and that document lists the criteria
-not shown here. The two keyword criteria are one operating point on one curve and are quoted
-together throughout.}
+\caption[Non-functional requirements driving this document]{Non-functional requirements driving this document, with their target budgets and verifying experiments. Percentiles (p50, p95, p99) use nearest-rank sorting; \acrshort{crr} denotes command recognition rate on the golden set.}
 \label{tab:nonfunctional-requirements}
 \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.6cm} >{\hsize=1.35\hsize}X >{\hsize=0.65\hsize}X >{\raggedright\arraybackslash}p{2.8cm}@{}}
 \toprule

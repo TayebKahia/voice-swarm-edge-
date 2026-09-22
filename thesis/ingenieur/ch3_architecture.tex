@@ -106,16 +106,7 @@ present document treats the choice as fixed and designs the runtime around it.
           label={[font=\footnotesize\itshape, anchor=north west]north west:Workstation}] {};
   \end{scope}
 \end{tikzpicture}}
-\caption[Dual-path runtime architecture]{Dual-path runtime architecture. One audio stream feeds two
-paths. The reflex path, the keyword spotter, publishes one of two fixed commands and bypasses
-transcription and parsing entirely; the parse path endpoints the utterance, transcribes it, parses
-the transcript into a command under the decoding grammar and validates the result. Both paths
-publish to one command bus. A reflex-path trigger cancels any decode in progress (dashed); the
-ordering rule at the bus's consumer discards any parse-path result whose sequence number precedes the
-latest reflex-path command, whether or not the cancellation succeeded. The state machine, the swarm
-controller and the simulated vehicles run on a workstation joined to the Pi by Wi-Fi. The validator
-and the state machine check every command, from either path, before it takes effect; the validator
-also runs on the Pi before a parse-path command is published.}
+\caption[Dual-path runtime architecture]{Dual-path runtime architecture. The continuous audio stream feeds the reflex path (keyword spotter with preemption) and parse path (VAD, Whisper, grammar-constrained SLM, and validator) on the Raspberry~Pi~5. Both publish to the command bus; the flight state machine, swarm controller, and simulation run on the workstation.}
 \label{fig:architecture}
 \end{figure}
 
@@ -217,11 +208,7 @@ applies both tests to the ten intents of the schema. Exactly two pass.
 \begin{table}[htbp]
 \centering
 \footnotesize
-\caption[Reflex-path membership rule applied to the ten intents]{The reflex-path membership rule
-applied to every intent of the command schema. A command is admitted to the reflex path only if it
-passes both tests. The Path column names the path that carries the command. A dash marks a test
-that was not evaluated because the command had already failed the other; ``Parse only'' marks a
-command whose unprompted execution would add motion.}
+\caption[Reflex-path membership rule applied to the ten intents]{Reflex-path membership rule applied to every schema intent. Admission to the reflex path requires passing both tests. Dashes indicate tests skipped after prior failure; ``Parse only'' marks commands whose unprompted execution adds motion.}
 \label{tab:membership}
 \begin{tabularx}{\textwidth}{@{}l X X l@{}}
 \toprule
@@ -399,13 +386,7 @@ measurement, and Section~\ref{sec:latency-experiment} measures the system agains
 \begin{table}[htbp]
 \centering
 \footnotesize
-\caption[Latency budget by stage]{Latency budget by stage, as designed. Every target is a p95
-bound on wall-clock time. Parse-path figures start at the end of speech, $T_0$, defined in the text; the
-endpointing wait ends at $T_0$, and a row that states another anchor starts there; the prefill
-target assumes the fixed prefix is already cached. Reflex-path figures start at the end or the
-start of the spoken keyword, a phrase of about 700~ms. Every span ends when the command is handed to the command
-bus on the device. The stage rows are ceilings for their stages, not a decomposition of the
-end-to-end target.}
+\caption[Latency budget by stage]{Latency budget by stage, as designed. Targets are p95 ceilings on wall-clock time bounded at the on-device bus. Parse-path targets start at the end of speech ($T_0$); reflex targets start at keyword offset or onset.}
 \label{tab:stage-budget}
 \begin{tabularx}{\textwidth}{@{}l X r@{}}
 \toprule

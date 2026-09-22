@@ -111,12 +111,7 @@ Section~\ref{sec:swarm-control-sota} compares their control layers.
 \begin{table}[htbp]
 \centering
 \footnotesize
-\caption[Published language interfaces to robots]{Published language interfaces to robots and devices, by
-the four properties of Section~\ref{sec:voice-uav}. \emph{Remote}: a hosted model reached over a
-network. \emph{Check before execution}: the mechanism between the model's (or the recogniser's)
-output and the vehicle, as the source describes it, or, where the source describes none, the
-constraint it places on generation. A dash marks a property this review did not establish from the
-source. The last row is this work.}
+\caption[Published language interfaces to robots]{Published language interfaces to robots and devices by input modality, target scale, model host, and pre-execution safety check. Dashes indicate properties not reported by the source.}
 \label{tab:voice-uav-survey}
 \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.5cm} >{\raggedright\arraybackslash}p{1.7cm} >{\raggedright\arraybackslash}p{2.0cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X@{}}
 \toprule
@@ -208,12 +203,7 @@ side.
 \begin{table}[htbp]
 \centering
 \footnotesize
-\caption[Architectures with a fast and a slow path]{Architectures that pair a fast path with a
-slower one, by how the paths are arranged and what the fast one decides. \emph{Alternatives}: both
-paths are built and measured, and one is selected. \emph{Concurrent}: both run on the same input,
-and a gate or a preemption decides which output takes effect. Latencies are those the source
-reports for the fast and the slow path, in that order; the last row gives budgets, not measurements. A dash marks a property this review did not
-establish from the source. The last row is this work.}
+\caption[Architectures with a fast and a slow path]{Architectures pairing a fast path with a slower one, comparing arrangement (alternatives versus concurrent), fast-path decision scope, primary purpose, and reported stage latencies.}
 \label{tab:soa-dual-path}
 \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{1.9cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{2.0cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{2.35cm} >{\raggedright\arraybackslash}p{1.9cm}@{}}
 \toprule
@@ -350,14 +340,7 @@ Table~\ref{tab:soa-speech} sets the front ends of the reviewed systems side by s
 \begin{table}[htbp]
 \centering
 \footnotesize
-\caption[Speech front ends of spoken-command systems]{Speech front ends of the spoken-command
-systems reviewed in this chapter. \emph{Offline}: whether recognition runs without a network
-connection, as the source states it. \emph{Transcription-free path}: a path that decides from audio
-without producing a transcript. \emph{Speech latency}: the time the source reports for its speech
-stage or its whole pipeline. A dash marks a property this review did not establish from the source.
-SwarmChat, whose source names no speech component, has no row. The last row is this work; its
-\emph{by design} means that recognition needs no network connection, but no run with networking
-disabled has been made (Chapter~\ref{chap:validation}).}
+\caption[Speech front ends of spoken-command systems]{Speech front ends of reviewed spoken-command systems, comparing recogniser choice, offline capability, transcription-free bypass path, and reported speech latency across target hardware.}
 \label{tab:soa-speech}
 \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.3cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{1.4cm} >{\raggedright\arraybackslash}p{2.4cm} >{\raggedright\arraybackslash}X@{}}
 \toprule

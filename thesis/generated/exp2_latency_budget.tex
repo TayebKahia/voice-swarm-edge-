@@ -3,7 +3,7 @@
   \centering
   \footnotesize
   \setlength{\tabcolsep}{4pt}
-  \caption[Latency budget versus measured]{Raspberry Pi 5, cooled, governor \texttt{performance}, cores pinned (frame loop on core 0; speech recognition and language model on cores 1-3). Real-time replay of recorded audio: the parse path on the 200 golden utterances (clean), one sample per endpointed segment; the reflex path on the author's 40 recorded keyword takes, twice, idle and while the parse path decodes. Nearest-rank percentiles; the verdict is on the p95. Rows in bold are judged against a criterion of Table~\ref{tab:nonfunctional-requirements}. The bus is loopback on the Pi; the Wi-Fi hop is outside the budget.}
+  \caption[Latency budget versus measured]{Latency budget versus measured performance on Raspberry~Pi~5 across parse and reflex paths, with nearest-rank percentiles and p95 verdict. Bold rows denote non-functional requirement criteria.}
   \label{tab:latency-budget}
   \begin{tabular}{lrrrrrl}
     \toprule
