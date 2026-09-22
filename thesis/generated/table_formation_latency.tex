@@ -1,0 +1,22 @@
+\begin{table}[htbp]
+  \centering
+  \scriptsize
+  \setlength{\tabcolsep}{2.5pt}
+  \caption[End-to-end command-to-formation pipeline latency across formations]{Empirical end-to-end pipeline latency across three formation geometries and the reflex safety brake. Voice front-end and cognitive parsing latencies are measured on the Raspberry~Pi~5 (\texttt{drone-pi}) using Silero~VAD, Whisper \texttt{tiny.en}, and \texttt{qwen2.5-0.5b-instruct-Q4\_K\_M}. Network bus hop is the dispatch over Zenoh to the simulation workstation. Swarm execution reports median convergence times ($t_\text{conv}$) over 50 trials per formation on the kinematic backend (Section~\ref{sec:formation-control}). Post-speech total accounts for the 480~ms VAD endpointing wait.}
+  \label{tab:formation-latency}
+  \begin{tabular}{lrrrrrrrr}
+    \toprule
+    Formation / & Speech & VAD wait & ASR & LLM parse & Bus hop & Swarm conv. & Post-speech & Total from \\
+    Command & $t_\text{speech}$ (s) & $t_\text{VAD}$ (ms) & $t_\text{ASR}$ (ms) & $t_\text{LLM}$ (ms) & $t_\text{bus}$ (ms) & $t_\text{conv}$ (s) & total (s) & onset (s) \\
+    \midrule
+    Circle ($r = 5.0$~m) & 4.56 & 480 & 1,277 & 1,303 & 3 & 4.06 & 7.12 & 11.68 \\
+    Line ($s = 2.0$~m) & 4.72 & 480 & 1,346 & 1,393 & 3 & 3.26 & 6.48 & 11.20 \\
+    Wedge ($s = 2.0$~m) & 4.40 & 480 & 1,310 & 1,350 & 3 & 2.30 & 5.44 & 9.84 \\
+    Reflex Hold (\emph{swarm hold}) & 0.70 & \multicolumn{1}{c}{--} & \multicolumn{1}{c}{--} & \multicolumn{1}{c}{--} & 2 & 0.10 & 0.30 & 1.00 \\
+    \bottomrule
+  \end{tabular}
+  \par\medskip
+  \begin{minipage}{\textwidth}\scriptsize\raggedright
+    \textbf{Notes:} Reflex Hold executes via the wake-word path, bypassing VAD, Whisper ASR, and LLM decoding; its post-keyword latency ($0.30$~s) reflects 190~ms spotter window, 12~ms dispatch, 2~ms network bus hop, and 0.10~s vehicle deceleration to hover. For cognitive commands: $\text{Post-Speech Total} = (t_\text{VAD} + t_\text{ASR} + t_\text{LLM} + t_\text{bus}) / 1000 + t_\text{conv}$, and $\text{Total from Onset} = t_\text{speech} + \text{Post-Speech Total}$.
+  \end{minipage}
+\end{table}

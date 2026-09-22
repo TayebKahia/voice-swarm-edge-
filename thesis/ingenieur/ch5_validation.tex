@@ -404,6 +404,11 @@ Tukey's pairwise comparison separates every pair: the circle takes 0.795~s longe
 (95\% interval [0.745, 0.845]) and 1.755~s longer than the wedge ([1.705, 1.805]), and the line
 0.960~s longer than the wedge ([0.910, 1.010]), each at $p < 10^{-13}$.
 
+\paragraph{End-to-end command-to-formation pipeline.}
+Although the formation experiment evaluates the distributed controller in isolation from speech recognition to avoid confounding control precision with acoustic errors, an operational deployment spans the entire pipeline from speech onset to physical swarm settling. Table~\ref{tab:formation-latency} compiles the empirical multi-stage timing across the three formation geometries alongside the reflex safety brake. The cognitive path accumulates the voice duration ($\approx 4.4$--$4.7$~s), the Silero endpointing wait (480~ms), Whisper \texttt{tiny.en} transcription ($\approx 1.28$--$1.35$~s), \texttt{Qwen2.5-0.5B} structured parsing ($\approx 1.30$--$1.39$~s), and Zenoh bus transmission (3~ms), before swarm convergence begins. Because wedge formation involves fewer crossing trajectories during slot assignment, its convergence is 1.76~s faster than circle and 0.96~s faster than line, yielding an end-to-end latency from voice onset of 9.84~s, compared to 11.20~s for line and 11.68~s for circle. In contrast, the reflex safety path (\emph{swarm hold}) circumvents speech recognition and language modeling entirely, dispatching a hover setpoint across the bus within 0.30~s of keyword offset and bringing the vehicles to a stationary hold in 1.00~s total from utterance onset.
+
+\input{generated/table_formation_latency}
+
 \paragraph{Scope.} These results come from the kinematic backend, which has no rotor dynamics. The
 physics backend carries no experiment and applies no separation clamp
 (Section~\ref{sec:simulation-backends}), so no collision result is claimed for it.
