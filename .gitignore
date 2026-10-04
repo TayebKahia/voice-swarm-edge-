@@ -25,8 +25,9 @@ env/
 .ipynb_checkpoints/
 
 # ---------------------------------------------------------------------
-# LaTeX build output -- rebuilt by: python tools/build_pdf.py
+# LaTeX source and build output
 # ---------------------------------------------------------------------
+thesis/
 build/
 *.aux
 *.log
