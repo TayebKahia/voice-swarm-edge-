@@ -27,6 +27,7 @@ STATE_FILE="runtime/.state"
 ENTRY="runtime/main.py"
 MODEL="${PFE_MODEL:-}"
 DRY_RUN=0
+EXTRA_ARGS=()
 
 # ---------------------------------------------------------------------
 # Arguments
@@ -43,10 +44,11 @@ while [[ $# -gt 0 ]]; do
       fi
       exit 0
       ;;
-    --model)   MODEL="${2:?--model needs a value}"; shift 2 ;;
-    --dry-run) DRY_RUN=1; shift ;;
-    -h|--help) sed -n '2,30p' "$0"; exit 0 ;;
-    *) echo "unknown argument: $1" >&2; exit 2 ;;
+    --model)    MODEL="${2:?--model needs a value}"; shift 2 ;;
+    --bus-host) EXTRA_ARGS+=("--bus-host" "${2:?--bus-host needs a value}"); shift 2 ;;
+    --dry-run)  DRY_RUN=1; shift ;;
+    -h|--help)  sed -n '2,30p' "$0"; exit 0 ;;
+    *)          EXTRA_ARGS+=("$1"); shift ;;
   esac
 done
 
@@ -76,19 +78,29 @@ if [[ -f "$STATE_FILE" ]] && grep -q ABORTED "$STATE_FILE"; then
   exit 1
 fi
 
+# Default to the deployed SLM model (Exp-1 / Exp-2 / Table 12) if none specified
 if [[ -z "$MODEL" ]]; then
-  echo "no model selected. Pass --model or set PFE_MODEL." >&2
-  echo "The deployed configuration is fixed by Exp-1 and Exp-2 and recorded in docs/PRD.tex." >&2
-  exit 1
+  if [[ -f "gguf/qwen2.5-0.5b-instruct-Q4_K_M.gguf" ]]; then
+    MODEL="qwen2.5-0.5b-instruct-Q4_K_M.gguf"
+  else
+    echo "no model selected. Pass --model or set PFE_MODEL." >&2
+    echo "The deployed configuration is fixed by Exp-1 and Exp-2 and recorded in docs/PRD.tex." >&2
+    exit 1
+  fi
 fi
 
-if [[ ! -f "gguf/$MODEL" ]]; then
-  echo "MISSING: gguf/$MODEL" >&2
+MODEL_PATH="$MODEL"
+if [[ ! -f "$MODEL_PATH" && -f "gguf/$MODEL" ]]; then
+  MODEL_PATH="gguf/$MODEL"
+fi
+
+if [[ ! -f "$MODEL_PATH" ]]; then
+  echo "MISSING model file: $MODEL_PATH" >&2
   exit 1
 fi
 
 if [[ "$DRY_RUN" -eq 1 ]]; then
-  echo "model      : gguf/$MODEL"
+  echo "model      : $MODEL_PATH"
   echo "core 0     : capture, ring buffer, Silero VAD, openWakeWord"
   echo "cores 1-3  : whisper.cpp -t 3 then llama.cpp -t 3 (sequential)"
   command -v vcgencmd >/dev/null 2>&1 && vcgencmd measure_temp || true
@@ -99,5 +111,6 @@ fi
 # Launch. Branch A is pinned to core 0 so a busy decode can never
 # delay the reflex path; it preempts Branch B by sequence number.
 # ---------------------------------------------------------------------
-echo "starting pipeline with gguf/$MODEL -- Ctrl-C to stop"
-exec taskset -c 0-3 python "$ENTRY" --model "gguf/$MODEL" --state "$STATE_FILE"
+PYTHON_BIN="$(command -v python3 || command -v python)"
+echo "starting pipeline with $MODEL_PATH using $PYTHON_BIN -- Ctrl-C to stop"
+exec taskset -c 0-3 "$PYTHON_BIN" "$ENTRY" --model "$MODEL_PATH" --state "$STATE_FILE" "${EXTRA_ARGS[@]}"

@@ -122,6 +122,24 @@ class GroundPyFlytEnv(PyFlytEnv):
 
     SPAWN_Z = 0.05
 
+    def __init__(
+        self,
+        *args,
+        track_camera: bool = True,
+        cam_dist: float = 5.0,
+        cam_pitch: float = -22.0,
+        cam_yaw: float = 45.0,
+        show_debug_gui: bool = False,
+        **kwargs,
+    ) -> None:
+        super().__init__(*args, **kwargs)
+        self.track_camera = track_camera
+        self.cam_dist = cam_dist
+        self.cam_pitch = cam_pitch
+        self.cam_yaw = cam_yaw
+        self.show_debug_gui = show_debug_gui
+        self._cam_target: np.ndarray | None = None
+
     def reset(self, seed: int = 0) -> tuple[np.ndarray, np.ndarray]:
         from PyFlyt.core import Aviary
 
@@ -136,6 +154,22 @@ class GroundPyFlytEnv(PyFlytEnv):
             seed=seed,
         )
         self._aviary.set_mode(6)
+        if self.render:
+            try:
+                import pybullet as p
+
+                if not self.show_debug_gui:
+                    p.configureDebugVisualizer(p.COV_ENABLE_GUI, 0)
+                p.configureDebugVisualizer(p.COV_ENABLE_SHADOWS, 1)
+                self._cam_target = np.array([0.0, 0.0, 0.5])
+                p.resetDebugVisualizerCamera(
+                    cameraDistance=self.cam_dist,
+                    cameraYaw=self.cam_yaw,
+                    cameraPitch=self.cam_pitch,
+                    cameraTargetPosition=self._cam_target.tolist(),
+                )
+            except Exception:
+                pass
         return self.idle()
 
     @property
@@ -148,6 +182,38 @@ class GroundPyFlytEnv(PyFlytEnv):
         """
         return self.steps_per_tick * float(self._aviary.step_period)
 
+    def _update_camera(self) -> None:
+        if not (self.render and self.track_camera and self._aviary is not None):
+            return
+        try:
+            import pybullet as p
+
+            centroid = self.positions.mean(axis=0)
+            target = np.array([float(centroid[0]), float(centroid[1]), max(0.4, float(centroid[2]))])
+            if self._cam_target is None:
+                self._cam_target = target
+            else:
+                self._cam_target = 0.88 * self._cam_target + 0.12 * target
+
+            cam = p.getDebugVisualizerCamera()
+            yaw = float(cam[7])
+            pitch = float(cam[8])
+            dist = float(cam[9])
+
+            p.resetDebugVisualizerCamera(
+                cameraDistance=dist,
+                cameraYaw=yaw,
+                cameraPitch=pitch,
+                cameraTargetPosition=self._cam_target.tolist(),
+            )
+        except Exception:
+            pass
+
+    def step(self, accelerations: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        pos, vel = super().step(accelerations)
+        self._update_camera()
+        return pos, vel
+
     def idle(self) -> tuple[np.ndarray, np.ndarray]:
         """Motors off: forget the integrated setpoint, command zero velocity, let physics run."""
         self._commanded_velocity = np.zeros((self.n, 3))
@@ -155,6 +221,7 @@ class GroundPyFlytEnv(PyFlytEnv):
             self._aviary.set_setpoint(index, np.zeros(4))
         for _ in range(self.steps_per_tick):
             self._aviary.step()
+        self._update_camera()
         return self.positions, self.velocities
 
 

@@ -35,6 +35,8 @@ from __future__ import annotations
 
 import http.client
 import json
+import os
+import shutil
 import socket
 import subprocess
 import threading
@@ -56,7 +58,16 @@ __all__ = [
 logger = get_structured_logger("runtime.parser")
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-LLAMA_SERVER = Path.home() / "llama.cpp" / "build" / "bin" / "llama-server"
+
+_ENV_LLAMA = os.environ.get("LLAMA_SERVER_BIN")
+if _ENV_LLAMA:
+    LLAMA_SERVER = Path(_ENV_LLAMA)
+elif (Path.home() / "llama.cpp" / "build" / "bin" / "llama-server").is_file():
+    LLAMA_SERVER = Path.home() / "llama.cpp" / "build" / "bin" / "llama-server"
+elif shutil.which("llama-server"):
+    LLAMA_SERVER = Path(shutil.which("llama-server"))
+else:
+    LLAMA_SERVER = Path.home() / "llama.cpp" / "build" / "bin" / "llama-server"
 
 #: `eval/surface_b.py:199` reads the same key from the same file -- one fixed
 #: audit prompt, so the runtime and the accuracy measurement never diverge.

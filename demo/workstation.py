@@ -178,8 +178,13 @@ class Station:
         self._thread.join(timeout=1)
 
 
-def build(backend: str, *, render: bool = False):
-    env = GroundNumpyEnv() if backend == "numpy" else GroundPyFlytEnv(render=render)
+def build(backend: str, *, render: bool = False, track_camera: bool = True,
+          cam_dist: float = 5.0, cam_pitch: float = -22.0, cam_yaw: float = 45.0,
+          show_debug_gui: bool = False):
+    env = (GroundNumpyEnv() if backend == "numpy" else
+           GroundPyFlytEnv(render=render, track_camera=track_camera,
+                           cam_dist=cam_dist, cam_pitch=cam_pitch, cam_yaw=cam_yaw,
+                           show_debug_gui=show_debug_gui))
     env.reset(0)
     return Link(env, FlightStateMachine(), clamp=backend == "numpy")
 
@@ -222,12 +227,39 @@ class Display:
         top.set_title("top view  (x: targets)", fontsize=10)
 
         p = self.link.env.positions
-        self.drones3 = ax3.scatter(p[:, 0], p[:, 1], p[:, 2], s=70, c="#1f77b4", depthshade=False)
+        d = 0.45  # arm radius (45 cm)
+        self.drone_arms = []
+        for x, y, z in p:
+            a1, = ax3.plot([x - d, x + d], [y - d, y + d], [z, z], c="#1f77b4", lw=2.2, alpha=0.9)
+            a2, = ax3.plot([x - d, x + d], [y + d, y - d], [z, z], c="#1f77b4", lw=2.2, alpha=0.9)
+            self.drone_arms.append((a1, a2))
+
+        self.drones3 = ax3.scatter(p[:, 0], p[:, 1], p[:, 2], s=80, marker="h", c="#1f77b4", depthshade=False)
         self.targets3 = ax3.scatter(p[:, 0], p[:, 1], p[:, 2], s=40, marker="x", c="#999999")
         self.stems = [ax3.plot([x, x], [y, y], [0, z], c="#1f77b4", lw=0.8, alpha=0.5)[0] for x, y, z in p]
-        self.drones2 = top.scatter(p[:, 0], p[:, 1], s=60, c="#1f77b4", zorder=3)
+
+        # Top view: render realistic drone image if available
+        drone_icon_path = REPO_ROOT / "demo" / "assets" / "drone.png"
+        self.drone_images_top = []
+        if drone_icon_path.is_file():
+            try:
+                import matplotlib.image as mpimg
+                from matplotlib.offsetbox import AnnotationBbox, OffsetImage
+
+                img = mpimg.imread(str(drone_icon_path))
+                for x, y, _ in p:
+                    oi = OffsetImage(img, zoom=0.11)
+                    ab = AnnotationBbox(oi, (x, y), frameon=False, zorder=4)
+                    top.add_artist(ab)
+                    self.drone_images_top.append(ab)
+            except Exception:
+                self.drone_images_top = []
+
+        self.drones2 = top.scatter(p[:, 0], p[:, 1], s=40, c="#1f77b4", zorder=3,
+                                   alpha=0.2 if self.drone_images_top else 1.0)
         self.targets2 = top.scatter(p[:, 0], p[:, 1], s=40, marker="x", c="#999999", zorder=2)
-        self.labels = [top.text(x, y, f" {i}", fontsize=8) for i, (x, y, _) in enumerate(p)]
+        self.labels = [top.text(x + 0.35, y + 0.35, f" {i}", fontsize=8, weight="bold")
+                       for i, (x, y, _) in enumerate(p)]
 
         self.clock = text.text(0.0, 0.98, "", fontsize=30, family="monospace", va="top",
                                transform=text.transAxes)
@@ -261,8 +293,20 @@ class Display:
         p, t = link.env.positions, link.controller.targets
         state = link.fsm.state
         colour = _STATE_COLOUR[state]
+
+        d = 0.45
+        for (a1, a2), (x, y, z) in zip(self.drone_arms, p):
+            a1.set_data_3d([x - d, x + d], [y - d, y + d], [z, z])
+            a1.set_color(colour)
+            a2.set_data_3d([x - d, x + d], [y + d, y - d], [z, z])
+            a2.set_color(colour)
+
         self.drones3._offsets3d = (p[:, 0], p[:, 1], p[:, 2])
         self.drones3.set_color(colour)
+
+        for ab, (x, y, _) in zip(self.drone_images_top, p):
+            ab.xy = (x, y)
+
         self.drones2.set_offsets(p[:, :2])
         self.drones2.set_color(colour)
         if link.controller.assigned:
@@ -272,7 +316,7 @@ class Display:
             stem.set_data_3d([x, x], [y, y], [0, z])
             stem.set_color(colour)
         for label, (x, y, _) in zip(self.labels, p):
-            label.set_position((x, y))
+            label.set_position((x + 0.35, y + 0.35))
 
         self.clock.set_text(f"{_dt.datetime.now():%H:%M:%S.%f}"[:-5])
         self.state.set_text(state.value)
@@ -317,6 +361,11 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--port", type=int, default=BUS_PORT)
     ap.add_argument("--headless", action="store_true", help="no display")
     ap.add_argument("--pybullet-gui", action="store_true", help="Part B: also open PyBullet's own 3D window")
+    ap.add_argument("--cam-dist", type=float, default=5.0, help="initial PyBullet camera distance in metres (default 5.0)")
+    ap.add_argument("--cam-pitch", type=float, default=-22.0, help="initial PyBullet camera pitch in degrees (default -22)")
+    ap.add_argument("--cam-yaw", type=float, default=45.0, help="initial PyBullet camera yaw in degrees (default 45)")
+    ap.add_argument("--cam-no-track", action="store_true", help="disable automatic centroid tracking")
+    ap.add_argument("--pybullet-debug-gui", action="store_true", help="keep PyBullet sidebar/slider controls")
     ap.add_argument("--seconds", type=float, default=None, help="stop after this long (default: until [q]/Ctrl-C)")
     ap.add_argument("--out", type=Path, default=None, help="run folder (default demo_runs/<time>-<backend>)")
     args = ap.parse_args(argv)
@@ -327,7 +376,10 @@ def main(argv: list[str] | None = None) -> int:
 
     part = ("Part A -- kinematic backend, separation clamp on" if args.backend == "numpy"
             else "Part B -- PyFlyt rigid-body backend, no separation clamp")
-    link = build(args.backend, render=args.pybullet_gui)
+    link = build(args.backend, render=args.pybullet_gui,
+                 track_camera=not args.cam_no_track,
+                 cam_dist=args.cam_dist, cam_pitch=args.cam_pitch, cam_yaw=args.cam_yaw,
+                 show_debug_gui=args.pybullet_debug_gui)
     bus = CommandBus(host=args.bind, port=args.port, bind=True)
     station = Station(bus, link)
     display = None if args.headless else Display(station, part, out)
