@@ -93,7 +93,7 @@ Natural spoken commands (e.g., *"Swarm, form a line with two-meter spacing at fi
 ├── eval/         # Benchmarks for latency, acoustic robustness, and formation error
 ├── results/      # Raw benchmark CSVs and experimental verification metrics
 ├── docs/adr/     # Architectural Decision Records (ADRs)
-└── scripts/      # System doctor, slide notes, and utility helpers
+└── scripts/      # Environment diagnostic doctor and setup utilities
 ```
 
 ---
