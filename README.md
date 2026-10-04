@@ -84,62 +84,143 @@ Natural spoken commands (e.g., *"Swarm, form a line with two-meter spacing at fi
 ```
 ├── demo/         # Real-time multi-drone workstation GUI, HUD, and PyBullet 3D visualizer
 ├── runtime/      # Edge audio capture, Silero VAD, whisper.cpp & llama.cpp runners, ZeroMQ bus
+│   └── models/   # Reflex ONNX heads (swarm_hold.onnx, swarm_abort.onnx)
 ├── swarm/        # Swarm FSM, numpy controller, PyFlyt link, and collision avoidance
 ├── schema/       # Formal GBNF grammar (cmd.gbnf), Pydantic schemas, canonical validators
 ├── data/         # Speech datasets (S1-S3), noise partitions, wake manifests, dataset card
 ├── train/        # LoRA fine-tuning scripts, GGUF quantization, and model configs
+├── gguf/         # GGUF model storage (qwen2.5-0.5b-instruct-Q4_K_M.gguf)
 ├── eval/         # Benchmarks for latency, acoustic robustness, and formation error
 ├── results/      # Raw benchmark CSVs and experimental verification metrics
 ├── docs/adr/     # Architectural Decision Records (ADRs)
-├── scripts/      # Presentation slide notes and utility helpers
-└── spikes/       # Hardware bring-up and profiling spikes on Raspberry Pi 5
+└── scripts/      # System doctor, slide notes, and utility helpers
 ```
 
 ---
 
-## Quickstart
+## 🛠️ Environment Doctor
 
-### 1. Installation
+Run the included environment diagnostic tool to verify all Python packages, C++ inference binaries, model weights, and audio hardware:
 
 ```bash
-# Clone the repository
+python scripts/doctor.py
+```
+This tool prints a full report and gives the exact commands to resolve any missing component.
+
+---
+
+## ⚡ Mode 1: Workstation Simulation & Quickstart (No Pi Required)
+
+You can run the full multi-UAV physics simulation and test the language pipeline on any standard laptop or workstation:
+
+### 1. Install Python Dependencies
+```bash
 git clone https://github.com/TayebKahia/voice-swarm-edge-.git
 cd voice-swarm-edge-
 
-# Set up virtual environment
 python3 -m venv .venv
 source .venv/bin/activate
-
-# Install Python dependencies
 pip install -r requirements.txt
 ```
 
-> **Note**: `whisper.cpp` and `llama.cpp` are built natively on the target host (or Raspberry Pi 5) for optimal ARM NEON acceleration. Set the binary path via `export LLAMA_SERVER_BIN=/path/to/llama-server` or place them in your `PATH`.
-
 ### 2. Launch 3D Simulation Workstation
-
-Run the workstation with PyBullet 3D visualization and Pygame telemetry HUD:
-
 ```bash
-# PyFlyt aerodynamic backend with camera tracking
+# PyFlyt aerodynamic rigid-body simulation with tracking camera
 python demo/workstation.py --backend pyflyt --pybullet-gui
 
-# Fast kinematic NumPy backend (headless or GUI)
+# Or fast kinematic simulation (NumPy backend)
 python demo/workstation.py --backend numpy
 ```
 
-### 3. Run Live Audio Pipeline
-
-Launch the complete end-to-end edge pipeline on the Raspberry Pi (or host workstation):
-
+### 3. Replay Test (Speech-to-Flight without a Microphone)
+To test speech transcription, SLM parsing, and drone flight using one of the 200 included benchmark audio recordings (`data/audio/s1/`):
 ```bash
-# Default deployment model (Qwen2.5-0.5B-Instruct Q4_K_M)
-./run_pipeline.sh
+# Terminal 1: Start workstation listener
+python demo/workstation.py --backend pyflyt --pybullet-gui
 
-# Or specify a custom quantized model
-./run_pipeline.sh --model gguf/smollm2-360m-instruct-Q4_K_M.gguf
+# Terminal 2: Replay pre-recorded voice command to workstation
+python runtime/main.py --bus-host 127.0.0.1 --source data/audio/s1/0001.wav
+```
 
-# Reset from an emergency ABORTED state
+---
+
+## 🍓 Mode 2: Complete Raspberry Pi 5 Edge Deployment
+
+To deploy the physical, real-time audio pipeline on a Raspberry Pi 5:
+
+### 1. Install System Prerequisites on Pi OS (Debian 12 Bookworm)
+```bash
+sudo apt-get update && sudo apt-get install -y \
+    cmake \
+    build-essential \
+    libasound2-dev \
+    portaudio19-dev \
+    alsa-utils
+```
+
+### 2. Build C++ Inference Engines on the Pi
+
+#### A. Build `whisper.cpp` (Speech-to-Text)
+```bash
+git clone https://github.com/ggerganov/whisper.cpp ~/whisper.cpp
+cd ~/whisper.cpp
+cmake -B build -DWHISPER_NATIVE=ON
+cmake --build build --config Release -j4
+
+# Download the deployed speech model (tiny.en ~75 MB)
+bash models/download-ggml-model.sh tiny.en
+```
+*Add to `~/.bashrc`:*
+```bash
+export WHISPER_CPP_DIR=~/whisper.cpp
+```
+
+#### B. Build `llama.cpp` (SLM Server)
+```bash
+git clone https://github.com/ggerganov/llama.cpp ~/llama.cpp
+cd ~/llama.cpp
+cmake -B build -DLLAMA_NATIVE=ON
+cmake --build build --config Release -j4
+```
+*Add to `~/.bashrc`:*
+```bash
+export LLAMA_SERVER_BIN=~/llama.cpp/build/bin/llama-server
+```
+
+### 3. Model Weights Provisioning
+Place the quantized GGUF model in the `gguf/` directory:
+- **Deployed Model**: `gguf/qwen2.5-0.5b-instruct-Q4_K_M.gguf` (~380 MB).
+- *The Branch A reflex models (`runtime/models/wake/swarm_hold.onnx` and `swarm_abort.onnx`) are tracked directly in Git and are ready out of the box.*
+
+### 4. Audio Input & Level Check
+Connect a USB microphone (e.g., Boya BY-M1) to the Raspberry Pi:
+1. Verify device detection:
+   ```bash
+   arecord -l
+   ```
+2. Unmute and set capture volume:
+   ```bash
+   alsamixer -c 1   # Press F4 for capture view, press 'M' to unmute, set gain
+   ```
+3. Test speech levels (speak from 10 cm):
+   ```bash
+   python runtime/main.py --level-check
+   ```
+
+### 5. Launch Distributed Pipeline (Workstation + Pi)
+The system operates over a ZeroMQ socket on port `8766`:
+
+1. **On your PC / Workstation** (runs the 3D PyBullet simulation):
+   ```bash
+   python demo/workstation.py --backend pyflyt --pybullet-gui --bind 0.0.0.0
+   ```
+2. **On the Raspberry Pi 5** (runs the voice pipeline):
+   ```bash
+   ./run_pipeline.sh --bus-host <WORKSTATION_IP>
+   ```
+
+To reset an emergency `ABORTED` state (non-vocal by design):
+```bash
 ./run_pipeline.sh --reset
 ```
 

@@ -180,10 +180,9 @@ train/kaggle_out/adapters/**/adapter_model.safetensors
 # predictions ARE the input to Session 07's McNemar test, so they are tracked.
 !results/surface_b_preds/
 thesis/sample_thesis
-# Branch A: cached wake-corpus embeddings and the trained heads (regenerate: python train/train_wake.py;
-# head hashes are tracked in runtime/models/wake/wake_heads.json)
+# Branch A: cached wake-corpus embeddings (regenerate: python train/train_wake.py;
+# head hashes and models are tracked in runtime/models/wake/)
 train/wake_features/
-runtime/models/wake/*.onnx
 
 # ---------------------------------------------------------------------
 # Demonstration runs (runtime/main.py, demo/workstation.py): logs,
