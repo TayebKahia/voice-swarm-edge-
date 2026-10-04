@@ -134,6 +134,7 @@ python demo/workstation.py --backend numpy
 
 ### 3. Replay Test (Speech-to-Flight without a Microphone)
 To test speech transcription, SLM parsing, and drone flight using one of the 200 included benchmark audio recordings (`data/audio/s1/`):
+*(Requires the fine-tuned GGUF model in `gguf/` from [GitHub Releases](https://github.com/TayebKahia/voice-swarm-edge-/releases)).*
 ```bash
 # Terminal 1: Start workstation listener
 python demo/workstation.py --backend pyflyt --pybullet-gui
@@ -188,7 +189,14 @@ export LLAMA_SERVER_BIN=~/llama.cpp/build/bin/llama-server
 ```
 
 ### 3. Model Weights Provisioning
-Place the quantized GGUF model in the `gguf/` directory:
+The fine-tuned SLM weights (`qwen2.5-0.5b-instruct-Q4_K_M.gguf`) are hosted under the repository's **[GitHub Releases](https://github.com/TayebKahia/voice-swarm-edge-/releases)**.
+
+Download the deployed model directly into the `gguf/` directory:
+```bash
+wget https://github.com/TayebKahia/voice-swarm-edge-/releases/download/v1.0.0/qwen2.5-0.5b-instruct-Q4_K_M.gguf -P gguf/
+```
+*(Or download it manually from the Releases page and place it into `gguf/`).*
+
 - **Deployed Model**: `gguf/qwen2.5-0.5b-instruct-Q4_K_M.gguf` (~380 MB).
 - *The Branch A reflex models (`runtime/models/wake/swarm_hold.onnx` and `swarm_abort.onnx`) are tracked directly in Git and are ready out of the box.*
 
