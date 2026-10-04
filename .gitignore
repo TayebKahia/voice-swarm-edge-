@@ -147,7 +147,10 @@ data/commonvoice/_src/
 # ---------------------------------------------------------------------
 # Local tooling and OS noise
 # ---------------------------------------------------------------------
-.claude/settings.local.json
+.agents/
+.claude/
+.scratch/
+.gemini/
 .vscode/
 .idea/
 Thumbs.db

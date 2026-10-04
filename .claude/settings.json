@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(git config --get-regexp *)",
-      "Bash(gh label list *)"
-    ]
-  }
-}
