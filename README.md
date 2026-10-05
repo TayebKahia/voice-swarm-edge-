@@ -4,7 +4,7 @@
 [![Hardware](https://img.shields.io/badge/Hardware-Raspberry%20Pi%205%20(8GB)-red.svg)](https://www.raspberrypi.com/)
 [![Simulation](https://img.shields.io/badge/Simulation-PyFlyt%20%7C%20PyBullet-green.svg)](https://github.com/jjshoots/PyFlyt)
 [![Inference](https://img.shields.io/badge/Inference-llama.cpp%20%7C%20whisper.cpp-purple.svg)](https://github.com/ggerganov)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License](https://img.shields.io/badge/License-Not%20Licensed-lightgrey.svg)](#)
 
 > **Zero-cloud, fully offline natural language command and control for autonomous drone swarms, running in real time on a Raspberry Pi 5.**
 
@@ -22,8 +22,8 @@ Natural spoken commands (e.g., *"Swarm, form a line with two-meter spacing at fi
 
 - **100% Offline Edge Execution**: Full speech recognition, SLM intent extraction, and swarm flight physics execute locally on a single Raspberry Pi 5 with zero internet connection.
 - **Dual-Path Latency Architecture**:
-  - **Branch A (Reflex Path, $\le$ 150 ms)**: Direct wake-word spotting (`openWakeWord` ONNX model) dedicated exclusively to safety-critical commands (`swarm abort` and `swarm hold`). Preempts Branch B by sequence counter.
-  - **Branch B (Language Path, $\le$ 2,500 ms p95)**: Silero VAD endpointing $\to$ `whisper.cpp` (`tiny.en`) $\to$ Fine-tuned Small Language Model (SLM) with strict GBNF grammar-constrained decoding.
+  - **Branch A (Reflex Path, target ≤ 150 ms — measured p95: 545 ms, MISSED)**: Direct wake-word spotting (`openWakeWord` ONNX model) dedicated exclusively to safety-critical commands (`swarm abort` and `swarm hold`). Preempts Branch B by sequence counter.
+  - **Branch B (Language Path, target ≤ 2,500 ms p95 — measured p95: 3,122 ms, MISSED)**: Silero VAD endpointing $\to$ `whisper.cpp` (`tiny.en`) $\to$ Fine-tuned Small Language Model (SLM) with strict GBNF grammar-constrained decoding.
 - **3-Tier Verification & Safety Guardrails**:
   1. **Structural Enforcement (GBNF)**: Grammar-constrained logits masking guarantees 100% valid JSON syntax at generation time.
   2. **Semantic Grounding (Pydantic)**: Physical bounding, velocity clamping, and coordinate validation reject out-of-envelope commands without hallucination.
@@ -65,7 +65,7 @@ Natural spoken commands (e.g., *"Swarm, form a line with two-meter spacing at fi
                  │ Preempts Branch B                           │
                  ▼                                             ▼
      ┌─────────────────────────────────────────────────────────────────────┐
-     │                     ZeroMQ Flight Command Bus                       │
+     │                     UDP/JSON Flight Command Bus                       │
      └──────────────────────────────────┬──────────────────────────────────┘
                                         ▼
      ┌─────────────────────────────────────────────────────────────────────┐
@@ -83,7 +83,7 @@ Natural spoken commands (e.g., *"Swarm, form a line with two-meter spacing at fi
 
 ```
 ├── demo/         # Real-time multi-drone workstation GUI, HUD, and PyBullet 3D visualizer
-├── runtime/      # Edge audio capture, Silero VAD, whisper.cpp & llama.cpp runners, ZeroMQ bus
+├── runtime/      # Edge audio capture, Silero VAD, whisper.cpp & llama.cpp runners, UDP/JSON bus
 │   └── models/   # Reflex ONNX heads (swarm_hold.onnx, swarm_abort.onnx)
 ├── swarm/        # Swarm FSM, numpy controller, PyFlyt link, and collision avoidance
 ├── schema/       # Formal GBNF grammar (cmd.gbnf), Pydantic schemas, canonical validators
@@ -216,7 +216,7 @@ Connect a USB microphone (e.g., Boya BY-M1) to the Raspberry Pi:
    ```
 
 ### 5. Launch Distributed Pipeline (Workstation + Pi)
-The system operates over a ZeroMQ socket on port `8766`:
+The system operates over a UDP/JSON socket on port `8766`:
 
 1. **On your PC / Workstation** (runs the 3D PyBullet simulation):
    ```bash
@@ -247,7 +247,7 @@ Every table and figure in the research is backed by frozen datasets and committe
 
 - **Exp-0 (Acoustic Sensitivity)**: Evaluates `whisper.cpp` across accent subsets using Mozilla Common Voice 17.0.
 - **Exp-1 (SLM Comparison & Grammar Ablation)**: Measures exact-match JSON generation across 4 model families (`Qwen2.5-0.5B`, `SmolLM2-360M`, `Llama-3.2-1B`, `H2O-Danube3-500M`) with and without GBNF constrained decoding.
-- **Exp-2 (Dual-Path Latency Profiling)**: Measures end-to-end timing on Raspberry Pi 5, confirming Branch A latency $\le$ 150 ms and Branch B within the 2,500 ms envelope.
+- **Exp-2 (Dual-Path Latency Profiling)**: Measures end-to-end timing on Raspberry Pi 5. Branch A p95 measured at 545 ms (target ≤ 150 ms, **MISSED**); Branch B end-to-end p95 measured at 3,122 ms (target ≤ 2,500 ms, **MISSED**). See [`results/exp2_latency_budget.md`](results/exp2_latency_budget.md) for the full breakdown.
 - **Exp-3 (Acoustic Robustness)**: Evaluates command recognition under synthetic and real ambient noise across calibrated SNR levels (20 dB down to 5 dB).
 - **Exp-4 (Formation Flight Validation)**: Validates swarm formation convergence and inter-agent collision separation clamps.
 
